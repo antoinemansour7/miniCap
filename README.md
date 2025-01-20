@@ -17,7 +17,8 @@ Make sure you have the following installed before setting up the project:
   ```bash
   npm install -g expo-cli
 
-  	•	Firebase Account
+
+•	Firebase Account
 Create a Firebase account at Firebase Console.
 
 Installation
