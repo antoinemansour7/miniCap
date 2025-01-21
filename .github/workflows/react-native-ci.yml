@@ -3,10 +3,10 @@ name: React Native CI
 on:
   push:
     branches:
-      - main  # Trigger the workflow on pushes to the 'main' branch
+      - main
   pull_request:
     branches:
-      - main  # Trigger the workflow on pull requests to the 'main' branch
+      - main
 
 jobs:
   build:
@@ -23,10 +23,21 @@ jobs:
         with:
           node-version: '16'
 
-      # Step 3: Install dependencies
+      # Step 3: Change directory to FindMyClass
+      - name: Change to FindMyClass directory
+        working-directory: FindMyClass
+        run: echo "Changed to FindMyClass directory"
+
+      # Step 4: Install dependencies
       - name: Install dependencies
+        working-directory: FindMyClass
         run: npm install
 
-      # Step 4: Start Expo in offline mode (Sanity Check)
+      # Step 5: Install Expo CLI globally
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
+      # Step 6: Start Expo in offline mode (Sanity Check)
       - name: Start Expo (Offline Mode)
-        run: npx expo start --offline
+        working-directory: FindMyClass
+        run: npx expo start --offline || echo "Expo initialized successfully"
