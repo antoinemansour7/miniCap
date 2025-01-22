@@ -1,5 +1,6 @@
 import * as React from 'react';
 import renderer from 'react-test-renderer';
+import { expect } from '@testing-library/jest-native';
 
 import { ThemedText } from '../ThemedText';
 
