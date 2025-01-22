@@ -47,3 +47,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           directory: ./FindMyClass/coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
