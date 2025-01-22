@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1737573657681" clover="3.2.0">
-  <project timestamp="1737573657681" name="All files">
-    <metrics statements="110" coveredstatements="10" conditionals="44" coveredconditionals="8" methods="31" coveredmethods="2" elements="185" coveredelements="20" complexity="0" loc="110" ncloc="110" packages="10" files="25" classes="25"/>
+<coverage generated="1737576119798" clover="3.2.0">
+  <project timestamp="1737576119798" name="All files">
+    <metrics statements="110" coveredstatements="12" conditionals="44" coveredconditionals="8" methods="31" coveredmethods="3" elements="185" coveredelements="23" complexity="0" loc="110" ncloc="110" packages="10" files="25" classes="25"/>
     <package name="FindMyClass">
       <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="expo-env.d.ts" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/expo-env.d.ts">
@@ -38,24 +38,24 @@
         <line num="30" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="FindMyClass.app.(tabs)">
-      <metrics statements="8" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="5" coveredmethods="0"/>
-      <file name="_layout.tsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/(tabs)/_layout.tsx">
+    <package name="FindMyClass.app.tabs">
+      <metrics statements="8" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="5" coveredmethods="1"/>
+      <file name="_layout.tsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/tabs/_layout.tsx">
         <metrics statements="4" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="12" count="0" type="stmt"/>
         <line num="14" count="0" type="stmt"/>
         <line num="33" count="0" type="stmt"/>
         <line num="40" count="0" type="stmt"/>
       </file>
-      <file name="explore.tsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/(tabs)/explore.tsx">
+      <file name="explore.tsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/tabs/explore.tsx">
         <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="11" count="0" type="stmt"/>
         <line num="98" count="0" type="stmt"/>
       </file>
-      <file name="index.tsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/(tabs)/index.tsx">
-        <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="57" count="0" type="stmt"/>
+      <file name="index.tsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/tabs/index.tsx">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
       </file>
     </package>
     <package name="FindMyClass.components">
