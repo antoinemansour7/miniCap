@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { render } from '@testing-library/react-native';
+import { expect } from '@testing-library/jest-native';
 import TabTwoScreen from '../explore';
 
 describe('TabTwoScreen', () => {

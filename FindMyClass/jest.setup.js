@@ -1,4 +1,5 @@
 import '@testing-library/jest-native/extend-expect';
+import { expect } from '@testing-library/jest-native';
 
 // Mock expo-font
 jest.mock('expo-font');
