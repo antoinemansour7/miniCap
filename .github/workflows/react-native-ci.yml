@@ -1,4 +1,4 @@
-name: React Native CI
+name: Node.js CI
 
 on:
   push:
@@ -13,31 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
 
-      # Step 3: Change directory to FindMyClass
-      - name: Change to FindMyClass directory
-        working-directory: FindMyClass
-        run: echo "Changed to FindMyClass directory"
+    - name: Install dependencies
+      run: npm install
 
-      # Step 4: Install dependencies
-      - name: Install dependencies
-        working-directory: FindMyClass
-        run: npm install
+    - name: Run tests
+      run: npm test
 
-      # Step 5: Install Expo CLI globally
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
-
-      # Step 6: Start Expo in offline mode (Sanity Check)
-      - name: Start Expo (Offline Mode)
-        working-directory: FindMyClass
-        run: npx expo start --offline || echo "Expo initialized successfully"
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
