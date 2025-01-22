@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <coverage generated="1737570858718" clover="3.2.0">
   <project timestamp="1737570858718" name="All files">
+=======
+<coverage generated="1737568970934" clover="3.2.0">
+  <project timestamp="1737568970934" name="All files">
+>>>>>>> 71aa560c3370c463add4a9a40ed475c5a783f07f
     <metrics statements="109" coveredstatements="0" conditionals="44" coveredconditionals="0" methods="31" coveredmethods="0" elements="184" coveredelements="0" complexity="0" loc="109" ncloc="109" packages="9" files="24" classes="24"/>
     <package name="FindMyClass">
       <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
