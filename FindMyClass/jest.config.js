@@ -17,6 +17,7 @@ module.exports = {
   testEnvironment: 'node',
   moduleNameMapper: {
     '^react-native/Libraries/Animated/NativeAnimatedHelper$': '<rootDir>/__mocks__/NativeAnimatedHelper.js',
+    
     '^react-native$': 'react-native-web'
   }
 };
