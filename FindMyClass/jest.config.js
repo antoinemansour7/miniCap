@@ -11,7 +11,11 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   setupFiles: ['<rootDir>/jest.setup.js'],
+<<<<<<< HEAD
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+=======
+  setupFilesAfterEnv: ['<rootDir>/test/jest-setup.ts'],
+>>>>>>> 71aa560c3370c463add4a9a40ed475c5a783f07f
   collectCoverage: true,
   collectCoverageFrom: [
     '**/*.{js,jsx,ts,tsx}',
