@@ -1,23 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1737658409377" clover="3.2.0">
-  <project timestamp="1737658409377" name="All files">
-    <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2" elements="7" coveredelements="7" complexity="0" loc="5" ncloc="5" packages="2" files="2" classes="2"/>
-    <package name="app">
+<coverage generated="1737660588507" clover="3.2.0">
+  <project timestamp="1737660588507" name="All files">
+    <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1" elements="4" coveredelements="4" complexity="0" loc="3" ncloc="3" packages="1" files="1" classes="1"/>
+    <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/index.jsx">
       <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-      <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/app/index.jsx">
-        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-      </file>
-    </package>
-    <package name="src.components">
-      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-      <file name="Intro.js" path="/Users/antoinemansour/Documents/Projects/miniCap/miniCap/FindMyClass/src/components/Intro.js">
-        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
-      </file>
-    </package>
+      <line num="4" count="1" type="stmt"/>
+      <line num="5" count="3" type="stmt"/>
+      <line num="12" count="1" type="stmt"/>
+    </file>
   </project>
 </coverage>
