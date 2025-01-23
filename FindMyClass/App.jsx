@@ -1,6 +1,6 @@
 import React from 'react';
-import { Slot } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
+import { Slot } from 'expo-router';
 
 const App = () => {
   return (
@@ -9,7 +9,7 @@ const App = () => {
       <Slot />
     </View>
   );
-}
+};
 
 export default App;
 
@@ -24,5 +24,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
-  }
+  },
 });
