@@ -1,19 +1,12 @@
+import 'react-native-gesture-handler/jestSetup';
+
 jest.mock('expo-modules-core', () => ({
-  NativeModulesProxy: {
-    ExponentDevice: {
-      getPlatformName: () => 'ios',
-    },
-  },
-  EventEmitter: {
-    setNativeEventEmitter: () => {},
-  },
+  NativeModulesProxy: { ExponentDevice: { getPlatformName: () => 'ios' } },
+  EventEmitter: jest.fn(),
 }));
 
 jest.mock('react-native-reanimated', () => ({
-  default: {
-    createAnimatedComponent: jest.fn(),
-    Value: jest.fn(),
-  },
+  createAnimatedComponent: jest.fn(),
+  useSharedValue: jest.fn(),
+  useAnimatedStyle: jest.fn(),
 }));
-
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
