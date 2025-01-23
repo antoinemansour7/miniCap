@@ -20,3 +20,12 @@ module.exports = {
     '^react-native/Libraries/Animated/NativeAnimatedHelper$': '<rootDir>/__mocks__/NativeAnimatedHelper.js',
   },
 };
+
+const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+// Add asset handling configuration
+config.resolver.assetExts.push('png', 'jpg', 'jpeg', 'gif');
+
+module.exports = config;

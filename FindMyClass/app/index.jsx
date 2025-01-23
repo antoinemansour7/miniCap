@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const Index = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Welcome to Expo using JSX!</Text>
+      <Text style={styles.text}>Hi</Text>
     </View>
   );
 };
