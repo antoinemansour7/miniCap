@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const App = () => {
+const Index = () => {
   return (
     <View style={styles.container}>
-      <Text>Welcome to Expo using JSX!</Text>
+      <Text style={styles.text}>Welcome to Expo using JSX!</Text>
     </View>
   );
 };
@@ -15,6 +15,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
 });
 
-export default App;
+export default Index;
