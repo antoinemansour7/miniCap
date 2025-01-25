@@ -1,17 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Slot } from 'expo-router';
-import DrawerNavigator from '../navigation/DrawerNavigator';
-import { NavigationContainer } from '@react-navigation/native';
 
-const Index = () => {
+export default function Home() {
   return (
-      <> 
-      <DrawerNavigator/>
-      {/* <Slot/>  it's use might be needed in the future */}   
-      </> 
+    <View style={styles.container}>
+      <Text style={styles.text}>Welcome to FindMyClass</Text>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -24,5 +20,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default Index;

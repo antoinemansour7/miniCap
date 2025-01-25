@@ -1,20 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const Body = () => {
+export default function Map() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Login </Text>
+      <Text style={styles.text}>Map Screen</Text>
     </View>
   );
-};
-
-const LoginScreen = () => {
-    return ( 
-        <>
-            <Body/>
-        </>
-    );
 }
 
 const styles = StyleSheet.create({
@@ -28,5 +20,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default LoginScreen;
