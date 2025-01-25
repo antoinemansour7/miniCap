@@ -1,11 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Slot } from 'expo-router';
+import DrawerNavigator from '../navigation/DrawerNavigator';
+import { NavigationContainer } from '@react-navigation/native';
 
 const Index = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Hi</Text>
-    </View>
+      <> 
+      <DrawerNavigator/>
+      {/* <Slot/> */}
+      </> 
   );
 };
 
