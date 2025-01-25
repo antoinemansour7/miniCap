@@ -8,7 +8,7 @@ const Index = () => {
   return (
       <> 
       <DrawerNavigator/>
-      {/* <Slot/> */}
+      {/* <Slot/>  it's use might be needed in the future */}   
       </> 
   );
 };
