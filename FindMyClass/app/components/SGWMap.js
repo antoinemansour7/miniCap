@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
-import buildings from './buildings'; // Import the building data
+import buildings from './SGWBuildings'; // Import the building data
 
 const SGWMap = () => {
     return (
