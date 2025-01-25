@@ -13,7 +13,7 @@ const DrawerNavigator = () => {
 
     return ( 
     
-            <Drawer.Navigator> 
+            <Drawer.Navigator>  {/*Drawer Container, here we can add all the screens that we need in the navigator   **/}
                 <Drawer.Screen name="Home" component={HomeScreen} /> 
                 <Drawer.Screen name= "Map" component={MapScreen} /> 
                 <Drawer.Screen name= "Login" component={LoginScreen} /> 
