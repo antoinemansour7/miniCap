@@ -1,17 +1,16 @@
+// app/index.js
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import SGWMap from './components/SGWMap';
+import ToggleCampusMap from './components/ToggleCampusMap';
 
 const Index = () => {
-  return <SGWMap />;
+    return <ToggleCampusMap />;
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    container: {
+        flex: 1,
+    },
 });
 
 export default Index;
