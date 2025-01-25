@@ -1,22 +1,37 @@
-// app/component/SGWMap.js
+// app/component/LoyolaMap.js
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
-import buildings from './buildings'; // Import the building data
 
-const SGWMap = () => {
+const loyolaBuildings = [
+    {
+        id: 'AD',
+        name: 'Administration Building',
+        latitude: 45.4582,
+        longitude: -73.6405,
+        boundary: [
+            { latitude: 45.4580, longitude: -73.6403 },
+            { latitude: 45.4583, longitude: -73.6404 },
+            { latitude: 45.4584, longitude: -73.6406 },
+            { latitude: 45.4581, longitude: -73.6407 },
+            { latitude: 45.4580, longitude: -73.6403 },
+        ],
+    },
+];
+
+const LoyolaMap = () => {
     return (
         <View style={styles.container}>
             <MapView
                 style={styles.map}
                 initialRegion={{
-                    latitude: 45.4965,
-                    longitude: -73.5780,
-                    latitudeDelta: 0.002,
-                    longitudeDelta: 0.002,
+                    latitude: 45.4582, // Loyola latitude
+                    longitude: -73.6405, // Loyola longitude
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005,
                 }}
             >
-                {buildings.map((building) => (
+                {loyolaBuildings.map((building) => (
                     <React.Fragment key={building.id}>
                         {/* Marker */}
                         <Marker
@@ -32,20 +47,8 @@ const SGWMap = () => {
                         {building.boundary && (
                             <Polygon
                                 coordinates={building.boundary}
-                                strokeColor={
-                                    building.id === 'H'
-                                        ? 'rgba(255, 204, 0, 0.8)' // Yellow for Hall
-                                        : building.id === 'MB'
-                                        ? 'rgba(0, 204, 255, 0.8)' // Blue for MB
-                                        : 'rgba(255, 102, 0, 0.8)' // Orange for Faubourg Tower
-                                }
-                                fillColor={
-                                    building.id === 'H'
-                                        ? 'rgba(255, 204, 0, 0.4)' // Transparent yellow
-                                        : building.id === 'MB'
-                                        ? 'rgba(0, 204, 255, 0.4)' // Transparent blue
-                                        : 'rgba(255, 102, 0, 0.4)' // Transparent orange
-                                }
+                                strokeColor="rgba(0, 102, 204, 0.8)" // Blue outline
+                                fillColor="rgba(0, 102, 204, 0.4)" // Transparent blue
                                 strokeWidth={2}
                             />
                         )}
@@ -65,4 +68,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SGWMap;
+export default LoyolaMap;
