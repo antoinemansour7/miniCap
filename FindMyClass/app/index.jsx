@@ -1,12 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import SGWMap from './components/SGWMap';
 
 const Index = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Hi</Text>
-    </View>
-  );
+  return <SGWMap />;
 };
 
 const styles = StyleSheet.create({
@@ -14,10 +11,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
 });
 
