@@ -3,6 +3,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 
+//dummy data for now
 const loyolaBuildings = [
     {
         id: 'AD',
@@ -21,12 +22,14 @@ const loyolaBuildings = [
 
 const LoyolaMap = () => {
     return (
+        
+        // dummy data
         <View style={styles.container}>
             <MapView
                 style={styles.map}
                 initialRegion={{
-                    latitude: 45.4582, // Loyola latitude
-                    longitude: -73.6405, // Loyola longitude
+                    latitude: 45.4582,
+                    longitude: -73.6405,
                     latitudeDelta: 0.005,
                     longitudeDelta: 0.005,
                 }}
