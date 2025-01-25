@@ -1,17 +1,21 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Slot } from 'expo-router';
-import DrawerNavigator from '../navigation/DrawerNavigator';
-import { NavigationContainer } from '@react-navigation/native';
 
-const Index = () => {
+const Body = () => {
   return (
-      <> 
-      <DrawerNavigator/>
-      {/* <Slot/> */}
-      </> 
+    <View style={styles.container}>
+      <Text style={styles.text}>Login </Text>
+    </View>
   );
 };
+
+const LoginScreen = () => {
+    return ( 
+        <>
+            <Body/>
+        </>
+    );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -25,4 +29,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Index;
+export default LoginScreen;
