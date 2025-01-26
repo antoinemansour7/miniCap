@@ -1,16 +1,22 @@
-// app/index.js
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import ToggleCampusMap from './components/ToggleCampusMap';
+import { View, Text, StyleSheet } from 'react-native';
 
-const Index = () => {
-    return <ToggleCampusMap />;
-};
+export default function Home() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Welcome to FindMyClass</Text>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
 });
-
-export default Index;
