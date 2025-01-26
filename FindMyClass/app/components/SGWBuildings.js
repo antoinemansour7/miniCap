@@ -1,4 +1,4 @@
-const buildings = [
+const SGWBuildings = [
     {
         id: 'H',
         name: 'Hall Building',
@@ -17,7 +17,7 @@ const buildings = [
             { latitude: 45.4971739, longitude: -73.5795378 },
             { latitude: 45.4971671, longitude: -73.5795431 },
             { latitude: 45.4971280, longitude: -73.5794591 },
-            { latitude: 45.4968261, longitude: -73.5788241 }
+            { latitude: 45.4968261, longitude: -73.5788241 },
         ],
     },
     {
@@ -45,7 +45,7 @@ const buildings = [
             { latitude: 45.4952044, longitude: -73.5784643 },
             { latitude: 45.4951687, longitude: -73.5785025 },
             { latitude: 45.4950064, longitude: -73.5787235 },
-            { latitude: 45.4949482, longitude: -73.5787947 }
+            { latitude: 45.4949482, longitude: -73.5787947 },
         ],
     },
     {
@@ -76,15 +76,117 @@ const buildings = [
             { latitude: 45.4946349, longitude: -73.5771989 },
             { latitude: 45.4943818, longitude: -73.5774884 },
             { latitude: 45.4944394, longitude: -73.5775911 },
-            { latitude: 45.4946786, longitude: -73.5780177 }
+            { latitude: 45.4946786, longitude: -73.5780177 },
         ],
     },
     {
         id: 'WL',
         name: 'Webster Library, Concordia University',
         latitude: 45.49700208175132,
-        longitude: -73.57808391911882
+        longitude: -73.57808391911882,
+        boundary: [
+            { latitude: 45.4966595, longitude: -73.5785573 }, // Node 237615545
+            { latitude: 45.4966932, longitude: -73.5785250 }, // Node 1192154287
+            { latitude: 45.4967160, longitude: -73.5785731 }, // Node 1192154222
+            { latitude: 45.4969277, longitude: -73.5783716 }, // Node 1192154219
+            { latitude: 45.4969052, longitude: -73.5783211 }, // Node 1192154182
+            { latitude: 45.4969634, longitude: -73.5782783 }, // Node 1192154209
+            { latitude: 45.4969852, longitude: -73.5783170 }, // Node 1192154279
+            { latitude: 45.4972616, longitude: -73.5780450 }, // Node 237615548
+            { latitude: 45.4972443, longitude: -73.5780094 }, // Node 4048569326
+            { latitude: 45.4971700, longitude: -73.5778560 }, // Node 4020494891
+            { latitude: 45.4971222, longitude: -73.5777573 }, // Node 10164022986
+            { latitude: 45.4970355, longitude: -73.5775784 }, // Node 10164022987
+            { latitude: 45.4969457, longitude: -73.5773930 }, // Node 4020494890
+            { latitude: 45.4969031, longitude: -73.5773036 }, // Node 4048549938
+            { latitude: 45.4968912, longitude: -73.5772806 }, // Node 237615554
+            { latitude: 45.4966092, longitude: -73.5775555 }, // Node 1192154290
+            { latitude: 45.4966195, longitude: -73.5775774 }, // Node 4048549941
+            { latitude: 45.4966320, longitude: -73.5776045 }, // Node 10164022999
+            { latitude: 45.4966522, longitude: -73.5776483 }, // Node 1192154436
+            { latitude: 45.4966303, longitude: -73.5776683 }, // Node 4020494889
+            { latitude: 45.4966005, longitude: -73.5776912 }, // Node 1192154251
+            { latitude: 45.4965785, longitude: -73.5776438 }, // Node 10164023003
+            { latitude: 45.4965695, longitude: -73.5776244 }, // Node 4048549940
+            { latitude: 45.4964854, longitude: -73.5774533 }, // Node 1192154249
+            { latitude: 45.4964601, longitude: -73.5774775 }, // Node 4048549936
+            { latitude: 45.4962438, longitude: -73.5776884 }, // Node 237615557
+            { latitude: 45.4962682, longitude: -73.5777400 }, // Node 1192166647
+            { latitude: 45.4964933, longitude: -73.5782102 }, // Node 4048549934
+            { latitude: 45.4966595, longitude: -73.5785573 }, // Closing the polygon (Node 237615545)
+        ],
+    },
+    {
+        id: 'CL',
+        name: 'CL Building',
+        latitude: 45.4941213, // Corrected central point
+        longitude: -73.5793003,
+        boundary: [
+            { latitude: 45.4941615, longitude: -73.5796402 },
+            { latitude: 45.4939635, longitude: -73.5793327 },
+            { latitude: 45.4939729, longitude: -73.5792952 },
+            { latitude: 45.4939832, longitude: -73.5792697 },
+            { latitude: 45.4940020, longitude: -73.5792348 },
+            { latitude: 45.4940152, longitude: -73.5792201 },
+            { latitude: 45.4942577, longitude: -73.5789277 },
+            { latitude: 45.4944711, longitude: -73.5792777 },
+            { latitude: 45.4941615, longitude: -73.5796402 }, // Closing the polygon
+        ],
+    },
+    {
+        id: 'FG',
+        name: 'FG - Le Faubourg',
+        latitude: 45.494350, // Adjusted central point to better align with the polygon
+        longitude: -73.578200,
+        boundary: [
+            { latitude: 45.4938097, longitude: -73.5790389 },
+            { latitude: 45.4936147, longitude: -73.5787064 },
+            { latitude: 45.4944018, longitude: -73.5777931 },
+            { latitude: 45.4944411, longitude: -73.5776912 },
+            { latitude: 45.4944119, longitude: -73.5776335 },
+            { latitude: 45.4944394, longitude: -73.5775911 },
+            { latitude: 45.4946786, longitude: -73.5780177 },
+            { latitude: 45.4946624, longitude: -73.5780425 },
+            { latitude: 45.4945866, longitude: -73.5781316 },
+            { latitude: 45.4945281, longitude: -73.5782003 },
+            { latitude: 45.4943598, longitude: -73.5783982 },
+            { latitude: 45.4938097, longitude: -73.5790389 }, // Closing the polygon
+        ],
+    },
+    {
+        id: 'EV',
+        name: 'EV - Engineering, Computer Science and Visual Arts Integrated Complex',
+        latitude: 45.49560850511448, // Approximate central point
+        longitude: -73.57769300377467,
+        boundary: [
+            { latitude: 45.4959332, longitude: -73.5784410 }, // Node 1192154258
+            { latitude: 45.4958841, longitude: -73.5783336 }, // Node 1192154367
+            { latitude: 45.4959029, longitude: -73.5783135 }, // Node 1192154356
+            { latitude: 45.4957525, longitude: -73.5780050 }, // Node 1192154306
+            { latitude: 45.4960636, longitude: -73.5777106 }, // Node 1192154395
+            { latitude: 45.4959520, longitude: -73.5774777 }, // Node 4035235627
+            { latitude: 45.4958361, longitude: -73.5772325 }, // Node 1192154181
+            { latitude: 45.4955134, longitude: -73.5775381 }, // Node 1192166646
+            { latitude: 45.4955496, longitude: -73.5776118 }, // Node 10155833887
+            { latitude: 45.4955902, longitude: -73.5776945 }, // Node 1192166658
+            { latitude: 45.4955256, longitude: -73.5777562 }, // Node 1192166649
+            { latitude: 45.4955147, longitude: -73.5777306 }, // Node 1192166661
+            { latitude: 45.4955018, longitude: -73.5777420 }, // Node 1192166648
+            { latitude: 45.4954371, longitude: -73.5776149 }, // Node 1192166660
+            { latitude: 45.4952218, longitude: -73.5778318 }, // Node 4048549937
+            { latitude: 45.4951856, longitude: -73.5778682 }, // Node 1192154449
+            { latitude: 45.4952542, longitude: -73.5780238 }, // Node 1192154376
+            { latitude: 45.4952448, longitude: -73.5780359 }, // Node 1192154424
+            { latitude: 45.4954065, longitude: -73.5783846 }, // Node 1192154428
+            { latitude: 45.4955529, longitude: -73.5786836 }, // Node 1192154439
+            { latitude: 45.4955639, longitude: -73.5786747 }, // Node 10155833882
+            { latitude: 45.4955735, longitude: -73.5786662 }, // Node 12251151539
+            { latitude: 45.4955877, longitude: -73.5786538 }, // Node 1192154377
+            { latitude: 45.4956087, longitude: -73.5787035 }, // Node 4048549933
+            { latitude: 45.4956265, longitude: -73.5787290 }, // Node 1192154370
+            { latitude: 45.4959332, longitude: -73.5784410 }, // Closing the polygon (Node 1192154258)
+        ],
     },
 ];
 
-export default buildings;
+export default SGWBuildings;
