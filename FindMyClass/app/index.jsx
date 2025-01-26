@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const Index = () => {
+export default function Home() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Hi</Text>
+      <Text style={styles.text}>Welcome to FindMyClass</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -20,5 +20,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default Index;
