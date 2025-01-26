@@ -1,4 +1,3 @@
-// app/component/LoyolaMap.js
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
