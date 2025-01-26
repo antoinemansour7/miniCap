@@ -50,6 +50,14 @@ export default function Layout() {
             title: 'Login',
           }}
         />
+
+        <Drawer.Screen 
+        name = "profile"
+        options={{
+          drawerLabel: 'Profile',
+          title: 'Profile',
+        }}
+        />
       </Drawer>
     </GestureHandlerRootView>
   );
