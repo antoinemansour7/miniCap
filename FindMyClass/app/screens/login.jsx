@@ -5,7 +5,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  //No backend live
+  //no backend live
   const handleLogin = () => {
     console.log('Email:', email);
     console.log('Password:', password);
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     height: 50,
-    backgroundColor: '#007bff',
+    backgroundColor: '#800000',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
@@ -80,13 +80,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   smallContainer: {
-    flex: 1,
     justifyContent: 'left',
     alignItems: 'left',
     padding: 25,
   },
   registerLink: {
-    fontSize: 60,
+    fontSize: 15,
     fontWeight: 'bold',
   },
 });
