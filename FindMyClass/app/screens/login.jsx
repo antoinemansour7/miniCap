@@ -12,10 +12,13 @@ export default function Login() {
     console.log('Email:', email);
     console.log('Password:', password);
   };
-
-  //idk how to this live
+  
+  // With the help of useNavigation hook, we can navigate to the register screen
+  // You just had to initiate it at the top of the file
+  const navigation = useNavigation();
+  
   const handleRegisterNavigation = () => {
-    navigation.navigate('register'); 
+    navigation.navigate('screens/register'); 
   };
 
 
