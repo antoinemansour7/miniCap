@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const[ firstName, setFirstName] = useState('');
+  const[ lastName, setLastName] = useState('');
+
+  const navigation = useNavigation();
 
   //no backend live
   const handleRegister = () => {
@@ -13,7 +19,10 @@ export default function Register() {
     console.log('Password:', password);
   };
 
-
+// Function to handle navigation to the login screen
+const handleLoginNavigation = () => {
+    navigation.navigate('screens/login'); 
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Register</Text>
@@ -54,7 +63,9 @@ export default function Register() {
         <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
       <View style={styles.smallContainer}>
+     <TouchableOpacity onPress={handleLoginNavigation}>
       <Text style={styles.registerLink}>Already a User? Login!</Text>
+      </TouchableOpacity>
       </View>
     </View>
     
