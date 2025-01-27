@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -9,6 +11,11 @@ export default function Login() {
   const handleLogin = () => {
     console.log('Email:', email);
     console.log('Password:', password);
+  };
+
+  //idk how to this live
+  const handleRegisterNavigation = () => {
+    navigation.navigate('register'); 
   };
 
 
@@ -36,7 +43,9 @@ export default function Login() {
         <Text style={styles.buttonText}>Log In</Text>
       </TouchableOpacity>
       <View style={styles.smallContainer}>
-      <Text style={styles.registerLink}>Not a User? Register Now!</Text>
+      <TouchableOpacity onPress={handleRegisterNavigation}>
+        <Text style={styles.registerLink}>Not a User? Register Now!</Text>
+      </TouchableOpacity>
       </View>
     </View>
     
