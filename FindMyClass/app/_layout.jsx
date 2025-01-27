@@ -43,6 +43,8 @@ export default function Layout() {
             <MaterialIcons  name="menu" size={30} color="#912338" />
             </TouchableOpacity>
           ),
+          drawerActiveBackgroundColor: '#800000',
+          drawerActiveTintColor: '#fff',
         }}
       >
         <Drawer.Screen
