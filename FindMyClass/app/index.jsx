@@ -1,5 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { FIREBASE_API_KEY } from '@env';
+
+console.log(FIREBASE_API_KEY); // Ensure this prints the correct value
 
 export default function Home() {
   return (

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { registerUser } from '../../backend/firebase/auth';
+import parseFirebaseError from '../../components/parseFirebaseError';
 
 
 export default function Register() {
@@ -8,15 +10,22 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const[ firstName, setFirstName] = useState('');
   const[ lastName, setLastName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigation = useNavigation();
 
-  //no backend live
-  const handleRegister = () => {
-    console.log('First Name:', firstName);
-    console.log('Last Name:', lastName);
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const handleRegister = async () => {
+
+    setIsLoading(true);
+    try { 
+      await registerUser(email, password, firstName, lastName);
+      setIsLoading(false);
+
+      Alert.alert("Registration Success", "User registered successfully");  
+    } catch( error ) {
+      setIsLoading(false) ; 
+      Alert.alert( parseFirebaseError(error) ) ;
+    }
   };
 
 // Function to handle navigation to the login screen
@@ -59,9 +68,13 @@ const handleLoginNavigation = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
+      {
+        isLoading ? 
+        <ActivityIndicator size="large" color="#f9f9f9" /> :
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
+      }
       <View style={styles.smallContainer}>
      <TouchableOpacity onPress={handleLoginNavigation}>
       <Text style={styles.registerLink}>Already a User? Login!</Text>
