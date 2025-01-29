@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { registerUser } from '../../backend/firebase/auth';
 
 
 export default function Register() {
@@ -8,15 +9,23 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const[ firstName, setFirstName] = useState('');
   const[ lastName, setLastName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigation = useNavigation();
 
   //no backend live
-  const handleRegister = () => {
-    console.log('First Name:', firstName);
-    console.log('Last Name:', lastName);
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const handleRegister = async () => {
+    setIsLoading(true);
+    try {
+      // Register the user
+      await registerUser(email, password, firstName, lastName);
+      setIsLoading(false);
+      alert('Registration Successful', 'You have successfully registered');
+
+    } catch (error) {
+      setIsLoading(false);
+      alert('Registration Error', error.message);
+    }
   };
 
 // Function to handle navigation to the login screen
