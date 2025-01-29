@@ -1,30 +1,56 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { registerUser } from '../../backend/firebase/auth';
 
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const[ firstName, setFirstName] = useState('');
+  const[ lastName, setLastName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navigation = useNavigation();
 
   //no backend live
-  const handleLogin = () => {
-    console.log('Email:', email);
-    console.log('Password:', password);
-  };
-  
-  // With the help of useNavigation hook, we can navigate to the register screen
-  // You just had to initiate it at the top of the file
-  const navigation = useNavigation();
-  
-  const handleRegisterNavigation = () => {
-    navigation.navigate('screens/register'); 
+  const handleRegister = async () => {
+    setIsLoading(true);
+    try {
+      // Register the user
+      await registerUser(email, password, firstName, lastName);
+      setIsLoading(false);
+      alert('Registration Successful', 'You have successfully registered');
+
+    } catch (error) {
+      setIsLoading(false);
+      alert('Registration Error', error.message);
+    }
   };
 
-
+// Function to handle navigation to the login screen
+const handleLoginNavigation = () => {
+    navigation.navigate('screens/login'); 
+  };
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Register</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        placeholderTextColor="#888"
+        value={firstName}
+        onChangeText={setFirstName}
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Last Name"
+        placeholderTextColor="#888"
+        value={lastName}
+        onChangeText={setLastName}
+        autoCapitalize="none"
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -42,12 +68,12 @@ export default function Login() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log In</Text>
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
       <View style={styles.smallContainer}>
-      <TouchableOpacity onPress={handleRegisterNavigation}>
-        <Text style={styles.registerLink}>Not a User? Register Now!</Text>
+     <TouchableOpacity onPress={handleLoginNavigation}>
+      <Text style={styles.registerLink}>Already a User? Login!</Text>
       </TouchableOpacity>
       </View>
     </View>
