@@ -1,87 +1,83 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { registerUser } from '../../backend/firebase/auth';
-
+import { registerUser } from '../api/auth'; // Import API function
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const[ firstName, setFirstName] = useState('');
-  const[ lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
   const navigation = useNavigation();
 
-  //no backend live
   const handleRegister = async () => {
     setIsLoading(true);
     try {
-      // Register the user
       await registerUser(email, password, firstName, lastName);
       setIsLoading(false);
-      alert('Registration Successful', 'You have successfully registered');
-
+      Alert.alert('Success', 'Registration Successful!');
+      navigation.navigate('Login');  // Redirect to login after registration
     } catch (error) {
       setIsLoading(false);
-      alert('Registration Error', error.message);
+      Alert.alert('Registration Error', error.message);
     }
   };
 
-// Function to handle navigation to the login screen
-const handleLoginNavigation = () => {
-    navigation.navigate('screens/login'); 
+  const handleLoginNavigation = () => {
+    navigation.navigate('Login');
   };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="First Name"
-        placeholderTextColor="#888"
-        value={firstName}
-        onChangeText={setFirstName}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Last Name"
-        placeholderTextColor="#888"
-        value={lastName}
-        onChangeText={setLastName}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#888"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
-      <View style={styles.smallContainer}>
-     <TouchableOpacity onPress={handleLoginNavigation}>
-      <Text style={styles.registerLink}>Already a User? Login!</Text>
-      </TouchableOpacity>
+    <View style={styles.wrapper}> {/* ✅ Ensure everything is wrapped inside a View */}
+      <View style={styles.container}>
+        <Text style={styles.title}>Register</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="First Name"
+          placeholderTextColor="#888"
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Last Name"
+          placeholderTextColor="#888"
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#888"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#888"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
+          <Text style={styles.buttonText}>{isLoading ? "Registering..." : "Register"}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleLoginNavigation}>
+          <Text style={styles.registerLink}>Already a User? Login!</Text>
+        </TouchableOpacity>
       </View>
-    </View>
-    
+    </View> 
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: { // ✅ Added a wrapper View
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -116,11 +112,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  smallContainer: {
-    justifyContent: 'left',
-    alignItems: 'left',
-    padding: 25,
   },
   registerLink: {
     fontSize: 15,

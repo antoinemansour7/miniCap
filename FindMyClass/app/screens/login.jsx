@@ -1,61 +1,67 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import { loginUser } from '../api/auth.js'; // Import API function
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  //no backend live
-  const handleLogin = () => {
-    console.log('Email:', email);
-    console.log('Password:', password);
-  };
-  
-  // With the help of useNavigation hook, we can navigate to the register screen
-  // You just had to initiate it at the top of the file
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
-  
-  const handleRegisterNavigation = () => {
-    navigation.navigate('screens/register'); 
+
+  const handleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const user = await loginUser(email, password);
+      setIsLoading(false);
+      Alert.alert('Success', `Welcome ${user.email}`);
+      // Navigate to home or dashboard after successful login
+    } catch (error) {
+      setIsLoading(false);
+      Alert.alert('Login Error', error.message);
+    }
   };
 
+  const handleRegisterNavigation = () => {
+    navigation.navigate('Register');
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#888"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log In</Text>
-      </TouchableOpacity>
-      <View style={styles.smallContainer}>
-      <TouchableOpacity onPress={handleRegisterNavigation}>
-        <Text style={styles.registerLink}>Not a User? Register Now!</Text>
-      </TouchableOpacity>
+    <View style={styles.wrapper}> {/* ✅ Ensure everything is wrapped inside a View */}
+      <View style={styles.container}>
+        <Text style={styles.title}>Login</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#888"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#888"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
+          <Text style={styles.buttonText}>{isLoading ? "Logging in..." : "Log In"}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleRegisterNavigation}>
+          <Text style={styles.registerLink}>Not a User? Register Now!</Text>
+        </TouchableOpacity>
       </View>
     </View>
-    
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: { // ✅ Added a wrapper View
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -90,11 +96,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  smallContainer: {
-    justifyContent: 'left',
-    alignItems: 'left',
-    padding: 25,
   },
   registerLink: {
     fontSize: 15,

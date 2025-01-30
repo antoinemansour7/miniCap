@@ -20,6 +20,7 @@
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/native-stack": "^7.2.0",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
     "expect.js": "^0.3.1",
     "expo": "^52.0.28",
     "expo-asset": "^11.0.2",
