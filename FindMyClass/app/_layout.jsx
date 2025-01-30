@@ -43,6 +43,8 @@ export default function Layout() {
             <MaterialIcons  name="menu" size={30} color="#912338" />
             </TouchableOpacity>
           ),
+          drawerActiveBackgroundColor: '#800000',
+          drawerActiveTintColor: '#fff',
         }}
       >
         <Drawer.Screen
@@ -64,6 +66,14 @@ export default function Layout() {
           options={{
             drawerLabel: 'Login',
             title: 'Login',
+          }}
+        />
+
+        <Drawer.Screen
+          name="screens/register"
+          options={{
+            drawerLabel: 'Register',
+            title: 'Register',
           }}
         />
 
