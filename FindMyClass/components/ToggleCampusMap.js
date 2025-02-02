@@ -8,14 +8,16 @@ const ToggleCampusMap = ({ searchText }) => {
 
     return (
         <View style={styles.container}>
+            {/* Campus Map */}
             <View style={styles.mapContainer}>
                 {selectedCampus === 'SGW' ? (
                     <SGWMap searchText={searchText} />
                 ) : (
-                    <LoyolaMap />
+                    <LoyolaMap searchText={searchText} />
                 )}
             </View>
 
+            {/* Toggle Button */}
             <View style={styles.toggleContainer}>
                 <TouchableOpacity
                     style={[
@@ -33,6 +35,7 @@ const ToggleCampusMap = ({ searchText }) => {
                         Loyola Campus
                     </Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                     style={[
                         styles.toggleButton,
@@ -77,20 +80,23 @@ const styles = StyleSheet.create({
     },
     toggleButton: {
         flex: 1,
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#E0E0E0',
+        backgroundColor: '#D3D3D3',
     },
     activeButton: {
-        backgroundColor: '#800000',
+        backgroundColor: '#800000', // Dark Red for active button
     },
     toggleText: {
         color: '#333',
         fontWeight: '600',
+        fontSize: 16,
     },
     activeText: {
         color: '#FFF',
+        fontWeight: '700',
     },
 });
 
