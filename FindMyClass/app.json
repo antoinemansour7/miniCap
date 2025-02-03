@@ -36,9 +36,7 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "OPENAI_API_KEY": "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"
     }
+   
   }
 } 
