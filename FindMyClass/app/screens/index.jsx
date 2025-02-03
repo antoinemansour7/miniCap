@@ -1,14 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import FloatingChatButton from '../../components/FloatingChatButton';
+import { View, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Card from '../../components/Card';
 
 export default function Index() {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
-      {/* ...existing code... */}
-      <Text style={styles.text}>Index Screen</Text>
-      {/* ...existing code... */}
-      <FloatingChatButton />
+      {/* First Row of Cards */}
+      <View style={styles.row}>
+        <Card iconName="map" title="SGW Map" onPress={() => navigation.navigate('SGWMap')} />
+        <Card iconName="map" title="LOY Map" onPress={() => navigation.navigate('LoyolaMap')} />
+      </View>
+      
+      {/* Second Row of Cards */}
+      <View style={styles.row}>
+        <Card iconName="person" title="Profile" />
+        <Card iconName="settings" title="Settings" />
+      </View>
+
+      {/* Third Row of Cards */}
+      <View style={styles.row}>
+        <Card iconName="calendar" title="My Schedule" />
+        <Card iconName="lock-closed" title="Security" />
+      </View>
     </View>
   );
 }
@@ -16,9 +32,14 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // ...existing code...
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  text: {
-    // ...existing code...
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    width: '100%',
   },
 });

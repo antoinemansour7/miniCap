@@ -1,34 +1,23 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import SGWMap from './SGWMap';
 import LoyolaMap from './LoyolaMap';
 
-const ToggleCampusMap = () => {
+const ToggleCampusMap = ({ searchText }) => {
     const [selectedCampus, setSelectedCampus] = useState('SGW');
-    const [searchText, setSearchText] = useState('');
 
     return (
         <View style={styles.container}>
-            <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color="#A0A0A0" style={styles.searchIcon} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search for buildings, locations..."
-                    placeholderTextColor="#A0A0A0"
-                    value={searchText}
-                    onChangeText={(text) => setSearchText(text)}
-                />
-            </View>
-
+            {/* Campus Map */}
             <View style={styles.mapContainer}>
                 {selectedCampus === 'SGW' ? (
                     <SGWMap searchText={searchText} />
                 ) : (
-                    <LoyolaMap />
+                    <LoyolaMap searchText={searchText} />
                 )}
             </View>
 
+            {/* Toggle Button */}
             <View style={styles.toggleContainer}>
                 <TouchableOpacity
                     style={[
@@ -46,6 +35,7 @@ const ToggleCampusMap = () => {
                         Loyola Campus
                     </Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                     style={[
                         styles.toggleButton,
@@ -71,33 +61,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    searchContainer: {
-        position: 'absolute',
-        top: 10,
-        width: '90%',
-        alignSelf: 'center',
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-        elevation: 3,
-        zIndex: 1,
-    },
-    searchIcon: {
-        marginRight: 8,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
-        paddingVertical: 8,
-        backgroundColor: '#F5F5F5',
-        borderRadius: 5,
-    },
     mapContainer: {
         flex: 1,
     },
@@ -117,20 +80,23 @@ const styles = StyleSheet.create({
     },
     toggleButton: {
         flex: 1,
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#E0E0E0',
+        backgroundColor: '#D3D3D3',
     },
     activeButton: {
-        backgroundColor: '#800000',
+        backgroundColor: '#800000', // Dark Red for active button
     },
     toggleText: {
         color: '#333',
         fontWeight: '600',
+        fontSize: 16,
     },
     activeText: {
         color: '#FFF',
+        fontWeight: '700',
     },
 });
 
