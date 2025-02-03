@@ -1,35 +1,22 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router'; // Use Expo Router
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { loginUser } from '../api/auth.js'; // Import your login API function
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const router = useRouter(); // Get the router from expo-router
 
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      // Call the login API function
       const user = await loginUser(email, password);
-      
-      // Check if the access token is already stored
-      const storedToken = await AsyncStorage.getItem('accessToken');
-      
-      // If not stored, save the token
-      if (!storedToken) {
-        await AsyncStorage.setItem('accessToken', user.accessToken);
-      }
-      
       setIsLoading(false);
       Alert.alert('Success', `Welcome ${user.email}`);
-      
       // Redirect to the Profile screen after successful login
-      router.push('/profile'); // Ensure that your Profile screen's file corresponds to the '/profile' route
-      
+      router.push('/screens/profile'); // Ensure that your Profile screen file maps to the '/profile' route
     } catch (error) {
       setIsLoading(false);
       Alert.alert('Login Error', error.message);
@@ -63,7 +50,9 @@ export default function Login() {
           secureTextEntry
         />
         <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
-          <Text style={styles.buttonText}>{isLoading ? "Logging in..." : "Log In"}</Text>
+          <Text style={styles.buttonText}>
+            {isLoading ? "Logging in..." : "Log In"}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRegisterNavigation}>
           <Text style={styles.registerLink}>Not a User? Register Now!</Text>
