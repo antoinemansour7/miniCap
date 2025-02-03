@@ -1,21 +1,35 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { loginUser } from '../api/auth.js'; // Import API function
+import { useRouter } from 'expo-router'; // Use Expo Router
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { loginUser } from '../api/auth.js'; // Import your login API function
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const handleLogin = async () => {
     setIsLoading(true);
     try {
+      // Call the login API function
       const user = await loginUser(email, password);
+      
+      // Check if the access token is already stored
+      const storedToken = await AsyncStorage.getItem('accessToken');
+      
+      // If not stored, save the token
+      if (!storedToken) {
+        await AsyncStorage.setItem('accessToken', user.accessToken);
+      }
+      
       setIsLoading(false);
       Alert.alert('Success', `Welcome ${user.email}`);
-      // Navigate to home or dashboard after successful login
+      
+      // Redirect to the Profile screen after successful login
+      router.push('/profile'); // Ensure that your Profile screen's file corresponds to the '/profile' route
+      
     } catch (error) {
       setIsLoading(false);
       Alert.alert('Login Error', error.message);
@@ -23,11 +37,12 @@ export default function Login() {
   };
 
   const handleRegisterNavigation = () => {
-    navigation.navigate('Register');
+    // Navigate to the Register screen (adjust the route if necessary)
+    router.push('/register');
   };
 
   return (
-    <View style={styles.wrapper}> {/* ✅ Ensure everything is wrapped inside a View */}
+    <View style={styles.wrapper}>
       <View style={styles.container}>
         <Text style={styles.title}>Login</Text>
         <TextInput
@@ -59,7 +74,7 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  wrapper: { // ✅ Added a wrapper View
+  wrapper: {
     flex: 1,
   },
   container: {

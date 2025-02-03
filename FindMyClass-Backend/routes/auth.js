@@ -1,6 +1,7 @@
 import express from "express";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/config.js"; // Ensure Firebase is initialized
+import { registerUser } from "../firebase/auth.js"; // Adjust path as needed
 
 const router = express.Router();
 
@@ -24,6 +25,12 @@ router.post("/login", async (req, res) => {
 // Register Route
 router.post("/register", async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
+
+  // Validate password length
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: "Password must be at least 6 characters long." });
+  }
+
   try {
     const user = await registerUser(email, password, firstName, lastName);
     res.json({ user });

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { registerUser } from '../api/auth'; // Import API function
+import { useRouter } from 'expo-router'; // ✅ Use useRouter for Expo Router
+import { registerUser } from '../api/auth'; // ✅ Correct import
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -9,7 +9,7 @@ export default function Register() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigation = useNavigation();
+  const router = useRouter(); // ✅ Use router instead of navigation
 
   const handleRegister = async () => {
     setIsLoading(true);
@@ -17,7 +17,7 @@ export default function Register() {
       await registerUser(email, password, firstName, lastName);
       setIsLoading(false);
       Alert.alert('Success', 'Registration Successful!');
-      navigation.navigate('Login');  // Redirect to login after registration
+      router.push('/screens/login'); // ✅ Check if this matches your file structure
     } catch (error) {
       setIsLoading(false);
       Alert.alert('Registration Error', error.message);
@@ -25,11 +25,11 @@ export default function Register() {
   };
 
   const handleLoginNavigation = () => {
-    navigation.navigate('Login');
+    router.push('/screens/login'); // ✅ Corrected path
   };
 
   return (
-    <View style={styles.wrapper}> {/* ✅ Ensure everything is wrapped inside a View */}
+    <View style={styles.wrapper}>
       <View style={styles.container}>
         <Text style={styles.title}>Register</Text>
         <TextInput
@@ -75,7 +75,7 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  wrapper: { // ✅ Added a wrapper View
+  wrapper: {
     flex: 1,
   },
   container: {
