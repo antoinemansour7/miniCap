@@ -1,0 +1,49 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - SonarQube
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=antoinemansour7_miniCap
+            -Dsonar.organization=antoinemansour7
+            -Dsonar.projectName=MiniCap
+            -Dsonar.sources=.
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.javascript.node.maxspace=4096
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js,**/__tests__/**
+            -Dsonar.exclusions=node_modules/**/*,.git/**/*,.github/**/*
+            -Dsonar.verbose=true
+            -Dsonar.scm.provider=git
+            -Dsonar.branch.autoconfig.disabled=true
+            -Dsonar.pullrequest.provider=github
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
+            -Dsonar.autoScan.enabled=false
