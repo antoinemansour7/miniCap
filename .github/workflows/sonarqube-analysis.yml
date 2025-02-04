@@ -14,17 +14,21 @@ jobs:
     name: Run SonarQube Scanner
     runs-on: ubuntu-latest
 
-    # Spin up a SonarQube server as a service container.
     services:
       sonarqube:
         image: sonarqube:community
         ports:
           - 9000:9000
+        env:
+          # Lower the memory settings for the web process.
+          SONAR_WEB_JAVAOPTS: "-Xmx512m -Xms128m"
+          # Disable Elasticsearch bootstrap checks (not recommended for production).
+          SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
         options: >-
           --health-cmd "curl -f http://localhost:9000/api/system/health || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 10
+          --health-retries 20
 
     steps:
       - name: Checkout Repository
@@ -32,7 +36,6 @@ jobs:
 
       - name: Install SonarQube Scanner
         run: |
-          # Download the latest SonarScanner CLI (adjust the version if needed)
           wget -q -O sonarqube.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
           unzip sonarqube.zip
           mv sonar-scanner-cli-5.0.1.3006-linux sonar-scanner
@@ -55,7 +58,7 @@ jobs:
 
       - name: Run SonarQube Scanner
         env:
-          # Make sure you have added your token to your repository secrets as SONAR_TOKEN
+          # Ensure you have added your SonarQube token to GitHub secrets as SONAR_TOKEN.
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           sonar-scanner \
