@@ -22,7 +22,7 @@ export default function Layout() {
   if (!fontsLoaded && !fontError) {
     return null;
   }
-
+  //File
   // Use useEffect to set params when searchText updates
   useEffect(() => {
     navigation.setParams({ searchText });  // Dynamically update searchText param
