@@ -18,19 +18,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          # Disabling shallow clone is recommended for better relevancy of analysis
           fetch-depth: 0
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Generate a token on SonarCloud.io
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # Additional arguments for the sonarcloud scanner
           args: >
             -Dsonar.projectKey=antoinemansour7_miniCap
             -Dsonar.organization=antoinemansour7
             -Dsonar.projectName=MiniCap
             -Dsonar.sources=.
             -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.qualitygate.wait=true
