@@ -33,3 +33,9 @@ jobs:
             -Dsonar.sources=.
             -Dsonar.sourceEncoding=UTF-8
             -Dsonar.qualitygate.wait=true
+            -Dsonar.javascript.node.maxspace=4096
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js
+            -Dsonar.exclusions=node_modules/**/*
+            -Dsonar.verbose=true
+            -Dsonar.scm.provider=git
+            -Dsonar.autoScan.enabled=false
