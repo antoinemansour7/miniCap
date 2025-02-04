@@ -1,4 +1,4 @@
-name: SonarQube Analysis
+name: SonarCloud Analysis
 
 on:
   push:
@@ -10,62 +10,27 @@ on:
       - "*"
 
 jobs:
-  sonarQube:
-    name: Run SonarQube Scanner
+  sonarcloud:
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
-
-    services:
-      sonarqube:
-        image: sonarqube:community
-        ports:
-          - 9000:9000
-        env:
-          # Lower the memory settings for the web process.
-          SONAR_WEB_JAVAOPTS: "-Xmx512m -Xms128m"
-          # Disable Elasticsearch bootstrap checks (not recommended for production).
-          SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/api/system/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 20
-
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for better relevancy of analysis
+          fetch-depth: 0
 
-      - name: Install SonarQube Scanner
-        run: |
-          wget -q -O sonarqube.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonarqube.zip
-          mv sonar-scanner-cli-5.0.1.3006-linux sonar-scanner
-          # Add the SonarScanner binary folder to the PATH
-          echo "$(pwd)/sonar-scanner/bin" >> $GITHUB_PATH
-
-      - name: Wait for SonarQube Server
-        run: |
-          echo "Waiting for SonarQube server to be ready..."
-          for i in {1..20}; do
-            if curl -s http://localhost:9000/api/system/health | grep -q '"status":"UP"'; then
-              echo "SonarQube is up!"
-              exit 0
-            fi
-            echo "Still waiting..."
-            sleep 10
-          done
-          echo "SonarQube server did not start in time."
-          exit 1
-
-      - name: Run SonarQube Scanner
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         env:
-          # Ensure you have added your SonarQube token to GitHub secrets as SONAR_TOKEN.
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=antoinemansour7_miniCap \
-            -Dsonar.projectName=MiniCap \
-            -Dsonar.projectVersion=1.0 \
-            -Dsonar.sources=. \
-            -Dsonar.sourceEncoding=UTF-8 \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=$SONAR_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Generate a token on SonarCloud.io
+        with:
+          # Additional arguments for the sonarcloud scanner
+          args: >
+            -Dsonar.projectKey=antoinemansour7_miniCap
+            -Dsonar.organization=antoinemansour7
+            -Dsonar.projectName=MiniCap
+            -Dsonar.sources=.
+            -Dsonar.sourceEncoding=UTF-8
