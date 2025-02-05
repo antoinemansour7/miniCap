@@ -1,27 +1,26 @@
-name: sonar-qube analysis
+name: SonarCloud Analysis
+
 on:
   push:
     branches:
       - main
+      - Unit_Test
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - "*"
+
 jobs:
-  sonarqube:
-    name: SonarQube
-    runs-on: macos-latest
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Debug Initial Structure
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Directory contents:"
-          ls -la
-          echo "Full directory tree:"
-          ls -R
+      - name: Debug Directory Structure
+        run: ls -R
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,34 +29,32 @@ jobs:
 
       - name: Install Dependencies
         working-directory: FindMyClass
-        run: |
-          echo "Current directory before install:"
-          pwd
-          npm install
-        continue-on-error: true
+        run: npm install
 
       - name: Run Tests with Coverage
         working-directory: FindMyClass
-        run: |
-          echo "Running tests..."
-          npm test -- --coverage
-          echo "Test completed, checking coverage directory:"
-          ls -la coverage/
-        continue-on-error: true
+        run: npm test -- --coverage --coverageReporters=lcov || true
 
-      - name: Debug Coverage
-        run: |
-          echo "Checking for coverage files:"
-          find . -name "lcov.info"
-          echo "Content of coverage directory (if exists):"
-          ls -la FindMyClass/coverage || echo "No coverage directory found"
-        continue-on-error: true
-
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            -Dsonar.projectKey=antoinemansour7_miniCap
+            -Dsonar.organization=antoinemansour7
+            -Dsonar.projectName=MiniCap
+            -Dsonar.sources=.
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.javascript.node.maxspace=4096
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js,**/__tests__/**
+            -Dsonar.exclusions=node_modules/**/*,.git/**/*,.github/**/*
             -Dsonar.verbose=true
+            -Dsonar.scm.provider=git
+            -Dsonar.branch.autoconfig.disabled=true
+            -Dsonar.pullrequest.provider=github
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
+            -Dsonar.autoScan.enabled=false
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
