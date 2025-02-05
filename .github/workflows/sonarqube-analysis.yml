@@ -25,6 +25,12 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests with Coverage
+        run: npm test -- --coverage --coverageReporters=lcov
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.1.0
         env:
@@ -47,3 +53,4 @@ jobs:
             -Dsonar.pullrequest.provider=github
             -Dsonar.pullrequest.github.repository=${{ github.repository }}
             -Dsonar.autoScan.enabled=false
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
