@@ -20,17 +20,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug Directory Structure  # ✅ Add this to confirm file paths
+        run: ls -R
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
       - name: Install Dependencies
-        working-directory: miniCap/FindMyClass  # ✅ Updated to correct directory
+        working-directory: FindMyClass  # ✅ Adjusted path
         run: npm install
 
       - name: Run Tests with Coverage
-        working-directory: miniCap/FindMyClass  # ✅ Updated to correct directory
+        working-directory: FindMyClass  # ✅ Adjusted path
         run: npm test -- --coverage --coverageReporters=lcov
 
       - name: SonarCloud Scan
