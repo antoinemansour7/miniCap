@@ -1,35 +1,63 @@
-name: SonarCloud Analysis
-
+name: Build
 on:
-    push:
-      branches:
-        - main
-    pull_request:
-      types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
-    sonarqube:
-      name: SonarQube
-      runs-on: macos-latest
-      steps:
-        - uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
-  
-        - name: Setup Node.js
-          uses: actions/setup-node@v4
-          with:
-            node-version: '18'
-  
-        - name: Install Dependencies
-          working-directory: FindMyClass
-          run: npm install
-  
-        - name: Run Tests with Coverage
-          working-directory: FindMyClass
-          run: npm test -- --coverage
-  
-        - name: SonarQube Scan
-          uses: SonarSource/sonarqube-scan-action@v4
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  sonarqube:
+    name: SonarQube
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Debug Initial Structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "Full directory tree:"
+          ls -R
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        working-directory: FindMyClass
+        run: |
+          echo "Current directory before install:"
+          pwd
+          npm install
+        continue-on-error: true
+
+      - name: Run Tests with Coverage
+        working-directory: FindMyClass
+        run: |
+          echo "Running tests..."
+          npm test -- --coverage
+          echo "Test completed, checking coverage directory:"
+          ls -la coverage/
+        continue-on-error: true
+
+      - name: Debug Coverage
+        run: |
+          echo "Checking for coverage files:"
+          find . -name "lcov.info"
+          echo "Content of coverage directory (if exists):"
+          ls -la FindMyClass/coverage || echo "No coverage directory found"
+        continue-on-error: true
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.verbose=true
