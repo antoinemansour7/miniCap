@@ -1,63 +1,35 @@
 name: SonarCloud Analysis
 
 on:
-  push:
-    branches:
-      - main
-      - Unit_Test
-  pull_request:
-    branches:
-      - "*"
-
+    push:
+      branches:
+        - main
+    pull_request:
+      types: [opened, synchronize, reopened]
 jobs:
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for better analysis
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Dependencies
-        run: npm install
-        working-directory: FindMyClass
-
-      - name: Run Tests with Coverage
-        run: npm test -- --coverage --coverageReporters=lcov || true
-        working-directory: FindMyClass
-
-      - name: Move Coverage Report
-        run: |
-          mkdir -p coverage
-          cp FindMyClass/coverage/lcov.info coverage/
-        if: always()
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v4.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=antoinemansour7_miniCap
-            -Dsonar.organization=antoinemansour7
-            -Dsonar.projectName=MiniCap
-            -Dsonar.sources=FindMyClass
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.sourceEncoding=UTF-8
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.javascript.node.maxspace=4096
-            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js,**/__tests__/**
-            -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**
-            -Dsonar.verbose=true
-            -Dsonar.scm.provider=git
-            -Dsonar.branch.autoconfig.disabled=true
-            -Dsonar.pullrequest.provider=github
-            -Dsonar.pullrequest.github.repository=${{ github.repository }}
-            -Dsonar.autoScan.enabled=false
+    sonarqube:
+      name: SonarQube
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+  
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: '18'
+  
+        - name: Install Dependencies
+          working-directory: FindMyClass
+          run: npm install
+  
+        - name: Run Tests with Coverage
+          working-directory: FindMyClass
+          run: npm test -- --coverage
+  
+        - name: SonarQube Scan
+          uses: SonarSource/sonarqube-scan-action@v4
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
