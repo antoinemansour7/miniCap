@@ -39,6 +39,7 @@ export default function Layout() {
           headerLeft: () => null,
           headerRight: () => (
             <TouchableOpacity
+              testID="menu-button"
               onPress={() => {
                 navigation.dispatch(DrawerActions.openDrawer());
               }}

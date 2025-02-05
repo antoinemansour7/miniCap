@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - SonarQube
+      - Unit-Test
   pull_request:
     branches:
       - "*"
