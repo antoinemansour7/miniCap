@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - Unit-Test
+      - Unit_Test
   pull_request:
     branches:
       - "*"
