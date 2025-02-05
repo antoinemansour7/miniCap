@@ -1,4 +1,4 @@
-name: Build
+name: sonar-qube analysis
 on:
   push:
     branches:
