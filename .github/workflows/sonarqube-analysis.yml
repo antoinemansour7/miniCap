@@ -13,14 +13,13 @@ jobs:
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Debug Directory Structure  # ✅ Add this to confirm file paths
+      - name: Debug Directory Structure
         run: ls -R
 
       - name: Setup Node.js
@@ -29,14 +28,20 @@ jobs:
           node-version: '18'
 
       - name: Install Dependencies
-        working-directory: FindMyClass  # ✅ Adjusted path
         run: npm install
+        working-directory: FindMyClass
 
       - name: Run Tests with Coverage
+        run: npm test -- --coverage --coverageReporters=lcov || true
         working-directory: FindMyClass
-        run: npm test -- --coverage --coverageReporters=lcov || true  # ✅ Prevents workflow failure
 
-      - name: SonarCloud Scan  # ✅ Fixed indentation and placement
+      - name: Move Coverage Report
+        run: |
+          mkdir -p coverage
+          cp FindMyClass/coverage/lcov.info coverage/
+        if: always()
+
+      - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,16 +51,16 @@ jobs:
             -Dsonar.projectKey=antoinemansour7_miniCap
             -Dsonar.organization=antoinemansour7
             -Dsonar.projectName=MiniCap
-            -Dsonar.sources=.
+            -Dsonar.sources=FindMyClass
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.sourceEncoding=UTF-8
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.javascript.node.maxspace=4096
             -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js,**/__tests__/**
-            -Dsonar.exclusions=node_modules/**/*,.git/**/*,.github/**/*
+            -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**
             -Dsonar.verbose=true
             -Dsonar.scm.provider=git
             -Dsonar.branch.autoconfig.disabled=true
             -Dsonar.pullrequest.provider=github
             -Dsonar.pullrequest.github.repository=${{ github.repository }}
             -Dsonar.autoScan.enabled=false
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
