@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>3/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -109,40 +109,40 @@
 <a name='L44'></a><a href='#L44'>44</a>
 <a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -153,40 +153,40 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import axios from "axios";
 &nbsp;
-const API_URL = <span class="cstat-no" title="statement not covered" >"http://localhost:5500/auth";</span>  // Ensure correct backend URL
+const API_URL = "http://localhost:5500/auth";  // Ensure correct backend URL
 &nbsp;
 // ✅ Login API Call
-export const loginUser = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (email, password) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const response = <span class="cstat-no" title="statement not covered" >await axios.post(`${API_URL}/login`, { email, password });</span>
-<span class="cstat-no" title="statement not covered" >    return response.data;</span>
+export const loginUser = async (email, password) =&gt; {
+  try {
+    const response = await axios.post(`${API_URL}/login`, { email, password });
+    return response.data;
   } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error("Login error:", error.response?.data || error.message);</span>
-<span class="cstat-no" title="statement not covered" >    throw error;</span>
+    console.error("Login error:", error.response?.data || <span class="branch-1 cbranch-no" title="branch not covered" >error.message)</span>;
+    throw error;
   }
 };
 &nbsp;
 // ✅ Register API Call
-export const registerUser = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (email, password, firstName, lastName) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  try {</span>
-<span class="cstat-no" title="statement not covered" >    console.log("📤 Sending registration request..."); </span>// ✅ Log request
-    const response = <span class="cstat-no" title="statement not covered" >await axios.post(`${API_URL}/register`, { email, password, firstName, lastName });</span>
-<span class="cstat-no" title="statement not covered" >    console.log("✅ Registration successful:", response.data); </span>// ✅ Log response
-<span class="cstat-no" title="statement not covered" >    return response.data;</span>
+export const registerUser = async (email, password, firstName, lastName) =&gt; {
+  try {
+    console.log("📤 Sending registration request..."); // ✅ Log request
+    const response = await axios.post(`${API_URL}/register`, { email, password, firstName, lastName });
+    console.log("✅ Registration successful:", response.data); // ✅ Log response
+    return response.data;
   } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error("❌ Registration error:", error.response?.data || error.message);</span>
-<span class="cstat-no" title="statement not covered" >    throw error;</span>
+    console.error("❌ Registration error:", error.response?.data || <span class="branch-1 cbranch-no" title="branch not covered" >error.message)</span>;
+    throw error;
   }
 };
 &nbsp;
 // ✅ Logout API Call
-export const logoutUser = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const response = <span class="cstat-no" title="statement not covered" >await axios.post(`${API_URL}/logout`);</span>
-<span class="cstat-no" title="statement not covered" >    return response.data;</span>
+export const logoutUser = async () =&gt; {
+  try {
+    const response = await axios.post(`${API_URL}/logout`);
+    return response.data;
   } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error("Logout error:", error.response?.data || error.message);</span>
-<span class="cstat-no" title="statement not covered" >    throw error;</span>
+    console.error("Logout error:", error.response?.data || <span class="branch-1 cbranch-no" title="branch not covered" >error.message)</span>;
+    throw error;
   }
 };
 &nbsp;
@@ -202,7 +202,7 @@ export default {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-05T16:01:44.265Z
+                at 2025-02-05T16:03:48.323Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
