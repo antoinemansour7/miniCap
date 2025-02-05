@@ -26,9 +26,11 @@ jobs:
           node-version: '18'
 
       - name: Install Dependencies
+        working-directory: miniCap/FindMyClass  # ✅ Updated to correct directory
         run: npm install
 
       - name: Run Tests with Coverage
+        working-directory: miniCap/FindMyClass  # ✅ Updated to correct directory
         run: npm test -- --coverage --coverageReporters=lcov
 
       - name: SonarCloud Scan
