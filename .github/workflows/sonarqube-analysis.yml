@@ -15,12 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      - name: Debug Directory Structure
-        run: ls -R
+          fetch-depth: 0  # Shallow clones should be disabled for better analysis
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
