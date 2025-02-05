@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
+      - Unit_Test
   pull_request:
     branches:
       - main
-      - SonarQube
+      
 
 jobs:
   build:
