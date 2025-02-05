@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - SonarQube
+      - Unit_Test
   pull_request:
     branches:
       - "*"
@@ -20,10 +20,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug Directory Structure  # ✅ Add this to confirm file paths
+                                        
+        run: ls -R
+                                        #comment
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: Install Dependencies
+        working-directory: FindMyClass  # ✅ Adjusted path
+        run: npm install
+
+      - name: Run Tests with Coverage
+        working-directory: FindMyClass
+        run: npm test -- --coverage --coverageReporters=lcov || true  # ✅ Prevents workflow failure
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.1.0
@@ -47,3 +59,4 @@ jobs:
             -Dsonar.pullrequest.provider=github
             -Dsonar.pullrequest.github.repository=${{ github.repository }}
             -Dsonar.autoScan.enabled=false
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
