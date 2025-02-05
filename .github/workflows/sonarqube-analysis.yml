@@ -13,7 +13,7 @@ jobs:
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -21,10 +21,8 @@ jobs:
           fetch-depth: 0
 
       - name: Debug Directory Structure  # ✅ Add this to confirm file paths
-                                        
         run: ls -R
-                                        #comment
-                                        #comment
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -38,7 +36,7 @@ jobs:
         working-directory: FindMyClass
         run: npm test -- --coverage --coverageReporters=lcov || true  # ✅ Prevents workflow failure
 
-      - name: SonarCloud Scan
+      - name: SonarCloud Scan  # ✅ Fixed indentation and placement
         uses: SonarSource/sonarqube-scan-action@v4.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
