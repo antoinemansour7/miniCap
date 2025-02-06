@@ -12,7 +12,8 @@ on:
 jobs:
   sonarcloud:
     name: SonarCloud Analysis
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -28,11 +29,9 @@ jobs:
           node-version: '18'
 
       - name: Install Dependencies
-        working-directory: FindMyClass
         run: npm install
 
       - name: Run Tests with Coverage
-        working-directory: FindMyClass
         run: npm test -- --coverage --coverageReporters=lcov || true
 
       - name: SonarCloud Scan
@@ -42,19 +41,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=antoinemansour7_miniCap
+            -Dsonar.projectKey=antoinemansour7_minicap-soen390
             -Dsonar.organization=antoinemansour7
-            -Dsonar.projectName=MiniCap
             -Dsonar.sources=.
-            -Dsonar.sourceEncoding=UTF-8
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.javascript.node.maxspace=4096
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
             -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js,**/__tests__/**
             -Dsonar.exclusions=node_modules/**/*,.git/**/*,.github/**/*
-            -Dsonar.verbose=true
-            -Dsonar.scm.provider=git
-            -Dsonar.branch.autoconfig.disabled=true
-            -Dsonar.pullrequest.provider=github
-            -Dsonar.pullrequest.github.repository=${{ github.repository }}
-            -Dsonar.autoScan.enabled=false
-            -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
