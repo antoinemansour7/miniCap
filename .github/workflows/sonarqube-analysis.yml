@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug Directory Structure
+      - name: Debug Directory Structure  # ✅ Add this for debugging
         run: ls -R
 
       - name: Setup Node.js
@@ -29,9 +29,11 @@ jobs:
           node-version: '18'
 
       - name: Install Dependencies
+        working-directory: projects/minicap/findmyclass  # ✅ Update this path
         run: npm install
 
       - name: Run Tests with Coverage
+        working-directory: projects/minicap/findmyclass  # ✅ Update this path
         run: npm test -- --coverage --coverageReporters=lcov || true
 
       - name: SonarCloud Scan
@@ -43,9 +45,8 @@ jobs:
           args: >
             -Dsonar.projectKey=antoinemansour7_minicap-soen390
             -Dsonar.organization=antoinemansour7
-            -Dsonar.sources=.
+            -Dsonar.sources=projects/minicap/findmyclass  # ✅ Update this path
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-            -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
+            -Dsonar.javascript.lcov.reportPaths=projects/minicap/findmyclass/coverage/lcov.info
             -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js,**/__tests__/**
             -Dsonar.exclusions=node_modules/**/*,.git/**/*,.github/**/*
