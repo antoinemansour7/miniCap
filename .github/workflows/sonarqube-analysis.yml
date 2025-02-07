@@ -4,49 +4,45 @@ on:
   push:
     branches:
       - main
-      - Unit_Test
-  pull_request:
-    branches:
-      - "*"
 
 jobs:
   sonarcloud:
-    name: SonarCloud Analysis
+    name: SonarCloud Scan
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout Repository
+      # Step 1: Checkout the repository
+      - name: Checkout repository
         uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          fetch-depth: 0
+          node-version: '16'
 
-      - name: Debug Directory Structure  # ✅ Add this for debugging
-        run: ls -R
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Dependencies
-        working-directory: FindMyClass  # ✅ Update with correct path
+      # Step 3: Install dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Run Tests with Coverage
-        working-directory: FindMyClass  # ✅ Update with correct path
-        run: npm test -- --coverage --coverageReporters=lcov || true
+      # Step 4: Run Jest tests with coverage
+      - name: Run tests and collect coverage
+        run: npm test -- --coverage
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v4.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=antoinemansour7_minicap-soen390
-            -Dsonar.organization=antoinemansour7
-            -Dsonar.sources=FindMyClass  # ✅ Update with correct path
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.javascript.lcov.reportPaths=FindMyClass/coverage/lcov.info
-            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,jest.config.js,**/__tests__/**
-            -Dsonar.exclusions=node_modules/**/*,.git/**/*,.github/**/*
+      # Step 5: Install SonarScanner
+      - name: Install SonarScanner
+        run: |
+          npm install -g sonar-scanner
+
+      # Step 6: Run SonarCloud Analysis
+      - name: Run SonarScanner
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=antoinemansour7_minicap-soen390 \
+            -Dsonar.organization=antoinemansour7 \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarcloud.io/ \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js \
+            -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**
