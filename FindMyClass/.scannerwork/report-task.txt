@@ -1,7 +1,7 @@
 organization=antoinemansour7
-projectKey=antoinemansour7_minicap-soen390
+projectKey=antoinemansour7_miniCap
 serverUrl=https://sonarcloud.io
 serverVersion=8.0.0.59516
-dashboardUrl=https://sonarcloud.io/dashboard?id=antoinemansour7_minicap-soen390
-ceTaskId=AZTiG8ymNsJM0OGUN5De
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZTiG8ymNsJM0OGUN5De
+dashboardUrl=https://sonarcloud.io/dashboard?id=antoinemansour7_miniCap
+ceTaskId=AZTiSXAzzqEQhFt4RUmb
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZTiSXAzzqEQhFt4RUmb
