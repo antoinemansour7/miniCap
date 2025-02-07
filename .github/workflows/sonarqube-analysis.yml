@@ -31,7 +31,7 @@ jobs:
         working-directory: FindMyClass
         run: npm install
 
-      # Step 5: Run Jest tests with coverage
+      # Step 5: Run Jest tests w/ coverage
       - name: Run tests and collect coverage
         working-directory: FindMyClass
         run: npm test -- --coverage || true
