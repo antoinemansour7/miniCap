@@ -5,7 +5,8 @@ import { View, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useRoute } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
-import { GOOGLE_MAPS_API_KEY } from "@env";
+//import { GOOGLE_MAPS_API_KEY } from "@env";
+import { googleAPIKey } from "../secrets";
 
 export default function DirectionsScreen() {
     const { latitude, longitude } = useLocalSearchParams();
@@ -45,7 +46,7 @@ export default function DirectionsScreen() {
     useEffect(() => {
         if (startLocation && destination) {
             fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation.latitude},${startLocation.longitude}&destination=${destination.latitude},${destination.longitude}&key=${GOOGLE_MAPS_API_KEY}`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation.latitude},${startLocation.longitude}&destination=${destination.latitude},${destination.longitude}&key${googleAPIKey}`
             )
                 .then((res) => res.json())
                 .then((data) => {

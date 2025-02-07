@@ -1,2 +1,3 @@
 FindMyClass/.env
 FindMyClass/app.json
+FindMyClass/app/secrets.js
