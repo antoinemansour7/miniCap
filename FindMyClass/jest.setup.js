@@ -11,10 +11,20 @@ jest.mock('expo-splash-screen', () => ({
   preventAutoHideAsync: jest.fn(),
 }));
 
+// Mock `expo-constants` (✅ Fixes Jest error)
+jest.mock('expo-constants', () => ({
+  expoConfig: {
+    extra: {
+      OPENAI_API_KEY: 'mocked-api-key', // Mocked API Key for testing
+    },
+  },
+}));
+
 // Mock `expo-modules-core`
 jest.mock('expo-modules-core', () => ({
   NativeModulesProxy: { ExponentDevice: { getPlatformName: () => 'ios' } },
   EventEmitter: jest.fn(),
+  requireOptionalNativeModule: jest.fn(), // ✅ Fix for "requireOptionalNativeModule is not a function"
 }));
 
 // Mock `react-native-reanimated`
@@ -59,4 +69,15 @@ jest.mock('@expo/vector-icons', () => ({
 jest.mock('react-native/Libraries/Utilities/Platform', () => ({
   OS: 'ios',
   select: (obj) => obj.ios,
+}));
+
+// ✅ Mock `axios` for API requests (prevents actual network calls)
+jest.mock('axios', () => ({
+  create: jest.fn(() => ({
+    post: jest.fn().mockResolvedValue({
+      data: {
+        choices: [{ message: { content: 'Mocked API Response' } }],
+      },
+    }),
+  })),
 }));
