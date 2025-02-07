@@ -3,5 +3,5 @@ projectKey=antoinemansour7_minicap-soen390
 serverUrl=https://sonarcloud.io
 serverVersion=8.0.0.59516
 dashboardUrl=https://sonarcloud.io/dashboard?id=antoinemansour7_minicap-soen390
-ceTaskId=AZTiG8ymNsJM0OGUN5De
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZTiG8ymNsJM0OGUN5De
+ceTaskId=AZTiJmWoNsJM0OGUN5Rj
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZTiJmWoNsJM0OGUN5Rj
