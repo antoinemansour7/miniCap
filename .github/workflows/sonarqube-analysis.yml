@@ -21,21 +21,29 @@ jobs:
         with:
           node-version: '16'
 
-      # Step 3: Install dependencies
+      # Step 3: Move into the correct working directory
+      - name: Move into FindMyClass directory
+        working-directory: FindMyClass
+        run: echo "Moved into FindMyClass directory"
+
+      # Step 4: Install dependencies inside FindMyClass/
       - name: Install dependencies
+        working-directory: FindMyClass
         run: npm install
 
-      # Step 4: Run Jest tests with coverage
+      # Step 5: Run Jest tests with coverage
       - name: Run tests and collect coverage
+        working-directory: FindMyClass
         run: npm test -- --coverage
 
-      # Step 5: Install SonarScanner
+      # Step 6: Install SonarScanner
       - name: Install SonarScanner
         run: |
           npm install -g sonar-scanner
 
-      # Step 6: Run SonarCloud Analysis
+      # Step 7: Run SonarCloud Analysis inside FindMyClass/
       - name: Run SonarScanner
+        working-directory: FindMyClass
         run: |
           sonar-scanner \
             -Dsonar.projectKey=antoinemansour7_minicap-soen390 \
