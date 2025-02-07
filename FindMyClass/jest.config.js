@@ -13,12 +13,12 @@ module.exports = {
   coverageDirectory: 'coverage',  
   coverageReporters: ['json', 'lcov', 'text', 'clover'],  // ✅ Ensure correct report formats
   collectCoverageFrom: [
-    'app/**/*.{js,jsx}', // ✅ Collect coverage for all JS and JSX files in app/
-    'components/**/*.{js,jsx}',
-    '!**/node_modules/**', // ✅ Exclude node_modules
-    '!**/coverage/**', // ✅ Exclude coverage reports
-    '!**/jest.setup.js', // ✅ Exclude Jest setup files
-    '!**/*.config.js' // ✅ Exclude config files
+    'app/**/*.{js,jsx}', 
+    'components/**/*.{js,jsx}',  // ✅ Ensure components are covered
+    '!**/node_modules/**', 
+    '!**/coverage/**', 
+    '!**/jest.setup.js', 
+    '!**/*.config.js'
   ],
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],  // ✅ Ignore irrelevant folders
 };
