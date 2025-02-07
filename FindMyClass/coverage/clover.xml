@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738787414190" clover="3.2.0">
-  <project timestamp="1738787414190" name="All files">
-    <metrics statements="88" coveredstatements="65" conditionals="26" coveredconditionals="10" methods="24" coveredmethods="12" elements="138" coveredelements="87" complexity="0" loc="88" ncloc="88" packages="3" files="8" classes="8"/>
+<coverage generated="1738960499210" clover="3.2.0">
+  <project timestamp="1738960499210" name="All files">
+    <metrics statements="125" coveredstatements="65" conditionals="41" coveredconditionals="10" methods="35" coveredmethods="12" elements="201" coveredelements="87" complexity="0" loc="125" ncloc="125" packages="3" files="9" classes="9"/>
     <package name="app">
       <metrics statements="20" coveredstatements="10" conditionals="14" coveredconditionals="2" methods="10" coveredmethods="2"/>
-      <file name="_layout.jsx" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/_layout.jsx">
+      <file name="_layout.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/_layout.jsx">
         <metrics statements="18" coveredstatements="8" conditionals="14" coveredconditionals="2" methods="9" coveredmethods="1"/>
         <line num="12" count="9" type="stmt"/>
         <line num="13" count="9" type="stmt"/>
@@ -23,9 +23,9 @@
         <line num="44" count="0" type="stmt"/>
         <line num="52" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="63" count="0" type="stmt"/>
-        <line num="85" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
       </file>
-      <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/index.jsx">
+      <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/index.jsx">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="5" count="1" type="stmt"/>
         <line num="12" count="1" type="stmt"/>
@@ -33,7 +33,7 @@
     </package>
     <package name="app.api">
       <metrics statements="21" coveredstatements="21" conditionals="6" coveredconditionals="3" methods="3" coveredmethods="3"/>
-      <file name="auth.js" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/api/auth.js">
+      <file name="auth.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/api/auth.js">
         <metrics statements="21" coveredstatements="21" conditionals="6" coveredconditionals="3" methods="3" coveredmethods="3"/>
         <line num="3" count="1" type="stmt"/>
         <line num="6" count="1" type="stmt"/>
@@ -59,8 +59,8 @@
       </file>
     </package>
     <package name="app.screens">
-      <metrics statements="47" coveredstatements="34" conditionals="6" coveredconditionals="5" methods="11" coveredmethods="7"/>
-      <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/screens/index.jsx">
+      <metrics statements="84" coveredstatements="34" conditionals="21" coveredconditionals="5" methods="22" coveredmethods="7"/>
+      <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/index.jsx">
         <metrics statements="5" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="9" count="0" type="stmt"/>
@@ -68,9 +68,9 @@
         <line num="14" count="0" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
       </file>
-      <file name="login.jsx" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/screens/login.jsx">
+      <file name="login.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/login.jsx">
         <metrics statements="17" coveredstatements="17" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
-        <line num="7" count="15" type="stmt"/>
+        <line num="7" count="16" type="stmt"/>
         <line num="8" count="15" type="stmt"/>
         <line num="9" count="15" type="stmt"/>
         <line num="10" count="15" type="stmt"/>
@@ -88,19 +88,19 @@
         <line num="31" count="15" type="stmt"/>
         <line num="65" count="1" type="stmt"/>
       </file>
-      <file name="map.jsx" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/screens/map.jsx">
+      <file name="map.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/map.jsx">
         <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="8" count="2" type="stmt"/>
         <line num="9" count="2" type="cond" truecount="2" falsecount="0"/>
         <line num="11" count="2" type="stmt"/>
         <line num="19" count="1" type="stmt"/>
       </file>
-      <file name="profile.jsx" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/screens/profile.jsx">
+      <file name="profile.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/profile.jsx">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="6" count="2" type="stmt"/>
         <line num="14" count="1" type="stmt"/>
       </file>
-      <file name="register.jsx" path="/Users/antoinemansour/Documents/Projects/MiniCap/miniCap/FindMyClass/app/screens/register.jsx">
+      <file name="register.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/register.jsx">
         <metrics statements="19" coveredstatements="11" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="2"/>
         <line num="7" count="9" type="stmt"/>
         <line num="8" count="9" type="stmt"/>
@@ -121,6 +121,46 @@
         <line num="28" count="1" type="stmt"/>
         <line num="31" count="9" type="stmt"/>
         <line num="77" count="1" type="stmt"/>
+      </file>
+      <file name="schedule.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/schedule.jsx">
+        <metrics statements="37" coveredstatements="0" conditionals="15" coveredconditionals="0" methods="11" coveredmethods="0"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="103" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="139" count="0" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="154" count="0" type="stmt"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="167" count="0" type="stmt"/>
+        <line num="226" count="0" type="stmt"/>
       </file>
     </package>
   </project>
