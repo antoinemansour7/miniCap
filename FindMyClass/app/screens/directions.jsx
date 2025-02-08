@@ -59,7 +59,7 @@ export default function DirectionsScreen() {
     }, [startLocation, destination]);
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: "E9D3D7" }}>
             <MapView style={{ flex: 1 }} initialRegion={{
                 
                 latitude: userLocation?.latitude || destination?.latitude || 45.4961,
@@ -73,22 +73,23 @@ export default function DirectionsScreen() {
             </MapView>
 
             {/* Dropdown for Start & Destination Selection */}
-            <Picker 
-            selectedValue={JSON.stringify(startLocation)} 
-            onValueChange={(itemValue) => setStartLocation( JSON.stringify(itemValue))}
+            <Picker
+                selectedValue={JSON.stringify(startLocation)}
+                onValueChange={(itemValue) => setStartLocation(JSON.parse(itemValue))}
             >
                 <Picker.Item label="Your Location" value={JSON.stringify(userLocation)} />
                 <Picker.Item label="SGW Campus" value={JSON.stringify({ latitude: 45.4961, longitude: -73.5782 })} />
                 <Picker.Item label="Loyola Campus" value={JSON.stringify({ latitude: 45.4585, longitude: -73.6395 })} />
             </Picker>
 
-            <Picker 
-            selectedValue={JSON.stringify(destination)} 
-            onValueChange={(itemValue) => setDestination(JSON.parse(itemValue))}
+            <Picker
+                selectedValue={JSON.stringify(destination)}
+                onValueChange={(itemValue) => setDestination(JSON.parse(itemValue))}
             >
                 <Picker.Item label="SGW Campus" value={JSON.stringify({ latitude: 45.4961, longitude: -73.5782 })} />
                 <Picker.Item label="Loyola Campus" value={JSON.stringify({ latitude: 45.4585, longitude: -73.6395 })} />
             </Picker>
+
         </View>
     );
 }
