@@ -36,6 +36,24 @@ export default function DirectionsScreen() {
     const [routeInfo, setRouteInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [zoomLevel, setZoomLevel] = useState(15); // Add this state
+
+    // Add this function to calculate circle radius based on zoom level
+    const getCircleRadius = () => {
+        // Base radius at zoom level 15
+        const baseRadius = 20;
+        // Adjust radius inversely to zoom level
+        // As zoom increases, radius decreases
+        return baseRadius * Math.pow(2, (15 - zoomLevel));
+    };
+
+    // Add this function to calculate zoom level from region
+    const calculateZoomLevel = (region) => {
+        const LATITUDE_DELTA = region.latitudeDelta;
+        // Convert latitude delta to zoom level
+        const zoomLevel = Math.round(Math.log2(360 / LATITUDE_DELTA));
+        return zoomLevel;
+    };
 
     useEffect(() => {
         let locationSubscription;
@@ -137,13 +155,17 @@ export default function DirectionsScreen() {
                     latitudeDelta: 0.05,
                     longitudeDelta: 0.05,
                 }}
+                onRegionChangeComplete={(region) => {
+                    const newZoomLevel = calculateZoomLevel(region);
+                    setZoomLevel(newZoomLevel);
+                }}
             >
                 {userLocation && (
                     <Circle
                         center={userLocation}
-                        radius={30}
+                        radius={getCircleRadius()}
                         strokeColor="rgba(0, 122, 255, 0.9)"
-                        fillColor="rgba(0, 122, 255, 0.6)"
+                        fillColor="rgba(0, 122, 255, 0.7)"
                     />
                 )}
                 {destination && <Marker coordinate={destination} title="Destination" />}
@@ -158,8 +180,14 @@ export default function DirectionsScreen() {
             </MapView>
 
             {isLoading && (
-                <View style={{ position: 'absolute', top: 50, width: '100%', alignItems: 'center' }}>
-                    <Text>Loading route...</Text>
+                <View style={{  
+                    position: "absolute", bottom: 40, left: 20, right: 20,
+                    backgroundColor: "white", padding: 10, borderRadius: 10,
+                    shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5 }}>
+                    <Text 
+                        style={{ fontWeight: "bold", fontSize: 16 }}
+                    >
+                        Loading route...</Text>
                 </View>
             )}
             {error && (
