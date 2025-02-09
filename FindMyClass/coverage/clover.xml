@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738967510174" clover="3.2.0">
-  <project timestamp="1738967510174" name="All files">
-    <metrics statements="196" coveredstatements="140" conditionals="101" coveredconditionals="60" methods="60" coveredmethods="39" elements="357" coveredelements="239" complexity="0" loc="196" ncloc="196" packages="4" files="17" classes="17"/>
+<coverage generated="1739128965396" clover="3.2.0">
+  <project timestamp="1739128965396" name="All files">
+    <metrics statements="199" coveredstatements="154" conditionals="107" coveredconditionals="71" methods="60" coveredmethods="46" elements="366" coveredelements="271" complexity="0" loc="199" ncloc="199" packages="4" files="17" classes="17"/>
     <package name="app">
-      <metrics statements="20" coveredstatements="10" conditionals="14" coveredconditionals="2" methods="10" coveredmethods="2"/>
+      <metrics statements="20" coveredstatements="17" conditionals="14" coveredconditionals="7" methods="10" coveredmethods="8"/>
       <file name="_layout.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/_layout.jsx">
-        <metrics statements="18" coveredstatements="8" conditionals="14" coveredconditionals="2" methods="9" coveredmethods="1"/>
-        <line num="12" count="9" type="stmt"/>
-        <line num="13" count="9" type="stmt"/>
-        <line num="14" count="8" type="stmt"/>
-        <line num="16" count="8" type="stmt"/>
+        <metrics statements="18" coveredstatements="15" conditionals="14" coveredconditionals="7" methods="9" coveredmethods="7"/>
+        <line num="12" count="7" type="stmt"/>
+        <line num="13" count="7" type="stmt"/>
+        <line num="14" count="7" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
         <line num="17" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="18" count="0" type="stmt"/>
-        <line num="22" count="8" type="cond" truecount="2" falsecount="2"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="27" count="8" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="31" count="8" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
+        <line num="22" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="27" count="6" type="stmt"/>
+        <line num="28" count="6" type="stmt"/>
+        <line num="31" count="6" type="stmt"/>
+        <line num="34" count="6" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
-        <line num="41" count="0" type="stmt"/>
-        <line num="44" count="0" type="stmt"/>
-        <line num="52" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="63" count="0" type="stmt"/>
+        <line num="41" count="6" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="52" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="63" count="1" type="stmt"/>
         <line num="86" count="1" type="stmt"/>
       </file>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/index.jsx">
@@ -59,7 +59,7 @@
       </file>
     </package>
     <package name="app.screens">
-      <metrics statements="84" coveredstatements="39" conditionals="21" coveredconditionals="5" methods="22" coveredmethods="10"/>
+      <metrics statements="87" coveredstatements="46" conditionals="27" coveredconditionals="11" methods="22" coveredmethods="11"/>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/index.jsx">
         <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
         <line num="7" count="6" type="stmt"/>
@@ -101,26 +101,29 @@
         <line num="14" count="1" type="stmt"/>
       </file>
       <file name="register.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/register.jsx">
-        <metrics statements="19" coveredstatements="11" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="2"/>
-        <line num="7" count="9" type="stmt"/>
-        <line num="8" count="9" type="stmt"/>
-        <line num="9" count="9" type="stmt"/>
-        <line num="10" count="9" type="stmt"/>
-        <line num="11" count="9" type="stmt"/>
-        <line num="12" count="9" type="stmt"/>
-        <line num="14" count="9" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
+        <metrics statements="22" coveredstatements="18" conditionals="8" coveredconditionals="7" methods="3" coveredmethods="3"/>
+        <line num="7" count="14" type="stmt"/>
+        <line num="8" count="14" type="stmt"/>
+        <line num="9" count="14" type="stmt"/>
+        <line num="10" count="14" type="stmt"/>
+        <line num="11" count="14" type="stmt"/>
+        <line num="12" count="14" type="stmt"/>
+        <line num="14" count="14" type="stmt"/>
+        <line num="15" count="1" type="cond" truecount="5" falsecount="1"/>
         <line num="16" count="0" type="stmt"/>
         <line num="17" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="27" count="9" type="stmt"/>
-        <line num="28" count="1" type="stmt"/>
-        <line num="31" count="9" type="stmt"/>
-        <line num="77" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="32" count="14" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="36" count="14" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
       </file>
       <file name="schedule.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/schedule.jsx">
         <metrics statements="37" coveredstatements="0" conditionals="15" coveredconditionals="0" methods="11" coveredmethods="0"/>
