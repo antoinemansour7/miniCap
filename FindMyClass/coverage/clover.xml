@@ -1,264 +1,267 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1738964448561" clover="3.2.0">
-  <project timestamp="1738964448561" name="All files">
-    <metrics statements="196" coveredstatements="0" conditionals="99" coveredconditionals="0" methods="60" coveredmethods="0" elements="355" coveredelements="0" complexity="0" loc="196" ncloc="196" packages="4" files="17" classes="17"/>
+<coverage generated="1739129656574" clover="3.2.0">
+  <project timestamp="1739129656574" name="All files">
+    <metrics statements="199" coveredstatements="191" conditionals="107" coveredconditionals="81" methods="60" coveredmethods="57" elements="366" coveredelements="329" complexity="0" loc="199" ncloc="199" packages="4" files="17" classes="17"/>
     <package name="app">
-      <metrics statements="20" coveredstatements="0" conditionals="14" coveredconditionals="0" methods="10" coveredmethods="0"/>
+      <metrics statements="20" coveredstatements="17" conditionals="14" coveredconditionals="7" methods="10" coveredmethods="8"/>
       <file name="_layout.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/_layout.jsx">
-        <metrics statements="18" coveredstatements="0" conditionals="14" coveredconditionals="0" methods="9" coveredmethods="0"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
+        <metrics statements="18" coveredstatements="15" conditionals="14" coveredconditionals="7" methods="9" coveredmethods="7"/>
+        <line num="12" count="7" type="stmt"/>
+        <line num="13" count="7" type="stmt"/>
+        <line num="14" count="7" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
         <line num="17" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="18" count="0" type="stmt"/>
-        <line num="22" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="27" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
+        <line num="22" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="27" count="6" type="stmt"/>
+        <line num="28" count="6" type="stmt"/>
+        <line num="31" count="6" type="stmt"/>
+        <line num="34" count="6" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
-        <line num="41" count="0" type="stmt"/>
-        <line num="44" count="0" type="stmt"/>
-        <line num="52" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="63" count="0" type="stmt"/>
-        <line num="86" count="0" type="stmt"/>
+        <line num="41" count="6" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="52" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
       </file>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/index.jsx">
-        <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
       </file>
     </package>
     <package name="app.api">
-      <metrics statements="21" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <metrics statements="21" coveredstatements="21" conditionals="6" coveredconditionals="3" methods="3" coveredmethods="3"/>
       <file name="auth.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/api/auth.js">
-        <metrics statements="21" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="11" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="24" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="35" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="36" count="0" type="stmt"/>
+        <metrics statements="21" coveredstatements="21" conditionals="6" coveredconditionals="3" methods="3" coveredmethods="3"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="11" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="24" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="31" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="35" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="36" count="1" type="stmt"/>
       </file>
     </package>
     <package name="app.screens">
-      <metrics statements="84" coveredstatements="0" conditionals="21" coveredconditionals="0" methods="22" coveredmethods="0"/>
+      <metrics statements="87" coveredstatements="83" conditionals="27" coveredconditionals="21" methods="22" coveredmethods="22"/>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/index.jsx">
-        <metrics statements="5" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <line num="7" count="6" type="stmt"/>
+        <line num="9" count="6" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
       </file>
       <file name="login.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/login.jsx">
-        <metrics statements="17" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
+        <metrics statements="17" coveredstatements="17" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
+        <line num="7" count="16" type="stmt"/>
+        <line num="8" count="15" type="stmt"/>
+        <line num="9" count="15" type="stmt"/>
+        <line num="10" count="15" type="stmt"/>
+        <line num="12" count="15" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="26" count="15" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="31" count="15" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
       </file>
       <file name="map.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/map.jsx">
-        <metrics statements="4" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
+        <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
       </file>
       <file name="profile.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/profile.jsx">
-        <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
       </file>
       <file name="register.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/register.jsx">
-        <metrics statements="19" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
+        <metrics statements="22" coveredstatements="18" conditionals="8" coveredconditionals="7" methods="3" coveredmethods="3"/>
+        <line num="7" count="14" type="stmt"/>
+        <line num="8" count="14" type="stmt"/>
+        <line num="9" count="14" type="stmt"/>
+        <line num="10" count="14" type="stmt"/>
+        <line num="11" count="14" type="stmt"/>
+        <line num="12" count="14" type="stmt"/>
+        <line num="14" count="14" type="stmt"/>
+        <line num="15" count="1" type="cond" truecount="5" falsecount="1"/>
         <line num="16" count="0" type="stmt"/>
         <line num="17" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
         <line num="27" count="0" type="stmt"/>
         <line num="28" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="77" count="0" type="stmt"/>
+        <line num="32" count="14" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="36" count="14" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
       </file>
       <file name="schedule.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/schedule.jsx">
-        <metrics statements="37" coveredstatements="0" conditionals="15" coveredconditionals="0" methods="11" coveredmethods="0"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="29" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="35" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="40" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
-        <line num="43" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="68" count="0" type="stmt"/>
-        <line num="69" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
-        <line num="85" count="0" type="stmt"/>
-        <line num="97" count="0" type="stmt"/>
-        <line num="103" count="0" type="stmt"/>
-        <line num="104" count="0" type="stmt"/>
-        <line num="109" count="0" type="stmt"/>
-        <line num="123" count="0" type="stmt"/>
-        <line num="124" count="0" type="stmt"/>
-        <line num="139" count="0" type="stmt"/>
-        <line num="148" count="0" type="stmt"/>
-        <line num="154" count="0" type="stmt"/>
-        <line num="160" count="0" type="stmt"/>
-        <line num="167" count="0" type="stmt"/>
-        <line num="226" count="0" type="stmt"/>
+        <metrics statements="37" coveredstatements="37" conditionals="15" coveredconditionals="10" methods="11" coveredmethods="11"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="23" count="10" type="stmt"/>
+        <line num="24" count="9" type="stmt"/>
+        <line num="25" count="9" type="stmt"/>
+        <line num="28" count="9" type="stmt"/>
+        <line num="29" count="9" type="stmt"/>
+        <line num="30" count="9" type="stmt"/>
+        <line num="33" count="9" type="stmt"/>
+        <line num="34" count="261" type="stmt"/>
+        <line num="35" count="261" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="261" type="stmt"/>
+        <line num="40" count="9" type="stmt"/>
+        <line num="42" count="9" type="stmt"/>
+        <line num="43" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="67" count="9" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="73" count="9" type="stmt"/>
+        <line num="85" count="9" type="stmt"/>
+        <line num="97" count="9" type="stmt"/>
+        <line num="103" count="9" type="stmt"/>
+        <line num="104" count="9" type="stmt"/>
+        <line num="109" count="45" type="stmt"/>
+        <line num="123" count="9" type="stmt"/>
+        <line num="124" count="90" type="stmt"/>
+        <line num="139" count="450" type="stmt"/>
+        <line num="149" count="1" type="stmt"/>
+        <line num="155" count="9" type="stmt"/>
+        <line num="161" count="113" type="stmt"/>
+        <line num="168" count="1" type="stmt"/>
+        <line num="229" count="1" type="stmt"/>
       </file>
     </package>
     <package name="components">
-      <metrics statements="71" coveredstatements="0" conditionals="58" coveredconditionals="0" methods="25" coveredmethods="0"/>
+      <metrics statements="71" coveredstatements="70" conditionals="60" coveredconditionals="50" methods="25" coveredmethods="24"/>
       <file name="Card.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/Card.js">
-        <metrics statements="3" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
       </file>
       <file name="Chatbot.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/Chatbot.js">
-        <metrics statements="19" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="7" coveredmethods="0"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="12" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
+        <metrics statements="19" coveredstatements="18" conditionals="6" coveredconditionals="5" methods="7" coveredmethods="6"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="10" type="stmt"/>
+        <line num="8" count="10" type="stmt"/>
+        <line num="9" count="10" type="stmt"/>
+        <line num="11" count="10" type="stmt"/>
+        <line num="12" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="28" count="10" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
-        <line num="41" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
+        <line num="41" count="6" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
       </file>
       <file name="FloatingChatButton.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/FloatingChatButton.js">
-        <metrics statements="6" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
+        <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="7" type="stmt"/>
+        <line num="9" count="7" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="18" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
       </file>
       <file name="LoyolaMap.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/LoyolaMap.js">
-        <metrics statements="23" coveredstatements="0" conditionals="30" coveredconditionals="0" methods="7" coveredmethods="0"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="8" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="9" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="21" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="35" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="37" count="0" type="stmt"/>
-        <line num="39" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="40" count="0" type="stmt"/>
-        <line num="50" count="0" type="stmt"/>
-        <line num="62" count="0" type="stmt"/>
-        <line num="75" count="0" type="stmt"/>
-        <line num="77" count="0" type="stmt"/>
-        <line num="106" count="0" type="stmt"/>
+        <metrics statements="23" coveredstatements="23" conditionals="30" coveredconditionals="24" methods="7" coveredmethods="7"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="29" type="cond" truecount="2" falsecount="0"/>
+        <line num="9" count="29" type="cond" truecount="3" falsecount="1"/>
+        <line num="11" count="29" type="stmt"/>
+        <line num="12" count="866" type="stmt"/>
+        <line num="13" count="866" type="stmt"/>
+        <line num="15" count="29" type="stmt"/>
+        <line num="21" count="29" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="28" count="29" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="35" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="39" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="50" count="3" type="stmt"/>
+        <line num="62" count="3" type="stmt"/>
+        <line num="75" count="27" type="stmt"/>
+        <line num="77" count="27" type="stmt"/>
+        <line num="106" count="1" type="stmt"/>
       </file>
       <file name="SGWBuildings.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/SGWBuildings.js">
-        <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="2" type="stmt"/>
       </file>
       <file name="SGWMap.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/SGWMap.js">
-        <metrics statements="12" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="4" coveredmethods="0"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="10" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="14" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
-        <line num="76" count="0" type="stmt"/>
+        <metrics statements="12" coveredstatements="12" conditionals="12" coveredconditionals="9" methods="4" coveredmethods="4"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="10" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="14" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="25" count="4" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="48" count="28" type="stmt"/>
+        <line num="76" count="1" type="stmt"/>
       </file>
       <file name="ToggleCampusMap.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/ToggleCampusMap.js">
-        <metrics statements="6" coveredstatements="0" conditionals="10" coveredconditionals="0" methods="3" coveredmethods="0"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="27" count="0" type="stmt"/>
-        <line num="44" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
+        <metrics statements="6" coveredstatements="6" conditionals="10" coveredconditionals="10" methods="3" coveredmethods="3"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="6" type="stmt"/>
+        <line num="9" count="6" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
       </file>
       <file name="loyolaBuildings.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/loyolaBuildings.js">
-        <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="2" type="stmt"/>
       </file>
     </package>
   </project>

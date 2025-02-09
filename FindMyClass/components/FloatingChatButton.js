@@ -9,12 +9,13 @@ const FloatingChatButton = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        testID="chat-button"  // ✅ Ensure testID is correctly set
         style={styles.chatButton}
         onPress={() => setIsChatVisible(true)}
       >
         <MaterialIcons name="chat" size={30} color="white" />
       </TouchableOpacity>
-      <Chatbot isVisible={isChatVisible} onClose={() => setIsChatVisible(false)} />
+      {isChatVisible && <Chatbot isVisible={isChatVisible} onClose={() => setIsChatVisible(false)} />}
     </View>
   );
 };
@@ -22,11 +23,11 @@ const FloatingChatButton = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 80, // Adjusted to avoid overlapping
+    bottom: 80,
     right: 20,
   },
   chatButton: {
-    backgroundColor: '#912338', // Concordia burgundy
+    backgroundColor: '#912338',
     padding: 15,
     borderRadius: 30,
     elevation: 5,
