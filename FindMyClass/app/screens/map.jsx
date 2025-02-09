@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { useRoute } from '@react-navigation/native';  // Using the useRoute hook
-import ToggleCampusMap from '../../components/ToggleCampusMap';
-import FloatingChatButton from '../../components/FloatingChatButton';
+import ToggleCampusMap from '../../components/ToggleCampusMap.js';
+import FloatingChatButton from '../../components/FloatingChatButton.js';
+
 
 export default function Map() {
   const route = useRoute();
