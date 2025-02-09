@@ -42,7 +42,7 @@ export default function Layout() {
               onPress={() => {
                 navigation.dispatch(DrawerActions.openDrawer());
               }}
-              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 5 }} // Only modify for Map screen
+              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} // Only modify for Map screen
             >
               <MaterialIcons name="menu" size={30} color="#912338" />
             </TouchableOpacity>
