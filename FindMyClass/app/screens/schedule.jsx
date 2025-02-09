@@ -138,6 +138,7 @@ export default function Schedule() {
       {days.map((day, dayIndex) => (
         <TouchableOpacity
           key={`${day}-${time}`}
+          testID={`schedule-cell-${day}-${time}`} // ✅ Added testID for testing
           style={[
             styles.cell,
             dayIndex === days.length - 1 && styles.lastColumnCell,
@@ -164,18 +165,19 @@ export default function Schedule() {
 
       {/* Action Buttons */}
       <Animated.View style={[styles.floatingButton, styles.addButton, addButtonTransform]}>
-        <TouchableOpacity onPress={() => setIsSearchOpen(true)}>
+        <TouchableOpacity testID="add-button" onPress={() => setIsSearchOpen(true)}> {/* ✅ Added testID */}
           <MaterialIcons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
 
       <Animated.View style={[styles.floatingButton, styles.deleteButton, deleteButtonTransform]}>
-        <TouchableOpacity>
+        <TouchableOpacity testID="delete-button">
           <MaterialIcons name="delete" size={24} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
 
       <TouchableOpacity
+        testID="edit-button" // ✅ Added testID
         style={styles.editButton}
         onPress={toggleEditMode}
       >
@@ -197,13 +199,14 @@ export default function Schedule() {
               <View style={styles.searchContainer}>
                 <View style={styles.searchHeader}>
                   <Text style={styles.searchTitle}>Add Class</Text>
-                  <TouchableOpacity onPress={closeSearch}>
+                  <TouchableOpacity testID="close-search-modal" onPress={closeSearch}> {/* ✅ Added testID */}
                     <MaterialIcons name="close" size={24} color="#666" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.searchInputContainer}>
                   <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
                   <TextInput
+                    testID="search-input" // ✅ Added testID
                     style={styles.searchInput}
                     placeholder="Search for a class..."
                     value={searchQuery}
