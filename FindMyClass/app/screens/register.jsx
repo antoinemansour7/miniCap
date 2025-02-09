@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router'; // ✅ Use useRouter for Expo Router
-import { registerUser } from '../api/auth'; // ✅ Correct import
+import { useRouter } from 'expo-router'; 
+import { registerUser } from '../api/auth'; 
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -9,15 +9,20 @@ export default function Register() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter(); // ✅ Use router instead of navigation
+  const router = useRouter(); 
 
   const handleRegister = async () => {
+    if (!email || !password || !firstName || !lastName) {
+      Alert.alert('Error', 'All fields are required.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await registerUser(email, password, firstName, lastName);
       setIsLoading(false);
       Alert.alert('Success', 'Registration Successful!');
-      router.push('/screens/login'); // ✅ Check if this matches your file structure
+      router.push('/screens/login'); 
     } catch (error) {
       setIsLoading(false);
       Alert.alert('Registration Error', error.message);
@@ -25,7 +30,7 @@ export default function Register() {
   };
 
   const handleLoginNavigation = () => {
-    router.push('/screens/login'); // ✅ Corrected path
+    router.push('/screens/login'); 
   };
 
   return (
@@ -35,21 +40,21 @@ export default function Register() {
         <TextInput
           style={styles.input}
           placeholder="First Name"
-          placeholderTextColor="#888"
+          placeholderTextColor="#666"
           value={firstName}
           onChangeText={setFirstName}
         />
         <TextInput
           style={styles.input}
           placeholder="Last Name"
-          placeholderTextColor="#888"
+          placeholderTextColor="#666"
           value={lastName}
           onChangeText={setLastName}
         />
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#888"
+          placeholderTextColor="#666"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -58,12 +63,18 @@ export default function Register() {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#888"
+          placeholderTextColor="#666"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          returnKeyType="done"
         />
-        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
+        <TouchableOpacity 
+          testID="register-button"
+          style={styles.button} 
+          onPress={handleRegister} 
+          disabled={isLoading}
+        >
           <Text style={styles.buttonText}>{isLoading ? "Registering..." : "Register"}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleLoginNavigation}>

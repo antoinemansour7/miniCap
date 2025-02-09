@@ -1,66 +1,110 @@
-import axios from "axios";
-import auth from "../api/auth"; // Adjust path as needed
+import axios from 'axios';
+import { loginUser, registerUser, logoutUser } from '../api/auth';
 
-jest.mock("axios"); // ✅ Mock axios to prevent real API calls
+// Mock the entire axios module
+jest.mock('axios', () => ({
+  post: jest.fn()
+}));
 
-describe("Auth API", () => {
-  const API_URL = "http://localhost:5500/auth";
-
-  afterEach(() => {
-    jest.clearAllMocks(); // ✅ Clear mocks after each test
+describe('Authentication Service', () => {
+  // Reset mocks before each test
+  beforeEach(() => {
+    jest.clearAllMocks();
+    console.error = jest.fn(); // Mock console.error
+    console.log = jest.fn();   // Mock console.log
   });
 
-  test("loginUser makes a POST request and returns data", async () => {
-    const mockData = { token: "fake-jwt-token", user: { id: 1, email: "test@example.com" } };
-    axios.post.mockResolvedValue({ data: mockData });
+  describe('loginUser', () => {
+    const mockCredentials = {
+      email: 'test@example.com',
+      password: 'password123'
+    };
 
-    const result = await auth.loginUser("test@example.com", "password123");
+    it('should successfully login a user', async () => {
+      const mockResponse = { data: { token: 'fake-token', user: { id: 1 } } };
+      axios.post.mockResolvedValue(mockResponse);
 
-    expect(axios.post).toHaveBeenCalledWith(`${API_URL}/login`, { email: "test@example.com", password: "password123" });
-    expect(result).toEqual(mockData);
+      const result = await loginUser(mockCredentials.email, mockCredentials.password);
+
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://localhost:5500/auth/login',
+        mockCredentials
+      );
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it('should throw an error when login fails', async () => {
+      const mockError = new Error('Invalid credentials');
+      mockError.response = { data: 'Invalid credentials' };
+      axios.post.mockRejectedValue(mockError);
+
+      await expect(loginUser(mockCredentials.email, mockCredentials.password))
+        .rejects.toThrow();
+      expect(console.error).toHaveBeenCalled();
+    });
   });
 
-  test("registerUser makes a POST request and returns data", async () => {
-    const mockData = { message: "User registered successfully" };
-    axios.post.mockResolvedValue({ data: mockData });
+  describe('registerUser', () => {
+    const mockUser = {
+      email: 'test@example.com',
+      password: 'password123',
+      firstName: 'John',
+      lastName: 'Doe'
+    };
 
-    const result = await auth.registerUser("test@example.com", "password123", "John", "Doe");
+    it('should successfully register a user', async () => {
+      const mockResponse = { data: { user: { id: 1, ...mockUser } } };
+      axios.post.mockResolvedValue(mockResponse);
 
-    expect(axios.post).toHaveBeenCalledWith(`${API_URL}/register`, { email: "test@example.com", password: "password123", firstName: "John", lastName: "Doe" });
-    expect(result).toEqual(mockData);
+      const result = await registerUser(
+        mockUser.email,
+        mockUser.password,
+        mockUser.firstName,
+        mockUser.lastName
+      );
+
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://localhost:5500/auth/register',
+        mockUser
+      );
+      expect(result).toEqual(mockResponse.data);
+      expect(console.log).toHaveBeenCalledWith('📤 Sending registration request...');
+      expect(console.log).toHaveBeenCalledWith('✅ Registration successful:', mockResponse.data);
+    });
+
+    it('should throw an error when registration fails', async () => {
+      const mockError = new Error('Email already exists');
+      mockError.response = { data: 'Email already exists' };
+      axios.post.mockRejectedValue(mockError);
+
+      await expect(registerUser(
+        mockUser.email,
+        mockUser.password,
+        mockUser.firstName,
+        mockUser.lastName
+      )).rejects.toThrow();
+      expect(console.error).toHaveBeenCalled();
+    });
   });
 
-  test("logoutUser makes a POST request and returns data", async () => {
-    const mockData = { message: "User logged out" };
-    axios.post.mockResolvedValue({ data: mockData });
+  describe('logoutUser', () => {
+    it('should successfully logout a user', async () => {
+      const mockResponse = { data: { message: 'Logged out successfully' } };
+      axios.post.mockResolvedValue(mockResponse);
 
-    const result = await auth.logoutUser();
+      const result = await logoutUser();
 
-    expect(axios.post).toHaveBeenCalledWith(`${API_URL}/logout`);
-    expect(result).toEqual(mockData);
-  });
+      expect(axios.post).toHaveBeenCalledWith('http://localhost:5500/auth/logout');
+      expect(result).toEqual(mockResponse.data);
+    });
 
-  test("loginUser handles API errors", async () => {
-    axios.post.mockRejectedValue({ response: { data: { error: "Invalid credentials" } } });
+    it('should throw an error when logout fails', async () => {
+      const mockError = new Error('Session expired');
+      mockError.response = { data: 'Session expired' };
+      axios.post.mockRejectedValue(mockError);
 
-    await expect(auth.loginUser("test@example.com", "wrongpassword")).rejects.toEqual({ response: { data: { error: "Invalid credentials" } } });
-
-    expect(axios.post).toHaveBeenCalledWith(`${API_URL}/login`, { email: "test@example.com", password: "wrongpassword" });
-  });
-
-  test("registerUser handles API errors", async () => {
-    axios.post.mockRejectedValue({ response: { data: { error: "User already exists" } } });
-
-    await expect(auth.registerUser("test@example.com", "password123", "John", "Doe")).rejects.toEqual({ response: { data: { error: "User already exists" } } });
-
-    expect(axios.post).toHaveBeenCalledWith(`${API_URL}/register`, { email: "test@example.com", password: "password123", firstName: "John", lastName: "Doe" });
-  });
-
-  test("logoutUser handles API errors", async () => {
-    axios.post.mockRejectedValue({ response: { data: { error: "Not authenticated" } } });
-
-    await expect(auth.logoutUser()).rejects.toEqual({ response: { data: { error: "Not authenticated" } } });
-
-    expect(axios.post).toHaveBeenCalledWith(`${API_URL}/logout`);
+      await expect(logoutUser()).rejects.toThrow();
+      expect(console.error).toHaveBeenCalled();
+    });
   });
 });
