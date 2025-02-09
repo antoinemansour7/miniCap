@@ -6,7 +6,7 @@ import LoyolaMap from './LoyolaMap';
 
 const ToggleCampusMap = ({ searchText }) => {
   const route = useRoute();
-  const [selectedCampus, setSelectedCampus] = useState(route?.params?.campus || 'SGW'); // Default to 'Loyola'
+  const [selectedCampus, setSelectedCampus] = useState(route?.params?.campus || 'SGW'); // Default to 'SGW'
 
   useEffect(() => {
     if (route?.params?.campus) {
