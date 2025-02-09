@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, Alert, Platform } from "react-native";
+import { View, Text, Alert, Platform, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../secrets";
@@ -27,6 +27,8 @@ export default function DirectionsScreen() {
         console.error("Invalid destination:", parsedDestination);
         return <Text>Error: Invalid destination coordinates.</Text>;
     }
+    const buildingName = params.buildingName || "No Destination set";
+    console.log("Building Name:", buildingName);
 
     const mapRef = useRef(null);
     const [destination] = useState(parsedDestination);
@@ -36,18 +38,17 @@ export default function DirectionsScreen() {
     const [routeInfo, setRouteInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [zoomLevel, setZoomLevel] = useState(15); // Add this state
+    const [zoomLevel, setZoomLevel] = useState(20); // Add this state
 
-    // Add this function to calculate circle radius based on zoom level
+    //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
-        // Base radius at zoom level 15
         const baseRadius = 20;
         // Adjust radius inversely to zoom level
         // As zoom increases, radius decreases
         return baseRadius * Math.pow(2, (15 - zoomLevel));
     };
 
-    // Add this function to calculate zoom level from region
+    // calculate zoom level from region
     const calculateZoomLevel = (region) => {
         const LATITUDE_DELTA = region.latitudeDelta;
         // Convert latitude delta to zoom level
@@ -164,7 +165,7 @@ export default function DirectionsScreen() {
                     <Circle
                         center={userLocation}
                         radius={getCircleRadius()}
-                        strokeColor="rgba(0, 122, 255, 0.9)"
+                        strokeColor="white"
                         fillColor="rgba(0, 122, 255, 0.7)"
                     />
                 )}
@@ -180,10 +181,9 @@ export default function DirectionsScreen() {
             </MapView>
 
             {isLoading && (
-                <View style={{  
+                <View style={[styles.card, {  
                     position: "absolute", bottom: 40, left: 20, right: 20,
-                    backgroundColor: "white", padding: 10, borderRadius: 10,
-                    shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5 }}>
+          }]}>
                     <Text 
                         style={{ fontWeight: "bold", fontSize: 16 }}
                     >
@@ -191,20 +191,30 @@ export default function DirectionsScreen() {
                 </View>
             )}
             {error && (
-                <View style={{ position: 'absolute', top: 50, width: '100%', alignItems: 'center' }}>
+                <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
                     <Text style={{ color: 'red' }}>{error}</Text>
                 </View>
             )}
             {routeInfo && (
-                <View style={{
+                <View style={[styles.card, {
                     position: "absolute", bottom: 40, left: 20, right: 20,
-                    backgroundColor: "white", padding: 10, borderRadius: 10,
-                    shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5
-                }}>
+                }]}>
                     <Text style={{ fontWeight: "bold", fontSize: 16 }}>Estimated Time: {routeInfo.duration}</Text>
-                    <Text style={{ fontSize: 14 }}>Distance: {routeInfo.distance}</Text>
+                    <Text style={{ fontSize: 14 }}>
+                        Destination: {buildingName}  {"\n"}
+                        Distance: {routeInfo.distance}</Text>
                 </View>
             )}
         </View>
     );
 }
+
+
+const styles = StyleSheet.create({
+card: {
+
+backgroundColor: "white", padding: 10, borderRadius: 10,
+shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5,
+}
+
+}) ; 
