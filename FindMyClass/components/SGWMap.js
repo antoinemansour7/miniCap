@@ -56,15 +56,17 @@ const SGWMap = ({ searchText }) => {
                             title={building.name}
                             description={`Building ID: ${building.id}`}
                             onPress={() => 
-                                router.push({
+                                {
+                                console.log("Navigation to directions:", building.latitude, building.longitude);
+                                 router.push({
                                     pathname: "/screens/directions",  
                                     params: {
-                                        destination: {
+                                        destination: JSON.stringify({
                                             latitude: building.latitude,
-                                            longitude: building.longitude
-                                        }
+                                            longitude: building.longitude,
+                                        }),
                                     }
-                                })
+                                })}
                             }
                         />
                         {building.boundary && (
