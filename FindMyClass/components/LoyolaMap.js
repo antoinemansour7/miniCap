@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
+import MapView, { Marker, Callout, Polygon } from 'react-native-maps';
 import LoyolaBuildings from './loyolaBuildings';
+import useLocationHandler from '../hooks/useLocationHandler';
 
-// Function to calculate the centroid of a building's outer boundary
 const getCentroid = (building) => {
     const boundary = building.boundary?.outer || building.boundary;
     if (!boundary || boundary.length === 0) return null;
@@ -30,6 +30,10 @@ const getCentroid = (building) => {
 
 const LoyolaMap = ({ searchText }) => {
     const mapRef = useRef(null);
+    const { userLocation, nearestBuilding, noNearbyBuilding, messageVisible } = useLocationHandler(
+        LoyolaBuildings,
+        getCentroid
+    );
 
     useEffect(() => {
         if (searchText) {
@@ -40,7 +44,7 @@ const LoyolaMap = ({ searchText }) => {
                 mapRef.current.animateToRegion({
                     latitude: getCentroid(building)?.latitude || building.latitude,
                     longitude: getCentroid(building)?.longitude || building.longitude,
-                    latitudeDelta: 0.001, // Zoom in
+                    latitudeDelta: 0.001,
                     longitudeDelta: 0.001,
                 });
             }
@@ -48,15 +52,15 @@ const LoyolaMap = ({ searchText }) => {
     }, [searchText]);
 
     const buildingColors = {
-        SP: { stroke: 'rgba(0, 204, 255, 0.8)', fill: 'rgba(0, 204, 255, 0.4)' },  // Light Blue
-        GE: { stroke: 'rgba(153, 51, 255, 0.8)', fill: 'rgba(153, 51, 255, 0.4)' }, // Purple
-        RF: { stroke: 'rgba(255, 165, 0, 0.8)', fill: 'rgba(255, 165, 0, 0.4)' }, // Orange
-        CJ: { stroke: 'rgba(102, 204, 0, 0.8)', fill: 'rgba(102, 204, 0, 0.4)' },  // Green
-        CC: { stroke: 'rgba(255, 102, 0, 0.8)', fill: 'rgba(255, 102, 0, 0.4)' },  // Dark Orange
-        AD: { stroke: 'rgba(255, 204, 0, 0.8)', fill: 'rgba(255, 204, 0, 0.4)' },  // Yellow
-        PY: { stroke: 'rgba(0, 102, 204, 0.8)', fill: 'rgba(0, 102, 204, 0.4)' },  // Dark Blue
-        FC: { stroke: 'rgba(204, 0, 204, 0.8)', fill: 'rgba(204, 0, 204, 0.4)' },  // Magenta
-        VL: { stroke: 'rgba(0, 153, 76, 0.8)', fill: 'rgba(0, 153, 76, 0.4)' },    // Dark Green
+        SP: { stroke: 'rgba(0, 204, 255, 0.8)', fill: 'rgba(0, 204, 255, 0.4)' },
+        GE: { stroke: 'rgba(153, 51, 255, 0.8)', fill: 'rgba(153, 51, 255, 0.4)' },
+        RF: { stroke: 'rgba(255, 165, 0, 0.8)', fill: 'rgba(255, 165, 0, 0.4)' },
+        CJ: { stroke: 'rgba(102, 204, 0, 0.8)', fill: 'rgba(102, 204, 0, 0.4)' },
+        CC: { stroke: 'rgba(255, 102, 0, 0.8)', fill: 'rgba(255, 102, 0, 0.4)' },
+        AD: { stroke: 'rgba(255, 204, 0, 0.8)', fill: 'rgba(255, 204, 0, 0.4)' },
+        PY: { stroke: 'rgba(0, 102, 204, 0.8)', fill: 'rgba(0, 102, 204, 0.4)' },
+        FC: { stroke: 'rgba(204, 0, 204, 0.8)', fill: 'rgba(204, 0, 204, 0.4)' },
+        VL: { stroke: 'rgba(0, 153, 76, 0.8)', fill: 'rgba(0, 153, 76, 0.4)' },
     };
 
     return (
@@ -73,19 +77,33 @@ const LoyolaMap = ({ searchText }) => {
             >
                 {LoyolaBuildings.map((building) => {
                     const centroid = getCentroid(building);
-
                     return (
                         <React.Fragment key={building.id}>
-                            {/* Marker at centroid (adjusted for SP if needed) */}
                             {centroid && (
-                                <Marker
-                                    coordinate={centroid}
-                                    title={building.name}
-                                    description={`Building ID: ${building.id}`}
-                                />
+                                <Marker coordinate={centroid} title={building.name} pinColor={nearestBuilding?.id === building.id ? 'red' : undefined}>
+                                    <Callout>
+                                        <ScrollView style={styles.calloutContainer}>
+                                            <Text style={styles.calloutTitle}>{building.name}</Text>
+                                            <Text style={styles.calloutDescription}>{building.description}</Text>
+                                            <Text style={styles.calloutText}>
+                                                <Text style={styles.boldText}>Purpose:</Text> {building.purpose}
+                                            </Text>
+                                            <Text style={styles.calloutText}>
+                                                <Text style={styles.boldText}>Facilities:</Text> {building.facilities}
+                                            </Text>
+                                            <Text style={styles.calloutText}>
+                                                <Text style={styles.boldText}>Address:</Text> {building.address}
+                                            </Text>
+                                            <Text style={styles.calloutText}>
+                                                <Text style={styles.boldText}>Contact:</Text> {building.contact}
+                                            </Text>
+                                            <TouchableOpacity style={styles.button}>
+                                                <Text style={styles.buttonText}>Get Directions</Text>
+                                            </TouchableOpacity>
+                                        </ScrollView>
+                                    </Callout>
+                                </Marker>
                             )}
-
-                            {/* Polygon with outer and inner boundaries */}
                             {building.boundary && (
                                 <Polygon
                                     coordinates={building.boundary.outer || building.boundary}
@@ -99,17 +117,44 @@ const LoyolaMap = ({ searchText }) => {
                     );
                 })}
             </MapView>
+
+            {messageVisible && noNearbyBuilding && (
+                <View style={styles.messageContainer}>
+                    <Text style={styles.messageText}>You are not near any of the buildings.</Text>
+                </View>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    container: { flex: 1 },
+    map: { flex: 1 },
+    messageContainer: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -150 }, { translateY: -30 }],
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '80%',
     },
-    map: {
-        flex: 1,
+    messageText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
+    calloutContainer: { width: 250, padding: 12, backgroundColor: '#fff' },
+    calloutTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
+    calloutDescription: { fontSize: 14, marginBottom: 12 },
+    calloutText: { fontSize: 12, marginBottom: 6 },
+    boldText: { fontWeight: 'bold' },
+    button: { backgroundColor: '#007BFF', padding: 8, borderRadius: 5, marginTop: 15 },
+    buttonText: { color: '#fff', fontWeight: 'bold', textAlign: 'center' },
 });
 
 export default LoyolaMap;
