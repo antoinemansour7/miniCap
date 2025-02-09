@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, Alert, Platform, StyleSheet } from "react-native";
+import { View, Text, Alert, Platform, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { Dropdown } from 'react-native-element-dropdown';
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../secrets";
@@ -28,10 +29,10 @@ export default function DirectionsScreen() {
         return <Text>Error: Invalid destination coordinates.</Text>;
     }
     const buildingName = params.buildingName || "No Destination set";
-    console.log("Building Name:", buildingName);
+    const [destinationName, setDestinationName] = useState(buildingName);
 
     const mapRef = useRef(null);
-    const [destination] = useState(parsedDestination);
+    const [destination, setDestination] = useState(parsedDestination);
     const [userLocation, setUserLocation] = useState(null);
     const [startLocation, setStartLocation] = useState(null);
     const [coordinates, setCoordinates] = useState([]);
@@ -39,6 +40,33 @@ export default function DirectionsScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [zoomLevel, setZoomLevel] = useState(20); // Add this state
+
+    const [selectedStart, setSelectedStart] = useState('userLocation');
+    const [selectedDest, setSelectedDest] = useState('current');
+    const [customStart, setCustomStart] = useState('');
+    const [customDest, setCustomDest] = useState('');
+    const [showCustomStart, setShowCustomStart] = useState(false);
+    const [showCustomDest, setShowCustomDest] = useState(false);
+    const [isRouteCardVisible, setIsRouteCardVisible] = useState(true);
+
+    const predefinedLocations = {
+        SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
+        LoyolaCampus: { latitude: 45.458424, longitude: -73.640259 }
+    };
+
+    const startLocationData = [
+        { label: 'My Location', value: 'userLocation' },
+        { label: 'SGW Campus', value: 'SGWCampus' },
+        { label: 'Loyola Campus', value: 'LoyolaCampus' },
+        { label: 'Custom Location', value: 'custom' },
+    ];
+
+    const destinationData = [
+        { label:`${buildingName}`, value: 'current' },
+        { label: 'SGW Campus', value: 'SGWCampus' },
+        { label: 'Loyola Campus', value: 'LoyolaCampus' },
+        { label: 'Custom Location', value: 'custom' },
+    ];
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
@@ -54,6 +82,110 @@ export default function DirectionsScreen() {
         // Convert latitude delta to zoom level
         const zoomLevel = Math.round(Math.log2(360 / LATITUDE_DELTA));
         return zoomLevel;
+    };
+
+    const handleStartLocationChange = async (item) => {
+        setSelectedStart(item.value);
+        setShowCustomStart(item.value === 'custom');
+        
+        if (item.value !== 'custom') {
+            let newStartLocation;
+            switch(item.value) {
+                case 'userLocation':
+                    newStartLocation = userLocation;
+                    break;
+                case 'SGWCampus':
+                case 'LoyolaCampus':
+                    newStartLocation = predefinedLocations[item.value];
+                    break;
+                default:
+                    return;
+            }
+            setStartLocation(newStartLocation);
+            updateRoute(newStartLocation, destination);
+        }
+    };
+
+    const handleDestinationChange = (item) => {
+        setSelectedDest(item.value);
+        setShowCustomDest(item.value === 'custom');
+        
+        if (item.value !== 'custom') {
+            let newDestination;
+            let newDestinationName;
+            switch(item.value) {
+                case 'current':
+                    newDestination = parsedDestination;
+                    newDestinationName = buildingName;
+                    break;
+                case 'SGWCampus':
+                    newDestination = predefinedLocations[item.value];
+                    newDestinationName = 'SGW Campus';
+                    break;
+                case 'LoyolaCampus':
+                    newDestination = predefinedLocations[item.value];
+                    newDestinationName = 'Loyola Campus';
+                    break;
+                default:
+                    return;
+            }
+            setDestination(newDestination);
+            setDestinationName(newDestinationName);
+            updateRoute(startLocation, newDestination);
+        }
+    };
+
+    const handleCustomStartSubmit = () => {
+        if (customStart.trim()) {
+            // Here you would implement geocoding to convert address to coordinates
+            // For now, just showing how to handle the submit
+            console.log("Custom start location:", customStart);
+        }
+    };
+
+    const handleCustomDestSubmit = () => {
+        if (customDest.trim()) {
+            // Here you would implement geocoding to convert address to coordinates
+            console.log("Custom destination:", customDest);
+        }
+    };
+
+    const updateRoute = async (start, end) => {
+        if (!start || !end) return;
+        
+        try {
+            setIsLoading(true);
+            const response = await fetch(
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&key=${googleAPIKey}`
+            );
+            const data = await response.json();
+
+            if (!data.routes || data.routes.length === 0) {
+                throw new Error("No route found");
+            }
+
+            const encodedPolyline = data.routes[0].overview_polyline.points;
+            const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
+                latitude: lat,
+                longitude: lng
+            }));
+
+            setCoordinates(decodedCoordinates);
+            const leg = data.routes[0].legs[0];
+            setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
+
+            // Adjust map view
+            if (mapRef.current) {
+                mapRef.current.fitToCoordinates([start, end, ...decodedCoordinates], {
+                    edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                    animated: true
+                });
+            }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -147,6 +279,78 @@ export default function DirectionsScreen() {
 
     return (
         <View style={{ flex: 1 }}>
+            {isRouteCardVisible ? (
+                <View style={[styles.card, styles.topCard]}>
+                    <View style={styles.dropdownContainer}>
+                        <Text style={styles.label}>Start Location</Text>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            data={startLocationData}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Select start location"
+                            value={selectedStart}
+                            onChange={handleStartLocationChange}
+                        />
+                        {showCustomStart && (
+                            <View style={styles.customInputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter custom start location"
+                                    value={customStart}
+                                    onChangeText={setCustomStart}
+                                    onSubmitEditing={handleCustomStartSubmit}
+                                    returnKeyType="search"
+                                />
+                            </View>
+                        )}
+                    </View>
+
+                    <View style={styles.dropdownContainer}>
+                        <Text style={styles.label}>Destination</Text>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            data={destinationData}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Select destination"
+                            value={selectedDest}
+                            onChange={handleDestinationChange}
+                        />
+                        {showCustomDest && (
+                            <View style={styles.customInputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter custom destination"
+                                    value={customDest}
+                                    onChangeText={setCustomDest}
+                                    onSubmitEditing={handleCustomDestSubmit}
+                                    returnKeyType="search"
+                                />
+                            </View>
+                        )}
+                    </View>
+                    <TouchableOpacity 
+                        style={styles.doneButton}
+                        onPress={() => setIsRouteCardVisible(false)}
+                    >
+                        <Text style={styles.buttonText}>Done</Text>
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <TouchableOpacity 
+                    style={styles.changeRouteButton}
+                    onPress={() => setIsRouteCardVisible(true)}
+                >
+                    <Text style={styles.buttonText}>Change Route</Text>
+                </TouchableOpacity>
+            )}
             <MapView
                 ref={mapRef}
                 style={{ flex: 1 }}
@@ -201,7 +405,7 @@ export default function DirectionsScreen() {
                 }]}>
                     <Text style={{ fontWeight: "bold", fontSize: 16 }}>Estimated Time: {routeInfo.duration}</Text>
                     <Text style={{ fontSize: 14 }}>
-                        Destination: {buildingName}  {"\n"}
+                        Destination: {destinationName}  {"\n"}
                         Distance: {routeInfo.distance}</Text>
                 </View>
             )}
@@ -215,6 +419,109 @@ card: {
 
 backgroundColor: "white", padding: 10, borderRadius: 10,
 shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5,
-}
-
-}) ; 
+},
+topCard: {
+    position: 'absolute',
+    top: 40,
+    left: 10,
+    right: 10,
+    zIndex: 1,
+},
+dropdownContainer: {
+    marginVertical: 8,
+},
+picker: {
+    height: 45,
+    width: '100%',
+    backgroundColor: 'transparent',
+},
+input: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginTop: 8,
+    backgroundColor: '#fff',
+},
+label: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 5,
+},
+pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+},
+dropdown: {
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderColor: '#ccc',
+    backgroundColor: 'white',
+},
+placeholderStyle: {
+    fontSize: 16,
+    color: '#666',
+},
+selectedTextStyle: {
+    fontSize: 16,
+    color: '#333',
+},
+topCard: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+    right: 10,
+    zIndex: 1,
+    elevation: 1, // Required for Android
+},
+dropdownContainer: {
+    marginVertical: 8,
+    zIndex: 2,
+},
+label: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 8,
+    color: '#333',
+},
+customInputContainer: {
+    marginTop: 8,
+    zIndex: 1,
+},
+input: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#fff',
+},
+doneButton: {
+    backgroundColor: '#912338',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+},
+changeRouteButton: {
+    position: 'absolute',
+    top: 50,
+    right: 10,
+    backgroundColor: '#912338',
+    padding: 12,
+    borderRadius: 8,
+    zIndex: 1,
+    elevation: 1,
+},
+buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+},
+}) ;
