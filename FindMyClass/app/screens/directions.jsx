@@ -29,131 +29,144 @@ export default function DirectionsScreen() {
     }
 
     const mapRef = useRef(null);
-
+    const [destination] = useState(parsedDestination);
     const [userLocation, setUserLocation] = useState(null);
     const [startLocation, setStartLocation] = useState(null);
-    const [destination, setDestination] = useState(null); // <-- This was missing before
     const [coordinates, setCoordinates] = useState([]);
-    const [routeInfo, setRouteInfo] = useState(null); // Holds distance & time
+    const [routeInfo, setRouteInfo] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // 🔹 **Automatically set destination from params**
     useEffect(() => {
-        if (parsedDestination && !destination) {
-            setDestination(parsedDestination);
-        }
-    }, [parsedDestination]); // Runs once when parsedDestination is set
+        let locationSubscription;
 
-    // 🔹 **Get user location**
-    useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                Alert.alert("Permission denied", "Allow location access to get directions.");
-                return;
-            }
-
-            const subscription = await Location.watchPositionAsync(
-                { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
-                (location) => {
-                    const newLocation = {
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
-                    };
-
-                    setUserLocation(newLocation);
-                    setStartLocation(newLocation);
-
-                    // 🔹 **Animate camera to user location**
-                    if (mapRef.current) {
-                        mapRef.current.animateToRegion({
-                            latitude: newLocation.latitude,
-                            longitude: newLocation.longitude,
-                            latitudeDelta: 0.01,
-                            longitudeDelta: 0.01,
-                        }, 1000);
-                    }
+        const setupLocationAndRoute = async () => {
+            try {
+                setIsLoading(true);
+                console.log("Setting up location and route...");
+                
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== "granted") {
+                    throw new Error("Location permission denied");
                 }
-            );
 
-            return () => subscription.remove();
-        })();
-    }, []);
+                const initialLocation = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.High
+                });
+                
+                const newLocation = {
+                    latitude: initialLocation.coords.latitude,
+                    longitude: initialLocation.coords.longitude,
+                };
+                
+                console.log("Initial location:", newLocation);
+                console.log("Destination:", destination);
 
-    // 🔹 **Fetch Directions when user moves or destination changes**
-    useEffect(() => {
+                setUserLocation(newLocation);
+                setStartLocation(newLocation);
 
-        if ( !startLocation || !destination ) {
-            console.log("Missing start location");
-            return;
-        }
+                // Fetch and process route
+                const response = await fetch(
+                    `https://maps.googleapis.com/maps/api/directions/json?origin=${newLocation.latitude},${newLocation.longitude}&destination=${destination.latitude},${destination.longitude}&key=${googleAPIKey}`
+                );
+                const data = await response.json();
+                console.log("API Response:", data);
 
-        if (startLocation && destination) {
-            console.log("Fetching directions from", startLocation, "to", destination);
+                if (!data.routes || data.routes.length === 0) {
+                    throw new Error("No route found");
+                }
 
-            fetch(
-             
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation.latitude},${startLocation.longitude}&destination=${destination.latitude},${destination.longitude}&key=${googleAPIKey}`
+                const encodedPolyline = data.routes[0].overview_polyline.points;
+                const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
+                    latitude: lat,
+                    longitude: lng
+                }));
 
-            )
-                .then((res) => res.json())
-                .then((data) => {
-                    if ( !data.routes || data.routes.length === 0 ) 
-                    {
-                        console.error("No routes found");
-                        console.log("Fetched directions:", data);
-                        return;
-                    }
+                console.log("Decoded coordinates:", decodedCoordinates);
+                setCoordinates(decodedCoordinates);
+                
+                const leg = data.routes[0].legs[0];
+                setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
 
-                    if (data.routes.length) {
-                        const encodedPolyline = data.routes[0].overview_polyline.points;
-                        const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
-                            latitude: lat,
-                            longitude: lng
-                        }));
-
-                        setCoordinates(decodedCoordinates);
+                // Adjust map view
+                setTimeout(() => {
+                    if (mapRef.current && decodedCoordinates.length > 0) {
+                        const allCoords = [
+                            newLocation,
+                            destination,
+                            ...decodedCoordinates
+                        ];
                         
-                        // 🔹 **Set estimated route info (distance & time)**
-                        const leg = data.routes[0].legs[0];
-                        setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
+                        mapRef.current.fitToCoordinates(allCoords, {
+                            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                            animated: true
+                        });
                     }
-                })
-                .catch((error) => console.error("Error fetching directions:", error));
-        }
-    }, [startLocation, destination]); // Runs when start or destination changes
+                }, 1000);
+
+                // Setup location watching
+                locationSubscription = await Location.watchPositionAsync(
+                    { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
+                    (location) => {
+                        setUserLocation({
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                        });
+                    }
+                );
+            } catch (err) {
+                console.error("Setup error:", err);
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        setupLocationAndRoute();
+        return () => locationSubscription?.remove();
+    }, [destination]);
 
     return (
         <View style={{ flex: 1 }}>
-            {/* Google Maps */}
             <MapView
                 ref={mapRef}
-                
                 style={{ flex: 1 }}
                 initialRegion={{
-                    latitude: userLocation?.latitude || 45.4961,
-                    longitude: userLocation?.longitude || -73.5782,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
+                    latitude: destination.latitude,
+                    longitude: destination.longitude,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
                 }}
             >
-                {/* 🔹 **Blue Circle for User Location** */}
                 {userLocation && (
                     <Circle
                         center={userLocation}
-                        radius={23}
+                        radius={30}
                         strokeColor="rgba(0, 122, 255, 0.9)"
                         fillColor="rgba(0, 122, 255, 0.6)"
                     />
                 )}
-
-                {/* 🔹 **Destination Marker** */}
                 {destination && <Marker coordinate={destination} title="Destination" />}
-
-                {/* 🔹 **Route Polyline** */}
-                {coordinates.length > 0 && <Polyline coordinates={coordinates} strokeWidth={5} strokeColor="blue" />}
+                {coordinates.length > 0 && (
+                    <Polyline 
+                        coordinates={coordinates}
+                        strokeWidth={2}
+                        strokeColor="#912338"
+                        lineDashPattern={[0]}
+                    />
+                )}
             </MapView>
 
-            {/* 🔹 **Route Info Box** */}
+            {isLoading && (
+                <View style={{ position: 'absolute', top: 50, width: '100%', alignItems: 'center' }}>
+                    <Text>Loading route...</Text>
+                </View>
+            )}
+            {error && (
+                <View style={{ position: 'absolute', top: 50, width: '100%', alignItems: 'center' }}>
+                    <Text style={{ color: 'red' }}>{error}</Text>
+                </View>
+            )}
             {routeInfo && (
                 <View style={{
                     position: "absolute", bottom: 40, left: 20, right: 20,
