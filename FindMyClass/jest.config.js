@@ -18,7 +18,7 @@ module.exports = {
     '!**/coverage/**',
     '!**/jest.setup.js',
     '!**/*.config.js',
-    '!app/_layout.jsx'  // Exclude _layout.jsx
+    '!**/_layout.jsx'  // Exclude _layout.jsx
   ],
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],
 };
