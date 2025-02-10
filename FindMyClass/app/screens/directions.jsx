@@ -6,6 +6,8 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../secrets";
+import SGWBuildings from '../../components/SGWBuildings';
+import LoyolaBuildings from '../../components/loyolaBuildings';
 
 export default function DirectionsScreen() {
     const params = useLocalSearchParams();
@@ -277,6 +279,40 @@ export default function DirectionsScreen() {
         return () => locationSubscription?.remove();
     }, [destination]);
 
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+
+    const allBuildings = [...SGWBuildings, ...LoyolaBuildings];
+
+    const searchBuildings = (searchText) => {
+        setCustomDest(searchText);
+        if (searchText.trim().length > 0) {
+            const filtered = allBuildings.filter(building => 
+                building.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                building.id.toLowerCase().includes(searchText.toLowerCase())
+            );
+            setSearchResults(filtered);
+            setIsSearching(true);
+        } else {
+            setSearchResults([]);
+            setIsSearching(false);
+        }
+    };
+
+    const selectBuilding = (building) => {
+        setCustomDest(building.name);
+        setSearchResults([]);
+        setIsSearching(false);
+        
+        const newDestination = {
+            latitude: building.latitude,
+            longitude: building.longitude
+        };
+        setDestination(newDestination);
+        setDestinationName(building.name);
+        updateRoute(startLocation, newDestination);
+    };
+
     return (
         <View style={{ flex: 1 }}>
             {isRouteCardVisible ? (
@@ -324,15 +360,27 @@ export default function DirectionsScreen() {
                             onChange={handleDestinationChange}
                         />
                         {showCustomDest && (
-                            <View style={styles.customInputContainer}>
+                            <View style={styles.searchContainer}>
                                 <TextInput
                                     style={styles.input}
-                                    placeholder="Enter custom destination"
+                                    placeholder="Search for a building..."
                                     value={customDest}
-                                    onChangeText={setCustomDest}
-                                    onSubmitEditing={handleCustomDestSubmit}
-                                    returnKeyType="search"
+                                    onChangeText={searchBuildings}
                                 />
+                                {isSearching && searchResults.length > 0 && (
+                                    <View style={styles.searchResults}>
+                                        {searchResults.map((building) => (
+                                            <TouchableOpacity
+                                                key={building.id}
+                                                style={styles.searchResult}
+                                                onPress={() => selectBuilding(building)}
+                                            >
+                                                <Text style={styles.buildingName}>{building.name}</Text>
+                                                <Text style={styles.buildingId}>({building.id})</Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                )}
                             </View>
                         )}
                     </View>
@@ -523,5 +571,39 @@ buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '500',
+},
+searchContainer: {
+    position: 'relative',
+    zIndex: 3,
+},
+searchResults: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    maxHeight: 200,
+    overflow: 'scroll',
+    zIndex: 4,
+},
+searchResult: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+},
+buildingName: {
+    fontSize: 14,
+    flex: 1,
+},
+buildingId: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 8,
 },
 }) ;
