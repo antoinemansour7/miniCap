@@ -6,7 +6,7 @@ import FloatingChatButton from '../../components/FloatingChatButton';
 
 export default function Map() {
   const route = useRoute();
-  const searchText = typeof route?.params?.searchText === 'string' ? route.params.searchText : '';
+  const searchText = route?.params?.searchText || ''; // Cleaner fallback
 
   return (
     <View style={styles.container} testID="map-container">
