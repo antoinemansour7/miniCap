@@ -9,6 +9,7 @@ import { googleAPIKey } from "../secrets";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
 import GoogleSearchBar from "../../components/GoogleSearchBar";
+import { Ionicons } from '@expo/vector-icons'; // Add this import at the top
 
 export default function DirectionsScreen() {
     const params = useLocalSearchParams();
@@ -51,6 +52,12 @@ export default function DirectionsScreen() {
     const [showCustomStart, setShowCustomStart] = useState(false);
     const [showCustomDest, setShowCustomDest] = useState(false);
     const [isRouteCardVisible, setIsRouteCardVisible] = useState(true);
+    const [travelMode, setTravelMode] = useState('DRIVING'); // Add this new state
+    const [customStartName, setCustomStartName] = useState(''); // Add this new state
+    const [customLocationDetails, setCustomLocationDetails] = useState({
+        name: '',
+        coordinates: null
+    });
 
     const predefinedLocations = {
         SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
@@ -92,6 +99,7 @@ export default function DirectionsScreen() {
         setShowCustomStart(item.value === 'custom');
         
         if (item.value !== 'custom') {
+            setCustomLocationDetails({ name: '', coordinates: null }); // Clear custom location
             let newStartLocation;
             switch(item.value) {
                 case 'userLocation':
@@ -153,20 +161,26 @@ export default function DirectionsScreen() {
         }
     };
 
-    const updateRoute = async (start, end) => {
+    const updateRouteWithMode = async (start, end, mode) => {
         if (!start || !end) return;
         
         try {
             setIsLoading(true);
+            const modeParam = mode.toLowerCase();
+            console.log(`Requesting route with mode: ${modeParam}`);
+
             const response = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&key=${googleAPIKey}`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
             );
             const data = await response.json();
+            console.log("Route response:", data);
 
             if (!data.routes || data.routes.length === 0) {
                 throw new Error("No route found");
             }
 
+            setCoordinates([]);
+            
             const encodedPolyline = data.routes[0].overview_polyline.points;
             const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
                 latitude: lat,
@@ -177,18 +191,24 @@ export default function DirectionsScreen() {
             const leg = data.routes[0].legs[0];
             setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
 
-            // Adjust map view
             if (mapRef.current) {
-                mapRef.current.fitToCoordinates([start, end, ...decodedCoordinates], {
-                    edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                    animated: true
-                });
+                setTimeout(() => {
+                    mapRef.current.fitToCoordinates([start, end, ...decodedCoordinates], {
+                        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                        animated: true
+                    });
+                }, 100);
             }
         } catch (err) {
+            console.error("Route update error:", err);
             setError(err.message);
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const updateRoute = (start, end) => {
+        updateRouteWithMode(start, end, travelMode);
     };
 
     useEffect(() => {
@@ -221,7 +241,7 @@ export default function DirectionsScreen() {
 
                 // Fetch and process route
                 const response = await fetch(
-                    `https://maps.googleapis.com/maps/api/directions/json?origin=${newLocation.latitude},${newLocation.longitude}&destination=${destination.latitude},${destination.longitude}&key=${googleAPIKey}`
+                    `https://maps.googleapis.com/maps/api/directions/json?origin=${newLocation.latitude},${newLocation.longitude}&destination=${destination.latitude},${destination.longitude}&mode=${travelMode}&key=${googleAPIKey}`
                 );
                 const data = await response.json();
                 console.log("API Response:", data);
@@ -278,7 +298,7 @@ export default function DirectionsScreen() {
 
         setupLocationAndRoute();
         return () => locationSubscription?.remove();
-    }, [destination]);
+    }, [destination]); // Remove travelMode from dependencies
 
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -314,6 +334,32 @@ export default function DirectionsScreen() {
         updateRoute(startLocation, newDestination);
     };
 
+    const handleTravelModeChange = (mode) => {
+        console.log(`Changing travel mode to: ${mode}`);
+        console.log('Current start location:', startLocation);
+        // Set the travel mode first
+        setTravelMode(mode);
+        
+        // Use the current startLocation instead of letting it default to userLocation
+        const currentStart = startLocation || userLocation;
+        if (currentStart && destination) {
+            updateRouteWithMode(currentStart, destination, mode);
+        }
+    };
+
+    const handleCustomLocation = (location, description) => {
+        const newStartLocation = {
+            latitude: location.latitude,
+            longitude: location.longitude
+        };
+        setStartLocation(newStartLocation);
+        setCustomLocationDetails({
+            name: description,
+            coordinates: newStartLocation
+        });
+        updateRoute(newStartLocation, destination);
+    };
+
     return (
         <View style={{ flex: 1 }}>
             {isRouteCardVisible ? (
@@ -335,14 +381,9 @@ export default function DirectionsScreen() {
                         {showCustomStart && (
                             <View style={styles.customInputContainer}>
                                 <GoogleSearchBar 
-                                    onLocationSelected={(location) => {
-                                        const newStartLocation = {
-                                            latitude: location.latitude,
-                                            longitude: location.longitude
-                                        };
-                                        setStartLocation(newStartLocation);
-                                        updateRoute(newStartLocation, destination);
-                                    }} 
+                                    onLocationSelected={handleCustomLocation}
+                                    initialValue={customLocationDetails.name}
+                                    key={`search-${customLocationDetails.name}`} // Force re-render when value changes
                                 />
                             </View>
                         )}
@@ -387,6 +428,37 @@ export default function DirectionsScreen() {
                             </View>
                         )}
                     </View>
+
+                    <View style={styles.travelModeContainer}>
+                        <TouchableOpacity 
+                            style={[
+                                styles.travelModeButton, 
+                                travelMode === 'DRIVING' && styles.selectedTravelMode
+                            ]}
+                            onPress={() => handleTravelModeChange('DRIVING')}
+                        >
+                            <Ionicons name="car" size={24} color={travelMode === 'DRIVING' ? '#912338' : '#666'} />
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={[
+                                styles.travelModeButton, 
+                                travelMode === 'WALKING' && styles.selectedTravelMode
+                            ]}
+                            onPress={() => handleTravelModeChange('WALKING')}
+                        >
+                            <Ionicons name="walk" size={24} color={travelMode === 'WALKING' ? '#912338' : '#666'} />
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={[
+                                styles.travelModeButton, 
+                                travelMode === 'TRANSIT' && styles.selectedTravelMode
+                            ]}
+                            onPress={() => handleTravelModeChange('TRANSIT')}
+                        >
+                            <Ionicons name="bus" size={24} color={travelMode === 'TRANSIT' ? '#912338' : '#666'} />
+                        </TouchableOpacity>
+                    </View>
+
                     <TouchableOpacity 
                         style={styles.doneButton}
                         onPress={() => setIsRouteCardVisible(false)}
@@ -615,5 +687,27 @@ buildingId: {
     fontSize: 12,
     color: '#666',
     marginLeft: 8,
+},
+travelModeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+    gap: 10,
+},
+travelModeButton: {
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: 'white',
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+selectedTravelMode: {
+    borderColor: '#912338',
+    backgroundColor: '#fff',
 },
 }) ;
