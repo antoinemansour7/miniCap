@@ -523,11 +523,11 @@ export default function DirectionsScreen() {
                         Loading route...</Text>
                 </View>
             )}
-            {/* {error && (
+            {error && (
                 <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
                     <Text style={{ color: 'red' }}>{error}</Text>
                 </View>
-            )} */}
+            )}
             {routeInfo && (
                 <View style={[styles.card, {
                     position: "absolute", bottom: 40, left: 20, right: 20,

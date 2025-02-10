@@ -52,5 +52,5 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io/ \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
-            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js \
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx
             -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**

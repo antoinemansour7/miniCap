@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">71.42% </span>
+                <span class="strong">42.85% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/14</span>
+                <span class='fraction'>6/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40% </span>
+                <span class="strong">10% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/10</span>
+                <span class='fraction'>1/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">71.42% </span>
+                <span class="strong">14.28% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/7</span>
+                <span class='fraction'>1/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">71.42% </span>
+                <span class="strong">42.85% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/14</span>
+                <span class='fraction'>6/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -178,39 +178,39 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -299,24 +299,24 @@ export default function Layout() {
 &nbsp;
   return (
     &lt;GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}&gt;
-      &lt;Drawer.Navigator
-        screenOptions={({ route, navigation }) =&gt; ({
+      &lt;Drawer
+        screenOptions={<span class="fstat-no" title="function not covered" >({</span> route, navigation }) =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
           headerShown: true,
-          headerStyle: { height: route.name === 'screens/map' ? 140 : <span class="branch-1 cbranch-no" title="branch not covered" >90 </span>},
+          headerStyle: { height: route.name === 'screens/map' ? 140 : 90 },
           drawerStyle: { backgroundColor: '#fff' },
           drawerPosition: 'right',
           headerLeft: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >null,</span>
-          headerRight: () =&gt; (
-            &lt;TouchableOpacity
+          headerRight: <span class="fstat-no" title="function not covered" >()</span> =&gt; (
+<span class="cstat-no" title="statement not covered" >            &lt;TouchableOpacity</span>
               testID="menu-button"
-              onPress={() =&gt; navigation.dispatch(DrawerActions.openDrawer())}
-              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : <span class="branch-1 cbranch-no" title="branch not covered" >{ marginRight: 10 }} </span>
+              onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >navigation.dispatch(DrawerActions.openDrawer())}</span>
+              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} 
             &gt;
               &lt;MaterialIcons name="menu" size={30} color="#912338" /&gt;
             &lt;/TouchableOpacity&gt;
           ),
-          headerTitle: () =&gt;
-            route.name === 'screens/map' ? (
+          headerTitle: <span class="fstat-no" title="function not covered" >()</span> =&gt;
+<span class="cstat-no" title="statement not covered" >            route.name === 'screens/map' ? (</span>
               &lt;View style={styles.headerContainer}&gt;
                 &lt;Text style={styles.headerTitle}&gt;Map&lt;/Text&gt;
                 &lt;View style={styles.searchContainer}&gt;
@@ -332,7 +332,7 @@ export default function Layout() {
                 &lt;/View&gt;
               &lt;/View&gt;
             ) : (
-<span class="branch-1 cbranch-no" title="branch not covered" >              &lt;Text style={styles.headerTitle}&gt;{route.name.replace('screens/', '')}&lt;/Text&gt;</span>
+              &lt;Text style={styles.headerTitle}&gt;{route.name.replace('screens/', '')}&lt;/Text&gt;
             ),
           drawerActiveBackgroundColor: '#800000',
           drawerActiveTintColor: '#fff',
@@ -344,7 +344,7 @@ export default function Layout() {
         &lt;Drawer.Screen name="screens/register" options={{ drawerLabel: 'Register', title: 'Register' }} /&gt;
         &lt;Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} /&gt;
         &lt;Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} /&gt;
-      &lt;/Drawer.Navigator&gt;
+      &lt;/Drawer&gt;
     &lt;/GestureHandlerRootView&gt;
   );
 }
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-10T19:28:25.250Z
+                at 2025-02-10T20:50:14.065Z
             </div>
         <script src="../prettify.js"></script>
         <script>
