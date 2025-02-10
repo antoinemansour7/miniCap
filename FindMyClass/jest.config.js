@@ -7,7 +7,7 @@ module.exports = {
   setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^react-native$': 'react-native',
-    "^../secrets$": "<rootDir>/__mocks__/secrets.js"
+    "^../../app/secrets$": "<rootDir>/__mocks__/secrets"
   },
   collectCoverage: true,
   coverageDirectory: 'coverage',
