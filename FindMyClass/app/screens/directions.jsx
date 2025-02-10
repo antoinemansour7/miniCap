@@ -483,14 +483,18 @@ export default function DirectionsScreen() {
                     setZoomLevel(newZoomLevel);
                 }}
             >
-                {userLocation && selectedStart === 'userLocation' ? (
+                {userLocation && 
+                // selectedStart === 'userLocation' ? 
+                (
                     <Circle
                         center={userLocation}
                         radius={getCircleRadius()}
                         strokeColor="white"
                         fillColor="rgba(0, 122, 255, 0.7)"
                     />
-                ) : null}
+                ) 
+                // : null
+                }
                 {startLocation && selectedStart !== 'userLocation' && (
                     <Marker 
                         coordinate={startLocation}
