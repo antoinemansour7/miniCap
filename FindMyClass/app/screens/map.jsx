@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import ToggleCampusMap from '../../components/ToggleCampusMap';
 import FloatingChatButton from '../../components/FloatingChatButton';
 
-export default function Map() {
+export default function MapScreen() {  // ✅ Renamed to avoid conflict
   const route = useRoute();
   const searchText = route?.params?.searchText || ''; // Cleaner fallback
 
