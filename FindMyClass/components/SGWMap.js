@@ -2,9 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import SGWBuildings from './SGWBuildings';
+import {useRouter} from 'expo-router';
 
 const SGWMap = ({ searchText }) => {
     const mapRef = useRef(null);
+    const router = useRouter();
 
     useEffect(() => {
         if (searchText) {
@@ -53,6 +55,21 @@ const SGWMap = ({ searchText }) => {
                             }}
                             title={building.name}
                             description={`Building ID: ${building.id}`}
+                            onPress={() => 
+                                {
+                                console.log("Navigation to directions:", building.name);
+                                 router.push({
+                                    pathname: "/screens/directions",  
+                                    params: {
+
+                                        destination: JSON.stringify({
+                                            latitude: building.latitude,
+                                            longitude: building.longitude,
+                                        }),
+                                        buildingName: building.name,
+                                    }
+                                })}
+                            }
                         />
                         {building.boundary && (
                             <Polygon

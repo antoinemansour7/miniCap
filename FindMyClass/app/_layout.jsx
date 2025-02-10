@@ -33,7 +33,7 @@ export default function Layout() {
             <TouchableOpacity
               testID="menu-button"
               onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 5 }} 
+              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} 
             >
               <MaterialIcons name="menu" size={30} color="#912338" />
             </TouchableOpacity>
