@@ -47,7 +47,7 @@ jobs:
 
       - name: Run tests and collect coverage
         working-directory: FindMyClass
-        run: npm test -- --coverage || true
+        run: npm test || true
 
 
       - name: Upload coverage to CodeCov
