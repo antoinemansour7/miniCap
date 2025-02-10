@@ -45,6 +45,10 @@ jobs:
         working-directory: FindMyClass
         run: npx expo start --offline || echo "Expo initialized successfully"
 
+      - name: Run tests and collect coverage
+        working-directory: FindMyClass
+        run: npm test -- --coverage || true
+
 
       - name: Upload coverage to CodeCov
         uses: codecov/codecov-action@v3
