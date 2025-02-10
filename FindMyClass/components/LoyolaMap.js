@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import LoyolaBuildings from './loyolaBuildings';
+import { useRouter } from 'expo-router';
 
 // Function to calculate the centroid of a building's outer boundary
 const getCentroid = (building) => {
@@ -11,6 +12,7 @@ const getCentroid = (building) => {
     const totalPoints = boundary.length;
     const sumLat = boundary.reduce((sum, point) => sum + point.latitude, 0);
     const sumLon = boundary.reduce((sum, point) => sum + point.longitude, 0);
+
 
     let centroid = {
         latitude: sumLat / totalPoints,
@@ -30,6 +32,8 @@ const getCentroid = (building) => {
 
 const LoyolaMap = ({ searchText }) => {
     const mapRef = useRef(null);
+    const router  = useRouter();
+
 
     useEffect(() => {
         if (searchText) {
@@ -82,6 +86,19 @@ const LoyolaMap = ({ searchText }) => {
                                     coordinate={centroid}
                                     title={building.name}
                                     description={`Building ID: ${building.id}`}
+                                    onPress={() => {
+                                        console.log("Navigation to directions:", building.name);
+                                        router.push({
+                                            pathname: "/screens/directions",
+                                            params: {
+                                                destination: JSON.stringify({
+                                                    latitude: centroid.latitude,
+                                                    longitude: centroid.longitude,
+                                                }), 
+                                                buildingName: building.name,
+                                            }
+                                        })
+                                    }}
                                 />
                             )}
 
