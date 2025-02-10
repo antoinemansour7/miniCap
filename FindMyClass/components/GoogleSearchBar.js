@@ -1,5 +1,5 @@
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import { googleAPIKey } from "../app/secrets";
+import { googleAPIKey } from "../../app/secrets";
 import { useRef, useEffect } from 'react';
 
 export default function GoogleSearchBar({ onLocationSelected, initialValue }) {
