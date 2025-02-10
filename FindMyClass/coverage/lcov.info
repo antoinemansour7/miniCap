@@ -156,10 +156,10 @@ BRH:2
 end_of_record
 TN:
 SF:app/screens/map.jsx
-FN:7,Map
+FN:7,MapScreen
 FNF:1
 FNH:1
-FNDA:2,Map
+FNDA:2,MapScreen
 DA:8,2
 DA:9,2
 DA:11,2
