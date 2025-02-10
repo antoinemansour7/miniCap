@@ -8,6 +8,7 @@ import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../secrets";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
+import GoogleSearchBar from "../../components/GoogleSearchBar";
 
 export default function DirectionsScreen() {
     const params = useLocalSearchParams();
@@ -333,13 +334,15 @@ export default function DirectionsScreen() {
                         />
                         {showCustomStart && (
                             <View style={styles.customInputContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Enter custom start location"
-                                    value={customStart}
-                                    onChangeText={setCustomStart}
-                                    onSubmitEditing={handleCustomStartSubmit}
-                                    returnKeyType="search"
+                                <GoogleSearchBar 
+                                    onLocationSelected={(location) => {
+                                        const newStartLocation = {
+                                            latitude: location.latitude,
+                                            longitude: location.longitude
+                                        };
+                                        setStartLocation(newStartLocation);
+                                        updateRoute(newStartLocation, destination);
+                                    }} 
                                 />
                             </View>
                         )}
@@ -419,6 +422,13 @@ export default function DirectionsScreen() {
                         radius={getCircleRadius()}
                         strokeColor="white"
                         fillColor="rgba(0, 122, 255, 0.7)"
+                    />
+                )}
+                {startLocation && selectedStart !== 'userLocation' && (
+                    <Marker 
+                        coordinate={startLocation}
+                        title="Start"
+                        pinColor="green"
                     />
                 )}
                 {destination && <Marker coordinate={destination} title="Destination" />}
