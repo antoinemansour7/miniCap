@@ -1,18 +1,30 @@
-import React from 'react';
-import { render, fireEvent, act } from '@testing-library/react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { useNavigation, DrawerActions } from '@react-navigation/native';
-import Layout from '../_layout';
+// __tests__/Layout.test.jsx
 
-// Mock Drawer with proper screen options handling
+// === MOCK: Override @react-navigation/native and define the mock navigation inside the factory ===
+jest.mock('@react-navigation/native', () => {
+  const ActualNav = jest.requireActual('@react-navigation/native');
+  const mockNavigation = {
+    dispatch: jest.fn(),
+    setParams: jest.fn(),
+  };
+  // Make this object available to tests via the global object.
+  global.mockNavigation = mockNavigation;
+  return {
+    ...ActualNav,
+    useNavigation: () => mockNavigation,
+    DrawerActions: {
+      openDrawer: jest.fn(() => 'openDrawer'),
+    },
+  };
+});
+
+// === MOCK: Provide a fake Drawer from expo-router/drawer ===
 jest.mock('expo-router/drawer', () => {
   const React = require('react');
   return {
     Drawer: {
       Navigator: ({ children, screenOptions }) => {
-        const options = screenOptions({ 
-          route: { name: 'screens/map' }  // Force map screen for testing
-        });
+        const options = screenOptions({ route: { name: 'screens/map' } });
         return (
           <>
             {options.headerRight?.()}
@@ -26,45 +38,35 @@ jest.mock('expo-router/drawer', () => {
   };
 });
 
-// Mock navigation with proper dispatch handling
-const mockDispatch = jest.fn();
-const mockSetParams = jest.fn();
+import React from 'react';
+import { render, fireEvent, act, waitFor } from '@testing-library/react-native';
+import { NavigationContainer, DrawerActions } from '@react-navigation/native';
+import Layout from '../_layout';
+import * as SplashScreen from 'expo-splash-screen';
+import * as Font from 'expo-font';
 
-jest.mock('@react-navigation/native', () => ({
-  ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({
-    dispatch: mockDispatch,
-    setParams: mockSetParams,
-  }),
-  DrawerActions: {
-    openDrawer: jest.fn(() => 'openDrawer'),
-  },
-}));
-
-// Update font mock to allow testing different states
+// === MOCK: Control expo-font behavior ===
 let mockFontsLoaded = true;
 let mockFontError = null;
-
 jest.mock('expo-font', () => ({
   useFonts: () => [mockFontsLoaded, mockFontError],
 }));
 
+// === MOCK: Spy on expo-splash-screen.hideAsync ===
 const mockHideAsync = jest.fn();
 jest.mock('expo-splash-screen', () => ({
-  hideAsync: mockHideAsync
-}));
-
-// Mock GestureHandlerRootView
-jest.mock('react-native-gesture-handler', () => ({
-  GestureHandlerRootView: ({ children }) => children,
+  hideAsync: mockHideAsync,
 }));
 
 describe('Layout Component', () => {
   beforeEach(() => {
+    // Reset all mocks and state variables.
     jest.clearAllMocks();
+    // Reset the navigation mock (attached as global.mockNavigation).
+    global.mockNavigation.dispatch.mockClear();
+    global.mockNavigation.setParams.mockClear();
     mockFontsLoaded = true;
     mockFontError = null;
-    mockHideAsync.mockReset();
   });
 
   it('renders without crashing', () => {
@@ -82,11 +84,10 @@ describe('Layout Component', () => {
         <Layout />
       </NavigationContainer>
     );
-    
     const menuButton = getByTestId('menu-button');
     fireEvent.press(menuButton);
-    
-    expect(mockDispatch).toHaveBeenCalledWith(DrawerActions.openDrawer());
+    // Expect that the mock navigation's dispatch was called with DrawerActions.openDrawer()
+    expect(global.mockNavigation.dispatch).toHaveBeenCalledWith(DrawerActions.openDrawer());
   });
 
   it('updates search text and navigation params', async () => {
@@ -95,58 +96,62 @@ describe('Layout Component', () => {
         <Layout />
       </NavigationContainer>
     );
-    
     const searchInput = getByPlaceholderText('Search for buildings, locations...');
-    fireEvent.changeText(searchInput, 'test search');
-    
-    expect(mockSetParams).toHaveBeenCalledWith({ searchText: 'test search' });
+    await act(async () => {
+      fireEvent.changeText(searchInput, 'test search');
+    });
+    expect(global.mockNavigation.setParams).toHaveBeenCalledWith({ searchText: 'test search' });
   });
 
   it('returns null when fonts are not loaded and no error', () => {
+    // Expect Layout to return null if fonts aren’t loaded.
     mockFontsLoaded = false;
     mockFontError = null;
-    
-    const { container } = render(
+    const { toJSON } = render(
       <NavigationContainer>
         <Layout />
       </NavigationContainer>
     );
-    
-    expect(container.toJSON()).toBeNull();
+    expect(toJSON()).toBeNull();
   });
 
-  it('calls hideAsync when fonts are loaded', async () => {
-    mockHideAsync.mockImplementation(() => Promise.resolve());
-    
-    render(
-      <NavigationContainer>
-        <Layout />
-      </NavigationContainer>
-    );
-
-    // Use act to handle the async callback
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    });
-    
-    expect(mockHideAsync).toHaveBeenCalled();
-  });
-
-  it('calls hideAsync when font error occurs', async () => {
+  it('calls hideAsync when fonts are loaded after being not loaded', async () => {
+    // Render initially with fonts not loaded.
     mockFontsLoaded = false;
-    mockFontError = new Error('Font loading error');
-    mockHideAsync.mockImplementation(() => Promise.resolve());
-    
-    render(
+    const { rerender } = render(
       <NavigationContainer>
         <Layout />
       </NavigationContainer>
     );
-
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    // Now simulate that fonts become loaded.
+    mockFontsLoaded = true;
+    rerender(
+      <NavigationContainer>
+        <Layout />
+      </NavigationContainer>
+    );
+    await waitFor(() => {
+      expect(mockHideAsync).toHaveBeenCalled();
     });
-    
-    expect(mockHideAsync).toHaveBeenCalled();
+  });
+
+  it('calls hideAsync when a font error occurs after being not loaded', async () => {
+    // Render initially with fonts not loaded.
+    mockFontsLoaded = false;
+    const { rerender } = render(
+      <NavigationContainer>
+        <Layout />
+      </NavigationContainer>
+    );
+    // Now simulate a font error.
+    mockFontError = new Error('Font loading error');
+    rerender(
+      <NavigationContainer>
+        <Layout />
+      </NavigationContainer>
+    );
+    await waitFor(() => {
+      expect(mockHideAsync).toHaveBeenCalled();
+    });
   });
 });
