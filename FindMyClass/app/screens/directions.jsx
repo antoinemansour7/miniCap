@@ -58,6 +58,7 @@ export default function DirectionsScreen() {
         name: '',
         coordinates: null
     });
+    const [customSearchText, setCustomSearchText] = useState(''); // Add this new state
 
     const predefinedLocations = {
         SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
@@ -100,10 +101,29 @@ export default function DirectionsScreen() {
         
         if (item.value !== 'custom') {
             setCustomLocationDetails({ name: '', coordinates: null }); // Clear custom location
+            setCustomSearchText(''); // Clear the search text
+            
             let newStartLocation;
             switch(item.value) {
                 case 'userLocation':
-                    newStartLocation = userLocation;
+                    if (userLocation) {
+                        newStartLocation = userLocation;
+                    } else {
+                        try {
+                            const currentLocation = await Location.getCurrentPositionAsync({
+                                accuracy: Location.Accuracy.High
+                            });
+                            newStartLocation = {
+                                latitude: currentLocation.coords.latitude,
+                                longitude: currentLocation.coords.longitude,
+                            };
+                            setUserLocation(newStartLocation);
+                        } catch (error) {
+                            console.error("Error getting current location:", error);
+                            setError("Could not get current location");
+                            return;
+                        }
+                    }
                     break;
                 case 'SGWCampus':
                 case 'LoyolaCampus':
@@ -112,8 +132,11 @@ export default function DirectionsScreen() {
                 default:
                     return;
             }
-            setStartLocation(newStartLocation);
-            updateRoute(newStartLocation, destination);
+            
+            if (newStartLocation && destination) {
+                setStartLocation(newStartLocation);
+                updateRoute(newStartLocation, destination);
+            }
         }
     };
 
@@ -217,8 +240,6 @@ export default function DirectionsScreen() {
         const setupLocationAndRoute = async () => {
             try {
                 setIsLoading(true);
-                console.log("Setting up location and route...");
-                
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== "granted") {
                     throw new Error("Location permission denied");
@@ -232,62 +253,35 @@ export default function DirectionsScreen() {
                     latitude: initialLocation.coords.latitude,
                     longitude: initialLocation.coords.longitude,
                 };
-                
-                console.log("Initial location:", newLocation);
-                console.log("Destination:", destination);
 
                 setUserLocation(newLocation);
-                setStartLocation(newLocation);
-
-                // Fetch and process route
-                const response = await fetch(
-                    `https://maps.googleapis.com/maps/api/directions/json?origin=${newLocation.latitude},${newLocation.longitude}&destination=${destination.latitude},${destination.longitude}&mode=${travelMode}&key=${googleAPIKey}`
-                );
-                const data = await response.json();
-                console.log("API Response:", data);
-
-                if (!data.routes || data.routes.length === 0) {
-                    throw new Error("No route found");
+                if (selectedStart === 'userLocation') {
+                    setStartLocation(newLocation);
+                    updateRoute(newLocation, destination);
                 }
 
-                const encodedPolyline = data.routes[0].overview_polyline.points;
-                const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
-                    latitude: lat,
-                    longitude: lng
-                }));
-
-                console.log("Decoded coordinates:", decodedCoordinates);
-                setCoordinates(decodedCoordinates);
-                
-                const leg = data.routes[0].legs[0];
-                setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
-
-                // Adjust map view
-                setTimeout(() => {
-                    if (mapRef.current && decodedCoordinates.length > 0) {
-                        const allCoords = [
-                            newLocation,
-                            destination,
-                            ...decodedCoordinates
-                        ];
-                        
-                        mapRef.current.fitToCoordinates(allCoords, {
-                            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                            animated: true
-                        });
-                    }
-                }, 1000);
-
-                // Setup location watching
+                // Update location watcher
                 locationSubscription = await Location.watchPositionAsync(
-                    { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
+                    { 
+                        accuracy: Location.Accuracy.High, 
+                        timeInterval: 5000, 
+                        distanceInterval: 10 
+                    },
                     (location) => {
-                        setUserLocation({
+                        const updatedLocation = {
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude,
-                        });
+                        };
+                        setUserLocation(updatedLocation);
+                        
+                        // Update route if using user location
+                        if (selectedStart === 'userLocation') {
+                            setStartLocation(updatedLocation);
+                            updateRoute(updatedLocation, destination);
+                        }
                     }
                 );
+                
             } catch (err) {
                 console.error("Setup error:", err);
                 setError(err.message);
@@ -298,7 +292,7 @@ export default function DirectionsScreen() {
 
         setupLocationAndRoute();
         return () => locationSubscription?.remove();
-    }, [destination]); // Remove travelMode from dependencies
+    }, [destination, selectedStart]); // Add selectedStart as dependency
 
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -353,6 +347,7 @@ export default function DirectionsScreen() {
             longitude: location.longitude
         };
         setStartLocation(newStartLocation);
+        setCustomSearchText(description);
         setCustomLocationDetails({
             name: description,
             coordinates: newStartLocation
@@ -382,8 +377,8 @@ export default function DirectionsScreen() {
                             <View style={styles.customInputContainer}>
                                 <GoogleSearchBar 
                                     onLocationSelected={handleCustomLocation}
-                                    initialValue={customLocationDetails.name}
-                                    key={`search-${customLocationDetails.name}`} // Force re-render when value changes
+                                    initialValue={customLocationDetails.name || customSearchText}
+                                    key={`search-${customLocationDetails.name || customSearchText}`}
                                 />
                             </View>
                         )}
@@ -488,14 +483,14 @@ export default function DirectionsScreen() {
                     setZoomLevel(newZoomLevel);
                 }}
             >
-                {userLocation && (
+                {userLocation && selectedStart === 'userLocation' ? (
                     <Circle
                         center={userLocation}
                         radius={getCircleRadius()}
                         strokeColor="white"
                         fillColor="rgba(0, 122, 255, 0.7)"
                     />
-                )}
+                ) : null}
                 {startLocation && selectedStart !== 'userLocation' && (
                     <Marker 
                         coordinate={startLocation}
@@ -524,11 +519,11 @@ export default function DirectionsScreen() {
                         Loading route...</Text>
                 </View>
             )}
-            {error && (
+            {/* {error && (
                 <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
                     <Text style={{ color: 'red' }}>{error}</Text>
                 </View>
-            )}
+            )} */}
             {routeInfo && (
                 <View style={[styles.card, {
                     position: "absolute", bottom: 40, left: 20, right: 20,
