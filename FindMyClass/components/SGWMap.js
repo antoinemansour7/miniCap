@@ -1,15 +1,32 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
-import MapView, { Marker, Callout, CalloutSubview, Polygon } from 'react-native-maps';
+import { View, StyleSheet, Text } from 'react-native';
+import MapView from 'react-native-maps';
 import SGWBuildings from './SGWBuildings';
 import useLocationHandler from '../hooks/useLocationHandler';
 import { useRouter } from 'expo-router';
+import BuildingMarker from './BuildingMarker';
+
+const getCentroid = (building) => {
+    const boundary = building.boundary?.outer || building.boundary;
+    if (!boundary || boundary.length === 0) return null;
+
+    const totalPoints = boundary.length;
+    const sumLat = boundary.reduce((sum, point) => sum + point.latitude, 0);
+    const sumLon = boundary.reduce((sum, point) => sum + point.longitude, 0);
+
+    return {
+        latitude: sumLat / totalPoints,
+        longitude: sumLon / totalPoints,
+    };
+};
 
 const SGWMap = ({ searchText }) => {
     const mapRef = useRef(null);
     const router = useRouter();
-
-    const { userLocation, nearestBuilding, noNearbyBuilding, messageVisible } = useLocationHandler(SGWBuildings);
+    const { userLocation, nearestBuilding, noNearbyBuilding, messageVisible } = useLocationHandler(
+        SGWBuildings,
+        getCentroid
+    );
 
     useEffect(() => {
         if (searchText) {
@@ -17,9 +34,14 @@ const SGWMap = ({ searchText }) => {
                 b.name.toLowerCase().includes(searchText.toLowerCase())
             );
             if (building && mapRef.current) {
-                mapRef.current.animateToRegion({
+                const centroid = getCentroid(building) || {
                     latitude: building.latitude,
                     longitude: building.longitude,
+                };
+
+                mapRef.current.animateToRegion({
+                    latitude: centroid.latitude,
+                    longitude: centroid.longitude,
                     latitudeDelta: 0.001,
                     longitudeDelta: 0.001,
                 });
@@ -49,57 +71,23 @@ const SGWMap = ({ searchText }) => {
                     longitudeDelta: 0.002,
                 }}
             >
-                {SGWBuildings.map((building) => (
-                    <React.Fragment key={building.id}>
-                        <Marker
-                            coordinate={{
-                                latitude: building.latitude,
-                                longitude: building.longitude,
-                            }}
-                            title={building.name}
-                            description={`Building ID: ${building.id}`}
-                            pinColor={nearestBuilding?.id === building.id ? 'red' : undefined}
-                        >
-                            <Callout>
-                                <ScrollView style={styles.calloutContainer}>
-                                    <Text style={styles.calloutTitle}>{building.name}</Text>
-                                    <Text style={styles.calloutDescription}>{building.description}</Text>
-                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Purpose:</Text> {building.purpose}</Text>
-                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Facilities:</Text> {building.facilities}</Text>
-                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Address:</Text> {building.address}</Text>
-                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Contact:</Text> {building.contact}</Text>
+                {SGWBuildings.map((building) => {
+                    const centroid = getCentroid(building) || {
+                        latitude: building.latitude,
+                        longitude: building.longitude,
+                    };
 
-                                    <CalloutSubview 
-                                        onPress={() => {
-                                            console.log("Navigation to directions:", building.name);
-                                            router.push({
-                                                pathname: "/screens/directions",  
-                                                params: {
-                                                    destination: JSON.stringify({
-                                                        latitude: building.latitude,
-                                                        longitude: building.longitude,
-                                                    }),
-                                                    buildingName: building.name,
-                                                }
-                                            });
-                                        }}
-                                        style={styles.button}
-                                    >
-                                        <Text style={styles.buttonText}>Get Directions</Text>
-                                    </CalloutSubview>
-                                </ScrollView>
-                            </Callout>
-                        </Marker>
-                        {building.boundary && (
-                            <Polygon
-                                coordinates={building.boundary}
-                                strokeColor={buildingColors[building.id]?.stroke || 'rgba(0, 0, 0, 0.8)'}
-                                fillColor={buildingColors[building.id]?.fill || 'rgba(0, 0, 0, 0.4)'}
-                                strokeWidth={2}
-                            />
-                        )}
-                    </React.Fragment>
-                ))}
+                    return (
+                        <BuildingMarker
+                            key={building.id}
+                            building={building}
+                            router={router}
+                            nearestBuilding={nearestBuilding}
+                            buildingColors={buildingColors}
+                            position={centroid}
+                        />
+                    );
+                })}
             </MapView>
 
             {messageVisible && noNearbyBuilding && (
@@ -112,12 +100,8 @@ const SGWMap = ({ searchText }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    map: {
-        flex: 1,
-    },
+    container: { flex: 1 },
+    map: { flex: 1 },
     messageContainer: {
         position: 'absolute',
         top: '50%',
@@ -135,49 +119,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         textAlign: 'center',
-    },
-    calloutContainer: {
-        width: 250,
-        padding: 12,
-        borderRadius: 10,
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 2 },
-    },
-    calloutTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 8,
-    },
-    calloutDescription: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 12,
-    },
-    calloutText: {
-        fontSize: 12,
-        color: '#444',
-        marginBottom: 6,
-    },
-    boldText: {
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    button: {
-        backgroundColor: '#912338',
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 5,
-        marginTop: 15,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        margin: 1,
     },
 });
 
