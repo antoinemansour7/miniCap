@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739250800843" clover="3.2.0">
-  <project timestamp="1739250800843" name="All files">
-    <metrics statements="404" coveredstatements="349" conditionals="219" coveredconditionals="158" methods="92" coveredmethods="78" elements="715" coveredelements="585" complexity="0" loc="404" ncloc="404" packages="4" files="19" classes="19"/>
+<coverage generated="1739251093847" clover="3.2.0">
+  <project timestamp="1739251093848" name="All files">
+    <metrics statements="404" coveredstatements="351" conditionals="219" coveredconditionals="161" methods="92" coveredmethods="80" elements="715" coveredelements="592" complexity="0" loc="404" ncloc="404" packages="4" files="19" classes="19"/>
     <package name="app">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/index.jsx">
@@ -38,7 +38,7 @@
       </file>
     </package>
     <package name="app.screens">
-      <metrics statements="278" coveredstatements="224" conditionals="128" coveredconditionals="86" methods="54" coveredmethods="41"/>
+      <metrics statements="278" coveredstatements="226" conditionals="128" coveredconditionals="86" methods="54" coveredmethods="43"/>
       <file name="directions.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/directions.jsx">
         <metrics statements="189" coveredstatements="141" conditionals="101" coveredconditionals="65" methods="30" coveredmethods="19"/>
         <line num="15" count="71" type="stmt"/>
@@ -153,8 +153,8 @@
         <line num="217" count="9" type="cond" truecount="1" falsecount="1"/>
         <line num="218" count="9" type="stmt"/>
         <line num="219" count="9" type="stmt"/>
-        <line num="220" count="6" type="cond" truecount="1" falsecount="1"/>
-        <line num="221" count="6" type="stmt"/>
+        <line num="220" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="221" count="5" type="stmt"/>
         <line num="232" count="2" type="stmt"/>
         <line num="233" count="2" type="stmt"/>
         <line num="235" count="11" type="stmt"/>
@@ -232,13 +232,13 @@
         <line num="559" count="3" type="stmt"/>
       </file>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/index.jsx">
-        <metrics statements="7" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="3"/>
-        <line num="8" count="6" type="stmt"/>
-        <line num="10" count="6" type="stmt"/>
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="5"/>
+        <line num="8" count="10" type="stmt"/>
+        <line num="10" count="10" type="stmt"/>
         <line num="21" count="1" type="stmt"/>
         <line num="26" count="1" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
         <line num="57" count="1" type="stmt"/>
       </file>
       <file name="login.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/login.jsx">
@@ -275,7 +275,7 @@
       </file>
       <file name="register.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/register.jsx">
         <metrics statements="22" coveredstatements="18" conditionals="8" coveredconditionals="7" methods="3" coveredmethods="3"/>
-        <line num="7" count="14" type="stmt"/>
+        <line num="7" count="15" type="stmt"/>
         <line num="8" count="14" type="stmt"/>
         <line num="9" count="14" type="stmt"/>
         <line num="10" count="14" type="stmt"/>
@@ -340,12 +340,12 @@
       </file>
     </package>
     <package name="components">
-      <metrics statements="103" coveredstatements="102" conditionals="85" coveredconditionals="69" methods="34" coveredmethods="33"/>
+      <metrics statements="103" coveredstatements="102" conditionals="85" coveredconditionals="72" methods="34" coveredmethods="33"/>
       <file name="BuildingMarker.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/BuildingMarker.js">
-        <metrics statements="6" coveredstatements="6" conditionals="14" coveredconditionals="11" methods="2" coveredmethods="2"/>
+        <metrics statements="6" coveredstatements="6" conditionals="14" coveredconditionals="14" methods="2" coveredmethods="2"/>
         <line num="5" count="1" type="stmt"/>
-        <line num="6" count="5" type="cond" truecount="2" falsecount="0"/>
-        <line num="8" count="4" type="stmt"/>
+        <line num="6" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="7" type="stmt"/>
         <line num="35" count="1" type="stmt"/>
         <line num="36" count="1" type="stmt"/>
         <line num="66" count="1" type="stmt"/>
