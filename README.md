@@ -2,6 +2,9 @@
 
 FindMyClass is a React Native mobile application designed to help students navigate university buildings and find their classrooms efficiently. Built with Expo and Firebase, it provides an intuitive interface for classroom discovery and navigation.
 
+[![CodeCov](https://codecov.io/gh/antoinemansour7/miniCap/branch/main/graph/badge.svg)](https://app.codecov.io/gh/antoinemansour7/miniCap)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=antoinemansour7_miniCap&metric=alert_status)](https://sonarcloud.io/summary/overall?id=antoinemansour7_miniCap&branch=main)
+
 ## Features
 
 - **Building Navigation**: Interactive maps of university buildings
