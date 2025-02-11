@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
+import { View, StyleSheet, Text } from 'react-native';
+import MapView from 'react-native-maps';
 import LoyolaBuildings from './loyolaBuildings';
+import useLocationHandler from '../hooks/useLocationHandler';
 import { useRouter } from 'expo-router';
+import BuildingMarker from './BuildingMarker';
 
-// Function to calculate the centroid of a building's outer boundary
 const getCentroid = (building) => {
     const boundary = building.boundary?.outer || building.boundary;
     if (!boundary || boundary.length === 0) return null;
@@ -13,17 +14,15 @@ const getCentroid = (building) => {
     const sumLat = boundary.reduce((sum, point) => sum + point.latitude, 0);
     const sumLon = boundary.reduce((sum, point) => sum + point.longitude, 0);
 
-
     let centroid = {
         latitude: sumLat / totalPoints,
         longitude: sumLon / totalPoints,
     };
 
-    // Manual correction for SP (Richard J Renaud Science Complex)
     if (building.id === 'SP') {
         centroid = {
-            latitude: centroid.latitude - 0.00020, // Move slightly south
-            longitude: centroid.longitude - 0.0002, // Move slightly west
+            latitude: centroid.latitude - 0.00020,
+            longitude: centroid.longitude - 0.0002,
         };
     }
 
@@ -32,8 +31,11 @@ const getCentroid = (building) => {
 
 const LoyolaMap = ({ searchText }) => {
     const mapRef = useRef(null);
-    const router  = useRouter();
-
+    const router = useRouter();
+    const { userLocation, nearestBuilding, noNearbyBuilding, messageVisible } = useLocationHandler(
+        LoyolaBuildings,
+        getCentroid
+    );
 
     useEffect(() => {
         if (searchText) {
@@ -44,7 +46,7 @@ const LoyolaMap = ({ searchText }) => {
                 mapRef.current.animateToRegion({
                     latitude: getCentroid(building)?.latitude || building.latitude,
                     longitude: getCentroid(building)?.longitude || building.longitude,
-                    latitudeDelta: 0.001, // Zoom in
+                    latitudeDelta: 0.001,
                     longitudeDelta: 0.001,
                 });
             }
@@ -52,15 +54,15 @@ const LoyolaMap = ({ searchText }) => {
     }, [searchText]);
 
     const buildingColors = {
-        SP: { stroke: 'rgba(0, 204, 255, 0.8)', fill: 'rgba(0, 204, 255, 0.4)' },  // Light Blue
-        GE: { stroke: 'rgba(153, 51, 255, 0.8)', fill: 'rgba(153, 51, 255, 0.4)' }, // Purple
-        RF: { stroke: 'rgba(255, 165, 0, 0.8)', fill: 'rgba(255, 165, 0, 0.4)' }, // Orange
-        CJ: { stroke: 'rgba(102, 204, 0, 0.8)', fill: 'rgba(102, 204, 0, 0.4)' },  // Green
-        CC: { stroke: 'rgba(255, 102, 0, 0.8)', fill: 'rgba(255, 102, 0, 0.4)' },  // Dark Orange
-        AD: { stroke: 'rgba(255, 204, 0, 0.8)', fill: 'rgba(255, 204, 0, 0.4)' },  // Yellow
-        PY: { stroke: 'rgba(0, 102, 204, 0.8)', fill: 'rgba(0, 102, 204, 0.4)' },  // Dark Blue
-        FC: { stroke: 'rgba(204, 0, 204, 0.8)', fill: 'rgba(204, 0, 204, 0.4)' },  // Magenta
-        VL: { stroke: 'rgba(0, 153, 76, 0.8)', fill: 'rgba(0, 153, 76, 0.4)' },    // Dark Green
+        SP: { stroke: 'rgba(0, 204, 255, 0.8)', fill: 'rgba(0, 204, 255, 0.4)' },
+        GE: { stroke: 'rgba(153, 51, 255, 0.8)', fill: 'rgba(153, 51, 255, 0.4)' },
+        RF: { stroke: 'rgba(255, 165, 0, 0.8)', fill: 'rgba(255, 165, 0, 0.4)' },
+        CJ: { stroke: 'rgba(102, 204, 0, 0.8)', fill: 'rgba(102, 204, 0, 0.4)' },
+        CC: { stroke: 'rgba(255, 102, 0, 0.8)', fill: 'rgba(255, 102, 0, 0.4)' },
+        AD: { stroke: 'rgba(255, 204, 0, 0.8)', fill: 'rgba(255, 204, 0, 0.4)' },
+        PY: { stroke: 'rgba(0, 102, 204, 0.8)', fill: 'rgba(0, 102, 204, 0.4)' },
+        FC: { stroke: 'rgba(204, 0, 204, 0.8)', fill: 'rgba(204, 0, 204, 0.4)' },
+        VL: { stroke: 'rgba(0, 153, 76, 0.8)', fill: 'rgba(0, 153, 76, 0.4)' },
     };
 
     return (
@@ -75,57 +77,62 @@ const LoyolaMap = ({ searchText }) => {
                     longitudeDelta: 0.005,
                 }}
             >
+                {/* {LoyolaBuildings.map((building) => (
+                    <BuildingMarker
+                        key={building.id}
+                        building={building}
+                        router={router}
+                        nearestBuilding={nearestBuilding}
+                        // getCentroid={getCentroid}
+                        buildingColors={buildingColors}
+                    />
+                ))} */}
                 {LoyolaBuildings.map((building) => {
-                    const centroid = getCentroid(building);
+    const position = getCentroid(building);
+    if (!position) return null; // Avoid rendering markers with no valid position
 
-                    return (
-                        <React.Fragment key={building.id}>
-                            {/* Marker at centroid (adjusted for SP if needed) */}
-                            {centroid && (
-                                <Marker
-                                    coordinate={centroid}
-                                    title={building.name}
-                                    description={`Building ID: ${building.id}`}
-                                    onPress={() => {
-                                        console.log("Navigation to directions:", building.name);
-                                        router.push({
-                                            pathname: "/screens/directions",
-                                            params: {
-                                                destination: JSON.stringify({
-                                                    latitude: centroid.latitude,
-                                                    longitude: centroid.longitude,
-                                                }), 
-                                                buildingName: building.name,
-                                            }
-                                        })
-                                    }}
-                                />
-                            )}
-
-                            {/* Polygon with outer and inner boundaries */}
-                            {building.boundary && (
-                                <Polygon
-                                    coordinates={building.boundary.outer || building.boundary}
-                                    holes={building.boundary.inner ? [building.boundary.inner] : undefined}
-                                    strokeColor={buildingColors[building.id]?.stroke || 'rgba(0, 0, 0, 0.8)'}
-                                    fillColor={buildingColors[building.id]?.fill || 'rgba(0, 0, 0, 0.4)'}
-                                    strokeWidth={2}
-                                />
-                            )}
-                        </React.Fragment>
-                    );
-                })}
+    return (
+        <BuildingMarker
+            key={building.id}
+            building={building}
+            router={router}
+            nearestBuilding={nearestBuilding}
+            buildingColors={buildingColors}
+            position={position} // Pass the computed position
+        />
+    );
+})}
             </MapView>
+
+            {messageVisible && noNearbyBuilding && (
+                <View style={styles.messageContainer}>
+                    <Text style={styles.messageText}>You are not near any of the buildings.</Text>
+                </View>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    container: { flex: 1 },
+    map: { flex: 1 },
+    messageContainer: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -150 }, { translateY: -30 }],
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '80%',
     },
-    map: {
-        flex: 1,
+    messageText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });
 

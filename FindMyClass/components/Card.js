@@ -3,9 +3,9 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const Card = ({ iconName, title }) => {
+const Card = ({ iconName, title, onPress }) => {
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress}>
       <Icon name={iconName} size={40} color="#9B1B30" style={styles.icon} />
       <Text style={styles.title}>{title}</Text> 
     </TouchableOpacity>

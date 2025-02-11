@@ -34,6 +34,14 @@ jest.mock('react-native-reanimated', () => ({
   useAnimatedStyle: jest.fn(),
 }));
 
+jest.mock('../../app/secrets', () => ({
+  googleAPIKey: 'test-google-api-key',
+}));
+
+jest.mock('../app/secrets', () => ({
+  googleAPIKey: 'test-google-api-key',
+}));
+
 // Mock `@react-navigation/native`
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({
@@ -71,7 +79,8 @@ jest.mock('react-native/Libraries/Utilities/Platform', () => ({
   select: (obj) => obj.ios,
 }));
 
-
+// Mock `expo-location`
+jest.mock('expo-location');
 
 // ✅ Mock `axios` for API requests (prevents actual network calls)
 jest.mock('axios', () => ({

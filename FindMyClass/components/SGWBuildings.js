@@ -19,6 +19,11 @@ const SGWBuildings = [
             { latitude: 45.4971280, longitude: -73.5794591 },
             { latitude: 45.4968261, longitude: -73.5788241 },
         ],
+        purpose: 'Academic Building',
+        facilities: 'Classrooms, Computer Labs, Lecture Halls, Student Lounges',
+        address: '1455 De Maisonneuve Blvd W, Montreal, QC',
+        contact: 'Phone: +1 514-848-2424 ext. 1000',
+        description: 'The Hall Building is one of the main academic buildings at Concordia University. It hosts various lecture halls and classrooms used by students and faculty.',
     },
     {
         id: 'MB',
@@ -47,6 +52,11 @@ const SGWBuildings = [
             { latitude: 45.4950064, longitude: -73.5787235 },
             { latitude: 45.4949482, longitude: -73.5787947 },
         ],
+        purpose: 'Business School',
+        facilities: 'Lecture Halls, Classrooms, Computer Labs, Executive Suites, Auditorium, Cafeteria, Student Lounges',
+        address: '1450 Guy St, Montreal, QC',
+        contact: 'Phone: +1 514-848-2424 ext. 2000',
+        description: 'The John Molson School of Business at Concordia University is a leading business school offering undergraduate and graduate programs in business and administration. It provides top-tier facilities for students and professionals.',
     },
     {
         id: 'FT',
@@ -78,6 +88,11 @@ const SGWBuildings = [
             { latitude: 45.4944394, longitude: -73.5775911 },
             { latitude: 45.4946786, longitude: -73.5780177 },
         ],
+        purpose: 'Concordia University Academic and Office Space',
+        facilities: 'Classrooms, Faculty Offices, Conference Rooms, Computer Labs, Student Lounges, Cafeteria, Administrative Offices',
+        address: '1500 Rue de la Montagne, Montreal, QC',
+        contact: 'Phone: +1 514-848-2424',
+        description: 'Faubourg Tower is a prominent building at Concordia University, housing academic departments, faculty offices, classrooms, and various administrative offices. It is a key hub for both students and faculty, with modern facilities and ample space for collaboration.',
     },
     {
         id: 'WL',
@@ -115,6 +130,11 @@ const SGWBuildings = [
             { latitude: 45.4964933, longitude: -73.5782102 }, // Node 4048549934
             { latitude: 45.4966595, longitude: -73.5785573 }, // Closing the polygon (Node 237615545)
         ],
+        purpose: 'Library and Study Spaces',
+        facilities: 'Bookshelves, Computer Stations, Study Rooms, Print and Copy Services, Research Support, Cafe, Group Study Areas',
+        address: '1400 De Maisonneuve Blvd W, Montreal, QC',
+        contact: 'Phone: +1 514-848-2424 ext. 7700',
+        description: 'Webster Library is one of the largest libraries at Concordia University, offering students and faculty access to an extensive collection of books, journals, and online resources. It features various study spaces, computer labs, and research support services, making it a key resource for academic success at Concordia.',
     },
     {
         id: 'CL',
@@ -132,6 +152,11 @@ const SGWBuildings = [
             { latitude: 45.4944711, longitude: -73.5792777 },
             { latitude: 45.4941615, longitude: -73.5796402 }, // Closing the polygon
         ],
+        purpose: 'Classrooms and Laboratories',
+        facilities: 'Lecture Rooms, Computer Labs, Research Laboratories, Student Lounges, Administrative Offices',
+        address: '1455 De Maisonneuve Blvd W, Montreal, QC',
+        contact: 'Phone: +1 514-848-2424 ext. 3000',
+        description: 'The CL Building is part of Concordia University’s core academic facilities, housing classrooms, computer labs, and research labs. It provides essential spaces for students and faculty for teaching, learning, and research activities, making it a vital part of the university’s educational infrastructure.',
     },
     {
         id: 'FG',
@@ -152,6 +177,11 @@ const SGWBuildings = [
             { latitude: 45.4943598, longitude: -73.5783982 },
             { latitude: 45.4938097, longitude: -73.5790389 }, // Closing the polygon
         ],
+        purpose: 'Mixed-Use Building (Residential, Commercial)',
+        facilities: 'Retail Stores, Residential Apartments, Offices, Conference Rooms, Fitness Center, Underground Parking',
+        address: '1500 De Maisonneuve Blvd W, Montreal, QC',
+        contact: 'Phone: +1 514-848-2424 ext. 5000',
+        description: 'FG - Le Faubourg is a multi-purpose building that houses residential units, retail spaces, and office areas. It serves as a hub for both living and business, with a fitness center and conference facilities available for residents and tenants.',
     },
     {
         id: 'EV',
@@ -186,6 +216,11 @@ const SGWBuildings = [
             { latitude: 45.4956265, longitude: -73.5787290 }, // Node 1192154370
             { latitude: 45.4959332, longitude: -73.5784410 }, // Closing the polygon (Node 1192154258)
         ],
+        purpose: 'Academic and Research Complex',
+        facilities: 'Lecture Halls, Computer Labs, Research Labs, Classrooms, Student Lounges, Exhibition Spaces, Cafeteria',
+        address: '1515 Ste. Catherine St. W, Montreal, QC',
+        contact: 'Phone: +1 514-848-2424 ext. 3000',
+        description: 'The EV Complex at Concordia University brings together the faculties of engineering, computer science, and visual arts under one roof. It provides cutting-edge labs and classrooms for students and faculty, fostering collaboration across disciplines. The building also includes exhibition spaces and student-focused areas like lounges and a cafeteria.',
     },
 ];
 
