@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   sonarcloud:
@@ -44,13 +47,32 @@ jobs:
       # Step 7: Run SonarCloud Analysis inside FindMyClass/
       - name: Run SonarScanner
         working-directory: FindMyClass
+        env:
+          SONAR_PROJECT_KEY: antoinemansour7_miniCap
+          SONAR_ORG: antoinemansour7
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner \
-            -Dsonar.projectKey=antoinemansour7_miniCap \
-            -Dsonar.organization=antoinemansour7 \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=https://sonarcloud.io/ \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
-            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
-            -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            sonar-scanner \
+              -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+              -Dsonar.organization=$SONAR_ORG \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io/ \
+              -Dsonar.token=$SONAR_TOKEN \
+              -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
+              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
+              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts** \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch=${{ github.head_ref }} \
+              -Dsonar.pullrequest.base=${{ github.base_ref }}
+          else
+            sonar-scanner \
+              -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+              -Dsonar.organization=$SONAR_ORG \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io/ \
+              -Dsonar.token=$SONAR_TOKEN \
+              -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
+              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
+              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**
+          fi
