@@ -1,9 +1,10 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
-import MapView, { Marker, Callout, CalloutSubview, Polygon } from 'react-native-maps';
+import { View, StyleSheet, Text } from 'react-native';
+import MapView from 'react-native-maps';
 import LoyolaBuildings from './loyolaBuildings';
 import useLocationHandler from '../hooks/useLocationHandler';
 import { useRouter } from 'expo-router';
+import BuildingMarker from './BuildingMarker';
 
 const getCentroid = (building) => {
     const boundary = building.boundary?.outer || building.boundary;
@@ -30,11 +31,11 @@ const getCentroid = (building) => {
 
 const LoyolaMap = ({ searchText }) => {
     const mapRef = useRef(null);
+    const router = useRouter();
     const { userLocation, nearestBuilding, noNearbyBuilding, messageVisible } = useLocationHandler(
         LoyolaBuildings,
         getCentroid
     );
-    const router = useRouter();
 
     useEffect(() => {
         if (searchText) {
@@ -76,68 +77,31 @@ const LoyolaMap = ({ searchText }) => {
                     longitudeDelta: 0.005,
                 }}
             >
+                {/* {LoyolaBuildings.map((building) => (
+                    <BuildingMarker
+                        key={building.id}
+                        building={building}
+                        router={router}
+                        nearestBuilding={nearestBuilding}
+                        // getCentroid={getCentroid}
+                        buildingColors={buildingColors}
+                    />
+                ))} */}
                 {LoyolaBuildings.map((building) => {
-                    const centroid = getCentroid(building);
-                    return (
-                        <React.Fragment key={building.id}>
-                            {centroid && (
-                                <Marker
-                                    coordinate={centroid}
-                                    title={building.name}
-                                    description={`Building ID: ${building.id}`}
-                                    pinColor={nearestBuilding?.id === building.id ? 'red' : undefined}
-                                >
-                                    <Callout>
-                                        <ScrollView style={styles.calloutContainer}>
-                                            <Text style={styles.calloutTitle}>{building.name}</Text>
-                                            <Text style={styles.calloutDescription}>{building.description}</Text>
-                                            <Text style={styles.calloutText}>
-                                                <Text style={styles.boldText}>Purpose:</Text> {building.purpose}
-                                            </Text>
-                                            <Text style={styles.calloutText}>
-                                                <Text style={styles.boldText}>Facilities:</Text> {building.facilities}
-                                            </Text>
-                                            <Text style={styles.calloutText}>
-                                                <Text style={styles.boldText}>Address:</Text> {building.address}
-                                            </Text>
-                                            <Text style={styles.calloutText}>
-                                                <Text style={styles.boldText}>Contact:</Text> {building.contact}
-                                            </Text>
+    const position = getCentroid(building);
+    if (!position) return null; // Avoid rendering markers with no valid position
 
-                                            <CalloutSubview
-                                                onPress={() => {
-                                                    console.log("Navigation to directions:", building.name);
-                                                    router.push({
-                                                        pathname: "/screens/directions",
-                                                        params: {
-                                                            destination: JSON.stringify({
-                                                                latitude: centroid.latitude,
-                                                                longitude: centroid.longitude,
-                                                            }),
-                                                            buildingName: building.name,
-                                                        }
-                                                    });
-                                                }}
-                                                style={styles.button}
-                                            >
-                                                <Text style={styles.buttonText}>Get Directions</Text>
-                                            </CalloutSubview>
-                                        </ScrollView>
-                                    </Callout>
-                                </Marker>
-                            )}
-                            {building.boundary && (
-                                <Polygon
-                                    coordinates={building.boundary.outer || building.boundary}
-                                    holes={building.boundary.inner ? [building.boundary.inner] : undefined}
-                                    strokeColor={buildingColors[building.id]?.stroke || 'rgba(0, 0, 0, 0.8)'}
-                                    fillColor={buildingColors[building.id]?.fill || 'rgba(0, 0, 0, 0.4)'}
-                                    strokeWidth={2}
-                                />
-                            )}
-                        </React.Fragment>
-                    );
-                })}
+    return (
+        <BuildingMarker
+            key={building.id}
+            building={building}
+            router={router}
+            nearestBuilding={nearestBuilding}
+            buildingColors={buildingColors}
+            position={position} // Pass the computed position
+        />
+    );
+})}
             </MapView>
 
             {messageVisible && noNearbyBuilding && (
@@ -170,13 +134,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
-    calloutContainer: { width: 250, padding: 12, backgroundColor: '#fff' },
-    calloutTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-    calloutDescription: { fontSize: 14, marginBottom: 12 },
-    calloutText: { fontSize: 12, marginBottom: 6 },
-    boldText: { fontWeight: 'bold' },
-    button: { backgroundColor: '#912338', padding: 8, borderRadius: 5, marginTop: 15 },
-    buttonText: { color: '#fff', fontWeight: 'bold', textAlign: 'center' },
 });
 
 export default LoyolaMap;
