@@ -6,7 +6,6 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../app/secrets";
-import { googleAPIKey } from "../../app/secrets";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
 import GoogleSearchBar from "../../components/GoogleSearchBar";
