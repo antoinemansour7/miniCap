@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739251093847" clover="3.2.0">
-  <project timestamp="1739251093848" name="All files">
+<coverage generated="1739252404619" clover="3.2.0">
+  <project timestamp="1739252404619" name="All files">
     <metrics statements="404" coveredstatements="351" conditionals="219" coveredconditionals="161" methods="92" coveredmethods="80" elements="715" coveredelements="592" complexity="0" loc="404" ncloc="404" packages="4" files="19" classes="19"/>
     <package name="app">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
@@ -275,7 +275,7 @@
       </file>
       <file name="register.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/register.jsx">
         <metrics statements="22" coveredstatements="18" conditionals="8" coveredconditionals="7" methods="3" coveredmethods="3"/>
-        <line num="7" count="15" type="stmt"/>
+        <line num="7" count="14" type="stmt"/>
         <line num="8" count="14" type="stmt"/>
         <line num="9" count="14" type="stmt"/>
         <line num="10" count="14" type="stmt"/>
