@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - UnitTests
+      - feature/*
       
   pull_request:
     branches:
