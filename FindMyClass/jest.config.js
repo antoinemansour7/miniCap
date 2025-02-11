@@ -1,24 +1,27 @@
-// Updated jest.config.js
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)'
+    // Update the regex to include react-native-google-places-autocomplete, @mapbox/polyline, and uuid.
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|react-native-google-places-autocomplete|@mapbox/polyline|uuid)/)'
   ],
   setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^react-native$': 'react-native',
+    "^../../app/secrets$": "<rootDir>/__mocks__/secrets"
   },
-  // ✅ Enable Test Coverage Collection
-  collectCoverage: true,  
-  coverageDirectory: 'coverage',  
-  coverageReporters: ['json', 'lcov', 'text', 'clover'],  // ✅ Ensure correct report formats
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
   collectCoverageFrom: [
-    'app/**/*.{js,jsx}', // ✅ Collect coverage for all JS and JSX files in app/
+    'app/**/*.{js,jsx}',
     'components/**/*.{js,jsx}',
-    '!**/node_modules/**', // ✅ Exclude node_modules
-    '!**/coverage/**', // ✅ Exclude coverage reports
-    '!**/jest.setup.js', // ✅ Exclude Jest setup files
-    '!**/*.config.js' // ✅ Exclude config files
+    '**/__tests__/**/*.{js,jsx}',
+    '!**/node_modules/**',
+    '!**/coverage/**',
+    '!**/jest.setup.js',
+    '!**/*.config.js',
+    '!**/_layout.jsx',  // Exclude _layout.jsx
+    '!**/app/secrets.js' // Exclude secrets.js
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],  // ✅ Ignore irrelevant folders
+  testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],
 };

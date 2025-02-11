@@ -3,7 +3,10 @@
 # dependencies
 node_modules/
 package-lock.json
-tsconfig.json
+app.json
+/FindMyClass/tsconfig.json
+/FindMyClass/app.json
+
 
 # Expo
 .expo/

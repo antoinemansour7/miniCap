@@ -1,37 +1,29 @@
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useCallback, useState, useEffect } from 'react';
-import { useFonts } from 'expo-font';
+import { useCallback, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 
 export default function Layout() {
-  const [fontsLoaded, fontError] = useFonts({});
   const [searchText, setSearchText] = useState('');
-  const navigation = useNavigation();
+  const fontsLoaded = true; // ✅ Remove useFonts if not using fonts
 
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
+    if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded]);
 
-  if (!fontsLoaded && !fontError) {
+  if (!fontsLoaded) {
     return null;
   }
-  //File
-  // Use useEffect to set params when searchText updates
-  useEffect(() => {
-    navigation.setParams({ searchText });  // Dynamically update searchText param
-  }, [searchText, navigation]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <Drawer
-        screenOptions={({ route }) => ({
+        screenOptions={({ route, navigation }) => ({
           headerShown: true,
           headerStyle: { height: route.name === 'screens/map' ? 140 : 90 },
           drawerStyle: { backgroundColor: '#fff' },
@@ -40,14 +32,12 @@ export default function Layout() {
           headerRight: () => (
             <TouchableOpacity
               testID="menu-button"
-              onPress={() => {
-                navigation.dispatch(DrawerActions.openDrawer());
-              }}
-              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 5 }} // Only modify for Map screen
+              onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} 
             >
               <MaterialIcons name="menu" size={30} color="#912338" />
             </TouchableOpacity>
-          ),          
+          ),
           headerTitle: () =>
             route.name === 'screens/map' ? (
               <View style={styles.headerContainer}>
@@ -59,9 +49,8 @@ export default function Layout() {
                     placeholder="Search for buildings, locations..."
                     placeholderTextColor="#A0A0A0"
                     value={searchText}
-                    onChangeText={(text) => {
-                      setSearchText(text);
-                    }}
+                    onChangeText={setSearchText}
+                    testID="search-input"
                   />
                 </View>
               </View>
@@ -77,7 +66,7 @@ export default function Layout() {
         <Drawer.Screen name="screens/login" options={{ drawerLabel: 'Login', title: 'Login' }} />
         <Drawer.Screen name="screens/register" options={{ drawerLabel: 'Register', title: 'Register' }} />
         <Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} />
-        <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule',title: 'Class Schedule'}}/>
+        <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
       </Drawer>
     </GestureHandlerRootView>
   );

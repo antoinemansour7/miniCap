@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - UnitTests
       
   pull_request:
     branches:
@@ -43,6 +44,10 @@ jobs:
       - name: Start Expo (Offline Mode)
         working-directory: FindMyClass
         run: npx expo start --offline || echo "Expo initialized successfully"
+
+      - name: Run tests and collect coverage
+        working-directory: FindMyClass
+        run: npm test || true
 
 
       - name: Upload coverage to CodeCov

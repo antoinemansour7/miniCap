@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import Map from '../screens/map';
+import MapScreen from '../screens/map'; // ✅ Use the correct component name
 import { useRoute } from '@react-navigation/native';
 import ToggleCampusMap from '../../components/ToggleCampusMap';
 import FloatingChatButton from '../../components/FloatingChatButton';
@@ -19,12 +19,11 @@ describe('Map Screen', () => {
     jest.clearAllMocks();
   });
 
- 
-
   it('passes searchText to ToggleCampusMap', () => {
     useRoute.mockReturnValue({ params: { searchText: 'Library' } });
 
-    render(<Map />);
+    render(<MapScreen />); // ✅ Use the correct component name
+
     expect(ToggleCampusMap).toHaveBeenCalledWith(
       expect.objectContaining({ searchText: 'Library' }),
       {}
@@ -34,7 +33,8 @@ describe('Map Screen', () => {
   it('renders FloatingChatButton', () => {
     useRoute.mockReturnValue({ params: { searchText: '' } });
 
-    const { getByTestId } = render(<Map />);
+    render(<MapScreen />); // ✅ Use the correct component name
+
     expect(FloatingChatButton).toHaveBeenCalled();
   });
 });

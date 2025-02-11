@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import "react-native-get-random-values";
+
 
 export default function Home() {
   return (
