@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { loginUser, registerUser, logoutUser } from '../api/auth';
+//u
 
 // Mock the entire axios module
+
 jest.mock('axios', () => ({
   post: jest.fn()
 }));
