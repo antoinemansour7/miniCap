@@ -7,23 +7,20 @@ import Card from '../../components/Card';
 const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({
-    navigate: mockNavigate
-  })
+    navigate: mockNavigate,
+  }),
 }));
 
 // Mock the Card component
 jest.mock('../../components/Card', () => {
-  const MockCard = ({ iconName, title, onPress }) => {
-    return (
-      <div 
-        testID={`card-${title.toLowerCase().replace(/\s+/g, '-')}`}
-        onClick={onPress}
-      >
-        {title}
-      </div>
-    );
-  };
-  return MockCard;
+  return ({ title, onPress }) => (
+    <div 
+      testID={`card-${title.toLowerCase().replace(/\s+/g, '-')}`}
+      onClick={onPress}
+    >
+      {title}
+    </div>
+  );
 });
 
 describe('Index Screen', () => {
@@ -31,6 +28,29 @@ describe('Index Screen', () => {
     mockNavigate.mockClear();
   });
 
+  it('renders the title correctly', () => {
+    const { getByText } = render(<Index />);
+    expect(getByText('Campus Map')).toBeTruthy();
+  });
+
+  it('renders correct number of rows', () => {
+    const { UNSAFE_getAllByType } = render(<Index />);
+    
+    const rows = UNSAFE_getAllByType('View').filter(
+      view => view.props.style?.flexDirection === 'row'
+    );
+    
+    expect(rows).toHaveLength(4); 
+  });
+
+  it('renders correct number of cards', () => {
+    const { getByTestId } = render(<Index />);
+    
+    const cardTitles = ['SGW Map', 'LOY Map', 'Profile', 'Settings', 'My Schedule', 'Security'];
+    cardTitles.forEach(title => {
+      expect(getByTestId(`card-${title.toLowerCase().replace(/\s+/g, '-')}`)).toBeTruthy();
+    });
+  });
 
   it('navigates to SGW Map when SGW Map card is pressed', () => {
     const { getByTestId } = render(<Index />);
@@ -38,7 +58,7 @@ describe('Index Screen', () => {
     const sgwMapCard = getByTestId('card-sgw-map');
     fireEvent.press(sgwMapCard);
     
-    expect(mockNavigate).toHaveBeenCalledWith('SGWMap');
+    expect(mockNavigate).toHaveBeenCalledWith('screens/map', { campus: 'SGW' });
   });
 
   it('navigates to Loyola Map when LOY Map card is pressed', () => {
@@ -47,25 +67,37 @@ describe('Index Screen', () => {
     const loyMapCard = getByTestId('card-loy-map');
     fireEvent.press(loyMapCard);
     
-    expect(mockNavigate).toHaveBeenCalledWith('LoyolaMap');
+    expect(mockNavigate).toHaveBeenCalledWith('screens/map', { campus: 'Loyola' });
   });
 
-  it('renders correct number of rows', () => {
-    const { UNSAFE_getAllByType } = render(<Index />);
+  it('navigates to Profile when Profile card is pressed', () => {
+    const { getByTestId } = render(<Index />);
     
-    // Get all View components that represent rows
-    const rows = UNSAFE_getAllByType('View').filter(
-      view => view.props.style?.flexDirection === 'row'
-    );
+    const profileCard = getByTestId('card-profile');
+    fireEvent.press(profileCard);
     
-    expect(rows).toHaveLength(3);
+    expect(mockNavigate).toHaveBeenCalledWith('screens/profile');
   });
 
-  it('renders correct number of cards', () => {
-    const { UNSAFE_getAllByType } = render(<Index />);
-    const cards = UNSAFE_getAllByType(Card);
+  it('navigates to My Schedule when My Schedule card is pressed', () => {
+    const { getByTestId } = render(<Index />);
     
-    expect(cards).toHaveLength(6);
+    const scheduleCard = getByTestId('card-my-schedule');
+    fireEvent.press(scheduleCard);
+    
+    expect(mockNavigate).toHaveBeenCalledWith('screens/schedule');
+  });
+
+  it('does not navigate when clicking on non-navigational cards', () => {
+    const { getByTestId } = render(<Index />);
+    
+    const settingsCard = getByTestId('card-settings');
+    fireEvent.press(settingsCard);
+    
+    const securityCard = getByTestId('card-security');
+    fireEvent.press(securityCard);
+
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('applies correct styles to container', () => {
@@ -76,7 +108,7 @@ describe('Index Screen', () => {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      padding: 20
+      padding: 20,
     });
   });
 
@@ -86,13 +118,13 @@ describe('Index Screen', () => {
     const rows = UNSAFE_getAllByType('View').filter(
       view => view.props.style?.flexDirection === 'row'
     );
-    
+
     rows.forEach(row => {
       expect(row.props.style).toMatchObject({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 20,
-        width: '100%'
+        width: '100%',
       });
     });
   });
