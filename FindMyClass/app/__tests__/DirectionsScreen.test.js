@@ -12,6 +12,10 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: jest.fn(),
 }));
 
+jest.mock('../app/secrets', () => ({
+  googleAPIKey: 'test-google-api-key',
+}));
+
 // --- MOCK: expo-location ---
 jest.mock('expo-location', () => ({
   requestForegroundPermissionsAsync: jest.fn(() =>

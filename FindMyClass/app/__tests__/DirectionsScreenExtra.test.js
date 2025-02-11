@@ -26,6 +26,11 @@ jest.mock('react-native-element-dropdown', () => {
     };
 });
 
+jest.mock('../app/secrets', () => ({
+    googleAPIKey: 'test-google-api-key',
+  }));
+
+
 // Use same mocks as in your other test file for consistency.
 jest.mock('expo-location', () => ({
   requestForegroundPermissionsAsync: jest.fn(() =>
