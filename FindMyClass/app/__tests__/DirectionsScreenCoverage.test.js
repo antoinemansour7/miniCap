@@ -10,6 +10,10 @@ jest.mock('expo-router', () => ({
 }));
 jest.useFakeTimers();
 
+jest.mock('../app/secrets', () => ({
+    googleAPIKey: 'test-google-api-key',
+  }));
+
 describe('DirectionsScreen additional coverage', () => {
     // Lines 110, 122-124: Valid JSON parsing branch
     it('parses valid destination JSON and renders map (lines 110,122-124,279-287)', async () => {
