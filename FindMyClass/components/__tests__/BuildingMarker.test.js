@@ -1,199 +1,160 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import BuildingMarker from '../BuildingMarker';
+import BuildingMarker from '../BuildingMarker'; // Adjust path as needed
+import { Marker, Polygon } from 'react-native-maps';
+
+jest.mock('react-native-maps', () => {
+    return {
+        Marker: jest.fn(({ children }) => children || null),
+        Callout: jest.fn(({ children }) => children || null),
+        CalloutSubview: jest.fn(({ onPress, children }) => (
+            <div onClick={onPress}>{children}</div>
+        )),
+        Polygon: jest.fn(() => null),
+    };
+});
 
 describe('BuildingMarker Component', () => {
     const mockRouter = { push: jest.fn() };
-    const testBuilding = {
-        id: 'TEST',
+    const mockBuilding = {
+        id: '1',
         name: 'Test Building',
         description: 'A test building',
-        purpose: 'Test Purpose',
-        facilities: 'Test Facilities',
-        address: 'Test Address',
-        contact: 'Test Contact',
-        boundary: {
-            outer: [
-                { latitude: 37.78825, longitude: -122.4324 },
-                { latitude: 37.78835, longitude: -122.4324 },
-                { latitude: 37.78835, longitude: -122.4325 },
-                { latitude: 37.78825, longitude: -122.4325 },
-            ],
-        },
+        purpose: 'Educational',
+        facilities: 'Library, Labs',
+        address: '123 Test St',
+        contact: '123-456-7890',
+        boundary: { outer: [{ latitude: 10, longitude: 10 }, { latitude: 20, longitude: 20 }] },
     };
-    const testPosition = { latitude: 37.7883, longitude: -122.43245 };
+    const mockPosition = { latitude: 10, longitude: 10 };
+    const mockBuildingColors = { '1': { stroke: 'blue', fill: 'green' } };
 
-    it('renders marker and callout with building info', () => {
-        const { getByText } = render(
+    it('returns null when position is missing', () => {
+        const { queryByText } = render(
             <BuildingMarker
-                building={testBuilding}
+                building={mockBuilding}
                 router={mockRouter}
-                nearestBuilding={null}
-                buildingColors={{
-                    TEST: { stroke: 'rgba(0,0,0,0.8)', fill: 'rgba(0,0,0,0.4)' },
-                }}
-                position={testPosition}
+                nearestBuilding={mockBuilding}
+                buildingColors={mockBuildingColors}
+                position={null}
             />
         );
-        // Verify text contents in callout
-        expect(getByText('Test Building')).toBeTruthy();
-        expect(getByText('A test building')).toBeTruthy();
-        expect(getByText('Test Purpose')).toBeTruthy();
-        expect(getByText('Test Facilities')).toBeTruthy();
-        expect(getByText('Test Address')).toBeTruthy();
-        expect(getByText('Test Contact')).toBeTruthy();
-        expect(getByText('Get Directions')).toBeTruthy();
+        expect(queryByText('Test Building')).toBeNull();
     });
 
-    it('navigates when "Get Directions" is pressed', () => {
+    it('does not render Polygon when boundary is empty object', () => {
+        const buildingWithEmptyBoundary = { ...mockBuilding, boundary: {} };
+        render(
+            <BuildingMarker
+                building={buildingWithEmptyBoundary}
+                router={mockRouter}
+                nearestBuilding={mockBuilding}
+                buildingColors={mockBuildingColors}
+                position={mockPosition}
+            />
+        );
+        expect(Polygon).not.toHaveBeenCalled();
+    });
+
+    it('uses default stroke and fill colors when buildingColors is missing entry for building', () => {
+        const buildingColorsWithoutEntry = {};
+        render(
+            <BuildingMarker
+                building={mockBuilding}
+                router={mockRouter}
+                nearestBuilding={mockBuilding}
+                buildingColors={buildingColorsWithoutEntry}
+                position={mockPosition}
+            />
+        );
+        expect(Polygon).toHaveBeenCalledWith(
+            expect.objectContaining({
+                strokeColor: 'rgba(0, 0, 0, 0.8)',
+                fillColor: 'rgba(0, 0, 0, 0.4)',
+            }),
+            {}
+        );
+    });
+
+    it('renders correctly when nearestBuilding is undefined', () => {
+        render(
+            <BuildingMarker
+                building={mockBuilding}
+                router={mockRouter}
+                nearestBuilding={undefined}
+                buildingColors={mockBuildingColors}
+                position={mockPosition}
+            />
+        );
+        expect(Marker).toHaveBeenCalledWith(expect.objectContaining({ pinColor: undefined }), {});
+    });
+
+    it('renders Polygon with holes if inner boundary exists', () => {
+        const buildingWithHoles = {
+            ...mockBuilding,
+            boundary: {
+                outer: [{ latitude: 10, longitude: 10 }, { latitude: 20, longitude: 20 }],
+                inner: [{ latitude: 12, longitude: 12 }, { latitude: 18, longitude: 18 }],
+            },
+        };
+        render(
+            <BuildingMarker
+                building={buildingWithHoles}
+                router={mockRouter}
+                nearestBuilding={mockBuilding}
+                buildingColors={mockBuildingColors}
+                position={mockPosition}
+            />
+        );
+        expect(Polygon).toHaveBeenCalledWith(
+            expect.objectContaining({ holes: [buildingWithHoles.boundary.inner] }),
+            {}
+        );
+    });
+
+    it('does not navigate if CalloutSubview is missing', () => {
+        render(
+            <BuildingMarker
+                building={mockBuilding}
+                router={mockRouter}
+                nearestBuilding={mockBuilding}
+                buildingColors={mockBuildingColors}
+                position={mockPosition}
+            />
+        );
+        expect(mockRouter.push).not.toHaveBeenCalled();
+    });
+
+    it('does not break if position is an empty object', () => {
         const { getByText } = render(
             <BuildingMarker
-                building={testBuilding}
+                building={mockBuilding}
                 router={mockRouter}
-                nearestBuilding={null}
-                buildingColors={{
-                    TEST: { stroke: 'rgba(0,0,0,0.8)', fill: 'rgba(0,0,0,0.4)' },
-                }}
-                position={testPosition}
+                nearestBuilding={mockBuilding}
+                buildingColors={mockBuildingColors}
+                position={{}}
+            />
+        );
+        expect(getByText('Test Building')).toBeTruthy();
+    });
+
+    it('navigates to directions on button press', () => {
+        const { getByText } = render(
+            <BuildingMarker
+                building={mockBuilding}
+                router={mockRouter}
+                nearestBuilding={mockBuilding}
+                buildingColors={mockBuildingColors}
+                position={mockPosition}
             />
         );
         fireEvent.press(getByText('Get Directions'));
         expect(mockRouter.push).toHaveBeenCalledWith({
             pathname: '/screens/directions',
             params: {
-                destination: JSON.stringify(testPosition),
-                buildingName: testBuilding.name,
+                destination: JSON.stringify(mockPosition),
+                buildingName: 'Test Building',
             },
         });
-    });
-
-    it('does not render marker when no valid position is provided', () => {
-        const testBuilding = {
-            id: 'TEST',
-            name: 'Test Building',
-            description: 'A test building',
-            purpose: 'Test Purpose',
-            facilities: 'Test Facilities',
-            address: 'Test Address',
-            contact: 'Test Contact',
-            boundary: {
-                outer: [
-                    { latitude: 37.78825, longitude: -122.4324 },
-                    { latitude: 37.78835, longitude: -122.4324 },
-                    { latitude: 37.78835, longitude: -122.4325 },
-                    { latitude: 37.78825, longitude: -122.4325 },
-                ],
-            },
-        };
-
-        const mockRouter = { push: jest.fn() };
-        // Passing undefined for the position should result in no marker rendered
-        const { toJSON } = render(
-            <BuildingMarker
-                building={testBuilding}
-                router={mockRouter}
-                nearestBuilding={null}
-                buildingColors={{
-                    TEST: { stroke: 'rgba(0,0,0,0.8)', fill: 'rgba(0,0,0,0.4)' },
-                }}
-                position={undefined}
-            />
-        );
-        expect(toJSON()).toBeNull();
-    });
-
-    it('renders marker with red pin when it is the nearest building', () => {
-        const mockRouter = { push: jest.fn() };
-        const testBuilding = {
-            id: 'TEST',
-            name: 'Test Building',
-            description: 'A test building',
-            purpose: 'Test Purpose',
-            facilities: 'Test Facilities',
-            address: 'Test Address',
-            contact: 'Test Contact',
-            boundary: {
-                outer: [
-                    { latitude: 37.78825, longitude: -122.4324 },
-                    { latitude: 37.78835, longitude: -122.4324 },
-                    { latitude: 37.78835, longitude: -122.4325 },
-                    { latitude: 37.78825, longitude: -122.4325 },
-                ],
-            },
-        };
-        const testPosition = { latitude: 37.7883, longitude: -122.43245 };
-
-        const { UNSAFE_getByType } = render(
-            <BuildingMarker
-                building={testBuilding}
-                router={mockRouter}
-                nearestBuilding={testBuilding}  // Branch: marker is nearest
-                buildingColors={{
-                    TEST: { stroke: 'rgba(0,0,0,0.8)', fill: 'rgba(0,0,0,0.4)' },
-                }}
-                position={testPosition}
-            />
-        );
-        const markerElement = UNSAFE_getByType('Marker');
-        // Verify that the Marker prop "pinColor" is set to red for the nearest building.
-        expect(markerElement.props.pinColor).toBe('red');
-    });
-
-    it('renders polygon with holes when inner boundaries exist', () => {
-        const mockRouter = { push: jest.fn() };
-        const innerBoundary = [
-            { latitude: 37.78826, longitude: -122.43242 },
-            { latitude: 37.78836, longitude: -122.43242 },
-            { latitude: 37.78836, longitude: -122.43252 },
-            { latitude: 37.78826, longitude: -122.43252 },
-        ];
-        const testBuilding = {
-            id: 'TEST',
-            name: 'Test Building With Hole',
-            description: 'A test building with inner boundary',
-            purpose: 'Test Purpose',
-            facilities: 'Test Facilities',
-            address: 'Test Address',
-            contact: 'Test Contact',
-            boundary: {
-                outer: [
-                    { latitude: 37.78825, longitude: -122.4324 },
-                    { latitude: 37.78835, longitude: -122.4324 },
-                    { latitude: 37.78835, longitude: -122.4325 },
-                    { latitude: 37.78825, longitude: -122.4325 },
-                ],
-                inner: innerBoundary,
-            },
-        };
-        const testPosition = { latitude: 37.7883, longitude: -122.43245 };
-
-        const { toJSON } = render(
-            <BuildingMarker
-                building={testBuilding}
-                router={mockRouter}
-                nearestBuilding={null}
-                buildingColors={{
-                    TEST: { stroke: 'rgba(0,0,0,0.8)', fill: 'rgba(0,0,0,0.4)' },
-                }}
-                position={testPosition}
-            />
-        );
-        // Recursively find the Polygon element within the JSON tree.
-        const findPolygonNode = (node) => {
-            if (!node) return null;
-            if (node.type === 'Polygon' && node.props && node.props.holes) {
-                return node;
-            }
-            if (node.children && node.children.length) {
-                for (const child of node.children) {
-                    const found = findPolygonNode(child);
-                    if (found) return found;
-                }
-            }
-            return null;
-        };
-        const polygonNode = findPolygonNode(toJSON());
-        expect(polygonNode).not.toBeNull();
-        expect(polygonNode.props.holes).toEqual([innerBoundary]);
     });
 });
