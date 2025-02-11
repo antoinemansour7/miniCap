@@ -26,8 +26,8 @@ jest.mock('react-native-google-places-autocomplete', () => {
 
 // --- MOCK the secrets so googleAPIKey is defined ---
 // Adjust the relative path so that it correctly resolves to project-root/app/secrets.js.
-jest.mock('../../app/secrets', () => ({
-  googleAPIKey: 'FAKE_API_KEY',
+jest.mock('../app/secrets', () => ({
+  googleAPIKey: 'test-google-api-key',
 }));
 
 describe('GoogleSearchBar', () => {

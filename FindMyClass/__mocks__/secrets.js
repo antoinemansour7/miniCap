@@ -1,3 +1,3 @@
 module.exports = {
-    googleAPIKey: "FAKE_GOOGLE_API_KEY",
-  };
+  googleAPIKey: 'mock-google-api-key',
+};
