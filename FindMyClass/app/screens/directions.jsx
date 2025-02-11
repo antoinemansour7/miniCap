@@ -215,18 +215,26 @@ export default function DirectionsScreen() {
             setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
 
             if (mapRef.current) {
+                const currentMapRef = mapRef.current; // store current reference
                 setTimeout(() => {
-                    mapRef.current.fitToCoordinates([start, end, ...decodedCoordinates], {
-                        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                        animated: true
-                    });
+                    if (currentMapRef) { // use stored reference instead of mapRef.current
+                        currentMapRef.fitToCoordinates(
+                            [start, end, ...decodedCoordinates],
+                            {
+                                edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                                animated: true,
+                            }
+                        );
+                    }
                 }, 100);
             }
         } catch (err) {
             console.error("Route update error:", err);
             setError(err.message);
         } finally {
-            setIsLoading(false);
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 0);
         }
     };
 
@@ -272,13 +280,13 @@ export default function DirectionsScreen() {
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude,
                         };
-                        setUserLocation(updatedLocation);
-                        
-                        // Update route if using user location
-                        if (selectedStart === 'userLocation') {
-                            setStartLocation(updatedLocation);
-                            updateRoute(updatedLocation, destination);
-                        }
+                        setTimeout(() => {
+                            setUserLocation(updatedLocation);
+                            if (selectedStart === 'userLocation') {
+                                setStartLocation(updatedLocation);
+                                updateRoute(updatedLocation, destination);
+                            }
+                        }, 0);
                     }
                 );
                 
@@ -372,6 +380,7 @@ export default function DirectionsScreen() {
                             placeholder="Select start location"
                             value={selectedStart}
                             onChange={handleStartLocationChange}
+                            testID="dropdown-start"
                         />
                         {showCustomStart && (
                             <View style={styles.customInputContainer}>
@@ -397,6 +406,7 @@ export default function DirectionsScreen() {
                             placeholder="Select destination"
                             value={selectedDest}
                             onChange={handleDestinationChange}
+                            testID="dropdown-dest"
                         />
                         {showCustomDest && (
                             <View style={styles.searchContainer}>
@@ -482,6 +492,7 @@ export default function DirectionsScreen() {
                     const newZoomLevel = calculateZoomLevel(region);
                     setZoomLevel(newZoomLevel);
                 }}
+                testID="map-view"
             >
                 {userLocation && 
                 // selectedStart === 'userLocation' ? 
@@ -538,6 +549,7 @@ export default function DirectionsScreen() {
                         Distance: {routeInfo.distance}</Text>
                 </View>
             )}
+            <Text testID="building-name">{destinationName}</Text>
         </View>
     );
 }
