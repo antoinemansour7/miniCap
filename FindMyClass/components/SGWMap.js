@@ -1,11 +1,13 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
-import MapView, { Marker, Callout, Polygon } from 'react-native-maps';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import MapView, { Marker, Callout, CalloutSubview, Polygon } from 'react-native-maps';
 import SGWBuildings from './SGWBuildings';
 import useLocationHandler from '../hooks/useLocationHandler';
+import { useRouter } from 'expo-router';
 
 const SGWMap = ({ searchText }) => {
     const mapRef = useRef(null);
+    const router = useRouter();
 
     const { userLocation, nearestBuilding, noNearbyBuilding, messageVisible } = useLocationHandler(SGWBuildings);
 
@@ -62,21 +64,29 @@ const SGWMap = ({ searchText }) => {
                                 <ScrollView style={styles.calloutContainer}>
                                     <Text style={styles.calloutTitle}>{building.name}</Text>
                                     <Text style={styles.calloutDescription}>{building.description}</Text>
-                                    <Text style={styles.calloutText}>
-                                        <Text style={styles.boldText}>Purpose:</Text> {building.purpose}
-                                    </Text>
-                                    <Text style={styles.calloutText}>
-                                        <Text style={styles.boldText}>Facilities:</Text> {building.facilities}
-                                    </Text>
-                                    <Text style={styles.calloutText}>
-                                        <Text style={styles.boldText}>Address:</Text> {building.address}
-                                    </Text>
-                                    <Text style={styles.calloutText}>
-                                        <Text style={styles.boldText}>Contact:</Text> {building.contact}
-                                    </Text>
-                                    <TouchableOpacity style={styles.button} onPress={() => { /* some action */ }}>
+                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Purpose:</Text> {building.purpose}</Text>
+                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Facilities:</Text> {building.facilities}</Text>
+                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Address:</Text> {building.address}</Text>
+                                    <Text style={styles.calloutText}><Text style={styles.boldText}>Contact:</Text> {building.contact}</Text>
+
+                                    <CalloutSubview 
+                                        onPress={() => {
+                                            console.log("Navigation to directions:", building.name);
+                                            router.push({
+                                                pathname: "/screens/directions",  
+                                                params: {
+                                                    destination: JSON.stringify({
+                                                        latitude: building.latitude,
+                                                        longitude: building.longitude,
+                                                    }),
+                                                    buildingName: building.name,
+                                                }
+                                            });
+                                        }}
+                                        style={styles.button}
+                                    >
                                         <Text style={styles.buttonText}>Get Directions</Text>
-                                    </TouchableOpacity>
+                                    </CalloutSubview>
                                 </ScrollView>
                             </Callout>
                         </Marker>
@@ -157,7 +167,7 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     button: {
-        backgroundColor: '#007BFF',
+        backgroundColor: '#912338',
         paddingVertical: 8,
         paddingHorizontal: 12,
         borderRadius: 5,

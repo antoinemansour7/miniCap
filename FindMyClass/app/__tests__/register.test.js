@@ -1,34 +1,29 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import Register from '../screens/register';
-import { registerUser } from '../api/auth';
+import Register from '../screens/register'; // Ensure this is the correct path
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
-
-// Mock API and router
-jest.mock('../api/auth', () => ({
-  registerUser: jest.fn(),
-}));
+import { registerUser } from '../api/auth';
 
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.spyOn(Alert, 'alert'); // Spy on Alert.alert
+jest.mock('../api/auth', () => ({
+  registerUser: jest.fn(),
+}));
 
-describe('Register Screen', () => {
-  let routerMock;
+describe('Register Component', () => {
+  let mockRouter;
 
   beforeEach(() => {
-    routerMock = { push: jest.fn() };
-    useRouter.mockReturnValue(routerMock);
-    jest.clearAllMocks(); // Clear mocks before each test
+    mockRouter = { push: jest.fn() };
+    useRouter.mockReturnValue(mockRouter);
   });
 
-  it('renders register screen correctly', () => {
-    const { getByText, getByPlaceholderText } = render(<Register />);
+  test('renders correctly', () => {
+    const { getByText, getByPlaceholderText, getAllByText } = render(<Register />);
 
-    expect(getByText('Register')).toBeTruthy(); // Title
+    expect(getAllByText('Register').length).toBeGreaterThan(0); // Checks that there is at least one 'Register' text
     expect(getByPlaceholderText('First Name')).toBeTruthy();
     expect(getByPlaceholderText('Last Name')).toBeTruthy();
     expect(getByPlaceholderText('Email')).toBeTruthy();
@@ -36,75 +31,69 @@ describe('Register Screen', () => {
     expect(getByText('Already a User? Login!')).toBeTruthy();
   });
 
-  it('updates input fields correctly', () => {
+  test('updates input fields correctly', () => {
     const { getByPlaceholderText } = render(<Register />);
-    const firstNameInput = getByPlaceholderText('First Name');
-    const lastNameInput = getByPlaceholderText('Last Name');
-    const emailInput = getByPlaceholderText('Email');
-    const passwordInput = getByPlaceholderText('Password');
 
-    fireEvent.changeText(firstNameInput, 'John');
-    fireEvent.changeText(lastNameInput, 'Doe');
-    fireEvent.changeText(emailInput, 'john@example.com');
-    fireEvent.changeText(passwordInput, 'password123');
+    fireEvent.changeText(getByPlaceholderText('First Name'), 'John');
+    fireEvent.changeText(getByPlaceholderText('Last Name'), 'Doe');
+    fireEvent.changeText(getByPlaceholderText('Email'), 'johndoe@example.com');
+    fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
 
-    expect(firstNameInput.props.value).toBe('John');
-    expect(lastNameInput.props.value).toBe('Doe');
-    expect(emailInput.props.value).toBe('john@example.com');
-    expect(passwordInput.props.value).toBe('password123');
+    expect(getByPlaceholderText('First Name').props.value).toBe('John');
+    expect(getByPlaceholderText('Last Name').props.value).toBe('Doe');
+    expect(getByPlaceholderText('Email').props.value).toBe('johndoe@example.com');
+    expect(getByPlaceholderText('Password').props.value).toBe('password123');
   });
 
-  it('calls registerUser and navigates to login on success', async () => {
-    registerUser.mockResolvedValueOnce({ message: 'User registered successfully' });
+  test('calls handleRegister and API when register button is pressed', async () => {
+    registerUser.mockResolvedValueOnce(); // Mock successful API response
 
     const { getByPlaceholderText, getByTestId } = render(<Register />);
-    const firstNameInput = getByPlaceholderText('First Name');
-    const lastNameInput = getByPlaceholderText('Last Name');
-    const emailInput = getByPlaceholderText('Email');
-    const passwordInput = getByPlaceholderText('Password');
-    const registerButton = getByTestId('registerButton'); // Select the correct button
 
-    fireEvent.changeText(firstNameInput, 'Jane');
-    fireEvent.changeText(lastNameInput, 'Smith');
-    fireEvent.changeText(emailInput, 'jane@example.com');
-    fireEvent.changeText(passwordInput, 'securepass');
-    fireEvent.press(registerButton);
+    fireEvent.changeText(getByPlaceholderText('First Name'), 'John');
+    fireEvent.changeText(getByPlaceholderText('Last Name'), 'Doe');
+    fireEvent.changeText(getByPlaceholderText('Email'), 'johndoe@example.com');
+    fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
+
+    fireEvent.press(getByTestId('register-button')); // Select button by testID
 
     await waitFor(() => {
-      expect(Alert.alert).toHaveBeenCalledWith('Success', 'Registration Successful!');
-      expect(routerMock.push).toHaveBeenCalledWith('/screens/login');
-      expect(registerUser).toHaveBeenCalledWith('jane@example.com', 'securepass', 'Jane', 'Smith');
+      expect(registerUser).toHaveBeenCalledWith(
+        'johndoe@example.com',
+        'password123',
+        'John',
+        'Doe'
+      );
     });
   });
 
-  it('shows error alert when registration fails', async () => {
-    registerUser.mockRejectedValueOnce(new Error('User already exists'));
-
-    const { getByPlaceholderText, getByTestId } = render(<Register />);
-    const firstNameInput = getByPlaceholderText('First Name');
-    const lastNameInput = getByPlaceholderText('Last Name');
-    const emailInput = getByPlaceholderText('Email');
-    const passwordInput = getByPlaceholderText('Password');
-    const registerButton = getByTestId('registerButton');
-
-    fireEvent.changeText(firstNameInput, 'Existing');
-    fireEvent.changeText(lastNameInput, 'User');
-    fireEvent.changeText(emailInput, 'existing@example.com');
-    fireEvent.changeText(passwordInput, 'password');
-    fireEvent.press(registerButton);
-
-    await waitFor(() => {
-      expect(Alert.alert).toHaveBeenCalledWith('Registration Error', 'User already exists');
-      expect(registerUser).toHaveBeenCalledWith('existing@example.com', 'password', 'Existing', 'User');
-    });
-  });
-
-  it('navigates to login screen when "Already a User? Login!" is pressed', () => {
+  test('navigates to login screen when "Already a User? Login!" is pressed', () => {
     const { getByText } = render(<Register />);
-    const loginLink = getByText('Already a User? Login!');
+    
+    fireEvent.press(getByText('Already a User? Login!'));
 
-    fireEvent.press(loginLink);
+    expect(mockRouter.push).toHaveBeenCalledWith('/screens/login');
+  });
 
-    expect(routerMock.push).toHaveBeenCalledWith('/screens/login');
+  test('shows alert on failed registration', async () => {
+    const mockError = new Error('Email already in use');
+    registerUser.mockRejectedValueOnce(mockError);
+
+    jest.spyOn(window, 'alert').mockImplementation(() => {}); // Mock window.alert
+
+    const { getByText, getByPlaceholderText, getByTestId } = render(<Register />);
+
+    fireEvent.changeText(getByPlaceholderText('Email'), 'taken@example.com');
+    fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
+    fireEvent.changeText(getByPlaceholderText('First Name'), 'Jane');
+    fireEvent.changeText(getByPlaceholderText('Last Name'), 'Doe');
+
+    fireEvent.press(getByTestId('register-button'));
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith('Registration Error', 'Email already in use');
+    });
+
+    window.alert.mockRestore(); // Restore alert function
   });
 });

@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
-import MapView, { Marker, Callout, Polygon } from 'react-native-maps';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import MapView, { Marker, Callout, CalloutSubview, Polygon } from 'react-native-maps';
 import LoyolaBuildings from './loyolaBuildings';
 import useLocationHandler from '../hooks/useLocationHandler';
+import { useRouter } from 'expo-router';
 
 const getCentroid = (building) => {
     const boundary = building.boundary?.outer || building.boundary;
@@ -17,11 +18,10 @@ const getCentroid = (building) => {
         longitude: sumLon / totalPoints,
     };
 
-    // Manual correction for SP (Richard J Renaud Science Complex)
     if (building.id === 'SP') {
         centroid = {
-            latitude: centroid.latitude - 0.00020, // Move slightly south
-            longitude: centroid.longitude - 0.0002, // Move slightly west
+            latitude: centroid.latitude - 0.00020,
+            longitude: centroid.longitude - 0.0002,
         };
     }
 
@@ -34,6 +34,7 @@ const LoyolaMap = ({ searchText }) => {
         LoyolaBuildings,
         getCentroid
     );
+    const router = useRouter();
 
     useEffect(() => {
         if (searchText) {
@@ -80,7 +81,12 @@ const LoyolaMap = ({ searchText }) => {
                     return (
                         <React.Fragment key={building.id}>
                             {centroid && (
-                                <Marker coordinate={centroid} title={building.name} pinColor={nearestBuilding?.id === building.id ? 'red' : undefined}>
+                                <Marker
+                                    coordinate={centroid}
+                                    title={building.name}
+                                    description={`Building ID: ${building.id}`}
+                                    pinColor={nearestBuilding?.id === building.id ? 'red' : undefined}
+                                >
                                     <Callout>
                                         <ScrollView style={styles.calloutContainer}>
                                             <Text style={styles.calloutTitle}>{building.name}</Text>
@@ -97,9 +103,25 @@ const LoyolaMap = ({ searchText }) => {
                                             <Text style={styles.calloutText}>
                                                 <Text style={styles.boldText}>Contact:</Text> {building.contact}
                                             </Text>
-                                            <TouchableOpacity style={styles.button}>
+
+                                            <CalloutSubview
+                                                onPress={() => {
+                                                    console.log("Navigation to directions:", building.name);
+                                                    router.push({
+                                                        pathname: "/screens/directions",
+                                                        params: {
+                                                            destination: JSON.stringify({
+                                                                latitude: centroid.latitude,
+                                                                longitude: centroid.longitude,
+                                                            }),
+                                                            buildingName: building.name,
+                                                        }
+                                                    });
+                                                }}
+                                                style={styles.button}
+                                            >
                                                 <Text style={styles.buttonText}>Get Directions</Text>
-                                            </TouchableOpacity>
+                                            </CalloutSubview>
                                         </ScrollView>
                                     </Callout>
                                 </Marker>
@@ -153,7 +175,7 @@ const styles = StyleSheet.create({
     calloutDescription: { fontSize: 14, marginBottom: 12 },
     calloutText: { fontSize: 12, marginBottom: 6 },
     boldText: { fontWeight: 'bold' },
-    button: { backgroundColor: '#007BFF', padding: 8, borderRadius: 5, marginTop: 15 },
+    button: { backgroundColor: '#912338', padding: 8, borderRadius: 5, marginTop: 15 },
     buttonText: { color: '#fff', fontWeight: 'bold', textAlign: 'center' },
 });
 
