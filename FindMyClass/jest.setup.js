@@ -34,6 +34,10 @@ jest.mock('react-native-reanimated', () => ({
   useAnimatedStyle: jest.fn(),
 }));
 
+jest.mock('../app/secrets', () => ({
+  googleAPIKey: 'test-google-api-key',
+}));
+
 // Mock `@react-navigation/native`
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({

@@ -7,7 +7,7 @@ module.exports = {
   setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^react-native$': 'react-native',
-    "^../../app/secrets$": "<rootDir>/__mocks__/secrets",
+    "^../app/secrets$": "<rootDir>/__mocks__/secrets",
     '^expo-location$': '<rootDir>/__mocks__/expo-location.js',
     // Stub out static assets:
     '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/__mocks__/fileMock.js'
