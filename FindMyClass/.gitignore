@@ -6,6 +6,7 @@ package-lock.json
 app.json
 /FindMyClass/tsconfig.json
 /FindMyClass/app.json
+/FindMyClass/coverage/
 
 
 # Expo
