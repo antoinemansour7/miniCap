@@ -33,7 +33,12 @@ const LoyolaBuildings = [
             { "latitude": 45.4591680, "longitude": -73.6387865 },
             { "latitude": 45.4593198, "longitude": -73.6386664 },
             { "latitude": 45.4591503, "longitude": -73.6382312 }
-        ]
+        ],
+        "purpose": "Library",
+        "facilities": "Study Rooms, Computer Labs, Books, Printing Services",
+        "address": "7141 Sherbrooke St W, Montreal, QC",
+        "contact": "Phone: +1 514-848-2424 ext. 7700",
+        "description": "Vanier Library serves students and faculty with extensive study areas, research materials, and digital resources at the Loyola Campus."
     },
     {
         "id": "PY",
@@ -72,7 +77,12 @@ const LoyolaBuildings = [
                 { "latitude": 45.4588326, "longitude": -73.6405200 },
                 { "latitude": 45.4588614, "longitude": -73.6405979 }
             ]
-        }
+        },
+        "purpose": "Academic and Research Facility",
+        "facilities": "Research Labs, Classrooms, Faculty Offices, Student Study Areas",
+        "address": "7141 Sherbrooke St W, Montreal, QC",
+        "contact": "Phone: +1 514-848-2424 ext. 2300",
+        "description": "The Psychology Building at Loyola Campus houses research facilities, classrooms, and faculty offices dedicated to psychology studies."
     },    
     {
         "id": "RF",
@@ -100,7 +110,12 @@ const LoyolaBuildings = [
             { "latitude": 45.4583344, "longitude": -73.6408622 },
             { "latitude": 45.4583267, "longitude": -73.6408679 },
             { "latitude": 45.4583412, "longitude": -73.6409057 }
-        ]
+        ],
+        "purpose": "Conference Center and Event Space",
+        "facilities": "Meeting Rooms, Auditorium, Dining Areas, Lounge Spaces",
+        "address": "7141 Sherbrooke St W, Montreal, QC",
+        "contact": "Phone: +1 514-848-2424 ext. 3400",
+        "description": "The Loyola Jesuit Hall and Conference Center is a key venue at Loyola Campus for academic and professional events, providing modern facilities for conferences, meetings, and social gatherings."
     },    
     {
         "id": "SP",
@@ -158,7 +173,12 @@ const LoyolaBuildings = [
             { "latitude": 45.4571365, "longitude": -73.6406788 },
             { "latitude": 45.4571441, "longitude": -73.6406987 },
             { "latitude": 45.4569746, "longitude": -73.6408295 }
-        ]
+        ],
+        "purpose": "Science and Research Facility",
+        "facilities": "Research Labs, Lecture Halls, Student Study Areas, Science Equipment",
+        "address": "7141 Sherbrooke St W, Montreal, QC",
+        "contact": "Phone: +1 514-848-2424 ext. 2900",
+        "description": "The Richard J Renaud Science Complex is a state-of-the-art facility at Loyola Campus, equipped with modern research labs and classrooms for science and engineering students."
     },
     {
         "id": "CJ",
@@ -202,7 +222,12 @@ const LoyolaBuildings = [
             { "latitude": 45.4573891, "longitude": -73.6401434 },
             { "latitude": 45.4574139, "longitude": -73.6402070 },
             { "latitude": 45.4571693, "longitude": -73.6403939 }
-        ]
+        ],
+        "purpose": "Media and Journalism Studies",
+        "facilities": "Broadcast Studios, Editing Labs, Classrooms, Media Production Facilities",
+        "address": "7141 Sherbrooke St W, Montreal, QC",
+        "contact": "Phone: +1 514-848-2424 ext. 2500",
+        "description": "The Communication Studies and Journalism Building is dedicated to media, journalism, and communication students, providing cutting-edge resources for media production and research."
     },    
     {
         id: 'GE',
@@ -223,6 +248,11 @@ const LoyolaBuildings = [
             { latitude: 45.4571258, longitude: -73.6404539 },
             { latitude: 45.4571701, longitude: -73.6405654 },
         ],
+        "purpose": "Research and Biotechnology",
+        "facilities": "Genomics Labs, Research Offices, Experimental Facilities",
+        "address": "7141 Sherbrooke St W, Montreal, QC",
+        "contact": "Phone: +1 514-848-2424 ext. 2600",
+        "description": "The Centre for Structural and Functional Genomics is a cutting-edge research facility dedicated to biotechnological advancements and genetic studies."
     },
     {
         id: 'CC',
@@ -256,6 +286,11 @@ const LoyolaBuildings = [
             { latitude: 45.4584113, longitude: -73.6407138 },
             { latitude: 45.4584607, longitude: -73.6406749 },
         ],
+        "purpose": "Administrative and Academic Building",
+    "facilities": "Offices, Meeting Rooms, Student Services",
+    "address": "7141 Sherbrooke St W, Montreal, QC",
+    "contact": "Phone: +1 514-848-2424 ext. 2800",
+    "description": "The Central Building serves as an administrative and academic hub at Loyola Campus, providing office spaces, meeting rooms, and essential student services."
     },
     {
         "id": "AD",
@@ -318,7 +353,12 @@ const LoyolaBuildings = [
             { "latitude": 45.4582466, "longitude": -73.6395904 },
             { "latitude": 45.4582286, "longitude": -73.6396046 },
             { "latitude": 45.4581785, "longitude": -73.6394752 }
-        ]
+        ],
+        "purpose": "Administrative Offices",
+    "facilities": "Student Services, Faculty Offices, Meeting Rooms",
+    "address": "7141 Sherbrooke St W, Montreal, QC",
+    "contact": "Phone: +1 514-848-2424 ext. 3100",
+    "description": "The Administration Building at Loyola Campus houses faculty offices, administrative departments, and student support services."
     },    
     {
         id: 'FC',
@@ -358,6 +398,11 @@ const LoyolaBuildings = [
             { latitude: 45.4584058, longitude: -73.6391055 },
             { latitude: 45.4583380, longitude: -73.6391598 },
         ],
+        "purpose": "Engineering and Applied Sciences",
+    "facilities": "Laboratories, Classrooms, Research Centers",
+    "address": "7141 Sherbrooke St W, Montreal, QC",
+    "contact": "Phone: +1 514-848-2424 ext. 3200",
+    "description": "The F.C. Smith Building at Loyola Campus is home to engineering and applied sciences programs, featuring state-of-the-art laboratories and classrooms."
     },
 ];
 

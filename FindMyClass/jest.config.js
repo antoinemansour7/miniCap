@@ -1,13 +1,17 @@
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
-    // Update the regex to include react-native-google-places-autocomplete, @mapbox/polyline, and uuid.
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|react-native-google-places-autocomplete|@mapbox/polyline|uuid)/)'
+    // Update the regex to include react-native-google-places-autocomplete, @mapbox/polyline, uuid, and react-native-maps.
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|react-native-maps|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|react-native-google-places-autocomplete|@mapbox/polyline|uuid|react-native-element-dropdown)/)'
   ],
   setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^react-native$': 'react-native',
-    "^../../app/secrets$": "<rootDir>/__mocks__/secrets"
+    '^../../app/secrets$': '<rootDir>/__mocks__/secrets',
+    '^../app/secrets$': '<rootDir>/__mocks__/secrets',
+    '^expo-location$': '<rootDir>/__mocks__/expo-location.js',
+    // Stub out static assets:
+    '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/__mocks__/fileMock.js'
   },
   collectCoverage: true,
   coverageDirectory: 'coverage',

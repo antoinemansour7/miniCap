@@ -1,12 +1,32 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
+import { View, StyleSheet, Text } from 'react-native';
+import MapView from 'react-native-maps';
 import SGWBuildings from './SGWBuildings';
-import {useRouter} from 'expo-router';
+import useLocationHandler from '../hooks/useLocationHandler';
+import { useRouter } from 'expo-router';
+import BuildingMarker from './BuildingMarker';
+
+const getCentroid = (building) => {
+    const boundary = building.boundary?.outer || building.boundary;
+    if (!boundary || boundary.length === 0) return null;
+
+    const totalPoints = boundary.length;
+    const sumLat = boundary.reduce((sum, point) => sum + point.latitude, 0);
+    const sumLon = boundary.reduce((sum, point) => sum + point.longitude, 0);
+
+    return {
+        latitude: sumLat / totalPoints,
+        longitude: sumLon / totalPoints,
+    };
+};
 
 const SGWMap = ({ searchText }) => {
     const mapRef = useRef(null);
     const router = useRouter();
+    const { userLocation, nearestBuilding, noNearbyBuilding, messageVisible } = useLocationHandler(
+        SGWBuildings,
+        getCentroid
+    );
 
     useEffect(() => {
         if (searchText) {
@@ -14,10 +34,15 @@ const SGWMap = ({ searchText }) => {
                 b.name.toLowerCase().includes(searchText.toLowerCase())
             );
             if (building && mapRef.current) {
-                mapRef.current.animateToRegion({
+                const centroid = getCentroid(building) || {
                     latitude: building.latitude,
                     longitude: building.longitude,
-                    latitudeDelta: 0.001, // Zoom level
+                };
+
+                mapRef.current.animateToRegion({
+                    latitude: centroid.latitude,
+                    longitude: centroid.longitude,
+                    latitudeDelta: 0.001,
                     longitudeDelta: 0.001,
                 });
             }
@@ -46,56 +71,54 @@ const SGWMap = ({ searchText }) => {
                     longitudeDelta: 0.002,
                 }}
             >
-                {SGWBuildings.map((building) => (
-                    <React.Fragment key={building.id}>
-                        <Marker
-                            coordinate={{
-                                latitude: building.latitude,
-                                longitude: building.longitude,
-                            }}
-                            title={building.name}
-                            description={`Building ID: ${building.id}`}
-                            onPress={() => 
-                                {
-                                console.log("Navigation to directions:", building.name);
-                                 router.push({
-                                    pathname: "/screens/directions",  
-                                    params: {
+                {SGWBuildings.map((building) => {
+                    const centroid = getCentroid(building) || {
+                        latitude: building.latitude,
+                        longitude: building.longitude,
+                    };
 
-                                        destination: JSON.stringify({
-                                            latitude: building.latitude,
-                                            longitude: building.longitude,
-                                        }),
-                                        buildingName: building.name,
-                                    }
-                                })}
-                            }
+                    return (
+                        <BuildingMarker
+                            key={building.id}
+                            building={building}
+                            router={router}
+                            nearestBuilding={nearestBuilding}
+                            buildingColors={buildingColors}
+                            position={centroid}
                         />
-                        {building.boundary && (
-                            <Polygon
-                                coordinates={building.boundary}
-                                strokeColor={
-                                    buildingColors[building.id]?.stroke || 'rgba(0, 0, 0, 0.8)'
-                                }
-                                fillColor={
-                                    buildingColors[building.id]?.fill || 'rgba(0, 0, 0, 0.4)'
-                                }
-                                strokeWidth={2}
-                            />
-                        )}
-                    </React.Fragment>
-                ))}
+                    );
+                })}
             </MapView>
+
+            {messageVisible && noNearbyBuilding && (
+                <View style={styles.messageContainer}>
+                    <Text style={styles.messageText}>You are not near any of the buildings.</Text>
+                </View>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    container: { flex: 1 },
+    map: { flex: 1 },
+    messageContainer: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -150 }, { translateY: -30 }],
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '80%',
     },
-    map: {
-        flex: 1,
+    messageText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });
 
