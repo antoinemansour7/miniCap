@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         textAlign: 'center',
+        margin: 1,
     },
 });
 
