@@ -71,7 +71,8 @@ jest.mock('react-native/Libraries/Utilities/Platform', () => ({
   select: (obj) => obj.ios,
 }));
 
-
+// Mock `expo-location`
+jest.mock('expo-location');
 
 // ✅ Mock `axios` for API requests (prevents actual network calls)
 jest.mock('axios', () => ({
