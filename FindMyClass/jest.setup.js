@@ -11,15 +11,6 @@ jest.mock('expo-splash-screen', () => ({
   preventAutoHideAsync: jest.fn(),
 }));
 
-// Mock `expo-constants` (✅ Fixes Jest error)
-jest.mock('expo-constants', () => ({
-  expoConfig: {
-    extra: {
-      OPENAI_API_KEY: 'mocked-api-key', // Mocked API Key for testing
-    },
-  },
-}));
-
 // Mock `expo-modules-core`
 jest.mock('expo-modules-core', () => ({
   NativeModulesProxy: { ExponentDevice: { getPlatformName: () => 'ios' } },

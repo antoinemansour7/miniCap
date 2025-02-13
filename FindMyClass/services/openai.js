@@ -1,11 +1,8 @@
 import axios from 'axios';
-import Constants from 'expo-constants';
-
-// Retrieve the OpenAI API key from Expo constants
-const OPENAI_API_KEY = Constants.expoConfig?.extra?.OPENAI_API_KEY;
+import { openaiAPIKey } from "../app/secrets";
 
 // Validate API key existence
-if (!OPENAI_API_KEY) {
+if (!openaiAPIKey) {
   throw new Error('OpenAI API key is missing. Ensure it is defined in your environment variables.');
 }
 
@@ -13,7 +10,7 @@ if (!OPENAI_API_KEY) {
 const api = axios.create({
   baseURL: 'https://api.openai.com/v1',
   headers: {
-    Authorization: `Bearer ${OPENAI_API_KEY}`, // Fixed string interpolation for Bearer token
+    Authorization: `Bearer ${openaiAPIKey}`, // Fixed string interpolation for Bearer token
     'Content-Type': 'application/json',
   },
 });
