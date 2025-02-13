@@ -67,6 +67,10 @@ export default function Layout() {
         <Drawer.Screen name="screens/register" options={{ drawerLabel: 'Register', title: 'Register' }} />
         <Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} />
         <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
+        <Drawer.Screen name="screens/directions" options={{ 
+          headerShown: false,
+          drawerLabel: 'Directions', 
+          title: 'Directions' }} />
       </Drawer>
     </GestureHandlerRootView>
   );

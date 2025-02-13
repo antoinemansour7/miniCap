@@ -364,11 +364,11 @@ export default function DirectionsScreen() {
     };
 
     return (
-        <View style={{ flex: 1 }}>
-            {isRouteCardVisible ? (
-                <View style={[styles.card, styles.topCard]}>
-                    <View style={styles.dropdownContainer}>
-                        <Text style={styles.label}>Start Location</Text>
+        <View style={styles.container}>
+            <View style={styles.topCard}>
+                <View style={styles.dropdownContainer}>
+                    <View style={styles.rowContainer}>
+                        <Text style={styles.label}>From:</Text>
                         <Dropdown
                             style={styles.dropdown}
                             placeholderStyle={styles.placeholderStyle}
@@ -377,24 +377,26 @@ export default function DirectionsScreen() {
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
-                            placeholder="Select start location"
+                            placeholder="Select start"
                             value={selectedStart}
                             onChange={handleStartLocationChange}
                             testID="dropdown-start"
                         />
-                        {showCustomStart && (
-                            <View style={styles.customInputContainer}>
-                                <GoogleSearchBar 
-                                    onLocationSelected={handleCustomLocation}
-                                    initialValue={customLocationDetails.name || customSearchText}
-                                    key={`search-${customLocationDetails.name || customSearchText}`}
-                                />
-                            </View>
-                        )}
                     </View>
+                    {showCustomStart && (
+                        <View style={styles.customInputContainer}>
+                            <GoogleSearchBar 
+                                onLocationSelected={handleCustomLocation}
+                                initialValue={customLocationDetails.name || customSearchText}
+                                key={`search-${customLocationDetails.name || customSearchText}`}
+                            />
+                        </View>
+                    )}
+                </View>
 
-                    <View style={styles.dropdownContainer}>
-                        <Text style={styles.label}>Destination</Text>
+                <View style={styles.dropdownContainer}>
+                    <View style={styles.rowContainer}>
+                        <Text style={styles.label}>To:</Text>
                         <Dropdown
                             style={styles.dropdown}
                             placeholderStyle={styles.placeholderStyle}
@@ -408,121 +410,101 @@ export default function DirectionsScreen() {
                             onChange={handleDestinationChange}
                             testID="dropdown-dest"
                         />
-                        {showCustomDest && (
-                            <View style={styles.searchContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Search for a building..."
-                                    value={customDest}
-                                    onChangeText={searchBuildings}
-                                />
-                                {isSearching && searchResults.length > 0 && (
-                                    <View style={styles.searchResults}>
-                                        {searchResults.map((building) => (
-                                            <TouchableOpacity
-                                                key={building.id}
-                                                style={styles.searchResult}
-                                                onPress={() => selectBuilding(building)}
-                                            >
-                                                <Text style={styles.buildingName}>{building.name}</Text>
-                                                <Text style={styles.buildingId}>({building.id})</Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                )}
-                            </View>
-                        )}
                     </View>
+                    {showCustomDest && (
+                        <View style={styles.searchContainer}>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Search for a building..."
+                                value={customDest}
+                                onChangeText={searchBuildings}
+                            />
+                            {isSearching && searchResults.length > 0 && (
+                                <View style={styles.searchResults}>
+                                    {searchResults.map((building) => (
+                                        <TouchableOpacity
+                                            key={building.id}
+                                            style={styles.searchResult}
+                                            onPress={() => selectBuilding(building)}
+                                        >
+                                            <Text style={styles.buildingName}>{building.name}</Text>
+                                            <Text style={styles.buildingId}>({building.id})</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            )}
+                        </View>
+                    )}
+                </View>
 
-                    <View style={styles.travelModeContainer}>
-                        <TouchableOpacity 
-                            style={[
-                                styles.travelModeButton, 
-                                travelMode === 'DRIVING' && styles.selectedTravelMode
-                            ]}
-                            onPress={() => handleTravelModeChange('DRIVING')}
-                        >
-                            <Ionicons name="car" size={24} color={travelMode === 'DRIVING' ? '#912338' : '#666'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                            style={[
-                                styles.travelModeButton, 
-                                travelMode === 'WALKING' && styles.selectedTravelMode
-                            ]}
-                            onPress={() => handleTravelModeChange('WALKING')}
-                        >
-                            <Ionicons name="walk" size={24} color={travelMode === 'WALKING' ? '#912338' : '#666'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                            style={[
-                                styles.travelModeButton, 
-                                travelMode === 'TRANSIT' && styles.selectedTravelMode
-                            ]}
-                            onPress={() => handleTravelModeChange('TRANSIT')}
-                        >
-                            <Ionicons name="bus" size={24} color={travelMode === 'TRANSIT' ? '#912338' : '#666'} />
-                        </TouchableOpacity>
-                    </View>
-
+                <View style={styles.travelModeContainer}>
                     <TouchableOpacity 
-                        style={styles.doneButton}
-                        onPress={() => setIsRouteCardVisible(false)}
+                        style={[styles.travelModeButton, travelMode === 'DRIVING' && styles.selectedTravelMode]}
+                        onPress={() => handleTravelModeChange('DRIVING')}
                     >
-                        <Text style={styles.buttonText}>Done</Text>
+                        <Ionicons name="car" size={20} color={travelMode === 'DRIVING' ? '#912338' : '#666'} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.travelModeButton, travelMode === 'WALKING' && styles.selectedTravelMode]}
+                        onPress={() => handleTravelModeChange('WALKING')}
+                    >
+                        <Ionicons name="walk" size={20} color={travelMode === 'WALKING' ? '#912338' : '#666'} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.travelModeButton, travelMode === 'TRANSIT' && styles.selectedTravelMode]}
+                        onPress={() => handleTravelModeChange('TRANSIT')}
+                    >
+                        <Ionicons name="bus" size={20} color={travelMode === 'TRANSIT' ? '#912338' : '#666'} />
                     </TouchableOpacity>
                 </View>
-            ) : (
-                <TouchableOpacity 
-                    style={styles.changeRouteButton}
-                    onPress={() => setIsRouteCardVisible(true)}
+            </View>
+            
+            <View style={styles.mapContainer}>
+                <MapView
+                    ref={mapRef}
+                    style={{ flex: 1 }}
+                    initialRegion={{
+                        latitude: destination.latitude,
+                        longitude: destination.longitude,
+                        latitudeDelta: 0.05,
+                        longitudeDelta: 0.05,
+                    }}
+                    onRegionChangeComplete={(region) => {
+                        const newZoomLevel = calculateZoomLevel(region);
+                        setZoomLevel(newZoomLevel);
+                    }}
+                    testID="map-view"
                 >
-                    <Text style={styles.buttonText}>Change Route</Text>
-                </TouchableOpacity>
-            )}
-            <MapView
-                ref={mapRef}
-                style={{ flex: 1 }}
-                initialRegion={{
-                    latitude: destination.latitude,
-                    longitude: destination.longitude,
-                    latitudeDelta: 0.05,
-                    longitudeDelta: 0.05,
-                }}
-                onRegionChangeComplete={(region) => {
-                    const newZoomLevel = calculateZoomLevel(region);
-                    setZoomLevel(newZoomLevel);
-                }}
-                testID="map-view"
-            >
-                {userLocation && 
-                // selectedStart === 'userLocation' ? 
-                (
-                    <Circle
-                        center={userLocation}
-                        radius={getCircleRadius()}
-                        strokeColor="white"
-                        fillColor="rgba(0, 122, 255, 0.7)"
-                    />
-                ) 
-                // : null
-                }
-                {startLocation && selectedStart !== 'userLocation' && (
-                    <Marker 
-                        coordinate={startLocation}
-                        title="Start"
-                        pinColor="green"
-                    />
-                )}
-                {destination && <Marker coordinate={destination} title="Destination" />}
-                {coordinates.length > 0 && (
-                    <Polyline 
-                        coordinates={coordinates}
-                        strokeWidth={2}
-                        strokeColor="#912338"
-                        lineDashPattern={[0]}
-                    />
-                )}
-            </MapView>
+                    {userLocation && 
+                    // selectedStart === 'userLocation' ? 
+                    (
+                        <Circle
+                            center={userLocation}
+                            radius={getCircleRadius()}
+                            strokeColor="white"
+                            fillColor="rgba(0, 122, 255, 0.7)"
+                        />
+                    ) 
+                    // : null
+                    }
+                    {startLocation && selectedStart !== 'userLocation' && (
+                        <Marker 
+                            coordinate={startLocation}
+                            title="Start"
+                            pinColor="green"
+                        />
+                    )}
+                    {destination && <Marker coordinate={destination} title="Destination" />}
+                    {coordinates.length > 0 && (
+                        <Polyline 
+                            coordinates={coordinates}
+                            strokeWidth={2}
+                            strokeColor="#912338"
+                            lineDashPattern={[0]}
+                        />
+                    )}
+                </MapView>
+            </View>
 
             {isLoading && (
                 <View style={[styles.card, {  
@@ -563,11 +545,25 @@ backgroundColor: "white", padding: 10, borderRadius: 10,
 shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5,
 },
 topCard: {
-    position: 'absolute',
-    top: 40,
-    left: 10,
-    right: 10,
+    width: '100%',
+    backgroundColor: "white",
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
     zIndex: 1,
+},
+container: {
+    flex: 1,
+},
+mapContainer: {
+    flex: 1,
+    marginTop: 160, // Adjust this value based on your header height
 },
 dropdownContainer: {
     marginVertical: 8,
@@ -715,6 +711,51 @@ travelModeButton: {
     backgroundColor: 'white',
     width: 50,
     height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+selectedTravelMode: {
+    borderColor: '#912338',
+    backgroundColor: '#fff',
+},
+rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+},
+dropdownContainer: {
+    marginVertical: 4,
+},
+label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+    width: 45,
+},
+dropdown: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    borderColor: '#ccc',
+    backgroundColor: 'white',
+},
+travelModeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 8,
+},
+travelModeButton: {
+    padding: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: 'white',
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
 },
