@@ -12,13 +12,14 @@ import {
   FlatList,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 const TOTAL_COLUMNS = 6; // 1 time column + 5 day columns
 const CELL_WIDTH = (width - 32) / TOTAL_COLUMNS; // Accounting for container padding
 const TIME_COLUMN_WIDTH = CELL_WIDTH;
 const BORDER_RADIUS = 12;
-
+const router = useRouter();
 export default function Schedule() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -138,7 +139,6 @@ export default function Schedule() {
       {days.map((day, dayIndex) => (
         <TouchableOpacity
           key={`${day}-${time}`}
-          testID={`schedule-cell-${day}-${time}`} // ✅ Added testID for testing
           style={[
             styles.cell,
             dayIndex === days.length - 1 && styles.lastColumnCell,
@@ -146,7 +146,6 @@ export default function Schedule() {
               dayIndex === days.length - 1 &&
               styles.roundedBottomRight,
           ]}
-          onPress={() => setIsSearchOpen(true)}
         />
       ))}
     </View>
@@ -163,21 +162,19 @@ export default function Schedule() {
         contentContainerStyle={styles.gridWrapper}
       />
 
-      {/* Action Buttons */}
       <Animated.View style={[styles.floatingButton, styles.addButton, addButtonTransform]}>
-        <TouchableOpacity testID="add-button" onPress={() => setIsSearchOpen(true)}> {/* ✅ Added testID */}
+        <TouchableOpacity onPress={() => router.push('/screens/schedule_builder')}>
           <MaterialIcons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
 
       <Animated.View style={[styles.floatingButton, styles.deleteButton, deleteButtonTransform]}>
-        <TouchableOpacity testID="delete-button">
+        <TouchableOpacity>
           <MaterialIcons name="delete" size={24} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
 
       <TouchableOpacity
-        testID="edit-button" // ✅ Added testID
         style={styles.editButton}
         onPress={toggleEditMode}
       >
@@ -199,14 +196,13 @@ export default function Schedule() {
               <View style={styles.searchContainer}>
                 <View style={styles.searchHeader}>
                   <Text style={styles.searchTitle}>Add Class</Text>
-                  <TouchableOpacity testID="close-search-modal" onPress={closeSearch}> {/* ✅ Added testID */}
+                  <TouchableOpacity onPress={closeSearch}>
                     <MaterialIcons name="close" size={24} color="#666" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.searchInputContainer}>
                   <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
                   <TextInput
-                    testID="search-input" // ✅ Added testID
                     style={styles.searchInput}
                     placeholder="Search for a class..."
                     value={searchQuery}
