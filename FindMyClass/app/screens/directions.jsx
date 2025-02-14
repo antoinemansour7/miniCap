@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, Alert, Platform, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, Alert, Platform, StyleSheet, TextInput, TouchableOpacity, Modal } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
@@ -9,7 +9,7 @@ import { googleAPIKey } from "../../app/secrets";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
 import GoogleSearchBar from "../../components/GoogleSearchBar";
-import { Ionicons } from '@expo/vector-icons'; // Add this import at the top
+import { Ionicons, Entypo, FontAwesome } from '@expo/vector-icons'; 
 
 export default function DirectionsScreen() {
     const params = useLocalSearchParams();
@@ -43,7 +43,7 @@ export default function DirectionsScreen() {
     const [routeInfo, setRouteInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [zoomLevel, setZoomLevel] = useState(20); // Add this state
+    const [zoomLevel, setZoomLevel] = useState(20);
 
     const [selectedStart, setSelectedStart] = useState('userLocation');
     const [selectedDest, setSelectedDest] = useState('current');
@@ -52,13 +52,15 @@ export default function DirectionsScreen() {
     const [showCustomStart, setShowCustomStart] = useState(false);
     const [showCustomDest, setShowCustomDest] = useState(false);
     const [isRouteCardVisible, setIsRouteCardVisible] = useState(true);
-    const [travelMode, setTravelMode] = useState('DRIVING'); // Add this new state
-    const [customStartName, setCustomStartName] = useState(''); // Add this new state
+    const [travelMode, setTravelMode] = useState('WALKING'); 
+    const [customStartName, setCustomStartName] = useState(''); 
     const [customLocationDetails, setCustomLocationDetails] = useState({
         name: '',
         coordinates: null
     });
-    const [customSearchText, setCustomSearchText] = useState(''); // Add this new state
+    const [customSearchText, setCustomSearchText] = useState(''); 
+    const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+    const [isStartSearchModalVisible, setIsStartSearchModalVisible] = useState(false);
 
     const predefinedLocations = {
         SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
@@ -97,12 +99,9 @@ export default function DirectionsScreen() {
 
     const handleStartLocationChange = async (item) => {
         setSelectedStart(item.value);
-        setShowCustomStart(item.value === 'custom');
-        
-        if (item.value !== 'custom') {
-            setCustomLocationDetails({ name: '', coordinates: null }); // Clear custom location
-            setCustomSearchText(''); // Clear the search text
-            
+        if (item.value === 'custom') {
+            setIsStartSearchModalVisible(true);
+        } else {
             let newStartLocation;
             switch(item.value) {
                 case 'userLocation':
@@ -142,30 +141,34 @@ export default function DirectionsScreen() {
 
     const handleDestinationChange = (item) => {
         setSelectedDest(item.value);
-        setShowCustomDest(item.value === 'custom');
+        if (item.value === 'custom') {
+            setIsSearchModalVisible(true);
+        } else {
+            setShowCustomDest(item.value === 'custom');
         
-        if (item.value !== 'custom') {
-            let newDestination;
-            let newDestinationName;
-            switch(item.value) {
-                case 'current':
-                    newDestination = parsedDestination;
-                    newDestinationName = buildingName;
-                    break;
-                case 'SGWCampus':
-                    newDestination = predefinedLocations[item.value];
-                    newDestinationName = 'SGW Campus';
-                    break;
-                case 'LoyolaCampus':
-                    newDestination = predefinedLocations[item.value];
-                    newDestinationName = 'Loyola Campus';
-                    break;
-                default:
-                    return;
+            if (item.value !== 'custom') {
+                let newDestination;
+                let newDestinationName;
+                switch(item.value) {
+                    case 'current':
+                        newDestination = parsedDestination;
+                        newDestinationName = buildingName;
+                        break;
+                    case 'SGWCampus':
+                        newDestination = predefinedLocations[item.value];
+                        newDestinationName = 'SGW Campus';
+                        break;
+                    case 'LoyolaCampus':
+                        newDestination = predefinedLocations[item.value];
+                        newDestinationName = 'Loyola Campus';
+                        break;
+                    default:
+                        return;
+                }
+                setDestination(newDestination);
+                setDestinationName(newDestinationName);
+                updateRoute(startLocation, newDestination);
             }
-            setDestination(newDestination);
-            setDestinationName(newDestinationName);
-            updateRoute(startLocation, newDestination);
         }
     };
 
@@ -363,12 +366,24 @@ export default function DirectionsScreen() {
         updateRoute(newStartLocation, destination);
     };
 
+    const handleCloseModal = () => {
+        setIsSearchModalVisible(false);
+    };
+
+    const handleCloseStartModal = () => {
+        setIsStartSearchModalVisible(false);
+    };
+
     return (
-        <View style={styles.container}>
+        <View style={styles.mainContainer}>
             <View style={styles.topCard}>
                 <View style={styles.dropdownContainer}>
                     <View style={styles.rowContainer}>
-                        <Text style={styles.label}>From:</Text>
+                        {/* <Entypo name="circle" size={22} color="#E9D3D7" /> */}
+                        <FontAwesome name="dot-circle-o" size={24} color="#E9D3D7" />
+                        
+
+
                         <Dropdown
                             style={styles.dropdown}
                             placeholderStyle={styles.placeholderStyle}
@@ -396,7 +411,7 @@ export default function DirectionsScreen() {
 
                 <View style={styles.dropdownContainer}>
                     <View style={styles.rowContainer}>
-                        <Text style={styles.label}>To:</Text>
+                    <Ionicons name="location-sharp" size={24} color="#E9D3D7" />
                         <Dropdown
                             style={styles.dropdown}
                             placeholderStyle={styles.placeholderStyle}
@@ -458,80 +473,147 @@ export default function DirectionsScreen() {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            <View style={styles.container}>
+                <View style={styles.mapContainer}>
+                    <MapView
+                        ref={mapRef}
+                        style={{ flex: 1 }}
+                        initialRegion={{
+                            latitude: destination.latitude,
+                            longitude: destination.longitude,
+                            latitudeDelta: 0.05,
+                            longitudeDelta: 0.05,
+                        }}
+                        onRegionChangeComplete={(region) => {
+                            const newZoomLevel = calculateZoomLevel(region);
+                            setZoomLevel(newZoomLevel);
+                        }}
+                        testID="map-view"
+                    >
+                        {userLocation && 
+                        // selectedStart === 'userLocation' ? 
+                        (
+                            <Circle
+                                center={userLocation}
+                                radius={getCircleRadius()}
+                                strokeColor="white"
+                                fillColor="rgba(0, 122, 255, 0.7)"
+                            />
+                        ) 
+                        // : null
+                        }
+                        {startLocation && selectedStart !== 'userLocation' && (
+                            <Marker 
+                                coordinate={startLocation}
+                                title="Start"
+                                pinColor="green"
+                            />
+                        )}
+                        {destination && <Marker coordinate={destination} title="Destination" />}
+                        {coordinates.length > 0 && (
+                            <Polyline 
+                                coordinates={coordinates}
+                                strokeWidth={2}
+                                strokeColor="#912338"
+                                lineDashPattern={[0]}
+                            />
+                        )}
+                    </MapView>
+                </View>
+
+                {isLoading && (
+                    <View style={[styles.card, {  
+                        position: "absolute", bottom: 40, left: 20, right: 20,
+            }]}>
+                        <Text 
+                            style={{ fontWeight: "bold", fontSize: 16 }}
+                        >
+                            Loading route...</Text>
+                    </View>
+                )}
+                {error && (
+                    <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
+                        <Text style={{ color: 'red' }}>{error}</Text>
+                    </View>
+                )}
+                {routeInfo && (
+                    <View style={[styles.card, {
+                        position: "absolute", bottom: 40, left: 20, right: 20,
+                    }]}>
+                        <Text style={{ fontWeight: "bold", fontSize: 16 }}>Estimated Time: {routeInfo.duration}</Text>
+                        <Text style={{ fontSize: 14 }}>
+                            Destination: {destinationName}  {"\n"}
+                            Distance: {routeInfo.distance}</Text>
+                    </View>
+                )}
             
-            <View style={styles.mapContainer}>
-                <MapView
-                    ref={mapRef}
-                    style={{ flex: 1 }}
-                    initialRegion={{
-                        latitude: destination.latitude,
-                        longitude: destination.longitude,
-                        latitudeDelta: 0.05,
-                        longitudeDelta: 0.05,
-                    }}
-                    onRegionChangeComplete={(region) => {
-                        const newZoomLevel = calculateZoomLevel(region);
-                        setZoomLevel(newZoomLevel);
-                    }}
-                    testID="map-view"
-                >
-                    {userLocation && 
-                    // selectedStart === 'userLocation' ? 
-                    (
-                        <Circle
-                            center={userLocation}
-                            radius={getCircleRadius()}
-                            strokeColor="white"
-                            fillColor="rgba(0, 122, 255, 0.7)"
-                        />
-                    ) 
-                    // : null
-                    }
-                    {startLocation && selectedStart !== 'userLocation' && (
-                        <Marker 
-                            coordinate={startLocation}
-                            title="Start"
-                            pinColor="green"
-                        />
-                    )}
-                    {destination && <Marker coordinate={destination} title="Destination" />}
-                    {coordinates.length > 0 && (
-                        <Polyline 
-                            coordinates={coordinates}
-                            strokeWidth={2}
-                            strokeColor="#912338"
-                            lineDashPattern={[0]}
-                        />
-                    )}
-                </MapView>
             </View>
 
-            {isLoading && (
-                <View style={[styles.card, {  
-                    position: "absolute", bottom: 40, left: 20, right: 20,
-          }]}>
-                    <Text 
-                        style={{ fontWeight: "bold", fontSize: 16 }}
-                    >
-                        Loading route...</Text>
+            <Modal
+                visible={isSearchModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={handleCloseModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <TouchableOpacity 
+                            style={styles.closeButton}
+                            onPress={handleCloseModal}
+                        >
+                            <Ionicons name="close" size={24} color="#666" />
+                        </TouchableOpacity>
+                        <Text style={styles.modalTitle}>Search Destination</Text>
+                        <GoogleSearchBar 
+                            onLocationSelected={(location, description) => {
+                                const newDestination = {
+                                    latitude: location.latitude,
+                                    longitude: location.longitude
+                                };
+                                setDestination(newDestination);
+                                setDestinationName(description);
+                                updateRoute(startLocation, newDestination);
+                                setIsSearchModalVisible(false);
+                            }}
+                        />
+                    </View>
                 </View>
-            )}
-            {error && (
-                <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
-                    <Text style={{ color: 'red' }}>{error}</Text>
+            </Modal>
+
+            <Modal
+                visible={isStartSearchModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={handleCloseStartModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <TouchableOpacity 
+                            style={styles.closeButton}
+                            onPress={handleCloseStartModal}
+                        >
+                            <Ionicons name="close" size={24} color="#666" />
+                        </TouchableOpacity>
+                        <Text style={styles.modalTitle}>Search Start Location</Text>
+                        <GoogleSearchBar 
+                            onLocationSelected={(location, description) => {
+                                const newStartLocation = {
+                                    latitude: location.latitude,
+                                    longitude: location.longitude
+                                };
+                                setStartLocation(newStartLocation);
+                                setCustomLocationDetails({
+                                    name: description,
+                                    coordinates: newStartLocation
+                                });
+                                updateRoute(newStartLocation, destination);
+                                setIsStartSearchModalVisible(false);
+                            }}
+                        />
+                    </View>
                 </View>
-            )}
-            {routeInfo && (
-                <View style={[styles.card, {
-                    position: "absolute", bottom: 40, left: 20, right: 20,
-                }]}>
-                    <Text style={{ fontWeight: "bold", fontSize: 16 }}>Estimated Time: {routeInfo.duration}</Text>
-                    <Text style={{ fontSize: 14 }}>
-                        Destination: {destinationName}  {"\n"}
-                        Distance: {routeInfo.distance}</Text>
-                </View>
-            )}
-            <Text testID="building-name">{destinationName}</Text>
+            </Modal>
         </View>
     );
 }
@@ -539,228 +621,243 @@ export default function DirectionsScreen() {
 
 
 const styles = StyleSheet.create({
-card: {
+    mainContainer: {
+        flex: 1,
+        paddingTop: 0, // Add padding to account for status bar
+        paddingBottom: 0,
+        // backgroundColor: "#912338",
+    },  
+    container: {
+        flex: 1,
+        paddingTop: 0, // Add padding to account for status bar
+        paddingBottom: 0,
 
-backgroundColor: "white", padding: 10, borderRadius: 10,
-shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5,
-},
-topCard: {
-    width: '100%',
-    backgroundColor: "white",
-    padding: 8,
-    shadowColor: "#000",
-    shadowOffset: {
-        width: 0,
-        height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    zIndex: 1,
-},
-container: {
-    flex: 1,
-},
-mapContainer: {
-    flex: 1,
-    marginTop: 160, // Adjust this value based on your header height
-},
-dropdownContainer: {
-    marginVertical: 8,
-},
-picker: {
-    height: 45,
-    width: '100%',
-    backgroundColor: 'transparent',
-},
-input: {
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginTop: 8,
-    backgroundColor: '#fff',
-},
-label: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 5,
-},
-pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-},
-dropdown: {
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    borderColor: '#ccc',
-    backgroundColor: 'white',
-},
-placeholderStyle: {
-    fontSize: 16,
-    color: '#666',
-},
-selectedTextStyle: {
-    fontSize: 16,
-    color: '#333',
-},
-topCard: {
-    position: 'absolute',
-    top: 50,
-    left: 10,
-    right: 10,
-    zIndex: 1,
-    elevation: 1, // Required for Android
-},
-dropdownContainer: {
-    marginVertical: 8,
-    zIndex: 2,
-},
-label: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 8,
-    color: '#333',
-},
-customInputContainer: {
-    marginTop: 8,
-    zIndex: 1,
-},
-input: {
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
-},
-doneButton: {
-    backgroundColor: '#912338',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-},
-changeRouteButton: {
-    position: 'absolute',
-    top: 50,
-    right: 10,
-    backgroundColor: '#912338',
-    padding: 12,
-    borderRadius: 8,
-    zIndex: 1,
-    elevation: 1,
-},
-buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '500',
-},
-searchContainer: {
-    position: 'relative',
-    zIndex: 3,
-},
-searchResults: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    maxHeight: 200,
-    overflow: 'scroll',
-    zIndex: 4,
-},
-searchResult: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-},
-buildingName: {
-    fontSize: 14,
-    flex: 1,
-},
-buildingId: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 8,
-},
-travelModeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 10,
-    gap: 10,
-},
-travelModeButton: {
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: 'white',
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-},
-selectedTravelMode: {
-    borderColor: '#912338',
-    backgroundColor: '#fff',
-},
-rowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-},
-dropdownContainer: {
-    marginVertical: 4,
-},
-label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
-    width: 45,
-},
-dropdown: {
-    flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    borderColor: '#ccc',
-    backgroundColor: 'white',
-},
-travelModeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-    gap: 8,
-},
-travelModeButton: {
-    padding: 8,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: 'white',
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-},
-selectedTravelMode: {
-    borderColor: '#912338',
-    backgroundColor: '#fff',
-},
-}) ;
+    topCard: {
+        width: '100%',
+        backgroundColor: "#912338",
+        padding: 12,
+        paddingTop: 55,
+        paddingBottom: 6,
+        borderRadius: 20,
+        
+       // shadowColor: "#000",
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 2,
+        // },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 3.84,
+        // elevation: 5,
+        // zIndex: 1,
+    },
+    mapContainer: {
+        flex: 1, // This will make it take up remaining space
+        
+    },
+    card: {
+        backgroundColor: "white", padding: 10, borderRadius: 10,
+        shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5,
+    },
+    dropdownContainer: {
+        marginVertical: 4,
+    },
+    picker: {
+        height: 45,
+        width: '100%',
+        backgroundColor: 'transparent',
+    },
+    input: {
+        height: 45,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        marginTop: 8,
+        backgroundColor: '#fff',
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: '500',
+        marginBottom: 5,
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        overflow: 'hidden',
+    },
+    dropdown: {
+        height: 50,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        borderColor: '#ccc',
+        backgroundColor: 'white',
+    },
+    placeholderStyle: {
+        fontSize: 16,
+        color: '#666',
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+        color: '#333',
+    },
+    customInputContainer: {
+        marginTop: 8,
+        zIndex: 1,
+    },
+    doneButton: {
+        backgroundColor: '#912338',
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    changeRouteButton: {
+        position: 'absolute',
+        top: 50,
+        right: 10,
+        backgroundColor: '#912338',
+        padding: 12,
+        borderRadius: 8,
+        zIndex: 1,
+        elevation: 1,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    searchContainer: {
+        position: 'relative',
+        zIndex: 3,
+    },
+    searchResults: {
+        position: 'absolute',
+        top: '100%',
+        left: 0,
+        right: 0,
+        backgroundColor: 'white',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        maxHeight: 200,
+        overflow: 'scroll',
+        zIndex: 4,
+    },
+    searchResult: {
+        padding: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    buildingName: {
+        fontSize: 14,
+        flex: 1,
+    },
+    buildingId: {
+        fontSize: 12,
+        color: '#666',
+        marginLeft: 8,
+    },
+    travelModeContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 6,
+        gap: 10,
+    },
+    travelModeButton: {
+        padding: 10,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        backgroundColor: 'white',
+        width: 50,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectedTravelMode: {
+        borderColor: '#912338',
+        backgroundColor: '#fff',
+    },
+    rowContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#333',
+        width: 45,
+    },
+    dropdown: {
+        flex: 1,
+        height: 40,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        borderColor: '#ccc',
+        backgroundColor: 'white',
+    },
+    travelModeContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 8,
+        gap: 8,
+    },
+    travelModeButton: {
+        padding: 8,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        backgroundColor: 'white',
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectedTravelMode: {
+        borderColor: '#912338',
+        backgroundColor: '#fff',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 20,
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    closeButton: {
+        position: 'absolute',
+        right: 10,
+        top: 10,
+        zIndex: 1,
+        padding: 5,
+    },
+});
