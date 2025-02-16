@@ -1,0 +1,55 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+# Tap the menu button to open navigation
+- tapOn:
+    id: "menu-button"
+- waitForAnimationToEnd  # Ensure menu is open
+
+# Tap Register option in the menu (assuming there is one)
+- tapOn:
+    text: "Register"
+- waitForAnimationToEnd  # Ensure register screen is loaded
+
+# Tap on the First Name field
+- tapOn:
+    text: "First Name"
+- inputText: "John"
+
+# Tap on the Last Name field
+- tapOn:
+    text: "Last Name"
+- inputText: "Doe"
+
+# Tap on the Email field
+- tapOn:
+    text: "Email"
+- inputText: "johndoe@example.com"
+- waitForAnimationToEnd
+
+# Tap on the Password field
+- tapOn: "Password"
+- tapOn: "Password"
+- inputText: "password123"
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Email"
+
+# Tap on the actual Register button (Use text or point)
+
+
+
+- tapOn:
+    id: "register-button"
+
+- waitForAnimationToEnd
+
+# Verify registration was successful (modify based on your app's response)
+- assertVisible: "Login"  # Assuming user is redirected to Login after registration
