@@ -1,0 +1,6 @@
+module Pods_FindMyClass {
+  umbrella header "Pods-FindMyClass-umbrella.h"
+
+  export *
+  module * { export * }
+}
