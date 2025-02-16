@@ -21,6 +21,7 @@ const ModalSearchBars = ({
     const isStartSearch = searchType === 'START'; // The modal will display a specific searh bar based on the searchType
     
     
+    
     return (
         <Modal
             visible={isModalVisible} 
