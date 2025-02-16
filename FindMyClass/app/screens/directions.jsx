@@ -2,19 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
 import { View, Text, Alert, Platform, StyleSheet, TextInput, TouchableOpacity, Modal } from "react-native";
-import { Dropdown } from 'react-native-element-dropdown';
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
-import GoogleSearchBar from "../../components/GoogleSearchBar";
-import { Ionicons, Entypo, FontAwesome, FontAwesome5 } from '@expo/vector-icons'; 
-import { useRouter } from 'expo-router';
+import LocationSelector from "../../components/directions/LocationSelector";
+import ModalSearchBars from "../../components/directions/ModalSearchBars";
 
 
 export default function DirectionsScreen() {
-    const router = useRouter();
+  
     const params = useLocalSearchParams();
     console.log("Received params: ", params);
 
@@ -50,11 +48,7 @@ export default function DirectionsScreen() {
 
     const [selectedStart, setSelectedStart] = useState('userLocation');
     const [selectedDest, setSelectedDest] = useState('current');
-    const [customStart, setCustomStart] = useState('');
     const [customDest, setCustomDest] = useState('');
-    const [showCustomStart, setShowCustomStart] = useState(false);
-    const [showCustomDest, setShowCustomDest] = useState(false);
-    const [isRouteCardVisible, setIsRouteCardVisible] = useState(true);
     const [travelMode, setTravelMode] = useState('WALKING'); 
     const [customStartName, setCustomStartName] = useState(''); 
     const [customLocationDetails, setCustomLocationDetails] = useState({
@@ -62,27 +56,16 @@ export default function DirectionsScreen() {
         coordinates: null
     });
     const [customSearchText, setCustomSearchText] = useState(''); 
-    const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
-    const [isStartSearchModalVisible, setIsStartSearchModalVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [searchType, setSearchType] = useState("START");
+    
 
     const predefinedLocations = {
         SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
         LoyolaCampus: { latitude: 45.458424, longitude: -73.640259 }
     };
 
-    const startLocationData = [
-        { label: 'My Location', value: 'userLocation' },
-        { label: 'SGW Campus', value: 'SGWCampus' },
-        { label: 'Loyola Campus', value: 'LoyolaCampus' },
-        { label: customStartName == '' ? 'Custom Location' : customStartName, value: 'custom' },
-    ];
-
-    const destinationData = [
-        { label:`${buildingName}`, value: 'current' },
-        { label: 'SGW Campus', value: 'SGWCampus' },
-        { label: 'Loyola Campus', value: 'LoyolaCampus' },
-        { label: destinationName == buildingName ?  'Custom Location' : destinationName, value: 'custom' },
-    ];
+  
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
@@ -102,8 +85,9 @@ export default function DirectionsScreen() {
 
     const handleStartLocationChange = async (item) => {
         setSelectedStart(item.value);
-        if (item.value === 'custom') {
-            setIsStartSearchModalVisible(true);
+        if (item.value === 'custom') {  
+            setSearchType("START");
+            setIsModalVisible(true);
         } else {
             let newStartLocation;
             switch(item.value) {
@@ -145,9 +129,10 @@ export default function DirectionsScreen() {
     const handleDestinationChange = (item) => {
         setSelectedDest(item.value);
         if (item.value === 'custom') {
-            setIsSearchModalVisible(true);
+            setSearchType("DESTINATION");
+            setIsModalVisible(true);
         } else {
-            setShowCustomDest(item.value === 'custom');
+            //setShowCustomDest(item.value === 'custom');
         
             if (item.value !== 'custom') {
                 let newDestination;
@@ -156,6 +141,7 @@ export default function DirectionsScreen() {
                     case 'current':
                         newDestination = parsedDestination;
                         newDestinationName = buildingName;
+                        setDestinationName(newDestinationName);
                         break;
                     case 'SGWCampus':
                         newDestination = predefinedLocations[item.value];
@@ -169,7 +155,6 @@ export default function DirectionsScreen() {
                         return;
                 }
                 setDestination(newDestination);
-                setDestinationName(newDestinationName);
                 updateRoute(startLocation, newDestination);
             }
         }
@@ -326,6 +311,7 @@ export default function DirectionsScreen() {
         setDestination(newDestination);
         setDestinationName(building.name);
         updateRoute(startLocation, newDestination);
+        handleCloseModal();
     };
 
     const handleTravelModeChange = (mode) => {
@@ -356,138 +342,39 @@ export default function DirectionsScreen() {
         const streetName = parseStreetName(description);
         setStartLocation(newStartLocation);
         setCustomSearchText(streetName);
+        setCustomStartName(streetName);
         setCustomLocationDetails({
             name: streetName,
             coordinates: newStartLocation
         });
         updateRoute(newStartLocation, destination);
+        handleCloseModal();
+    };
+
+    const handleClearSearch = () => {
+        setCustomDest('');
+        setSearchResults([]);
+        setIsSearching(false);
     };
 
     const handleCloseModal = () => {
-        setIsSearchModalVisible(false);
+        setIsModalVisible(false);
     };
 
-    const handleCloseStartModal = () => {
-        setIsStartSearchModalVisible(false);
-    };
 
     return (
         <View style={styles.mainContainer}>
-            <View style={styles.topCard}>
-                <TouchableOpacity 
-                    style={styles.leftArrow} 
-                    onPress={() => router.push("/screens/map")}
-                >
-                    <FontAwesome5 name="arrow-left" size={24} color="#E9D3D7" />
-                </TouchableOpacity>
-                <View style={styles.dropdownContainer}>
-                    <View style={styles.rowContainer}>
-                        {/* <Entypo name="circle" size={22} color="#E9D3D7" /> */}
-                        <FontAwesome name="dot-circle-o" size={27} color="#E9D3D7" />
-
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            data={startLocationData}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select start"
-                            value={selectedStart}
-                            onChange={handleStartLocationChange}
-                            testID="dropdown-start"
-                        />
-                    </View>
-                    {showCustomStart && (
-                        <View style={styles.customInputContainer}>
-                            <GoogleSearchBar 
-                                onLocationSelected={handleCustomLocation}
-                                initialValue={customLocationDetails.name || customSearchText}
-                                key={`search-${customLocationDetails.name || customSearchText}`}
-                            />
-                        </View>
-                    )}
-                </View>
-
-                <View style={styles.dropdownContainer}>
-                    <View style={styles.rowContainer}>
-                    <Ionicons name="location-sharp" size={24} color="#E9D3D7" />
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            data={destinationData}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select destination"
-                            value={selectedDest}
-                            onChange={handleDestinationChange}
-                            testID="dropdown-dest"
-                        />
-                    </View>
-                    {showCustomDest && (
-                        <View style={styles.searchContainer}>
-                            <View style={styles.textInputContainer}>
-                                <TextInput
-                                    style={[styles.input, { flex: 1, paddingRight: 30 }]}
-                                    placeholder="Search for a building..."
-                                    value={customDest}
-                                    onChangeText={searchBuildings}
-                                />
-                                {customDest.length > 0 && (
-                                    <TouchableOpacity 
-                                        style={styles.clearButton}
-                                        onPress={() => {
-                                            setCustomDest('');
-                                            setSearchResults([]);
-                                            setIsSearching(false);
-                                        }}
-                                    >
-                                        <Ionicons name="close-circle" size={20} color="#A0A0A0" />
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                            {isSearching && searchResults.length > 0 && (
-                                <View style={styles.searchResults}>
-                                    {searchResults.map((building) => (
-                                        <TouchableOpacity
-                                            key={building.id}
-                                            style={styles.searchResult}
-                                            onPress={() => selectBuilding(building)}
-                                        >
-                                            <Text style={styles.buildingName}>{building.name}</Text>
-                                            <Text style={styles.buildingId}>({building.id})</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            )}
-                        </View>
-                    )}
-                </View>
-
-                <View style={styles.travelModeContainer}>
-                    <TouchableOpacity 
-                        style={[styles.travelModeButton, travelMode === 'DRIVING' && styles.selectedTravelMode]}
-                        onPress={() => handleTravelModeChange('DRIVING')}
-                    >
-                        <Ionicons name="car" size={25} color={travelMode === 'DRIVING' ? '#912338' : '#666'} />
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                        style={[styles.travelModeButton, travelMode === 'WALKING' && styles.selectedTravelMode]}
-                        onPress={() => handleTravelModeChange('WALKING')}
-                    >
-                        <Ionicons name="walk" size={25} color={travelMode === 'WALKING' ? '#912338' : '#666'} />
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                        style={[styles.travelModeButton, travelMode === 'TRANSIT' && styles.selectedTravelMode]}
-                        onPress={() => handleTravelModeChange('TRANSIT')}
-                    >
-                        <Ionicons name="bus" size={25} color={travelMode === 'TRANSIT' ? '#912338' : '#666'} />
-                    </TouchableOpacity>
-                </View>
-            </View>
+          <LocationSelector 
+            customStartName={customStartName}
+            buildingName={buildingName}
+            destinationName={destinationName}
+            selectedStart={selectedStart}
+            selectedDest={selectedDest}
+            handleStartLocationChange={handleStartLocationChange}
+            handleDestinationChange={handleDestinationChange}
+            travelMode={travelMode}
+            handleTravelModeChange={handleTravelModeChange}
+          />
 
             <View style={styles.container}>
                 <View style={styles.mapContainer}>
@@ -565,110 +452,28 @@ export default function DirectionsScreen() {
             
             </View>
 
-            <Modal
-                visible={isSearchModalVisible}
-                animationType="none"  // Changed from "slide" to "none"
-                transparent={true}
-                onRequestClose={handleCloseModal}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.searchModalContent}>
-                        <TouchableOpacity 
-                            style={styles.closeButton}
-                            onPress={handleCloseModal}
-                        >
-                            <Ionicons name="close" size={24} color="#666" />
-                        </TouchableOpacity>
-                        <Text style={styles.modalTitle}>Search Destination</Text>
-                        <View style={styles.searchContainer}>
-                            <View style={styles.textInputContainer}>
-                                <TextInput
-                                    style={[styles.input, { flex: 1, paddingRight: 30 }]}
-                                    placeholder="Search for a building..."
-                                    value={customDest}
-                                    onChangeText={searchBuildings}
-                                />
-                                {customDest.length > 0 && (
-                                    <TouchableOpacity 
-                                        style={styles.clearButton}
-                                        onPress={() => {
-                                            setCustomDest('');
-                                            setSearchResults([]);
-                                            setIsSearching(false);
-                                        }}
-                                    >
-                                        <Ionicons name="close-circle" size={20} color="#D3D3D3" />
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                            {isSearching && searchResults.length > 0 && (
-                                <View style={styles.searchResults}>
-                                    {searchResults.map((building) => (
-                                        <TouchableOpacity
-                                            key={building.id}
-                                            style={styles.searchResult}
-                                            onPress={() => {
-                                                selectBuilding(building);
-                                                handleCloseModal();
-                                            } }
-                                        >
-                                            <Text style={styles.buildingName}>{building.name}</Text>
-                                            <Text style={styles.buildingId}>({building.id})</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            )}
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal
-                visible={isStartSearchModalVisible}
-                animationType="none"
-                transparent={true}
-                onRequestClose={handleCloseStartModal}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.searchModalContent}>
-                        <TouchableOpacity 
-                            style={styles.closeButton}
-                            onPress={handleCloseStartModal}
-                        >
-                            <Ionicons name="close" size={24} color="#666" />
-                        </TouchableOpacity>
-                        <Text style={styles.modalTitle}>Search Start Location</Text>
-                        <View style={styles.searchBarContainer}> 
-                            <GoogleSearchBar 
-                                initialValue={customLocationDetails.name || customSearchText}
-                                onLocationSelected={(location, description) => {
-                                    const newStartLocation = {
-                                        latitude: location.latitude,
-                                        longitude: location.longitude
-                                    };
-                                    const streetName = parseStreetName(description);
-                                    setStartLocation(newStartLocation);
-                                    setCustomLocationDetails({
-                                        name: streetName,
-                                        coordinates: newStartLocation
-                                    });
-                                    console.log("Custom start location:", streetName);
-                                    setCustomStartName(streetName);
-                                    updateRoute(newStartLocation, destination);
-                                    setIsStartSearchModalVisible(false);
-                                }}
-                            />
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+            <ModalSearchBars
+                searchType={searchType}
+                isModalVisible={isModalVisible}
+                handleCloseModal={handleCloseModal}
+                handleCustomLocation={handleCustomLocation}
+                customLocationDetails={customLocationDetails}
+                customSearchText={customSearchText}
+                searchBuildings={searchBuildings}
+                searchResults={searchResults}
+                isSearching={isSearching}   
+                selectBuilding={selectBuilding}
+                customDest={customDest}
+                handleClearSearch={handleClearSearch}
+            />
+            
         </View>
     );
 }
 
 
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         paddingTop: 0, // Add padding to account for status bar
