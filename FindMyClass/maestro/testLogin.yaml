@@ -19,17 +19,23 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 # Tap on the Email field
 - tapOn:
     text: "Email"
-- inputText: "test@example.com"
+- inputText: "test@exemple.com"
 
 # Tap on the Password field
 - tapOn:
-    text: "Password"
+    point: "50%,57%"
 - inputText: "password123"
 
-# Tap on the "Log In" button using screen coordinates
-- tapOn:
-    point: "50%,64%"
 - waitForAnimationToEnd
 
-# Verify successful login (change "Welcome" if needed)
-- assertVisible: "Welcome"
+# Tap on the actual Login button
+- tapOn:
+    text: "Log In"
+
+- tapOn:
+    text: "Log In"
+
+- waitForAnimationToEnd
+
+# Verify login was successful (modify based on your app's response)
+- assertVisible: "Profile Screen"  # Change to any success message that appears
