@@ -106,7 +106,6 @@ export default function Layout() {
         >
           <Drawer.Screen name="screens/index" options={{ drawerLabel: 'Home', title: 'Home' }} />
           <Drawer.Screen name="screens/map" options={{ drawerLabel: 'Map', title: 'Map' }} />
-          <Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} />
           <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
           {/* Removed routes: screens/login, screens/register, screens/directions and any api/auth references */}
         </Drawer>
