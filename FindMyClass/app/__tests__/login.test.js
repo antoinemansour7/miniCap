@@ -14,6 +14,10 @@ jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuth: () => ({ login: jest.fn() }),
+}));
+
 jest.spyOn(Alert, 'alert'); // Spy on Alert.alert
 
 describe('Login Screen', () => {
