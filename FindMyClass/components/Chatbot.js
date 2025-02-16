@@ -1,110 +1,198 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Modal, 
+  ScrollView, 
+  SafeAreaView 
+} from 'react-native';
 import { sendMessageToOpenAI } from '../services/openai';
 
 const Chatbot = ({ isVisible, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
-  const navigation = useNavigation();
 
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
     const userMessage = { id: Date.now(), text: inputText, isUser: true };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setMessages(prevMessages => [...prevMessages, userMessage]);
     setInputText('');
 
     try {
       const botResponse = await sendMessageToOpenAI(inputText);
       const botMessage = { id: Date.now() + 1, text: botResponse, isUser: false };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
+      setMessages(prevMessages => [...prevMessages, botMessage]);
     } catch (error) {
-      const errorMessage = { id: Date.now() + 1, text: 'Error fetching response. Please try again.', isUser: false };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      const errorMessage = { 
+        id: Date.now() + 1, 
+        text: 'Error fetching response. Please try again.', 
+        isUser: false 
+      };
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
     }
   };
 
   return (
     <Modal visible={isVisible} animationType="slide" onRequestClose={onClose}>
-      <View style={styles.modalContainer}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('screens/index')}>
-            <Text style={styles.backButton}>Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={styles.closeButton}>Close</Text>
-          </TouchableOpacity>
-        </View>
-        <ScrollView style={styles.chatContainer}>
-          {messages.map((message) => (
-            <View
-              key={message.id}
-              style={[
-                styles.message,
-                message.isUser ? styles.userMessage : styles.botMessage,
-              ]}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.modalContainer}>
+          {/* Header with title and close button */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Chatbot</Text>
+            <TouchableOpacity 
+              style={styles.closeButtonContainer} 
+              onPress={onClose}
             >
-              <Text style={message.isUser ? styles.userText : styles.botText}>
-                {message.text}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
+              <Text style={styles.closeButton}>✕</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder="Type your message..."
-            onSubmitEditing={sendMessage}
-          />
-          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-            <Text style={styles.sendButtonText}>Send</Text>
-          </TouchableOpacity>
+          {/* Chat messages */}
+          <ScrollView 
+            style={styles.chatContainer} 
+            contentContainerStyle={styles.chatContent}
+          >
+            {messages.map((message) => (
+              <View
+                key={message.id}
+                style={[
+                  styles.message,
+                  message.isUser ? styles.userMessage : styles.botMessage,
+                ]}
+              >
+                <Text style={message.isUser ? styles.userText : styles.botText}>
+                  {message.text}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* Input area */}
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={inputText}
+              onChangeText={setInputText}
+              placeholder="Type your message..."
+              placeholderTextColor="#888"
+              onSubmitEditing={sendMessage}
+            />
+            <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+              <Text style={styles.sendButtonText}>Send</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: { flex: 1, backgroundColor: '#fff', padding: 20 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f6fa',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    margin: 20,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+    overflow: 'hidden',
+  },
   header: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    // Updated to use application accent color
+    backgroundColor: '#912338',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
-  backButton: {
-    color: '#007AFF',
-    fontSize: 16,
+  headerTitle: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  closeButtonContainer: {
+    padding: 5,
   },
   closeButton: {
-    color: '#007AFF',
+    fontSize: 20,
+    color: '#fff',
+  },
+  chatContainer: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 10,
+  },
+  chatContent: {
+    paddingVertical: 10,
+  },
+  message: {
+    padding: 12,
+    marginVertical: 6,
+    borderRadius: 10,
+    maxWidth: '80%',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  userMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#912338',
+  },
+  botMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#e5e5ea',
+  },
+  userText: {
+    color: '#fff',
     fontSize: 16,
   },
-  chatContainer: { flex: 1, paddingBottom: 10 },
-  message: { padding: 10, marginVertical: 5, borderRadius: 10, maxWidth: '80%' },
-  userMessage: { alignSelf: 'flex-end', backgroundColor: '#007AFF' },
-  botMessage: { alignSelf: 'flex-start', backgroundColor: '#E5E5EA' },
-  userText: { color: '#fff' },
-  botText: { color: '#000' },
+  botText: {
+    color: '#000',
+    fontSize: 16,
+  },
   inputContainer: {
     flexDirection: 'row',
+    backgroundColor: '#fff',
     padding: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: '#ddd',
   },
-  input: { flex: 1, padding: 10, borderRadius: 20, backgroundColor: '#f0f0f0', marginRight: 10 },
+  input: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 25,
+    fontSize: 16,
+    color: '#000',
+  },
   sendButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
-    padding: 10,
+    // Updated to use application accent color
+    backgroundColor: '#912338',
+    borderRadius: 25,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 10,
   },
-  sendButtonText: { color: '#fff', fontWeight: 'bold' },
+  sendButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
 
 export default Chatbot;
