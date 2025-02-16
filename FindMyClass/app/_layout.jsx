@@ -25,7 +25,7 @@ export default function Layout() {
       <Drawer
         screenOptions={({ route, navigation }) => ({
           headerShown: true,
-          headerStyle: { height: route.name === 'screens/map' ? 140 : 90 },
+          headerStyle: { height: route.name === 'screens/map' ? 140 : 110 },
           drawerStyle: { backgroundColor: '#fff' },
           drawerPosition: 'right',
           headerLeft: () => null,
