@@ -1,1 +1,19 @@
-c
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- assertVisible: "Login"  # Ensure login screen is visible
+
+- tapOn: "Login"  # Tap the login button if it's required to open login form
+
+- waitForAnimationToEnd  # Ensures animations don't interfere
+
+- inputText: "test@example.com"
+- tapOn: "Password"  # Tap on the password field
+- inputText: "password123"
+
+- tapOn: "Submit"  # Tap submit button
+
+- assertVisible: "Welcome"  # Verify successful login
