@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router'; // Use Expo Router
 import { loginUser } from '../api/auth.js'; // Import your login API function
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter(); // Get the router from expo-router
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     setIsLoading(true);
     try {
       const user = await loginUser(email, password);
       setIsLoading(false);
+      login(user); // Update global auth state
       Alert.alert('Success', `Welcome ${user.email}`);
       // Redirect to the Profile screen after successful login
       router.push('/screens/profile'); // Ensure that your Profile screen file maps to the '/profile' route
