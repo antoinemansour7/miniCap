@@ -8,9 +8,13 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
-    },
+"ios": {
+  "supportsTablet": true,
+  "bundleIdentifier": "com.findmyclass.app", 
+  
+  "buildNumber": "1"
+  
+},
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
@@ -35,4 +39,4 @@
       ]
     ]
   }
-} 
+}
