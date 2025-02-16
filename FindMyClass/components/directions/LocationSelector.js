@@ -4,11 +4,43 @@ import { Dropdown } from "react-native-element-dropdown";
 import { styles } from "../../app/screens/directions";
 import { Ionicons, FontAwesome, FontAwesome5 } from '@expo/vector-icons'; 
 import { useRouter } from 'expo-router';
+import * as Location from "expo-location";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 
 
 
-const LocationSelector = ({customStartName, buildingName, destinationName, selectedStart, selectedDest , handleStartLocationChange, handleDestinationChange, travelMode, handleTravelModeChange }) => {
+
+const LocationSelector = ({
+    
+    startLocation,
+    setStartLocation,
+    customStartName, 
+    selectedStart, 
+    setSelectedStart,
+    userLocation,   
+    setUserLocation,
+
+    buildingName, 
+    destinationName, 
+    destination,
+    parsedDestination,
+    selectedDest, 
+    setSelectedDest,
+    setDestination,
+    setDestinationName,
+    
+    travelMode, 
+    setTravelMode,
+    setIsModalVisible,
+    setSearchType,
+    updateRouteWithMode,
+    updateRoute,
+
+    getUserCurrentLocation
+
+}) => {
+
     const router = useRouter();
     const startLocationData = [
         { label: 'My Location', value: 'userLocation' },
@@ -23,6 +55,101 @@ const LocationSelector = ({customStartName, buildingName, destinationName, selec
         { label: 'Loyola Campus', value: 'LoyolaCampus' },
         { label: destinationName == buildingName ?  'Custom Location' : destinationName, value: 'custom' },
     ];
+
+    const predefinedLocations = {
+        SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
+        LoyolaCampus: { latitude: 45.458424, longitude: -73.640259 }
+    };
+
+    const handleStartLocationChange =  async (item) => {
+            setSelectedStart(item.value);
+            if (item.value === 'custom') {  
+                setSearchType("START");
+                setIsModalVisible(true);
+            } else {
+                let newStartLocation;
+                switch(item.value) {
+                    case 'userLocation':
+                        if (userLocation) {
+                            newStartLocation = userLocation;
+                        } else {
+                            try {
+                                const currentLocation = await Location.getCurrentPositionAsync({
+                                    accuracy: Location.Accuracy.High
+                                });
+                                newStartLocation = {
+                                    latitude: currentLocation.coords.latitude,
+                                    longitude: currentLocation.coords.longitude,
+                                };
+                                setUserLocation(newStartLocation);
+                            } catch (error) {
+                                console.error("Error getting current location:", error);
+                                setError("Could not get current location");
+                                return;
+                            }
+                            
+                        }
+                        break;
+                    case 'SGWCampus':
+                    case 'LoyolaCampus':
+                        newStartLocation = predefinedLocations[item.value];
+                        break;
+                    default:
+                        return;
+                }
+                console.log('New start location:', newStartLocation);
+                
+                if (newStartLocation && destination) {
+                    setStartLocation(newStartLocation);
+                    updateRoute(newStartLocation, destination);
+                }
+            }
+        };
+
+    const handleDestinationChange = (item) => {
+                setSelectedDest(item.value);
+                if (item.value === 'custom') {
+                    setSearchType("DESTINATION");
+                    setIsModalVisible(true);
+                } else {
+                    if (item.value !== 'custom') {
+                        let newDestination;
+                        let newDestinationName;
+                        switch(item.value) {
+                            case 'current':
+                                newDestination = parsedDestination;
+                                newDestinationName = buildingName;
+                                setDestinationName(newDestinationName);
+                                break;
+                            case 'SGWCampus':
+                                newDestination = predefinedLocations[item.value];
+                                newDestinationName = 'SGW Campus';
+                                break;
+                            case 'LoyolaCampus':
+                                newDestination = predefinedLocations[item.value];
+                                newDestinationName = 'Loyola Campus';
+                                break;
+                            default:
+                                return;
+                        }
+                        setDestination(newDestination);
+                        updateRoute(startLocation, newDestination);
+                    }
+                }
+            };
+
+    const handleTravelModeChange = (mode) => {
+                console.log(`Changing travel mode to: ${mode}`);
+                console.log('Current start location:', startLocation);
+                // Set the travel mode first
+                setTravelMode(mode);
+                
+                // Use the current startLocation instead of letting it default to userLocation
+                const currentStart = startLocation || userLocation;
+                if (currentStart && destination) {
+                    updateRouteWithMode(currentStart, destination, mode);
+                }
+            };
 
     return (
 <>
@@ -48,7 +175,7 @@ const LocationSelector = ({customStartName, buildingName, destinationName, selec
                             valueField="value"
                             placeholder="Select start"
                             value={selectedStart}
-                            onChange={handleStartLocationChange}
+                            onChange={(item) =>  handleStartLocationChange(item)}
                             testID="dropdown-start"
                         />
                     </View>

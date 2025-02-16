@@ -37,6 +37,8 @@ export default function DirectionsScreen() {
     const [destinationName, setDestinationName] = useState(buildingName);
 
     const mapRef = useRef(null);
+
+    // State management
     const [destination, setDestination] = useState(parsedDestination);
     const [userLocation, setUserLocation] = useState(null);
     const [startLocation, setStartLocation] = useState(null);
@@ -45,7 +47,6 @@ export default function DirectionsScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [zoomLevel, setZoomLevel] = useState(20);
-
     const [selectedStart, setSelectedStart] = useState('userLocation');
     const [selectedDest, setSelectedDest] = useState('current');
     const [customDest, setCustomDest] = useState('');
@@ -58,13 +59,6 @@ export default function DirectionsScreen() {
     const [customSearchText, setCustomSearchText] = useState(''); 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [searchType, setSearchType] = useState("START");
-    
-
-    const predefinedLocations = {
-        SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
-        LoyolaCampus: { latitude: 45.458424, longitude: -73.640259 }
-    };
-
   
 
     //  calculate circle radius based on zoom level
@@ -81,83 +75,6 @@ export default function DirectionsScreen() {
         // Convert latitude delta to zoom level
         const zoomLevel = Math.round(Math.log2(360 / LATITUDE_DELTA));
         return zoomLevel;
-    };
-
-    const handleStartLocationChange = async (item) => {
-        setSelectedStart(item.value);
-        if (item.value === 'custom') {  
-            setSearchType("START");
-            setIsModalVisible(true);
-        } else {
-            let newStartLocation;
-            switch(item.value) {
-                case 'userLocation':
-                    if (userLocation) {
-                        newStartLocation = userLocation;
-                    } else {
-                        try {
-                            const currentLocation = await Location.getCurrentPositionAsync({
-                                accuracy: Location.Accuracy.High
-                            });
-                            newStartLocation = {
-                                latitude: currentLocation.coords.latitude,
-                                longitude: currentLocation.coords.longitude,
-                            };
-                            setUserLocation(newStartLocation);
-                        } catch (error) {
-                            console.error("Error getting current location:", error);
-                            setError("Could not get current location");
-                            return;
-                        }
-                    }
-                    break;
-                case 'SGWCampus':
-                case 'LoyolaCampus':
-                    newStartLocation = predefinedLocations[item.value];
-                    break;
-                default:
-                    return;
-            }
-            
-            if (newStartLocation && destination) {
-                setStartLocation(newStartLocation);
-                updateRoute(newStartLocation, destination);
-            }
-        }
-    };
-
-    const handleDestinationChange = (item) => {
-        setSelectedDest(item.value);
-        if (item.value === 'custom') {
-            setSearchType("DESTINATION");
-            setIsModalVisible(true);
-        } else {
-            //setShowCustomDest(item.value === 'custom');
-        
-            if (item.value !== 'custom') {
-                let newDestination;
-                let newDestinationName;
-                switch(item.value) {
-                    case 'current':
-                        newDestination = parsedDestination;
-                        newDestinationName = buildingName;
-                        setDestinationName(newDestinationName);
-                        break;
-                    case 'SGWCampus':
-                        newDestination = predefinedLocations[item.value];
-                        newDestinationName = 'SGW Campus';
-                        break;
-                    case 'LoyolaCampus':
-                        newDestination = predefinedLocations[item.value];
-                        newDestinationName = 'Loyola Campus';
-                        break;
-                    default:
-                        return;
-                }
-                setDestination(newDestination);
-                updateRoute(startLocation, newDestination);
-            }
-        }
     };
 
 
@@ -314,18 +231,7 @@ export default function DirectionsScreen() {
         handleCloseModal();
     };
 
-    const handleTravelModeChange = (mode) => {
-        console.log(`Changing travel mode to: ${mode}`);
-        console.log('Current start location:', startLocation);
-        // Set the travel mode first
-        setTravelMode(mode);
-        
-        // Use the current startLocation instead of letting it default to userLocation
-        const currentStart = startLocation || userLocation;
-        if (currentStart && destination) {
-            updateRouteWithMode(currentStart, destination, mode);
-        }
-    };
+ 
 
     const parseStreetName = (description) => {
         // Matches everything before first comma or before Montreal/QC/postal code
@@ -365,15 +271,30 @@ export default function DirectionsScreen() {
     return (
         <View style={styles.mainContainer}>
           <LocationSelector 
-            customStartName={customStartName}
-            buildingName={buildingName}
-            destinationName={destinationName}
-            selectedStart={selectedStart}
-            selectedDest={selectedDest}
-            handleStartLocationChange={handleStartLocationChange}
-            handleDestinationChange={handleDestinationChange}
-            travelMode={travelMode}
-            handleTravelModeChange={handleTravelModeChange}
+                startLocation={startLocation}
+                setStartLocation={setStartLocation}
+                customStartName={customStartName }
+                selectedStart={selectedStart}
+                setSelectedStart={setSelectedStart}
+                userLocation={userLocation}
+                setUserLocation={setUserLocation}   
+
+                buildingName={buildingName}
+                destinationName={destinationName}
+                destination={destination}   
+                parsedDestination={parsedDestination}
+                selectedDest={selectedDest}
+                setSelectedDest={setSelectedDest}
+                setDestination={setDestination}
+                setDestinationName={setDestinationName}
+
+                travelMode={travelMode}
+                setTravelMode={setTravelMode}
+                setIsModalVisible={setIsModalVisible}
+                setSearchType={setSearchType}
+                updateRouteWithMode={updateRouteWithMode}
+                updateRoute={updateRoute}
+
           />
 
             <View style={styles.container}>
