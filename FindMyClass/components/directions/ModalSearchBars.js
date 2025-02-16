@@ -1,25 +1,99 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, TouchableOpacity, Modal, Text, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "../../app/screens/directions";
 import GoogleSearchBar from "../GoogleSearchBar";
+import SGWBuildings from '../../components/SGWBuildings';
+import LoyolaBuildings from '../../components/loyolaBuildings';
 
 const ModalSearchBars = ({ 
     searchType,  
     isModalVisible, 
     handleCloseModal, 
-    handleCustomLocation,
-    customLocationDetails,
+    updateRoute,
+
+    startLocation,
+    setStartLocation,
     customSearchText,
-    searchBuildings,
-    searchResults,
-    isSearching,
-    selectBuilding,
+    setCustomSearchText,
+    setCustomStartName,
+    customLocationDetails,
+    setCustomLocationDetails,
+    
+    destination,
+    setDestination,
     customDest,
-    handleClearSearch
+    setCustomDest,
+    setDestinationName, 
+    
+
 }) => {
     const isStartSearch = searchType === 'START'; // The modal will display a specific searh bar based on the searchType
-    
+    const allBuildings = [...SGWBuildings, ...LoyolaBuildings];
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+
+    const searchBuildings = (searchText) => {
+        setCustomDest(searchText);
+        if (searchText.trim().length > 0) {
+            const filtered = allBuildings.filter(building => 
+                building.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                building.id.toLowerCase().includes(searchText.toLowerCase())
+            );
+            setSearchResults(filtered);
+            setIsSearching(true);
+        } else {
+            setSearchResults([]);
+            setIsSearching(false);
+        }
+    };
+    const selectBuilding = (building) => {
+        setCustomDest(building.name);
+        setSearchResults([]);
+        setIsSearching(false);
+        
+        const newDestination = {
+            latitude: building.latitude,
+            longitude: building.longitude
+        };
+        setDestination(newDestination);
+        setDestinationName(building.name);
+        updateRoute(startLocation, newDestination);
+        handleCloseModal();
+    };
+
+    const parseStreetName = (description) => {
+        // Matches everything before first comma or before Montreal/QC/postal code
+        const streetRegex = /^(.*?)(?:,|(?=\s+(?:Montreal|QC|Quebec|H\d[A-Z]\s*\d[A-Z]\d)))/i;
+        const match = description.match(streetRegex);
+        return match ? match[1].trim() : description;
+    };
+
+    const handleCustomLocation = (location, description) => {
+        const newStartLocation = {
+            latitude: location.latitude,
+            longitude: location.longitude
+        };
+        const streetName = parseStreetName(description);
+        setStartLocation(newStartLocation);
+        setCustomSearchText(streetName);
+        setCustomStartName(streetName);
+        setCustomLocationDetails({
+            name: streetName,
+            coordinates: newStartLocation
+        });
+        updateRoute(newStartLocation, destination);
+        handleCloseModal();
+    };
+
+
+    const handleClearSearch = () => {
+        setCustomDest('');
+        setSearchResults([]);
+        setIsSearching(false);
+    };
+
+
     
     
     return (

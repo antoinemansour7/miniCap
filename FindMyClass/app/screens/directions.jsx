@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, Alert, Platform, StyleSheet, TextInput, TouchableOpacity, Modal } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
-import SGWBuildings from '../../components/SGWBuildings';
-import LoyolaBuildings from '../../components/loyolaBuildings';
 import LocationSelector from "../../components/directions/LocationSelector";
 import ModalSearchBars from "../../components/directions/ModalSearchBars";
 
 
 export default function DirectionsScreen() {
   
+    // Rertrive the destination from the params that were passed from the Map page
     const params = useLocalSearchParams();
     console.log("Received params: ", params);
 
@@ -196,72 +195,6 @@ export default function DirectionsScreen() {
         return () => locationSubscription?.remove();
     }, [destination, selectedStart]); // Add selectedStart as dependency
 
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
-
-    const allBuildings = [...SGWBuildings, ...LoyolaBuildings];
-
-    const searchBuildings = (searchText) => {
-        setCustomDest(searchText);
-        if (searchText.trim().length > 0) {
-            const filtered = allBuildings.filter(building => 
-                building.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                building.id.toLowerCase().includes(searchText.toLowerCase())
-            );
-            setSearchResults(filtered);
-            setIsSearching(true);
-        } else {
-            setSearchResults([]);
-            setIsSearching(false);
-        }
-    };
-
-    const selectBuilding = (building) => {
-        setCustomDest(building.name);
-        setSearchResults([]);
-        setIsSearching(false);
-        
-        const newDestination = {
-            latitude: building.latitude,
-            longitude: building.longitude
-        };
-        setDestination(newDestination);
-        setDestinationName(building.name);
-        updateRoute(startLocation, newDestination);
-        handleCloseModal();
-    };
-
- 
-
-    const parseStreetName = (description) => {
-        // Matches everything before first comma or before Montreal/QC/postal code
-        const streetRegex = /^(.*?)(?:,|(?=\s+(?:Montreal|QC|Quebec|H\d[A-Z]\s*\d[A-Z]\d)))/i;
-        const match = description.match(streetRegex);
-        return match ? match[1].trim() : description;
-    };
-
-    const handleCustomLocation = (location, description) => {
-        const newStartLocation = {
-            latitude: location.latitude,
-            longitude: location.longitude
-        };
-        const streetName = parseStreetName(description);
-        setStartLocation(newStartLocation);
-        setCustomSearchText(streetName);
-        setCustomStartName(streetName);
-        setCustomLocationDetails({
-            name: streetName,
-            coordinates: newStartLocation
-        });
-        updateRoute(newStartLocation, destination);
-        handleCloseModal();
-    };
-
-    const handleClearSearch = () => {
-        setCustomDest('');
-        setSearchResults([]);
-        setIsSearching(false);
-    };
 
     const handleCloseModal = () => {
         setIsModalVisible(false);
@@ -374,18 +307,26 @@ export default function DirectionsScreen() {
             </View>
 
             <ModalSearchBars
-                searchType={searchType}
-                isModalVisible={isModalVisible}
-                handleCloseModal={handleCloseModal}
-                handleCustomLocation={handleCustomLocation}
-                customLocationDetails={customLocationDetails}
-                customSearchText={customSearchText}
-                searchBuildings={searchBuildings}
-                searchResults={searchResults}
-                isSearching={isSearching}   
-                selectBuilding={selectBuilding}
-                customDest={customDest}
-                handleClearSearch={handleClearSearch}
+
+            searchType={searchType}
+            isModalVisible={isModalVisible}
+            handleCloseModal={handleCloseModal}
+            updateRoute={updateRoute}
+
+            startLocation={startLocation}
+            setStartLocation={setStartLocation}
+            customSearchText={customSearchText}
+            setCustomSearchText={setCustomSearchText}
+            setCustomStartName={setCustomStartName}
+            customLocationDetails={customLocationDetails}
+            setCustomLocationDetails={setCustomLocationDetails}
+
+            destination={destination}
+            setDestination={setDestination}
+            customDest={customDest}
+            setCustomDest={setCustomDest}
+            setDestinationName={setDestinationName}
+            
             />
             
         </View>
