@@ -2,9 +2,39 @@ import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCallback, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { DrawerActions } from '@react-navigation/native';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+
+// Placeholder for user auth status - replace with your auth logic
+const isLoggedIn = false;
+
+// New ProfileButton component
+const ProfileButton = () => {
+  const router = useRouter();
+  const handlePress = () => {
+    if (isLoggedIn) {
+      router.push('/screens/profile');
+    } else {
+      Alert.alert(
+        'Profile',
+        'Please choose an option:',
+        [
+          { text: 'Login', onPress: () => router.push('/screens/login') },
+          { text: 'Signup', onPress: () => router.push('/screens/register') },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+    }
+  };
+
+  return (
+    <TouchableOpacity onPress={handlePress} style={{ marginLeft: 10 }}>
+      <Ionicons name="person" size={30} color="#912338" />
+    </TouchableOpacity>
+  );
+};
 
 export default function Layout() {
   const [searchText, setSearchText] = useState('');
@@ -28,7 +58,8 @@ export default function Layout() {
           headerStyle: { height: route.name === 'screens/map' ? 140 : 110 },
           drawerStyle: { backgroundColor: '#fff' },
           drawerPosition: 'right',
-          headerLeft: () => null,
+          // Updated headerLeft to display the ProfileButton
+          headerLeft: () => <ProfileButton />,
           headerRight: () => (
             <TouchableOpacity
               testID="menu-button"
@@ -63,8 +94,6 @@ export default function Layout() {
       >
         <Drawer.Screen name="screens/index" options={{ drawerLabel: 'Home', title: 'Home' }} />
         <Drawer.Screen name="screens/map" options={{ drawerLabel: 'Map', title: 'Map' }} />
-        <Drawer.Screen name="screens/login" options={{ drawerLabel: 'Login', title: 'Login' }} />
-        <Drawer.Screen name="screens/register" options={{ drawerLabel: 'Register', title: 'Register' }} />
         <Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} />
         <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
       </Drawer>
