@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Modal, Text, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { styles } from "../../app/screens/directions";
+import { styles } from "../../styles/directionsStyles";
 import GoogleSearchBar from "../GoogleSearchBar";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
+
 
 const ModalSearchBars = ({ 
     searchType,  

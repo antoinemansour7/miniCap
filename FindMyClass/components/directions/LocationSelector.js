@@ -1,11 +1,11 @@
 import React from "react";
 import { View , TouchableOpacity} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import { styles } from "../../app/screens/directions";
+import { styles } from "../../styles/directionsStyles";
 import { Ionicons, FontAwesome, FontAwesome5 } from '@expo/vector-icons'; 
 import { useRouter } from 'expo-router';
 import * as Location from "expo-location";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+
 
 
 
