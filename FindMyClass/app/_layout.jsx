@@ -2,50 +2,12 @@ import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCallback, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { AuthProvider, useAuth } from '../contexts/AuthContext';
-
-// Remove placeholder isLoggedIn
-
-const ProfileButton = () => {
-  const router = useRouter();
-  const { user, logout } = useAuth();
-  const handlePress = () => {
-    if (user) {
-      Alert.alert(
-        'Profile',
-        'Select an option:',
-        [
-          { text: 'My Profile', onPress: () => router.push('/screens/profile') },
-          { text: 'Logout', onPress: () => { 
-              logout(); 
-              router.push('/'); // Updated redirection on logout
-            }, style: 'destructive' },
-          { text: 'Cancel', style: 'cancel' },
-        ]
-      );
-    } else {
-      Alert.alert(
-        'Profile',
-        'Please choose an option:',
-        [
-          { text: 'Login', onPress: () => router.push('/screens/login') },
-          { text: 'Signup', onPress: () => router.push('/screens/register') },
-          { text: 'Cancel', style: 'cancel' },
-        ]
-      );
-    }
-  };
-
-  return (
-    <TouchableOpacity onPress={handlePress} style={{ marginLeft: 10 }}>
-      <Ionicons name="person" size={30} color="#912338" />
-    </TouchableOpacity>
-  );
-};
+import { AuthProvider } from '../contexts/AuthContext';
+import ProfileButton from '../components/ProfileButton';
 
 export default function Layout() {
   const [searchText, setSearchText] = useState('');
@@ -70,7 +32,6 @@ export default function Layout() {
             headerStyle: { height: route.name === 'screens/map' ? 140 : 110 },
             drawerStyle: { backgroundColor: '#fff' },
             drawerPosition: 'right',
-            // Updated headerLeft to display the ProfileButton
             headerLeft: () => <ProfileButton />,
             headerRight: () => (
               <TouchableOpacity

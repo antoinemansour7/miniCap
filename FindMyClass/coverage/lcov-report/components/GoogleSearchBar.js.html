@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>6/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -108,27 +108,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,28 +147,28 @@
 import { googleAPIKey } from "../app/secrets";
 import { useRef, useEffect } from 'react';
 &nbsp;
-export default function <span class="fstat-no" title="function not covered" >GoogleSearchBar(</span>{ onLocationSelected, initialValue }) {
-    const ref = <span class="cstat-no" title="statement not covered" >useRef(null);</span>
+export default function GoogleSearchBar({ onLocationSelected, initialValue }) {
+    const ref = useRef(null);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        if (ref.current &amp;&amp; initialValue) {</span>
-<span class="cstat-no" title="statement not covered" >            ref.current.setAddressText(initialValue);</span>
+    useEffect(() =&gt; {
+        if (ref.current &amp;&amp; initialValue) {
+            ref.current.setAddressText(initialValue);
         }
     }, [initialValue]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return (</span>
+    return (
         &lt;GooglePlacesAutocomplete
             ref={ref}
             placeholder="Search for a place"
             minLength={2}
             fetchDetails={true}
-            onPress={<span class="fstat-no" title="function not covered" >(d</span>ata, details = <span class="branch-0 cbranch-no" title="branch not covered" >null)</span> =&gt; {
-<span class="cstat-no" title="statement not covered" >                if (details) {</span>
-                    const location = <span class="cstat-no" title="statement not covered" >{</span>
+            onPress={(data, details = <span class="branch-0 cbranch-no" title="branch not covered" >null)</span> =&gt; {
+                if (details) {
+                    const location = {
                         latitude: details.geometry.location.lat,
                         longitude: details.geometry.location.lng,
                     };
-<span class="cstat-no" title="statement not covered" >                    onLocationSelected(location, data.description);</span>
+                    onLocationSelected(location, data.description);
                 }
             }}
             query={{
@@ -190,7 +190,7 @@ export default function <span class="fstat-no" title="function not covered" >Goo
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-16T21:24:33.240Z
+                at 2025-02-16T22:49:58.164Z
             </div>
         <script src="../prettify.js"></script>
         <script>
