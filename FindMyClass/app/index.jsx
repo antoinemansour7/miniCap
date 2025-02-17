@@ -20,7 +20,11 @@ export default function Home() {
 if (!isReady){
   return   (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ActivityIndicator size="large" color="#800000" />
+      <ActivityIndicator 
+        testID="loading-indicator"
+        size="large" 
+        color="#800000" 
+      />
     </View>
   );}
   return null;
