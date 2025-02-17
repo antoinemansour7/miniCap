@@ -22,7 +22,7 @@ export default function Register() {
       await registerUser(email, password, firstName, lastName);
       setIsLoading(false);
       Alert.alert('Success', 'Registration Successful!');
-      router.push('/screens/login'); 
+      router.push('/auth/login'); 
     } catch (error) {
       setIsLoading(false);
       Alert.alert('Registration Error', error.message);
@@ -30,7 +30,7 @@ export default function Register() {
   };
 
   const handleLoginNavigation = () => {
-    router.push('/screens/login'); 
+    router.push('/auth/login'); 
   };
 
   return (

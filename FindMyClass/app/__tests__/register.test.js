@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import Register from '../screens/register'; // Ensure this is the correct path
+import Register from '../auth/register'; // Ensure this is the correct path
 import { useRouter } from 'expo-router';
 import { registerUser } from '../api/auth';
 
@@ -72,7 +72,7 @@ describe('Register Component', () => {
     
     fireEvent.press(getByText('Already a User? Login!'));
 
-    expect(mockRouter.push).toHaveBeenCalledWith('/screens/login');
+    expect(mockRouter.push).toHaveBeenCalledWith('/auth/login');
   });
 
   test('shows alert on failed registration', async () => {

@@ -96,7 +96,7 @@ describe('ProfileButton component additional option tests', () => {
       expect(getByText('Login')).toBeTruthy();
     });
     fireEvent.press(getByText('Login'));
-    expect(router.push).toHaveBeenCalledWith('/screens/login');
+    expect(router.push).toHaveBeenCalledWith('/auth/login');
   });
 
   it('navigates to register when "Signup" is pressed (guest)', async () => {
@@ -107,6 +107,6 @@ describe('ProfileButton component additional option tests', () => {
       expect(getByText('Signup')).toBeTruthy();
     });
     fireEvent.press(getByText('Signup'));
-    expect(router.push).toHaveBeenCalledWith('/screens/register');
+    expect(router.push).toHaveBeenCalledWith('/auth/register');
   });
 });
