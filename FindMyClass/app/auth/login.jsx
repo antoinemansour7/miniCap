@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router'; // Use Expo Router
 import { loginUser } from '../api/auth.js'; // Import your login API function
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext.js';
 
 export default function Login() {
   const [email, setEmail] = useState('');
