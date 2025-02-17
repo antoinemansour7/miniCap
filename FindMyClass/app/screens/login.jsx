@@ -27,8 +27,7 @@ export default function Login() {
   };
 
   const handleRegisterNavigation = () => {
-    // Navigate to the Register screen (adjust the route if necessary)
-    router.push('/register');
+    router.push('/screens/register');
   };
 
   return (
