@@ -94,6 +94,6 @@ describe('Login Screen', () => {
 
     fireEvent.press(registerLink);
 
-    expect(routerMock.push).toHaveBeenCalledWith('/register');
+    expect(routerMock.push).toHaveBeenCalledWith('/auth/register');
   });
 });
