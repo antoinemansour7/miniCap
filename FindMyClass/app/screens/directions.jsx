@@ -8,7 +8,12 @@ import { googleAPIKey } from "../../app/secrets";
 import LocationSelector from "../../components/directions/LocationSelector";
 import ModalSearchBars from "../../components/directions/ModalSearchBars";
 import { styles } from "../../styles/directionsStyles";
-
+import {
+    getNextShuttleTime,
+    isNearCampus,
+    LOYOLA_COORDS,
+    SGW_COORDS
+} from '../../utils/shuttleUtils';
 
 export default function DirectionsScreen() {
   
@@ -59,7 +64,7 @@ export default function DirectionsScreen() {
     const [customSearchText, setCustomSearchText] = useState(''); 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [searchType, setSearchType] = useState("START");
-  
+    const [shuttleInfo, setShuttleInfo] = useState(null);
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
@@ -85,49 +90,99 @@ export default function DirectionsScreen() {
             setIsLoading(true);
             const modeParam = mode.toLowerCase();
             console.log(`Requesting route with mode: ${modeParam}`);
-
-            const response = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
-            );
-            const data = await response.json();
-            console.log("Route response:", data);
-
-            if (!data.routes || data.routes.length === 0) {
-                throw new Error("No route found");
-            }
-
-            setCoordinates([]);
-            
-            const encodedPolyline = data.routes[0].overview_polyline.points;
-            const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
-                latitude: lat,
-                longitude: lng
-            }));
-
-            setCoordinates(decodedCoordinates);
-            const leg = data.routes[0].legs[0];
-            setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
-
-            if (mapRef.current) {
-                const currentMapRef = mapRef.current; // store current reference
-                setTimeout(() => {
-                    if (currentMapRef) { // use stored reference instead of mapRef.current
-                        currentMapRef.fitToCoordinates(
-                            [start, end, ...decodedCoordinates],
-                            {
-                                edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                                animated: true,
-                            }
-                        );
+    
+            // Handle shuttle mode separately
+            if (mode.toUpperCase() === 'SHUTTLE') {
+                // Check if route is between campuses
+                const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
+                const isStartSGW = isNearCampus(start, SGW_COORDS);
+                const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
+                const isEndSGW = isNearCampus(end, SGW_COORDS);
+    
+                // Only provide shuttle route between campuses
+                if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
+                    const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
+                    const nextShuttle = getNextShuttleTime(fromCampus);
+    
+                    if (!nextShuttle) {
+                        throw new Error("No more shuttles available today");
                     }
-                }, 100);
+    
+                    // Create a simplified route for the shuttle
+                    const shuttleRoute = [
+                        LOYOLA_COORDS,
+                        // You can add intermediate points here if you have them
+                        { 
+                            latitude: (LOYOLA_COORDS.latitude + SGW_COORDS.latitude) / 2,
+                            longitude: (LOYOLA_COORDS.longitude + SGW_COORDS.longitude) / 2
+                        },
+                        SGW_COORDS
+                    ];
+    
+                    setCoordinates(shuttleRoute);
+                    setRouteInfo({
+                        distance: "6.8 km (approx)",
+                        duration: `${nextShuttle} (Next shuttle) + ~25 min ride`
+                    });
+    
+                    // Fit map to show the route
+                    if (mapRef.current) {
+                        mapRef.current.fitToCoordinates(shuttleRoute, {
+                            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                            animated: true
+                        });
+                    }
+                } else {
+                    throw new Error("Shuttle service is only available between Loyola and SGW campuses");
+                }
+            } else {
+                // Handle other modes using Google Directions API
+                const response = await fetch(
+                    `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
+                );
+                const data = await response.json();
+                console.log("Route response:", data);
+    
+                if (!data.routes || data.routes.length === 0) {
+                    throw new Error("No route found");
+                }
+    
+                setCoordinates([]);
+                
+                const encodedPolyline = data.routes[0].overview_polyline.points;
+                const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
+                    latitude: lat,
+                    longitude: lng
+                }));
+    
+                setCoordinates(decodedCoordinates);
+                const leg = data.routes[0].legs[0];
+                setRouteInfo({ 
+                    distance: leg.distance.text, 
+                    duration: leg.duration.text 
+                });
+    
+                if (mapRef.current) {
+                    const currentMapRef = mapRef.current;
+                    setTimeout(() => {
+                        if (currentMapRef) {
+                            currentMapRef.fitToCoordinates(
+                                [start, end, ...decodedCoordinates],
+                                {
+                                    edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                                    animated: true,
+                                }
+                            );
+                        }
+                    }, 100);
+                }
             }
         } catch (err) {
             console.error("Route update error:", err);
             setError(err.message);
         } finally {
             setTimeout(() => {
-              setIsLoading(false);
+                setIsLoading(false);
             }, 0);
         }
     };
@@ -290,18 +345,29 @@ export default function DirectionsScreen() {
                     </View>
                 )}
                 {error && (
-                    <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
-                        <Text style={{ color: 'red' }}>{error}</Text>
+                    <View style={[styles.card, { 
+                        position: 'absolute', 
+                        top: 50, 
+                        width: '100%', 
+                        alignItems: 'center',
+                        backgroundColor: '#ffebee'  // Light red background for errors
+                    }]}>
+                        <Text style={{ color: '#d32f2f' }}>{error}</Text>
                     </View>
                 )}
                 {routeInfo && (
                     <View style={[styles.card, {
                         position: "absolute", bottom: 40, left: 20, right: 20,
                     }]}>
-                        <Text style={{ fontWeight: "bold", fontSize: 16 }}>Estimated Time: {routeInfo.duration}</Text>
+                        <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                            {travelMode === 'SHUTTLE' ? 'Next Shuttle: ' : 'Estimated Time: '}
+                            {routeInfo.duration}
+                        </Text>
                         <Text style={{ fontSize: 14 }}>
                             Destination: {destinationName}  {"\n"}
-                            Distance: {routeInfo.distance}</Text>
+                            Distance: {routeInfo.distance}
+                            {travelMode === 'SHUTTLE' && "\nNote: Shuttle schedule may vary"}
+                        </Text>
                     </View>
                 )}
             
