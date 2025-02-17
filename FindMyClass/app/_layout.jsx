@@ -13,14 +13,6 @@ export default function Layout() {
   const [searchText, setSearchText] = useState('');
   const fontsLoaded = true; // ✅ Remove useFonts if not using fonts
 
-  const router = useRouter();
-  const  segments  = useSegments();
-
-  useEffect(() => {
-    if (segments[0] === "") {
-      router.replace('/screens/map');
-    }
-  },[segments]);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -42,7 +34,7 @@ export default function Layout() {
               // Hide auth routes from drawer
               display: route.name.startsWith('auth/') ? 'none' : undefined
             },
-            headerStyle: { height: route.name === 'screens/map' ? 140 : 110 },
+            headerStyle: { height: route.name === 'index' ? 140 : 110 },
             drawerStyle: { backgroundColor: '#fff' },
             drawerPosition: 'right',
             headerLeft: () => <ProfileButton />,
@@ -50,13 +42,13 @@ export default function Layout() {
               <TouchableOpacity
                 testID="menu-button"
                 onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-                style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} 
+                style={route.name === 'index' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} 
               >
                 <MaterialIcons name="menu" size={30} color="#912338" />
               </TouchableOpacity>
             ),
             headerTitle: () =>
-              route.name === 'screens/map' ? (
+              route.name === 'index' ? (
                 <View style={styles.headerContainer}>
                   <Text style={styles.headerTitle}>Map</Text>
                   <View style={styles.searchContainer}>
@@ -85,7 +77,7 @@ export default function Layout() {
           })}
         >
           <Drawer.Screen name="screens/index" options={{ drawerLabel: 'Home', title: 'Home' }} />
-          <Drawer.Screen name="screens/map" options={{ drawerLabel: 'Map', title: 'Map' }} />
+          <Drawer.Screen name="index" options={{ drawerLabel: 'Map', title: 'Map' }} />
           <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
           <Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} />
 
@@ -94,7 +86,7 @@ export default function Layout() {
           <Drawer.Screen name="screens/directions" options={{
             drawerLabel: () => null, 
             title: 'Directions',
-            drawerItemStyle: { display: 'none' },
+            drawerItemStyle: { display: 'none' }
             }}
           />
 
@@ -111,13 +103,6 @@ export default function Layout() {
             }}
           />
 
-          <Drawer.Screen name="index" options={{
-            drawerLabel: () => null, 
-            title: 'index',
-            drawerItemStyle: { display: 'none' },
-            headerShown: false,
-            }}
-          />
 
 
         </Drawer> 
