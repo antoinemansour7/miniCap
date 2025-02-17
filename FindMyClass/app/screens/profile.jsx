@@ -12,7 +12,7 @@ export default function Profile() {
     return (
       <View style={styles.container}>
         <Text style={styles.warning}>Please log in to access your profile.</Text>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/screens/login')}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/auth/login')}>
           <Text style={styles.buttonText}>Go to Login</Text>
         </TouchableOpacity>
       </View>

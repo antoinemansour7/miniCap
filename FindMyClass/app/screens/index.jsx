@@ -18,12 +18,12 @@ export default function Index() {
         <Card 
           iconName="map" 
           title="SGW Map" 
-          onPress={() => navigation.navigate('screens/map', { campus: 'SGW' })}
+          onPress={() => navigation.navigate('index', { campus: 'SGW' })}
         />
         <Card 
           iconName="map" 
           title="LOY Map" 
-          onPress={() => navigation.navigate('screens/map', { campus: 'Loyola' })}
+          onPress={() => navigation.navigate('index', { campus: 'Loyola' })}
         />
       </View>
       

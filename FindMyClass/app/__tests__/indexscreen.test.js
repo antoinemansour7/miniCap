@@ -58,7 +58,7 @@ describe('Index Screen', () => {
     const sgwMapCard = getByTestId('card-sgw-map');
     fireEvent.press(sgwMapCard);
     
-    expect(mockNavigate).toHaveBeenCalledWith('screens/map', { campus: 'SGW' });
+    expect(mockNavigate).toHaveBeenCalledWith('index', { campus: 'SGW' });
   });
 
   it('navigates to Loyola Map when LOY Map card is pressed', () => {
@@ -67,7 +67,7 @@ describe('Index Screen', () => {
     const loyMapCard = getByTestId('card-loy-map');
     fireEvent.press(loyMapCard);
     
-    expect(mockNavigate).toHaveBeenCalledWith('screens/map', { campus: 'Loyola' });
+    expect(mockNavigate).toHaveBeenCalledWith('index', { campus: 'Loyola' });
   });
 
   it('navigates to Profile when Profile card is pressed', () => {
