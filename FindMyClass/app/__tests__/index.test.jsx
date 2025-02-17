@@ -1,42 +1,40 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react-native';
-import { useRouter } from 'expo-router';
-import Home from '../index';
+import { render } from '@testing-library/react-native';
+import MapScreen from '../index'; // ✅ Use the correct component name
+import { useRoute } from '@react-navigation/native';
+import ToggleCampusMap from '../../components/ToggleCampusMap';
+import FloatingChatButton from '../../components/FloatingChatButton';
 
-// Mock expo-router
-jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
-  useSegments: jest.fn()
+// Mock navigation route
+jest.mock('@react-navigation/native', () => ({
+  useRoute: jest.fn(),
 }));
 
-describe('Home Component', () => {
-  const mockReplace = jest.fn();
+// Mock components
+jest.mock('../../components/ToggleCampusMap', () => jest.fn(() => null));
+jest.mock('../../components/FloatingChatButton', () => jest.fn(() => null));
 
+describe('Map Screen', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    useRouter.mockImplementation(() => ({
-      replace: mockReplace
-    }));
+    jest.clearAllMocks();
   });
 
-  afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
-    mockReplace.mockClear();
+  it('passes searchText to ToggleCampusMap', () => {
+    useRoute.mockReturnValue({ params: { searchText: 'Library' } });
+
+    render(<MapScreen />); // ✅ Use the correct component name
+
+    expect(ToggleCampusMap).toHaveBeenCalledWith(
+      expect.objectContaining({ searchText: 'Library' }),
+      {}
+    );
   });
 
-  it('shows loading indicator initially', () => {
-    const { getByTestId } = render(<Home />);
-    expect(getByTestId('loading-indicator')).toBeTruthy();
-  });
+  it('renders FloatingChatButton', () => {
+    useRoute.mockReturnValue({ params: { searchText: '' } });
 
-  it('redirects to map screen after timeout', () => {
-    render(<Home />);
-    
-    act(() => {
-      jest.runAllTimers();
-    });
-    
-    expect(mockReplace).toHaveBeenCalledWith('/screens/map');
+    render(<MapScreen />); // ✅ Use the correct component name
+
+    expect(FloatingChatButton).toHaveBeenCalled();
   });
 });
