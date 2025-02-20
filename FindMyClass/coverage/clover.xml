@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739746198186" clover="3.2.0">
-  <project timestamp="1739746198186" name="All files">
-    <metrics statements="443" coveredstatements="388" conditionals="233" coveredconditionals="175" methods="106" coveredmethods="91" elements="782" coveredelements="654" complexity="0" loc="443" ncloc="443" packages="5" files="21" classes="21"/>
+<coverage generated="1740022761039" clover="3.2.0">
+  <project timestamp="1740022761039" name="All files">
+    <metrics statements="465" coveredstatements="411" conditionals="245" coveredconditionals="185" methods="109" coveredmethods="95" elements="819" coveredelements="691" complexity="0" loc="465" ncloc="465" packages="5" files="21" classes="21"/>
     <package name="app">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/index.jsx">
@@ -38,55 +38,55 @@
       </file>
     </package>
     <package name="app.screens">
-      <metrics statements="285" coveredstatements="233" conditionals="130" coveredconditionals="90" methods="55" coveredmethods="43"/>
+      <metrics statements="307" coveredstatements="256" conditionals="142" coveredconditionals="100" methods="58" coveredmethods="47"/>
       <file name="directions.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/directions.jsx">
         <metrics statements="189" coveredstatements="142" conditionals="101" coveredconditionals="67" methods="30" coveredmethods="19"/>
-        <line num="15" count="73" type="stmt"/>
-        <line num="16" count="73" type="stmt"/>
-        <line num="18" count="73" type="cond" truecount="4" falsecount="0"/>
-        <line num="19" count="1" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="23" count="72" type="stmt"/>
-        <line num="24" count="72" type="stmt"/>
-        <line num="25" count="72" type="stmt"/>
-        <line num="26" count="71" type="stmt"/>
-        <line num="28" count="1" type="stmt"/>
-        <line num="31" count="72" type="cond" truecount="5" falsecount="0"/>
-        <line num="32" count="3" type="stmt"/>
-        <line num="33" count="3" type="stmt"/>
-        <line num="35" count="69" type="cond" truecount="1" falsecount="1"/>
-        <line num="36" count="69" type="stmt"/>
-        <line num="38" count="66" type="stmt"/>
-        <line num="39" count="66" type="stmt"/>
-        <line num="40" count="66" type="stmt"/>
-        <line num="41" count="66" type="stmt"/>
-        <line num="42" count="66" type="stmt"/>
-        <line num="43" count="66" type="stmt"/>
-        <line num="44" count="66" type="stmt"/>
-        <line num="45" count="66" type="stmt"/>
-        <line num="46" count="66" type="stmt"/>
-        <line num="48" count="66" type="stmt"/>
-        <line num="49" count="66" type="stmt"/>
-        <line num="50" count="66" type="stmt"/>
-        <line num="51" count="66" type="stmt"/>
-        <line num="52" count="66" type="stmt"/>
-        <line num="53" count="66" type="stmt"/>
-        <line num="54" count="66" type="stmt"/>
-        <line num="55" count="66" type="stmt"/>
-        <line num="56" count="66" type="stmt"/>
-        <line num="57" count="66" type="stmt"/>
-        <line num="61" count="66" type="stmt"/>
-        <line num="63" count="66" type="stmt"/>
-        <line num="68" count="66" type="stmt"/>
-        <line num="75" count="66" type="stmt"/>
-        <line num="83" count="66" type="stmt"/>
+        <line num="15" count="88" type="stmt"/>
+        <line num="16" count="88" type="stmt"/>
+        <line num="18" count="88" type="cond" truecount="4" falsecount="0"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="23" count="86" type="stmt"/>
+        <line num="24" count="86" type="stmt"/>
+        <line num="25" count="86" type="stmt"/>
+        <line num="26" count="84" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="31" count="86" type="cond" truecount="5" falsecount="0"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="33" count="4" type="stmt"/>
+        <line num="35" count="82" type="cond" truecount="1" falsecount="1"/>
+        <line num="36" count="82" type="stmt"/>
+        <line num="38" count="78" type="stmt"/>
+        <line num="39" count="78" type="stmt"/>
+        <line num="40" count="78" type="stmt"/>
+        <line num="41" count="78" type="stmt"/>
+        <line num="42" count="78" type="stmt"/>
+        <line num="43" count="78" type="stmt"/>
+        <line num="44" count="78" type="stmt"/>
+        <line num="45" count="78" type="stmt"/>
+        <line num="46" count="78" type="stmt"/>
+        <line num="48" count="78" type="stmt"/>
+        <line num="49" count="78" type="stmt"/>
+        <line num="50" count="78" type="stmt"/>
+        <line num="51" count="78" type="stmt"/>
+        <line num="52" count="78" type="stmt"/>
+        <line num="53" count="78" type="stmt"/>
+        <line num="54" count="78" type="stmt"/>
+        <line num="55" count="78" type="stmt"/>
+        <line num="56" count="78" type="stmt"/>
+        <line num="57" count="78" type="stmt"/>
+        <line num="61" count="78" type="stmt"/>
+        <line num="63" count="78" type="stmt"/>
+        <line num="68" count="78" type="stmt"/>
+        <line num="75" count="78" type="stmt"/>
+        <line num="83" count="78" type="stmt"/>
         <line num="84" count="25" type="stmt"/>
         <line num="87" count="25" type="stmt"/>
-        <line num="91" count="66" type="stmt"/>
+        <line num="91" count="78" type="stmt"/>
         <line num="92" count="2" type="stmt"/>
         <line num="94" count="2" type="stmt"/>
         <line num="95" count="2" type="stmt"/>
-        <line num="98" count="66" type="stmt"/>
+        <line num="98" count="78" type="stmt"/>
         <line num="99" count="2" type="stmt"/>
         <line num="100" count="2" type="stmt"/>
         <line num="102" count="2" type="cond" truecount="1" falsecount="1"/>
@@ -109,7 +109,7 @@
         <line num="136" count="2" type="cond" truecount="3" falsecount="1"/>
         <line num="137" count="2" type="stmt"/>
         <line num="138" count="2" type="stmt"/>
-        <line num="143" count="66" type="stmt"/>
+        <line num="143" count="78" type="stmt"/>
         <line num="144" count="1" type="stmt"/>
         <line num="145" count="1" type="stmt"/>
         <line num="147" count="1" type="cond" truecount="1" falsecount="1"/>
@@ -127,13 +127,13 @@
         <line num="166" count="1" type="stmt"/>
         <line num="167" count="1" type="stmt"/>
         <line num="168" count="1" type="stmt"/>
-        <line num="172" count="66" type="stmt"/>
+        <line num="172" count="78" type="stmt"/>
         <line num="173" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="176" count="0" type="stmt"/>
-        <line num="180" count="66" type="stmt"/>
+        <line num="180" count="78" type="stmt"/>
         <line num="181" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="183" count="0" type="stmt"/>
-        <line num="187" count="66" type="stmt"/>
+        <line num="187" count="78" type="stmt"/>
         <line num="188" count="23" type="cond" truecount="4" falsecount="0"/>
         <line num="190" count="22" type="stmt"/>
         <line num="191" count="22" type="stmt"/>
@@ -159,16 +159,16 @@
         <line num="233" count="2" type="stmt"/>
         <line num="235" count="12" type="stmt"/>
         <line num="236" count="12" type="stmt"/>
-        <line num="241" count="66" type="stmt"/>
+        <line num="241" count="78" type="stmt"/>
         <line num="242" count="22" type="stmt"/>
-        <line num="245" count="66" type="stmt"/>
-        <line num="248" count="27" type="stmt"/>
-        <line num="249" count="27" type="stmt"/>
-        <line num="250" count="27" type="stmt"/>
-        <line num="251" count="27" type="stmt"/>
-        <line num="252" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="245" count="78" type="stmt"/>
+        <line num="248" count="33" type="stmt"/>
+        <line num="249" count="33" type="stmt"/>
+        <line num="250" count="33" type="stmt"/>
+        <line num="251" count="33" type="stmt"/>
+        <line num="252" count="33" type="cond" truecount="2" falsecount="0"/>
         <line num="253" count="1" type="stmt"/>
-        <line num="256" count="26" type="stmt"/>
+        <line num="256" count="32" type="stmt"/>
         <line num="260" count="19" type="stmt"/>
         <line num="265" count="19" type="stmt"/>
         <line num="266" count="19" type="cond" truecount="1" falsecount="1"/>
@@ -181,15 +181,15 @@
         <line num="285" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="286" count="0" type="stmt"/>
         <line num="287" count="0" type="stmt"/>
-        <line num="294" count="8" type="stmt"/>
-        <line num="295" count="8" type="stmt"/>
-        <line num="297" count="27" type="stmt"/>
-        <line num="301" count="27" type="stmt"/>
-        <line num="302" count="27" type="stmt"/>
-        <line num="305" count="66" type="stmt"/>
-        <line num="306" count="66" type="stmt"/>
-        <line num="308" count="66" type="stmt"/>
-        <line num="310" count="66" type="stmt"/>
+        <line num="294" count="14" type="stmt"/>
+        <line num="295" count="14" type="stmt"/>
+        <line num="297" count="33" type="stmt"/>
+        <line num="301" count="33" type="stmt"/>
+        <line num="302" count="33" type="stmt"/>
+        <line num="305" count="78" type="stmt"/>
+        <line num="306" count="78" type="stmt"/>
+        <line num="308" count="78" type="stmt"/>
+        <line num="310" count="78" type="stmt"/>
         <line num="311" count="0" type="stmt"/>
         <line num="312" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="313" count="0" type="stmt"/>
@@ -198,7 +198,7 @@
         <line num="318" count="0" type="stmt"/>
         <line num="320" count="0" type="stmt"/>
         <line num="321" count="0" type="stmt"/>
-        <line num="325" count="66" type="stmt"/>
+        <line num="325" count="78" type="stmt"/>
         <line num="326" count="0" type="stmt"/>
         <line num="327" count="0" type="stmt"/>
         <line num="328" count="0" type="stmt"/>
@@ -206,20 +206,20 @@
         <line num="334" count="0" type="stmt"/>
         <line num="335" count="0" type="stmt"/>
         <line num="336" count="0" type="stmt"/>
-        <line num="339" count="66" type="stmt"/>
+        <line num="339" count="78" type="stmt"/>
         <line num="340" count="3" type="stmt"/>
         <line num="341" count="3" type="stmt"/>
         <line num="343" count="3" type="stmt"/>
         <line num="346" count="3" type="cond" truecount="2" falsecount="0"/>
         <line num="347" count="3" type="cond" truecount="4" falsecount="0"/>
         <line num="348" count="1" type="stmt"/>
-        <line num="352" count="66" type="stmt"/>
+        <line num="352" count="78" type="stmt"/>
         <line num="353" count="0" type="stmt"/>
         <line num="357" count="0" type="stmt"/>
         <line num="358" count="0" type="stmt"/>
         <line num="359" count="0" type="stmt"/>
         <line num="363" count="0" type="stmt"/>
-        <line num="366" count="66" type="stmt"/>
+        <line num="366" count="78" type="stmt"/>
         <line num="422" count="0" type="stmt"/>
         <line num="425" count="0" type="stmt"/>
         <line num="443" count="0" type="stmt"/>
@@ -229,7 +229,7 @@
         <line num="477" count="2" type="stmt"/>
         <line num="492" count="2" type="stmt"/>
         <line num="493" count="2" type="stmt"/>
-        <line num="559" count="3" type="stmt"/>
+        <line num="559" count="4" type="stmt"/>
       </file>
       <file name="index.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/index.jsx">
         <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="5"/>
@@ -259,9 +259,9 @@
         <line num="24" count="1" type="stmt"/>
         <line num="25" count="1" type="stmt"/>
         <line num="29" count="15" type="stmt"/>
-        <line num="31" count="1" type="stmt"/>
-        <line num="34" count="15" type="stmt"/>
-        <line num="68" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="33" count="15" type="stmt"/>
+        <line num="67" count="1" type="stmt"/>
       </file>
       <file name="map.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/map.jsx">
         <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
@@ -271,18 +271,40 @@
         <line num="19" count="1" type="stmt"/>
       </file>
       <file name="profile.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/profile.jsx">
-        <metrics statements="7" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="1"/>
-        <line num="8" count="3" type="stmt"/>
-        <line num="9" count="3" type="stmt"/>
-        <line num="11" count="3" type="cond" truecount="2" falsecount="0"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="22" count="2" type="stmt"/>
-        <line num="32" count="1" type="stmt"/>
+        <metrics statements="29" coveredstatements="29" conditionals="14" coveredconditionals="12" methods="5" coveredmethods="5"/>
+        <line num="10" count="12" type="stmt"/>
+        <line num="11" count="12" type="stmt"/>
+        <line num="12" count="12" type="stmt"/>
+        <line num="14" count="11" type="stmt"/>
+        <line num="16" count="6" type="stmt"/>
+        <line num="17" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="6" type="stmt"/>
+        <line num="22" count="11" type="stmt"/>
+        <line num="23" count="3" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="26" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="32" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="42" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="53" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="54" count="4" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="64" count="7" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
       </file>
       <file name="register.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/register.jsx">
         <metrics statements="22" coveredstatements="18" conditionals="8" coveredconditionals="7" methods="3" coveredmethods="3"/>
-        <line num="7" count="14" type="stmt"/>
+        <line num="7" count="15" type="stmt"/>
         <line num="8" count="14" type="stmt"/>
         <line num="9" count="14" type="stmt"/>
         <line num="10" count="14" type="stmt"/>
@@ -312,7 +334,7 @@
         <line num="18" count="1" type="stmt"/>
         <line num="19" count="1" type="stmt"/>
         <line num="20" count="1" type="stmt"/>
-        <line num="23" count="9" type="stmt"/>
+        <line num="23" count="10" type="stmt"/>
         <line num="24" count="9" type="stmt"/>
         <line num="25" count="9" type="stmt"/>
         <line num="28" count="9" type="stmt"/>
@@ -464,7 +486,7 @@
       </file>
       <file name="SGWBuildings.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/SGWBuildings.js">
         <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="4" type="stmt"/>
+        <line num="1" count="5" type="stmt"/>
       </file>
       <file name="SGWMap.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/SGWMap.js">
         <metrics statements="23" coveredstatements="23" conditionals="19" coveredconditionals="15" methods="7" coveredmethods="7"/>
@@ -507,7 +529,7 @@
       </file>
       <file name="loyolaBuildings.js" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/components/loyolaBuildings.js">
         <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="4" type="stmt"/>
+        <line num="1" count="5" type="stmt"/>
       </file>
     </package>
     <package name="contexts">
