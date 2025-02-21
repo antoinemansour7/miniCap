@@ -65,6 +65,7 @@ export default function DirectionsScreen() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [searchType, setSearchType] = useState("START");
     const [shuttleInfo, setShuttleInfo] = useState(null);
+    const [busLocations, setBusLocations] = useState([]);
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
@@ -251,6 +252,27 @@ export default function DirectionsScreen() {
         return () => locationSubscription?.remove();
     }, [destination, selectedStart]); // Add selectedStart as dependency
 
+    useEffect(() => {
+        let intervalId;
+        
+        if (travelMode === 'SHUTTLE') {
+          // Fetch immediately on mode change
+          fetchShuttleBusLocations()
+            .then(locations => setBusLocations(locations))
+            .catch(err => console.error(err));
+          
+          // Set up interval (every 15 seconds)
+          intervalId = setInterval(() => {
+            fetchShuttleBusLocations()
+              .then(locations => setBusLocations(locations))
+              .catch(err => console.error(err));
+          }, 15000);
+        }
+        
+        return () => {
+          if (intervalId) clearInterval(intervalId);
+        };
+    }, [travelMode]);
 
     const handleCloseModal = () => {
         setIsModalVisible(false);
@@ -331,6 +353,18 @@ export default function DirectionsScreen() {
                                 lineDashPattern={[0]}
                             />
                         )}
+                        {travelMode === 'SHUTTLE' && busLocations.map(bus => (
+                        <Marker
+                            key={bus.id}
+                            coordinate={{
+                            latitude: bus.latitude,
+                            longitude: bus.longitude
+                            }}
+                            title={`Bus ${bus.id.replace('BUS', '')}`}
+                        >
+                            <FontAwesome5 name="bus" size={24} color="#912338" />
+                        </Marker>
+                        ))}
                     </MapView>
                 </View>
 
