@@ -14,6 +14,10 @@ import {
     LOYOLA_COORDS,
     SGW_COORDS
 } from '../../utils/shuttleUtils';
+import { 
+    fetchShuttleBusLocations,
+    estimateNextArrival
+} from '../../utils/shuttleTracking';
 
 export default function DirectionsScreen() {
   
@@ -105,12 +109,12 @@ export default function DirectionsScreen() {
                     const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
                     
                     // Fetch real-time bus data
-                    const busLocations = await fetchShuttleBusLocations();
-                    setBusLocations(busLocations);
+                    const buses = await fetchShuttleBusLocations();
+                    setBusLocations(buses);
                     
                     // Get both schedule-based and real-time estimates
                     const scheduledNextShuttle = getNextShuttleTime(fromCampus);
-                    const realTimeEstimate = estimateNextArrival(busLocations, fromCampus);
+                    const realTimeEstimate = estimateNextArrival(buses, fromCampus);
                     
                     // Choose the better estimate
                     let waitInfo;
@@ -129,7 +133,6 @@ export default function DirectionsScreen() {
                     }
                     
                     // Create a simplified route for the shuttle
-                    // This can be enhanced with actual route waypoints if available
                     const shuttleRoute = [
                         LOYOLA_COORDS,
                         { 
@@ -149,8 +152,8 @@ export default function DirectionsScreen() {
                     if (mapRef.current) {
                         // Include both route and bus markers in the map view
                         const pointsToShow = [...shuttleRoute];
-                        if (busLocations && busLocations.length > 0) {
-                            busLocations.forEach(bus => {
+                        if (buses && buses.length > 0) {
+                            buses.forEach(bus => {
                                 pointsToShow.push({
                                     latitude: bus.latitude,
                                     longitude: bus.longitude
@@ -436,17 +439,17 @@ export default function DirectionsScreen() {
                                 lineDashPattern={[0]}
                             />
                         )}
-                        {travelMode === 'SHUTTLE' && busLocations.map(bus => (
-                        <Marker
-                            key={bus.id}
-                            coordinate={{
-                            latitude: bus.latitude,
-                            longitude: bus.longitude
-                            }}
-                            title={`Bus ${bus.id.replace('BUS', '')}`}
-                        >
-                            <FontAwesome5 name="bus" size={24} color="#912338" />
-                        </Marker>
+                        {travelMode === 'SHUTTLE' && busLocations && busLocations.map(bus => (
+                            <Marker
+                                key={bus.id}
+                                coordinate={{
+                                    latitude: bus.latitude,
+                                    longitude: bus.longitude
+                                }}
+                                title={`Bus ${bus.id.replace('BUS', '')}`}
+                            >
+                                <FontAwesome5 name="bus" size={24} color="#912338" />
+                            </Marker>
                         ))}
                     </MapView>
                 </View>
