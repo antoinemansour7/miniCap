@@ -103,16 +103,35 @@ export default function DirectionsScreen() {
                 // Only provide shuttle route between campuses
                 if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
                     const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
-                    const nextShuttle = getNextShuttleTime(fromCampus);
-    
-                    if (!nextShuttle) {
-                        throw new Error("No more shuttles available today");
+                    
+                    // Fetch real-time bus data
+                    const busLocations = await fetchShuttleBusLocations();
+                    setBusLocations(busLocations);
+                    
+                    // Get both schedule-based and real-time estimates
+                    const scheduledNextShuttle = getNextShuttleTime(fromCampus);
+                    const realTimeEstimate = estimateNextArrival(busLocations, fromCampus);
+                    
+                    // Choose the better estimate
+                    let waitInfo;
+                    let estimatedDuration;
+                    
+                    if (realTimeEstimate && realTimeEstimate.estimatedMinutes < 30) {
+                        // Use real-time estimate if available and reasonable
+                        waitInfo = `${realTimeEstimate.estimatedMinutes} min (live)`;
+                        estimatedDuration = `${waitInfo} + ~25 min ride`;
+                    } else if (scheduledNextShuttle) {
+                        // Fall back to schedule if no good real-time estimate
+                        waitInfo = scheduledNextShuttle;
+                        estimatedDuration = `${waitInfo} (scheduled) + ~25 min ride`;
+                    } else {
+                        throw new Error("No shuttle service available at this time");
                     }
-    
+                    
                     // Create a simplified route for the shuttle
+                    // This can be enhanced with actual route waypoints if available
                     const shuttleRoute = [
                         LOYOLA_COORDS,
-                        // You can add intermediate points here if you have them
                         { 
                             latitude: (LOYOLA_COORDS.latitude + SGW_COORDS.latitude) / 2,
                             longitude: (LOYOLA_COORDS.longitude + SGW_COORDS.longitude) / 2
@@ -123,12 +142,23 @@ export default function DirectionsScreen() {
                     setCoordinates(shuttleRoute);
                     setRouteInfo({
                         distance: "6.8 km (approx)",
-                        duration: `${nextShuttle} (Next shuttle) + ~25 min ride`
+                        duration: estimatedDuration
                     });
     
-                    // Fit map to show the route
+                    // Fit map to show the route and buses
                     if (mapRef.current) {
-                        mapRef.current.fitToCoordinates(shuttleRoute, {
+                        // Include both route and bus markers in the map view
+                        const pointsToShow = [...shuttleRoute];
+                        if (busLocations && busLocations.length > 0) {
+                            busLocations.forEach(bus => {
+                                pointsToShow.push({
+                                    latitude: bus.latitude,
+                                    longitude: bus.longitude
+                                });
+                            });
+                        }
+                        
+                        mapRef.current.fitToCoordinates(pointsToShow, {
                             edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
                             animated: true
                         });
@@ -186,6 +216,59 @@ export default function DirectionsScreen() {
                 setIsLoading(false);
             }, 0);
         }
+    };
+    
+    // Helper function to estimate next bus arrival based on real-time locations
+    const estimateNextArrival = (busLocations, startCampus) => {
+        // No buses available
+        if (!busLocations || busLocations.length === 0) {
+            return null;
+        }
+        
+        const campusCoords = startCampus.toLowerCase() === 'loyola' ? LOYOLA_COORDS : SGW_COORDS;
+        
+        // Find closest bus that's heading toward our start campus
+        // This is a simplified approach - a real implementation would need to consider direction
+        let closestBus = null;
+        let shortestDistance = Infinity;
+        
+        busLocations.forEach(bus => {
+            const distance = calculateDistance(
+                { latitude: bus.latitude, longitude: bus.longitude },
+                campusCoords
+            );
+            
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                closestBus = bus;
+            }
+        });
+        
+        // Calculate estimated arrival time based on distance
+        // 20 km/h = ~333 meters per minute
+        const estimatedMinutes = Math.ceil(shortestDistance / 333);
+        
+        return {
+            busId: closestBus.id,
+            distance: shortestDistance,
+            estimatedMinutes: Math.min(estimatedMinutes, 30) // Cap at 30 minutes
+        };
+    };
+    
+    // Helper function to calculate distance between coordinates
+    const calculateDistance = (point1, point2) => {
+        const R = 6371e3; // Earth's radius in meters
+        const φ1 = point1.latitude * Math.PI / 180;
+        const φ2 = point2.latitude * Math.PI / 180;
+        const Δφ = (point2.latitude - point1.latitude) * Math.PI / 180;
+        const Δλ = (point2.longitude - point1.longitude) * Math.PI / 180;
+    
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        
+        return R * c; // Distance in meters
     };
 
     const updateRoute = (start, end) => {
