@@ -1,6 +1,6 @@
 import React from 'react';
 import { Marker, Callout, CalloutSubview, Polygon } from 'react-native-maps';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, position }) => {
     if (!position) return null; // Ensure we don't render invalid markers
@@ -10,26 +10,13 @@ const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, pos
             <Marker
                 coordinate={position}
                 title={building.name}
-                description={`Building ID: ${building.id}`}
                 pinColor={nearestBuilding?.id === building.id ? 'red' : undefined}
             >
                 <Callout>
-                    <ScrollView style={styles.calloutContainer}>
-                        <Text style={styles.calloutTitle}>{building.name}</Text>
+                    <View style={styles.calloutContainer}>
                         <Text style={styles.calloutDescription}>{building.description}</Text>
-                        <Text style={styles.calloutText}>
-                            <Text style={styles.boldText}>Purpose:</Text> {building.purpose}
-                        </Text>
-                        <Text style={styles.calloutText}>
-                            <Text style={styles.boldText}>Facilities:</Text> {building.facilities}
-                        </Text>
-                        <Text style={styles.calloutText}>
-                            <Text style={styles.boldText}>Address:</Text> {building.address}
-                        </Text>
-                        <Text style={styles.calloutText}>
-                            <Text style={styles.boldText}>Contact:</Text> {building.contact}
-                        </Text>
 
+                        {/* Perfectly Centered "Get Directions" Button */}
                         <CalloutSubview
                             onPress={() => {
                                 console.log("Navigation to directions:", building.name);
@@ -41,11 +28,13 @@ const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, pos
                                     },
                                 });
                             }}
-                            style={styles.button}
+                            style={styles.buttonContainer}
                         >
-                            <Text style={styles.buttonText}>Get Directions</Text>
+                            <View style={styles.button}>
+                                <Text style={styles.buttonText}>Get Directions</Text>
+                            </View>
                         </CalloutSubview>
-                    </ScrollView>
+                    </View>
                 </Callout>
             </Marker>
 
@@ -64,13 +53,43 @@ const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, pos
 };
 
 const styles = StyleSheet.create({
-    calloutContainer: { width: 250, padding: 12, backgroundColor: '#fff' },
-    calloutTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-    calloutDescription: { fontSize: 14, marginBottom: 12 },
-    calloutText: { fontSize: 12, marginBottom: 6 },
-    boldText: { fontWeight: 'bold' },
-    button: { backgroundColor: '#912338', padding: 8, borderRadius: 5, marginTop: 15 },
-    buttonText: { color: '#fff', fontWeight: 'bold', textAlign: 'center' },
+    calloutContainer: {
+        width: 200,
+        padding: 12,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 4,
+        alignItems: 'center', // Centers everything inside
+    },
+    calloutDescription: {
+        fontSize: 14,
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    buttonContainer: {
+        width: '100%', // Ensures the button is treated as a block element
+        alignItems: 'center', // Centers the button horizontally
+    },
+    button: {
+        backgroundColor: '#912338',
+        paddingVertical: 10, // Adjusted for better vertical centering
+        paddingHorizontal: 16,
+        borderRadius: 8, // More rounded corners for a clean look
+        justifyContent: 'center',
+        alignItems: 'center',
+        minWidth: 130, // Sets a reasonable button width
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
 });
 
 export default BuildingMarker;

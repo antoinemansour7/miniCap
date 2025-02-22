@@ -9,6 +9,7 @@ import { AuthProvider } from '../contexts/AuthContext';
 import ProfileButton from '../components/ProfileButton';
 
 export default function Layout() {
+  // Removed searchText state since search bar is no longer needed for maps
   const fontsLoaded = true; // ✅ Remove useFonts if not using fonts
 
   const onLayoutRootView = useCallback(async () => {
@@ -27,6 +28,11 @@ export default function Layout() {
         <Drawer
           screenOptions={({ route, navigation }) => ({
             headerShown: true,
+            drawerItemStyle: {
+              // Hide auth routes from drawer
+              display: route.name.startsWith('auth/') ? 'none' : undefined
+            },
+            // Uniform header height for all routes
             headerStyle: { height: 110 },
             drawerStyle: { backgroundColor: '#fff' },
             drawerPosition: 'right',
@@ -40,16 +46,65 @@ export default function Layout() {
                 <MaterialIcons name="menu" size={30} color="#912338" />
               </TouchableOpacity>
             ),
-            headerTitle: () => (
-              <Text style={styles.headerTitle}>{route.name.replace('screens/', '')}</Text>
-            ),
+            headerTitle: () =>
+              // For the maps route, simply display the title without a search bar.
+              route.name === 'index' ? (
+                <Text style={styles.headerTitle}>Map</Text>
+              ) : route.name === 'screens/index' ? (
+                <Text style={styles.headerTitle}>Home</Text>
+              ) : (
+                <Text style={styles.headerTitle}>
+                  {route.name.replace('screens/', '')}
+                </Text>
+              ),
             drawerActiveBackgroundColor: '#800000',
             drawerActiveTintColor: '#fff',
           })}
         >
-          <Drawer.Screen name="screens/index" options={{ drawerLabel: 'Home', title: 'Home' }} />
-          <Drawer.Screen name="screens/map" options={{ drawerLabel: 'Map', title: 'Map' }} />
-          <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
+          <Drawer.Screen
+            name="screens/index"
+            options={{ drawerLabel: 'Home', title: 'Home' }}
+          />
+          <Drawer.Screen
+            name="index"
+            options={{ drawerLabel: 'Map', title: 'Map' }}
+          />
+          <Drawer.Screen
+            name="screens/schedule"
+            options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }}
+          />
+          <Drawer.Screen
+            name="screens/profile"
+            options={{ drawerLabel: 'Profile', title: 'Profile' }}
+          />
+
+          {/* Removed routes from the Drawer Nav below */}
+
+          <Drawer.Screen
+            name="screens/directions"
+            options={{
+              drawerLabel: () => null,
+              title: 'Directions',
+              drawerItemStyle: { display: 'none' },
+            }}
+          />
+
+          <Drawer.Screen
+            name="auth"
+            options={{
+              drawerLabel: () => null,
+              title: 'auth',
+              drawerItemStyle: { display: 'none' },
+            }}
+          />
+          <Drawer.Screen
+            name="api/auth"
+            options={{
+              drawerLabel: () => null,
+              title: 'api/auth',
+              drawerItemStyle: { display: 'none' },
+            }}
+          />
         </Drawer>
       </GestureHandlerRootView>
     </AuthProvider>

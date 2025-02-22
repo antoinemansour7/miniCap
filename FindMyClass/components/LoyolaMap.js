@@ -154,7 +154,7 @@ const LoyolaMap = () => {
                             </View>
                         </Marker>
 
-                        {userHeading !== null && (
+                        {/* {userHeading !== null && (
                             <Polygon
                                 coordinates={[
                                     userLocation,
@@ -171,7 +171,7 @@ const LoyolaMap = () => {
                                 strokeColor="rgba(0, 122, 255, 0.6)"
                                 strokeWidth={1}
                             />
-                        )}
+                        )} */}
                     </>
                 )}
 
