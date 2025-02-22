@@ -32,19 +32,6 @@ const getCentroid = (building) => {
     return centroid;
 };
 
-// Define building colors
-const buildingColors = {
-    SP: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    GE: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    RF: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    CJ: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    CC: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    AD: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    PY: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    FC: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    VL: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-};
-
 
 const LoyolaMap = () => {
     const mapRef = useRef(null);
@@ -153,7 +140,6 @@ const LoyolaMap = () => {
                         building={building}
                         router={router}
                         position={getCentroid(building)}
-                        buildingColors={buildingColors}
                         nearestBuilding={nearestBuilding}
                     />
                 ))}
