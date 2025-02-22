@@ -241,7 +241,7 @@
         <line num="46" count="1" type="stmt"/>
         <line num="57" count="1" type="stmt"/>
       </file>
-      <file name="login.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/screens/login.jsx">
+      <file name="login.jsx" path="/Users/antoinemansour/Documents/Projects/miniCap/FindMyClass/app/auth/login.jsx">
         <metrics statements="19" coveredstatements="19" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
         <line num="8" count="16" type="stmt"/>
         <line num="9" count="15" type="stmt"/>

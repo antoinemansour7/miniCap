@@ -154,29 +154,20 @@ const SGWMap = () => {
                             </View>
                         </Marker>
 
-                        {/* Directional Cone */}
-                        {userHeading !== null && (
-                            <Polygon
-                                coordinates={[
-                                    userLocation,
-                                    {
-                                        latitude: userLocation.latitude + 0.00015 * Math.cos((userHeading - 30) * (Math.PI / 180)),
-                                        longitude: userLocation.longitude + 0.00015 * Math.sin((userHeading - 30) * (Math.PI / 180)),
-                                    },
-                                    {
-                                        latitude: userLocation.latitude + 0.0003 * Math.cos(userHeading * (Math.PI / 180)),
-                                        longitude: userLocation.longitude + 0.0003 * Math.sin(userHeading * (Math.PI / 180)),
-                                    },
-                                    {
-                                        latitude: userLocation.latitude + 0.00015 * Math.cos((userHeading + 30) * (Math.PI / 180)),
-                                        longitude: userLocation.longitude + 0.00015 * Math.sin((userHeading + 30) * (Math.PI / 180)),
-                                    },
-                                ]}
-                                fillColor="rgba(0, 122, 255, 0.3)"
-                                strokeColor="rgba(0, 122, 255, 0.6)"
-                                strokeWidth={1}
-                            />
-                        )}
+                       {/* Directional Indicator (Circle) */}
+{/* {userHeading !== null && (
+    <Circle
+        center={{
+            latitude: userLocation.latitude + 0.0001 * Math.cos(userHeading * (Math.PI / 180)),
+            longitude: userLocation.longitude + 0.0001 * Math.sin(userHeading * (Math.PI / 180)),
+        }}
+        radius={8} // Adjust the size of the directional indicator
+        fillColor="rgba(0, 122, 255, 0.5)" // Semi-transparent blue
+        strokeColor="rgba(0, 122, 255, 0.8)" // Slightly darker border
+        strokeWidth={1}
+    />
+)} */}
+
                     </>
                 )}
 
