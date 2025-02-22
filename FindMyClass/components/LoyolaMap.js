@@ -183,6 +183,7 @@ const LoyolaMap = () => {
                         router={router}
                         position={getCentroid(building)}
                         buildingColors={buildingColors}
+                        nearestBuilding={nearestBuilding}
                     />
                 ))}
             </MapView>
