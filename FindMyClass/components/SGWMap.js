@@ -6,7 +6,7 @@ import SGWBuildings from './SGWBuildings';
 import useLocationHandler from '../hooks/useLocationHandler';
 import { useRouter } from 'expo-router';
 import BuildingMarker from './BuildingMarker';
-import { Ionicons } from '@expo/vector-icons';
+import SearchBar from './SearchBar';
 
 // Compute centroid for buildings
 const getCentroid = (building) => {
@@ -121,17 +121,7 @@ const SGWMap = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color="#A0A0A0" style={styles.searchIcon} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search for buildings, locations..."
-                    placeholderTextColor="#A0A0A0"
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    testID="search-input"
-                />
-            </View>
+            <SearchBar value={searchText} onChangeText={setSearchText} />
             <MapView
                 ref={mapRef}
                 style={styles.map}
@@ -153,20 +143,6 @@ const SGWMap = () => {
                                 </View>
                             </View>
                         </Marker>
-
-                       {/* Directional Indicator (Circle) */}
-{/* {userHeading !== null && (
-    <Circle
-        center={{
-            latitude: userLocation.latitude + 0.0001 * Math.cos(userHeading * (Math.PI / 180)),
-            longitude: userLocation.longitude + 0.0001 * Math.sin(userHeading * (Math.PI / 180)),
-        }}
-        radius={8} // Adjust the size of the directional indicator
-        fillColor="rgba(0, 122, 255, 0.5)" // Semi-transparent blue
-        strokeColor="rgba(0, 122, 255, 0.8)" // Slightly darker border
-        strokeWidth={1}
-    />
-)} */}
 
                     </>
                 )}
@@ -195,18 +171,6 @@ const SGWMap = () => {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     map: { flex: 1 },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        margin: 10,
-        borderWidth: 1,
-        borderColor: '#ccc',
-    },
-    searchIcon: { marginRight: 8 },
-    searchInput: { flex: 1, fontSize: 16, paddingVertical: 5 },
     userMarker: { alignItems: 'center', justifyContent: 'center' },
     whiteOutline: { width: 16, height: 16, borderRadius: 8, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
     userDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#9B1B30' },
