@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -162,12 +162,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -179,10 +177,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -212,7 +210,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,10 +257,10 @@
 import { Marker, Callout, CalloutSubview, Polygon } from 'react-native-maps';
 import { View, Text, StyleSheet } from 'react-native';
 &nbsp;
-const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, position }) =&gt; {
-    if (!position) return null; // Ensure we don't render invalid markers
+const BuildingMarker = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> building, router, nearestBuilding, buildingColors, position }) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (!position) <span class="cstat-no" title="statement not covered" >return null; </span></span>// Ensure we don't render invalid markers
 &nbsp;
-    return (
+<span class="cstat-no" title="statement not covered" >    return (</span>
         &lt;&gt;
             &lt;Marker
                 coordinate={position}
@@ -273,9 +273,9 @@ const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, pos
 &nbsp;
                         {/* Perfectly Centered "Get Directions" Button */}
                         &lt;CalloutSubview
-                            onPress={() =&gt; {
-                                console.log("Navigation to directions:", building.name);
-                                router.push({
+                            onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >                                console.log("Navigation to directions:", building.name);</span>
+<span class="cstat-no" title="statement not covered" >                                router.push({</span>
                                     pathname: "/screens/directions",
                                     params: {
                                         destination: JSON.stringify(position),
@@ -307,7 +307,7 @@ const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, pos
     );
 };
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
     calloutContainer: {
         width: 200,
         padding: 12,
@@ -355,7 +355,7 @@ export default BuildingMarker;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-22T18:04:47.921Z
+                at 2025-02-22T18:16:39.294Z
             </div>
         <script src="../prettify.js"></script>
         <script>

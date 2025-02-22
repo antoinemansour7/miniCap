@@ -31,7 +31,19 @@ jest.mock('react-native-maps', () => {
   return {
     __esModule: true,
     default: MockMapView,
-    Marker: View,
+    Marker: (props) => {
+      const { View } = require('react-native');
+      // Render a user marker if coordinate exists but no title or building prop.
+      if (props.coordinate && !props.title && !props.building) {
+        return <View testID="user-marker" {...props} />;
+      }
+      return (
+        <View
+          testID={`marker-${props.title || (props.building && props.building.name)}`}
+          {...props}
+        />
+      );
+    },
     Polygon: View,
     PROVIDER_GOOGLE: 'google',
   };
@@ -48,6 +60,7 @@ jest.mock('expo-router', () => ({
 describe('LoyolaMap Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // By default, simulate a valid user location.
     useLocationHandler.mockReturnValue({
       userLocation: { latitude: 45.45, longitude: -73.64 },
       nearestBuilding: null,
@@ -70,12 +83,47 @@ describe('LoyolaMap Component', () => {
 
   it('renders all building markers', () => {
     const { getAllByTestId } = render(<LoyolaMap />);
-    // Count buildings that have valid boundary coordinates
+    // Filter out the user marker; building markers have a testID matching the building name.
+    const markers = getAllByTestId(/marker-/);
+    const buildingMarkers = markers.filter((marker) => marker.props.testID !== 'user-marker');
+    // Count only buildings with valid boundaries.
     const validBuildings = LoyolaBuildings.filter((building) => {
       const boundary = building.boundary?.outer || building.boundary;
       return boundary && boundary.length > 0;
     });
-    const markers = getAllByTestId(/marker-/);
-    expect(markers.length).toBe(validBuildings.length);
+    expect(buildingMarkers.length).toBe(validBuildings.length);
+  });
+
+  it('renders user location marker when userLocation is provided', async () => {
+    const { getByTestId } = render(<LoyolaMap />);
+    await waitFor(() => {
+      expect(getByTestId('user-marker')).toBeTruthy();
+    });
+  });
+
+  it('renders recenter button when user is far from buildings', async () => {
+    // Given the default userLocation and camera center, the recenter button should appear.
+    const { getByText } = render(<LoyolaMap />);
+    await waitFor(() => {
+      expect(getByText('📍')).toBeTruthy();
+    });
+  });
+
+  it('calls recenterMap when recenter button is pressed', async () => {
+    const { getByText } = render(<LoyolaMap />);
+    const recenterButton = await waitFor(() => getByText('📍'));
+    fireEvent.press(recenterButton);
+    expect(global.mockMapViewRef.animateToRegion).toHaveBeenCalled();
+  });
+
+  it('handles buildings without boundary coordinates', () => {
+    // Backup the original first building
+    const originalBuilding = { ...LoyolaBuildings[0] };
+    // Temporarily set boundary to null
+    LoyolaBuildings[0].boundary = null;
+    const { getByTestId } = render(<LoyolaMap />);
+    expect(getByTestId(`marker-${LoyolaBuildings[0].name}`)).toBeTruthy();
+    // Restore the original building data
+    LoyolaBuildings[0].boundary = originalBuilding.boundary;
   });
 });
