@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native'; 
 import ToggleCampusMap from '../components/ToggleCampusMap';
-import FloatingChatButton from '../components/FloatingChatButton';
+// import FloatingChatButton from '../components/FloatingChatButton';
 
 export default function MapScreen() {  // ✅ Renamed to avoid conflict
   const route = useRoute();
@@ -11,7 +11,7 @@ export default function MapScreen() {  // ✅ Renamed to avoid conflict
   return (
     <View style={styles.container} testID="map-container">
       <ToggleCampusMap searchText={searchText} testID="toggle-campus-map" />
-      <FloatingChatButton testID="floating-chat-button" />
+      {/* <FloatingChatButton testID="floating-chat-button" /> */}
     </View>
   );
 }

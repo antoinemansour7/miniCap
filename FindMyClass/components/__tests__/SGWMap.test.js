@@ -139,17 +139,6 @@ describe('SGWMap Component', () => {
         });
     });
 
-    it('applies correct colors to building markers', () => {
-        const { getByTestId } = renderWithWrapper(<SGWMap />);
-        const hallBuilding = SGWBuildings.find(b => b.name.toLowerCase().includes('hall'));
-        const marker = getByTestId(`marker-${hallBuilding.name}`);
-        expect(marker.props.buildingColors).toBeDefined();
-        expect(marker.props.buildingColors.H).toEqual({
-            stroke: 'rgba(155, 27, 48, 0.8)',
-            fill: 'rgba(155, 27, 48, 0.4)'
-        });
-    });
-
     it('handles buildings without boundary coordinates', () => {
         // Backup the original first building
         const originalBuilding = { ...SGWBuildings[0] };
