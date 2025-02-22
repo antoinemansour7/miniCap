@@ -34,16 +34,17 @@ const getCentroid = (building) => {
 
 // Define building colors
 const buildingColors = {
-    SP: { stroke: 'rgba(0, 204, 255, 0.8)', fill: 'rgba(0, 204, 255, 0.4)' },
-    GE: { stroke: 'rgba(153, 51, 255, 0.8)', fill: 'rgba(153, 51, 255, 0.4)' },
-    RF: { stroke: 'rgba(255, 165, 0, 0.8)', fill: 'rgba(255, 165, 0, 0.4)' },
-    CJ: { stroke: 'rgba(102, 204, 0, 0.8)', fill: 'rgba(102, 204, 0, 0.4)' },
-    CC: { stroke: 'rgba(255, 102, 0, 0.8)', fill: 'rgba(255, 102, 0, 0.4)' },
-    AD: { stroke: 'rgba(255, 204, 0, 0.8)', fill: 'rgba(255, 204, 0, 0.4)' },
-    PY: { stroke: 'rgba(0, 102, 204, 0.8)', fill: 'rgba(0, 102, 204, 0.4)' },
-    FC: { stroke: 'rgba(204, 0, 204, 0.8)', fill: 'rgba(204, 0, 204, 0.4)' },
-    VL: { stroke: 'rgba(0, 153, 76, 0.8)', fill: 'rgba(0, 153, 76, 0.4)' },
+    SP: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    GE: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    RF: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    CJ: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    CC: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    AD: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    PY: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    FC: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    VL: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
 };
+
 
 const LoyolaMap = () => {
     const mapRef = useRef(null);

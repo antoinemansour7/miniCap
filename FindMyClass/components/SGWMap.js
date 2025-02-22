@@ -25,13 +25,13 @@ const getCentroid = (building) => {
 
 // Define building colors
 const buildingColors = {
-    H: { stroke: 'rgba(255, 204, 0, 0.8)', fill: 'rgba(255, 204, 0, 0.4)' },
-    MB: { stroke: 'rgba(0, 204, 255, 0.8)', fill: 'rgba(0, 204, 255, 0.4)' },
-    FT: { stroke: 'rgba(255, 102, 0, 0.8)', fill: 'rgba(255, 102, 0, 0.4)' },
-    WL: { stroke: 'rgba(102, 204, 0, 0.8)', fill: 'rgba(102, 204, 0, 0.4)' },
-    CL: { stroke: 'rgba(204, 0, 204, 0.8)', fill: 'rgba(204, 0, 204, 0.4)' },
-    FG: { stroke: 'rgba(153, 51, 255, 0.8)', fill: 'rgba(153, 51, 255, 0.4)' },
-    EV: { stroke: 'rgba(0, 102, 204, 0.8)', fill: 'rgba(0, 102, 204, 0.4)' },
+    H: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    MB: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    FT: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    WL: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    CL: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    FG: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
+    EV: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
 };
 
 const SGWMap = () => {
