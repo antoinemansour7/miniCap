@@ -43,8 +43,8 @@ const BuildingMarker = ({ building, router, nearestBuilding, buildingColors, pos
                 <Polygon
                     coordinates={building.boundary.outer || building.boundary}
                     holes={building.boundary.inner ? [building.boundary.inner] : undefined}
-                    strokeColor={buildingColors[building.id]?.stroke || 'rgba(0, 0, 0, 0.8)'}
-                    fillColor={buildingColors[building.id]?.fill || 'rgba(0, 0, 0, 0.4)'}
+                    strokeColor={'rgba(155, 27, 48, 0.8)'}
+                    fillColor={'rgba(155, 27, 48, 0.4)'}
                     strokeWidth={2}
                 />
             )}

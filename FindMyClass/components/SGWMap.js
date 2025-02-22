@@ -23,16 +23,6 @@ const getCentroid = (building) => {
     };
 };
 
-// Define building colors
-const buildingColors = {
-    H: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    MB: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    FT: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    WL: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    CL: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    FG: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-    EV: { stroke: 'rgba(155, 27, 48, 0.8)', fill: 'rgba(155, 27, 48, 0.4)' },
-};
 
 const SGWMap = () => {
     const mapRef = useRef(null);
@@ -154,7 +144,6 @@ const SGWMap = () => {
                         building={building}
                         router={router}
                         position={getCentroid(building)}
-                        buildingColors={buildingColors}
                     />
                 ))}
             </MapView>
