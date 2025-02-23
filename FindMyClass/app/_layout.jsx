@@ -1,14 +1,18 @@
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
+import { useRouter, useSegments } from 'expo-router';
+import { AuthProvider } from '../contexts/AuthContext';
+import ProfileButton from '../components/ProfileButton';
 
 export default function Layout() {
   const [searchText, setSearchText] = useState('');
   const fontsLoaded = true; // ✅ Remove useFonts if not using fonts
+
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -21,58 +25,89 @@ export default function Layout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <Drawer
-        screenOptions={({ route, navigation }) => ({
-          headerShown: true,
-          headerStyle: { height: route.name === 'screens/map' ? 140 : 90 },
-          drawerStyle: { backgroundColor: '#fff' },
-          drawerPosition: 'right',
-          headerLeft: () => null,
-          headerRight: () => (
-            <TouchableOpacity
-              testID="menu-button"
-              onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-              style={route.name === 'screens/map' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} 
-            >
-              <MaterialIcons name="menu" size={30} color="#912338" />
-            </TouchableOpacity>
-          ),
-          headerTitle: () =>
-            route.name === 'screens/map' ? (
-              <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Map</Text>
-                <View style={styles.searchContainer}>
-                  <Ionicons name="search" size={20} color="#A0A0A0" style={styles.searchIcon} />
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search for buildings, locations..."
-                    placeholderTextColor="#A0A0A0"
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    testID="search-input"
-                  />
-                </View>
-              </View>
-            ) : (
-              <Text style={styles.headerTitle}>{route.name.replace('screens/', '')}</Text>
+    <AuthProvider>
+      <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <Drawer
+          screenOptions={({ route, navigation }) => ({
+            headerShown: true,
+            drawerItemStyle: {
+              // Hide auth routes from drawer
+              display: route.name.startsWith('auth/') ? 'none' : undefined
+            },
+            headerStyle: { height: route.name === 'index' ? 140 : 110 },
+            drawerStyle: { backgroundColor: '#fff' },
+            drawerPosition: 'right',
+            headerLeft: () => <ProfileButton />,
+            headerRight: () => (
+              <TouchableOpacity
+                testID="menu-button"
+                onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+                style={route.name === 'index' ? { marginRight: 3, marginTop: -50 } : { marginRight: 10 }} 
+              >
+                <MaterialIcons name="menu" size={30} color="#912338" />
+              </TouchableOpacity>
             ),
-          drawerActiveBackgroundColor: '#800000',
-          drawerActiveTintColor: '#fff',
-        })}
-      >
-        <Drawer.Screen name="screens/index" options={{ drawerLabel: 'Home', title: 'Home' }} />
-        <Drawer.Screen name="screens/map" options={{ drawerLabel: 'Map', title: 'Map' }} />
-        <Drawer.Screen name="screens/login" options={{ drawerLabel: 'Login', title: 'Login' }} />
-        <Drawer.Screen name="screens/register" options={{ drawerLabel: 'Register', title: 'Register' }} />
-        <Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} />
-        <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
-        <Drawer.Screen name="screens/directions" options={{ 
-          headerShown: false,
-          drawerLabel: 'Directions', 
-          title: 'Directions' }} />
-      </Drawer>
-    </GestureHandlerRootView>
+            headerTitle: () =>
+              route.name === 'index' ? (
+                <View style={styles.headerContainer}>
+                  <Text style={styles.headerTitle}>Map</Text>
+                  <View style={styles.searchContainer}>
+                    <Ionicons name="search" size={20} color="#A0A0A0" style={styles.searchIcon} />
+                    <TextInput
+                      style={styles.searchInput}
+                      placeholder="Search for buildings, locations..."
+                      placeholderTextColor="#A0A0A0"
+                      value={searchText}
+                      onChangeText={setSearchText}
+                      testID="search-input"
+                    />
+                  </View>
+                </View>
+              ) : 
+              route.name === 'screens/index' ? 
+              (
+                <Text style={styles.headerTitle}>Home</Text>
+              )
+              :
+              (
+                <Text style={styles.headerTitle}>{route.name.replace('screens/', '')}</Text>
+              ),
+            drawerActiveBackgroundColor: '#800000',
+            drawerActiveTintColor: '#fff',
+          })}
+        >
+          <Drawer.Screen name="screens/index" options={{ drawerLabel: 'Home', title: 'Home' }} />
+          <Drawer.Screen name="index" options={{ drawerLabel: 'Map', title: 'Map' }} />
+          <Drawer.Screen name="screens/schedule" options={{ drawerLabel: 'Schedule', title: 'Class Schedule' }} />
+          <Drawer.Screen name="screens/profile" options={{ drawerLabel: 'Profile', title: 'Profile' }} />
+
+          {/* Removed routes routes from the Drawer Nav below */}
+
+          <Drawer.Screen name="screens/directions" options={{
+            drawerLabel: () => null, 
+            title: 'Directions',
+            drawerItemStyle: { display: 'none' }
+            }}
+          />
+
+        <Drawer.Screen name="auth" options={{
+            drawerLabel: () => null, 
+            title: 'auth',
+            drawerItemStyle: { display: 'none' },
+            }}
+          />
+           <Drawer.Screen name="api/auth" options={{
+            drawerLabel: () => null, 
+            title: 'api/auth',
+            drawerItemStyle: { display: 'none' },
+            }}
+          />
+
+
+
+        </Drawer> 
+      </GestureHandlerRootView>
+    </AuthProvider>
   );
 }
 
