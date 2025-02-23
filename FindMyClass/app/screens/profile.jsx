@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-// import FloatingChatButton from '../../components/FloatingChatButton';
+import FloatingChatButton from '../../components/FloatingChatButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 
@@ -24,7 +24,7 @@ export default function Profile() {
       {/* Display user info */}
       <Text style={styles.text}>Welcome, {user.email}</Text>
       {/* Add additional profile details as needed */}
-      {/* <FloatingChatButton /> */}
+      <FloatingChatButton />
     </View>
   );
 }
