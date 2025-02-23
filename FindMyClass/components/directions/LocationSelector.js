@@ -6,13 +6,7 @@ import { Ionicons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Location from "expo-location";
 
-
-
-
-
-
 const LocationSelector = ({
-    
     startLocation,
     setStartLocation,
     customStartName, 
@@ -20,7 +14,6 @@ const LocationSelector = ({
     setSelectedStart,
     userLocation,   
     setUserLocation,
-
     buildingName, 
     destinationName, 
     destination,
@@ -29,16 +22,13 @@ const LocationSelector = ({
     setSelectedDest,
     setDestination,
     setDestinationName,
-    
     travelMode, 
     setTravelMode,
     setIsModalVisible,
     setSearchType,
     updateRouteWithMode,
     updateRoute,
-
-    getUserCurrentLocation
-
+    style, // Add style to props
 }) => {
 
     const router = useRouter();
@@ -152,64 +142,59 @@ const LocationSelector = ({
             };
 
     return (
-<>
-    <View style={styles.topCard}>
-                <TouchableOpacity 
-                    style={styles.leftArrow} 
-                    onPress={() => router.push("/screens/map")}
-                >
-                    <FontAwesome5 name="arrow-left" size={24} color="#E9D3D7" />
-                </TouchableOpacity>
-                <View style={styles.dropdownContainer}>
-                    <View style={styles.rowContainer}>
-                        {/* <Entypo name="circle" size={22} color="#E9D3D7" /> */}
-                        <FontAwesome name="dot-circle-o" size={27} color="#E9D3D7" />
-
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            data={startLocationData}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select start"
-                            value={selectedStart}
-                            onChange={(item) =>  handleStartLocationChange(item)}
-                            testID="dropdown-start"
-                        />
-                    </View>
-                 
+        <View style={[styles.topCard, style]}>  {/* Use style from props */}
+            <TouchableOpacity 
+                style={styles.leftArrow} 
+                onPress={() => router.push("/screens/map")}
+            >
+                <FontAwesome5 name="arrow-left" size={24} color="#E9D3D7" />
+            </TouchableOpacity>
+            <View style={styles.dropdownContainer}>
+                <View style={styles.rowContainer}>
+                    <FontAwesome name="dot-circle-o" size={27} color="#E9D3D7" />
+                    <Dropdown
+                        style={[styles.dropdown, { zIndex: 3000 }]}
+                        containerStyle={{ zIndex: 3000 }}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        data={startLocationData}
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="Select start"
+                        value={selectedStart}
+                        onChange={(item) =>  handleStartLocationChange(item)}
+                        testID="dropdown-start"
+                    />
                 </View>
+            </View>
 
-                <View style={styles.dropdownContainer}>
-                    <View style={styles.rowContainer}>
+            <View style={styles.dropdownContainer}>
+                <View style={styles.rowContainer}>
                     <Ionicons name="location-sharp" size={24} color="#E9D3D7" />
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            data={destinationData}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select destination"
-                            value={selectedDest}
-                            onChange={handleDestinationChange}
-                            testID="dropdown-dest"
-                        />
-                    </View>
-                    
+                    <Dropdown
+                        style={[styles.dropdown, { zIndex: 2000 }]}
+                        containerStyle={{ zIndex: 2000 }}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        data={destinationData}
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="Select destination"
+                        value={selectedDest}
+                        onChange={handleDestinationChange}
+                        testID="dropdown-dest"
+                    />
                 </View>
+            </View>
 
-                <View style={styles.travelModeContainer}>
-                   { ['DRIVING', 'WALKING', 'TRANSIT'].map((mode) => (
-                    
+            <View style={styles.travelModeContainer}>
+                {['DRIVING', 'WALKING', 'TRANSIT'].map((mode) => (
                     <TouchableOpacity
                         key={mode}
                         style={[styles.travelModeButton, travelMode === mode && styles.selectedTravelMode]}
-                        onPress={() => 
-                            handleTravelModeChange(mode)}
+                        onPress={() => handleTravelModeChange(mode)}
                     >
                         <Ionicons 
                             name={mode === 'DRIVING' ? 'car' : mode === 'WALKING' ? 'walk' : 'bus'}
@@ -217,15 +202,10 @@ const LocationSelector = ({
                             color={travelMode === mode ? '#912338' : '#666'}
                         />
                     </TouchableOpacity>
-                   ))}
-
-                </View>
+                ))}
             </View>
-
-
-
-</>
-
-    ); }
+        </View>
+    );
+}
 
 export default LocationSelector;

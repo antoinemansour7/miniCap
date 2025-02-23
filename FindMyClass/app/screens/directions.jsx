@@ -220,11 +220,11 @@ export default function DirectionsScreen() {
 
     return (
         <View style={styles.mainContainer}>
-          
-
             <View style={styles.container}>
+
+
                 <View style={styles.mapContainer}>
-                    <MapView
+                            <MapView
                         ref={mapRef}
                         style={{ flex: 1 }}
                         initialRegion={{
@@ -239,32 +239,30 @@ export default function DirectionsScreen() {
                         }}
                         testID="map-view"
                     >
-
-                        <LocationSelector 
-                        startLocation={startLocation}
-                        setStartLocation={setStartLocation}
-                        customStartName={customStartName }
-                        selectedStart={selectedStart}
-                        setSelectedStart={setSelectedStart}
-                        userLocation={userLocation}
-                        setUserLocation={setUserLocation}   
-
-                        buildingName={buildingName}
-                        destinationName={destinationName}
-                        destination={destination}   
-                        parsedDestination={parsedDestination}
-                        selectedDest={selectedDest}
-                        setSelectedDest={setSelectedDest}
-                        setDestination={setDestination}
-                        setDestinationName={setDestinationName}
-
-                        travelMode={travelMode}
-                        setTravelMode={setTravelMode}
-                        setIsModalVisible={setIsModalVisible}
-                        setSearchType={setSearchType}
-                        updateRouteWithMode={updateRouteWithMode}
-                        updateRoute={updateRoute}
-                         />
+                                <LocationSelector 
+                    startLocation={startLocation}
+                    setStartLocation={setStartLocation}
+                    customStartName={customStartName }
+                    selectedStart={selectedStart}
+                    setSelectedStart={setSelectedStart}
+                    userLocation={userLocation}
+                    setUserLocation={setUserLocation}   
+                    buildingName={buildingName}
+                    destinationName={destinationName}
+                    destination={destination}   
+                    parsedDestination={parsedDestination}
+                    selectedDest={selectedDest}
+                    setSelectedDest={setSelectedDest}
+                    setDestination={setDestination}
+                    setDestinationName={setDestinationName}
+                    travelMode={travelMode}
+                    setTravelMode={setTravelMode}
+                    setIsModalVisible={setIsModalVisible}
+                    setSearchType={setSearchType}
+                    updateRouteWithMode={updateRouteWithMode}
+                    updateRoute={updateRoute}
+                    style={styles.locationSelector}
+                />
 
 
                         {userLocation && 
@@ -299,21 +297,16 @@ export default function DirectionsScreen() {
                 </View>
 
                 {isLoading && (
-                    <View style={[styles.card, {  
-                        position: "absolute", bottom: 40, left: 20, right: 20,
-            }]}>
-                        <Text 
-                            style={{ fontWeight: "bold", fontSize: 16 }}
-                        >
-                            Loading route...</Text>
+                    <View style={styles.loadingCard}>
+                        <Text style={styles.loadingText}>Loading route...</Text>
                     </View>
                 )}
                 {error && (
-                    <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
-                        <Text style={{ color: 'red' }}>{error}</Text>
+                    <View style={styles.errorCard}>
+                        <Text style={styles.errorText}>{error}</Text>
                     </View>
                 )}
-                {routeInfo && (
+                {/* {routeInfo && (
 
                     <SwipeUpModal
                         distance={routeInfo.distance}
@@ -321,7 +314,7 @@ export default function DirectionsScreen() {
                         directions={directions}
                     
                     /> 
-                )}
+                )} */}
             
             </View>
 
@@ -347,6 +340,13 @@ export default function DirectionsScreen() {
             setDestinationName={setDestinationName}
             
             />
+            {routeInfo && directions.length > 0 && (
+                <SwipeUpModal
+                    distance={routeInfo.distance}
+                    duration={routeInfo.duration}
+                    directions={directions}
+                />
+            )}
         </View>
     );
 }
@@ -384,6 +384,35 @@ const stylesModal = StyleSheet.create({
     modalText: {
         fontSize: 16,
         marginBottom: 10,
+    },
+    // ...existing styles...
+    locationSelector: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 2,
+    },
+    mapContainer: {
+        flex: 1,
+        marginTop: 180, // Adjust based on LocationSelector height
+    },
+    loadingCard: {
+        position: "absolute",
+        bottom: 40,
+        left: 20,
+        right: 20,
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 8,
+        zIndex: 1,
+    },
+    errorCard: {
+        position: 'absolute',
+        top: 50,
+        width: '100%',
+        alignItems: 'center',
+        zIndex: 1,
     },
 });
 
