@@ -27,7 +27,10 @@ describe('BuildingMarker Component', () => {
         boundary: { outer: [{ latitude: 10, longitude: 10 }, { latitude: 20, longitude: 20 }] },
     };
     const mockPosition = { latitude: 10, longitude: 10 };
-    const mockBuildingColors = { '1': { stroke: 'blue', fill: 'green' } };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
     it('returns null when position is missing', () => {
         const { queryByText } = render(
@@ -35,7 +38,6 @@ describe('BuildingMarker Component', () => {
                 building={mockBuilding}
                 router={mockRouter}
                 nearestBuilding={mockBuilding}
-                buildingColors={mockBuildingColors}
                 position={null}
             />
         );
@@ -49,33 +51,30 @@ describe('BuildingMarker Component', () => {
                 building={buildingWithEmptyBoundary}
                 router={mockRouter}
                 nearestBuilding={mockBuilding}
-                buildingColors={mockBuildingColors}
                 position={mockPosition}
             />
         );
         expect(Polygon).toHaveBeenCalledWith(
             expect.objectContaining({
-                coordinates: {}, // Since outer is undefined, it falls back to the empty object
+                coordinates: {},
             }),
             {}
         );
     });
 
-    it('uses default stroke and fill colors when buildingColors is missing entry for building', () => {
-        const buildingColorsWithoutEntry = {};
+    it('uses default stroke and fill colors for Polygon', () => {
         render(
             <BuildingMarker
                 building={mockBuilding}
                 router={mockRouter}
                 nearestBuilding={mockBuilding}
-                buildingColors={buildingColorsWithoutEntry}
                 position={mockPosition}
             />
         );
         expect(Polygon).toHaveBeenCalledWith(
             expect.objectContaining({
-                strokeColor: 'rgba(0, 0, 0, 0.8)',
-                fillColor: 'rgba(0, 0, 0, 0.4)',
+                strokeColor: 'rgba(155, 27, 48, 0.8)',
+                fillColor: 'rgba(155, 27, 48, 0.4)',
             }),
             {}
         );
@@ -87,7 +86,6 @@ describe('BuildingMarker Component', () => {
                 building={mockBuilding}
                 router={mockRouter}
                 nearestBuilding={undefined}
-                buildingColors={mockBuildingColors}
                 position={mockPosition}
             />
         );
@@ -107,7 +105,6 @@ describe('BuildingMarker Component', () => {
                 building={buildingWithHoles}
                 router={mockRouter}
                 nearestBuilding={mockBuilding}
-                buildingColors={mockBuildingColors}
                 position={mockPosition}
             />
         );
@@ -123,7 +120,6 @@ describe('BuildingMarker Component', () => {
                 building={mockBuilding}
                 router={mockRouter}
                 nearestBuilding={mockBuilding}
-                buildingColors={mockBuildingColors}
                 position={mockPosition}
             />
         );
@@ -136,13 +132,11 @@ describe('BuildingMarker Component', () => {
                 building={mockBuilding}
                 router={mockRouter}
                 nearestBuilding={mockBuilding}
-                buildingColors={mockBuildingColors}
                 position={{}}
             />
         );
-        // Since the building name isn't rendered as text,
-        // we check for the building description instead.
-        expect(getByText('A test building')).toBeTruthy();
+        // The callout displays the building name.
+        expect(getByText('Test Building')).toBeTruthy();
     });
 
     it('navigates to directions on button press', () => {
@@ -151,11 +145,10 @@ describe('BuildingMarker Component', () => {
                 building={mockBuilding}
                 router={mockRouter}
                 nearestBuilding={mockBuilding}
-                buildingColors={mockBuildingColors}
                 position={mockPosition}
             />
         );
-        fireEvent.press(getByText('Get Directions'));
+        fireEvent.press(getByText('Directions'));
         expect(mockRouter.push).toHaveBeenCalledWith({
             pathname: '/screens/directions',
             params: {
