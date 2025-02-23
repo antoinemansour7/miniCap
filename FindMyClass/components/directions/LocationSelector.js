@@ -1,5 +1,5 @@
 import React from "react";
-import { View , TouchableOpacity} from "react-native";
+import { View , TouchableOpacity, Text} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { styles } from "../../styles/directionsStyles";
 import { Ionicons, FontAwesome, FontAwesome5 } from '@expo/vector-icons'; 
@@ -142,7 +142,10 @@ const LocationSelector = ({
             };
 
     return (
-        <View style={[styles.topCard, style]}>  {/* Use style from props */}
+        <View 
+        style={[styles.topCard, style]}
+        >  
+       
             <TouchableOpacity 
                 style={styles.leftArrow} 
                 onPress={() => router.push("/screens/map")}

@@ -220,6 +220,7 @@ export default function DirectionsScreen() {
 
     return (
         <View style={styles.mainContainer}>
+        
             <View style={styles.container}>
 
 
@@ -239,7 +240,7 @@ export default function DirectionsScreen() {
                         }}
                         testID="map-view"
                     >
-                                <LocationSelector 
+                            <LocationSelector 
                     startLocation={startLocation}
                     setStartLocation={setStartLocation}
                     customStartName={customStartName }
@@ -263,6 +264,7 @@ export default function DirectionsScreen() {
                     updateRoute={updateRoute}
                     style={styles.locationSelector}
                 />
+                           
 
 
                         {userLocation && 
