@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
 import LocationSelector from "../../components/directions/LocationSelector";
 import ModalSearchBars from "../../components/directions/ModalSearchBars";
 import { styles } from "../../styles/directionsStyles";
+import SwipeUpModal from "../../components/directions/SwipeUpModal";
 
 
 export default function DirectionsScreen() {
@@ -59,7 +60,7 @@ export default function DirectionsScreen() {
     const [customSearchText, setCustomSearchText] = useState(''); 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [searchType, setSearchType] = useState("START");
-  
+    const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
@@ -201,6 +202,10 @@ export default function DirectionsScreen() {
         setIsModalVisible(false);
     };
 
+    const handleSwipeModalClose = () => {
+        setIsSwipeModalVisible(false);
+    };
+
 
     return (
         <View style={styles.mainContainer}>
@@ -295,14 +300,27 @@ export default function DirectionsScreen() {
                     </View>
                 )}
                 {routeInfo && (
-                    <View style={[styles.card, {
-                        position: "absolute", bottom: 40, left: 20, right: 20,
-                    }]}>
-                        <Text style={{ fontWeight: "bold", fontSize: 16 }}>Estimated Time: {routeInfo.duration}</Text>
-                        <Text style={{ fontSize: 14 }}>
-                            Destination: {destinationName}  {"\n"}
-                            Distance: {routeInfo.distance}</Text>
-                    </View>
+                    // <SwipeUpModal visible={true}>
+                    //     <View style={stylesModal.modalContent}>
+                    //         <View style={stylesModal.compactView}>
+                    //             <Text style={stylesModal.mainText}>
+                    //                 Estimated Time: {routeInfo.duration}
+                    //             </Text>
+                    //             <Text style={stylesModal.subText}>
+                    //                 Distance: {routeInfo.distance}
+                    //             </Text>
+                    //         </View>
+                    //         {({ isExpanded }) => isExpanded && (
+                    //             <View style={stylesModal.expandedView}>
+                    //                 <Text style={stylesModal.modalTitle}>Additional Details</Text>
+                    //                 <Text style={stylesModal.modalText}>Destination: {destinationName}</Text>
+                    //                 <Text style={stylesModal.modalText}>Start: {selectedStart === 'userLocation' ? 'Current Location' : customStartName}</Text>
+                    //                 <Text style={stylesModal.modalText}>Travel Mode: {travelMode}</Text>
+                    //             </View>
+                    //         )}
+                    //     </View>
+                    // </SwipeUpModal>
+                    <SwipeUpModal /> 
                 )}
             
             </View>
@@ -329,8 +347,60 @@ export default function DirectionsScreen() {
             setDestinationName={setDestinationName}
             
             />
-            
+
+            {/* <SwipeUpModal 
+                visible={isSwipeModalVisible} 
+                onClose={handleSwipeModalClose}
+            >
+                <View style={stylesModal.modalContent}>
+                    {routeInfo && (
+                        <>
+                            <Text style={stylesModal.modalTitle}>Route Details</Text>
+                            <Text style={stylesModal.modalText}>Estimated Time: {routeInfo.duration}</Text>
+                            <Text style={stylesModal.modalText}>Distance: {routeInfo.distance}</Text>
+                            <Text style={stylesModal.modalText}>Destination: {destinationName}</Text>
+                        </>
+                    )}
+                </View>
+            </SwipeUpModal>
+             */}
         </View>
     );
 }
+
+// Add these new styles at the bottom of your existing styles
+const stylesModal = StyleSheet.create({
+    modalContent: {
+        flex: 1,
+    },
+    compactView: {
+        height: 40,
+        justifyContent: 'center',
+    },
+    expandedView: {
+       // flex:  ,
+        marginTop: 20,
+        paddingTop: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#EBEBEB',
+    },
+    mainText: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginBottom: 4,
+    },
+    subText: {
+        fontSize: 14,
+        color: '#666',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 15,
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+});
 
