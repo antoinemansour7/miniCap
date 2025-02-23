@@ -1,78 +1,87 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView, BottomSheetFlatList } from '@gorhom/bottom-sheet';
-import "react-native-get-random-values";
 
-const SwipeUpModal = () => {
-  // ref
+const SwipeUpModal = ({ distance, duration, directions }) => {
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => [ '20%','50%', '90%'], []);
+  const snapPoints = useMemo(() => ['15%', '50%', '74%'], []);
 
-  const data = useMemo(
-    () =>
-      Array(50)
-        .fill(0)
-        .map((_, index) => `index-${index}`),
-    []
-  );
-  const renderItem = useCallback(
-    ({ item }) => (
-      <View style={styles.itemContainer}>
-        <Text> helll  oo{item}</Text>
-      </View>
-    ),
-    []
-  );
-
-  // callbacks
+  
   const handleSheetChanges = useCallback((index) => {
     console.log('handleSheetChanges', index);
   }, []);
 
-  // renders
   return (
+    <BottomSheet
+      ref={bottomSheetRef}
+      onChange={handleSheetChanges}
+      index={1}
+      snapPoints={snapPoints}
+    >
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Route Information</Text>
+        <Text style={styles.infoText}>Distance: {distance}</Text>
+        <Text style={styles.infoText}>Duration: {duration}</Text>
+      </View>
 
-      <BottomSheet
-        ref={bottomSheetRef}
-        onChange={handleSheetChanges}
-        index={1}
-        snapPoints={snapPoints}
-      >
-        <BottomSheetView style={styles.contentContainer}>
-          <Text>Awesome 🎉</Text>
-          <BottomSheetFlatList
-          data={data}
-          keyExtractor={(i) => i}
-          renderItem={renderItem}
-          contentContainerStyle={styles.contentContainerFlat}
+      
+      <BottomSheetView style={styles.listContainer}>
+        <BottomSheetFlatList
+          data={directions}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.itemContainer}>
+              <Text style={styles.stepText}>{item.instruction}</Text>
+              <Text style={styles.subText}>{item.distance} - {item.duration}</Text>
+            </View>
+          )}
+          contentContainerStyle={styles.flatListContent}
+          keyboardBehavior="interactive"
+          enablePanDownToClose={true}
+          
         />
-        </BottomSheetView>
-
-
-
-      </BottomSheet>
-
+      </BottomSheetView>
+    </BottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'grey',
+  headerContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    backgroundColor: 'white',
   },
-  contentContainer: {
-    flex: 1,
-    padding: 36,
-    alignItems: 'center',
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: 16,
+  },
+  listContainer: {
+    // This ensures the list gets space inside the BottomSheet
+    backgroundColor: 'white',
+    margin: 16,
   },
   itemContainer: {
-    padding: 6,
-    margin: 6,
-    backgroundColor: "#eee",
+    padding: 10,
+    marginVertical: 5,
+    marginHorizontal: 16,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 6,
   },
-  contentContainerFlat: {
-    backgroundColor: "white",
+  stepText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  subText: {
+    fontSize: 12,
+    color: '#555',
+  },
+  flatListContent: {
+    paddingBottom: 20, // Ensures enough space for scrolling
   },
 });
 
