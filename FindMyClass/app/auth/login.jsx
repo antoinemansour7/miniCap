@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router'; // Use Expo Router
 import { loginUser } from '../api/auth.js'; // Import your login API function
+import { useAuth } from '../../contexts/AuthContext.js';
+import { styles  } from '../../styles/authStyles';
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter(); // Get the router from expo-router
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     setIsLoading(true);
     try {
       const user = await loginUser(email, password);
       setIsLoading(false);
+      login(user); // Update global auth state
       Alert.alert('Success', `Welcome ${user.email}`);
       // Redirect to the Profile screen after successful login
       router.push('/screens/profile'); // Ensure that your Profile screen file maps to the '/profile' route
@@ -24,8 +29,7 @@ export default function Login() {
   };
 
   const handleRegisterNavigation = () => {
-    // Navigate to the Register screen (adjust the route if necessary)
-    router.push('/register');
+    router.push('/auth/register');
   };
 
   return (
@@ -62,47 +66,3 @@ export default function Login() {
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 25,
-    backgroundColor: '#f9f9f9',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 25,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    backgroundColor: '#fff',
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#800000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  registerLink: {
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-});

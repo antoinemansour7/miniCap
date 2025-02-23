@@ -20,6 +20,7 @@ module.exports = {
     'app/**/*.{js,jsx}',
     'components/**/*.{js,jsx}',
     '**/__tests__/**/*.{js,jsx}',
+    'contexts/**/*.{js,jsx}',
     '!**/node_modules/**',
     '!**/coverage/**',
     '!**/jest.setup.js',
