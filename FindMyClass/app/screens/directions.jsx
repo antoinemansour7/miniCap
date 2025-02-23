@@ -171,6 +171,7 @@ export default function DirectionsScreen() {
                 }
             } else {
                 // Handle other modes using Google Directions API
+                setBusLocations([]);
                 const response = await fetch(
                     `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
                 );
@@ -391,6 +392,7 @@ export default function DirectionsScreen() {
                 setSearchType={setSearchType}
                 updateRouteWithMode={updateRouteWithMode}
                 updateRoute={updateRoute}
+                setBusLocations={setBusLocations}
 
           />
 

@@ -133,6 +133,11 @@ const LocationSelector = ({
     const handleTravelModeChange = (mode) => {
         console.log(`Changing travel mode to: ${mode}`);
         console.log('Current start location:', startLocation);
+
+        if (mode !== 'SHUTTLE') {
+            setBusLocations([]);
+        }
+        
         setTravelMode(mode);
         
         const currentStart = startLocation || userLocation;
