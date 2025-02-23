@@ -120,7 +120,8 @@ const LoyolaMap = () => {
 
     return (
        <View style={styles.container}>
-            <SearchBar value={searchText} onChangeText={setSearchText} />
+            <SearchBar value={searchText} onChangeText={setSearchText} data={LoyolaBuildings} />
+
             <MapView ref={mapRef} style={styles.map} initialRegion={{ latitude: 45.4582, longitude: -73.6405, latitudeDelta: 0.005, longitudeDelta: 0.005 }}>
                 {userLocation && (
                     <>

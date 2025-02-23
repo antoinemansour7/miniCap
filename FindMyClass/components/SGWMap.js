@@ -111,7 +111,7 @@ const SGWMap = () => {
 
     return (
         <View style={styles.container}>
-            <SearchBar value={searchText} onChangeText={setSearchText} />
+            <SearchBar value={searchText} onChangeText={setSearchText} data={SGWBuildings}  />
             <MapView
                 ref={mapRef}
                 style={styles.map}
