@@ -61,6 +61,8 @@ export default function DirectionsScreen() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [searchType, setSearchType] = useState("START");
     const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
+    const [directions, setDirections] = useState([]);
+
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
@@ -108,6 +110,15 @@ export default function DirectionsScreen() {
             setCoordinates(decodedCoordinates);
             const leg = data.routes[0].legs[0];
             setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
+
+            // Extract directions from steps
+            const extractedDirections = leg.steps.map((step, index) => ({
+                id: index,
+                instruction: step.html_instructions.replace(/<[^>]+>/g, ''), 
+                distance: step.distance.text,
+                duration: step.duration.text,
+            }));
+            setDirections(extractedDirections);
 
             if (mapRef.current) {
                 const currentMapRef = mapRef.current; // store current reference
@@ -209,32 +220,7 @@ export default function DirectionsScreen() {
 
     return (
         <View style={styles.mainContainer}>
-          <LocationSelector 
-                startLocation={startLocation}
-                setStartLocation={setStartLocation}
-                customStartName={customStartName }
-                selectedStart={selectedStart}
-                setSelectedStart={setSelectedStart}
-                userLocation={userLocation}
-                setUserLocation={setUserLocation}   
-
-                buildingName={buildingName}
-                destinationName={destinationName}
-                destination={destination}   
-                parsedDestination={parsedDestination}
-                selectedDest={selectedDest}
-                setSelectedDest={setSelectedDest}
-                setDestination={setDestination}
-                setDestinationName={setDestinationName}
-
-                travelMode={travelMode}
-                setTravelMode={setTravelMode}
-                setIsModalVisible={setIsModalVisible}
-                setSearchType={setSearchType}
-                updateRouteWithMode={updateRouteWithMode}
-                updateRoute={updateRoute}
-
-          />
+          
 
             <View style={styles.container}>
                 <View style={styles.mapContainer}>
@@ -253,6 +239,34 @@ export default function DirectionsScreen() {
                         }}
                         testID="map-view"
                     >
+
+                        <LocationSelector 
+                        startLocation={startLocation}
+                        setStartLocation={setStartLocation}
+                        customStartName={customStartName }
+                        selectedStart={selectedStart}
+                        setSelectedStart={setSelectedStart}
+                        userLocation={userLocation}
+                        setUserLocation={setUserLocation}   
+
+                        buildingName={buildingName}
+                        destinationName={destinationName}
+                        destination={destination}   
+                        parsedDestination={parsedDestination}
+                        selectedDest={selectedDest}
+                        setSelectedDest={setSelectedDest}
+                        setDestination={setDestination}
+                        setDestinationName={setDestinationName}
+
+                        travelMode={travelMode}
+                        setTravelMode={setTravelMode}
+                        setIsModalVisible={setIsModalVisible}
+                        setSearchType={setSearchType}
+                        updateRouteWithMode={updateRouteWithMode}
+                        updateRoute={updateRoute}
+                         />
+
+
                         {userLocation && 
                         // selectedStart === 'userLocation' ? 
                         (
@@ -300,27 +314,13 @@ export default function DirectionsScreen() {
                     </View>
                 )}
                 {routeInfo && (
-                    // <SwipeUpModal visible={true}>
-                    //     <View style={stylesModal.modalContent}>
-                    //         <View style={stylesModal.compactView}>
-                    //             <Text style={stylesModal.mainText}>
-                    //                 Estimated Time: {routeInfo.duration}
-                    //             </Text>
-                    //             <Text style={stylesModal.subText}>
-                    //                 Distance: {routeInfo.distance}
-                    //             </Text>
-                    //         </View>
-                    //         {({ isExpanded }) => isExpanded && (
-                    //             <View style={stylesModal.expandedView}>
-                    //                 <Text style={stylesModal.modalTitle}>Additional Details</Text>
-                    //                 <Text style={stylesModal.modalText}>Destination: {destinationName}</Text>
-                    //                 <Text style={stylesModal.modalText}>Start: {selectedStart === 'userLocation' ? 'Current Location' : customStartName}</Text>
-                    //                 <Text style={stylesModal.modalText}>Travel Mode: {travelMode}</Text>
-                    //             </View>
-                    //         )}
-                    //     </View>
-                    // </SwipeUpModal>
-                    <SwipeUpModal /> 
+
+                    <SwipeUpModal
+                        distance={routeInfo.distance}
+                        duration={routeInfo.duration}
+                        directions={directions}
+                    
+                    /> 
                 )}
             
             </View>
@@ -347,23 +347,6 @@ export default function DirectionsScreen() {
             setDestinationName={setDestinationName}
             
             />
-
-            {/* <SwipeUpModal 
-                visible={isSwipeModalVisible} 
-                onClose={handleSwipeModalClose}
-            >
-                <View style={stylesModal.modalContent}>
-                    {routeInfo && (
-                        <>
-                            <Text style={stylesModal.modalTitle}>Route Details</Text>
-                            <Text style={stylesModal.modalText}>Estimated Time: {routeInfo.duration}</Text>
-                            <Text style={stylesModal.modalText}>Distance: {routeInfo.distance}</Text>
-                            <Text style={stylesModal.modalText}>Destination: {destinationName}</Text>
-                        </>
-                    )}
-                </View>
-            </SwipeUpModal>
-             */}
         </View>
     );
 }
