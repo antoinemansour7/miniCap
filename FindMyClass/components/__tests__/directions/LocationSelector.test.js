@@ -83,6 +83,113 @@ describe("LocationSelector Component", () => {
         const { getByTestId } = render(<LocationSelector {...mockProps} />);
         const backButton = getByTestId("back-button");
         fireEvent.press(backButton);
+    });
 
+    it("handles start location change to SGW Campus", () => {
+        const { getByTestId } = render(<LocationSelector {...mockProps} />);
+        const dropdown = getByTestId("dropdown-start");
+        
+        fireEvent(dropdown, 'onChangeText', { label: 'SGW Campus', value: 'SGWCampus' });
+        
+        expect(mockProps.setSelectedStart).toHaveBeenCalledWith('SGWCampus');
+        expect(mockProps.updateRoute).toHaveBeenCalledWith(
+            { latitude: 45.495729, longitude: -73.578041 },
+            mockProps.destination
+        );
+    });
+
+    it("handles start location change to custom location", () => {
+        const { getByTestId } = render(<LocationSelector {...mockProps} />);
+        const dropdown = getByTestId("dropdown-start");
+        
+        fireEvent(dropdown, 'onChangeText', { label: 'Custom Location', value: 'custom' });
+        
+        expect(mockProps.setSelectedStart).toHaveBeenCalledWith('custom');
+        expect(mockProps.setSearchType).toHaveBeenCalledWith('START');
+        expect(mockProps.setIsModalVisible).toHaveBeenCalledWith(true);
+    });
+
+    it("handles destination change to Loyola Campus", () => {
+        const { getByTestId } = render(<LocationSelector {...mockProps} />);
+        const dropdown = getByTestId("dropdown-dest");
+        
+        fireEvent(dropdown, 'onChangeText', { label: 'Loyola Campus', value: 'LoyolaCampus' });
+        
+        expect(mockProps.setSelectedDest).toHaveBeenCalledWith('LoyolaCampus');
+        expect(mockProps.setDestination).toHaveBeenCalledWith({ 
+            latitude: 45.458424, 
+            longitude: -73.640259 
+        });
+    });
+
+    it("handles user location fetching when not available", async () => {
+        const mockCurrentPosition = {
+            coords: {
+                latitude: 45.5,
+                longitude: -73.5
+            }
+        };
+        Location.getCurrentPositionAsync.mockResolvedValueOnce(mockCurrentPosition);
+
+        const propsWithoutUserLocation = {
+            ...mockProps,
+            userLocation: null
+        };
+
+        const { getByTestId } = render(<LocationSelector {...propsWithoutUserLocation} />);
+        const dropdown = getByTestId("dropdown-start");
+        
+        await fireEvent(dropdown, 'onChangeText', { label: 'My Location', value: 'userLocation' });
+        
+        expect(Location.getCurrentPositionAsync).toHaveBeenCalled();
+        expect(mockProps.setUserLocation).toHaveBeenCalledWith({
+            latitude: 45.5,
+            longitude: -73.5
+        });
+    });
+
+    it("handles location fetching error", async () => {
+        Location.getCurrentPositionAsync.mockRejectedValueOnce(new Error('Permission denied'));
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        const propsWithoutUserLocation = {
+            ...mockProps,
+            userLocation: null
+        };
+
+        const { getByTestId } = render(<LocationSelector {...propsWithoutUserLocation} />);
+        const dropdown = getByTestId("dropdown-start");
+        
+        await fireEvent(dropdown, 'onChangeText', { label: 'My Location', value: 'userLocation' });
+        
+        expect(consoleSpy).toHaveBeenCalledWith("Error getting current location:", expect.any(Error));
+        consoleSpy.mockRestore();
+    });
+
+    it("handles all travel mode changes", () => {
+        const { getByTestId } = render(<LocationSelector {...mockProps} />);
+        
+        const modes = ['driving', 'walking', 'transit', 'shuttle'];
+        modes.forEach(mode => {
+            const modeButton = getByTestId(`travel-mode-${mode}`);
+            fireEvent.press(modeButton);
+            expect(mockProps.setTravelMode).toHaveBeenCalledWith(mode.toUpperCase());
+            expect(mockProps.updateRouteWithMode).toHaveBeenCalledWith(
+                mockProps.userLocation,
+                mockProps.destination,
+                mode.toUpperCase()
+            );
+        });
+    });
+
+    it("handles custom destination selection", () => {
+        const { getByTestId } = render(<LocationSelector {...mockProps} />);
+        const dropdown = getByTestId("dropdown-dest");
+        
+        fireEvent(dropdown, 'onChangeText', { label: 'Custom Location', value: 'custom' });
+        
+        expect(mockProps.setSelectedDest).toHaveBeenCalledWith('custom');
+        expect(mockProps.setSearchType).toHaveBeenCalledWith('DESTINATION');
+        expect(mockProps.setIsModalVisible).toHaveBeenCalledWith(true);
     });
 });
