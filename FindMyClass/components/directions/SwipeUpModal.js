@@ -32,6 +32,7 @@ const SwipeUpModal = ({ distance, duration, directions }) => {
       index={1}
       snapPoints={snapPoints}
       handleIndicatorStyle={{ backgroundColor: '#912338' }}
+      testID="bottom-sheet"
     >
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}> 
@@ -46,6 +47,7 @@ const SwipeUpModal = ({ distance, duration, directions }) => {
                   name={getDirectionIcon(firstDirection.instruction)}
                   size={28}
                   color="#912338"
+                  testID="MaterialIcons"
                 />
               </View>
               <View style={styles.mainTextContainer}>
@@ -68,6 +70,7 @@ const SwipeUpModal = ({ distance, duration, directions }) => {
                   name={getDirectionIcon(item.instruction)}
                   size={24}
                   color="#912338"
+                  testID="MaterialIcons"
                 />
               </View>
               <View style={styles.textContainer}>
