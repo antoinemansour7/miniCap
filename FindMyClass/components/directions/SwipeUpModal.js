@@ -36,7 +36,7 @@ const SwipeUpModal = ({ distance, duration, directions }) => {
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}> 
           {/* Directions - {distance} - {duration}  */}
-          {distance} - {duration}
+          {distance} {duration}
            </Text>
         {firstDirection && (
           <View style={styles.headerContent}>
@@ -50,7 +50,7 @@ const SwipeUpModal = ({ distance, duration, directions }) => {
               </View>
               <View style={styles.mainTextContainer}>
                 <Text style={styles.firstDirectionText}>{firstDirection.instruction}</Text>
-                <Text style={styles.statsText}>{firstDirection.distance} • {firstDirection.duration}</Text>
+                <Text style={styles.statsText}>{firstDirection.distance} - {firstDirection.duration}</Text>
               </View>
             </View>
           </View>

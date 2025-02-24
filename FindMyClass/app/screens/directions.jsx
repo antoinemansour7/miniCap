@@ -91,20 +91,50 @@ export default function DirectionsScreen() {
     const updateRouteWithMode = async (start, end, mode) => {
         if (!start || !end) return;
 
-        if ( mode === 'SHUTTLE' ) {
+        // SHUTTLE mode handling
+        if (mode === 'SHUTTLE') {
             const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
             const isStartSGW = isNearCampus(start, SGW_COORDS);
             const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
             const isEndSGW = isNearCampus(end, SGW_COORDS);
 
-            if ( (isStartLoyola && isEndSGW || ( isStartSGW && isEndLoyola) ) )  {
+            if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
                 const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
-                setIsShuttleService(true);
                 const nextTime = getNextShuttleTime(fromCampus);
-                let estimatedTime = `${nextTime} -  25 min ride`
-                setDirections([{  instruction: `Next shuttle from ${fromCampus} at ${nextTime}` }]);
-            }
-            else {
+                // Set shuttle-specific information
+                setDirections([{
+                    id: 0,
+                    instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
+                    distance: 'Shuttle Service',
+                    duration: `${nextTime} - 25 min ride`
+                }]);
+                
+                // Get driving route for map display but keep shuttle directions
+                try {
+                    const response = await fetch(
+                        `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=driving&key=${googleAPIKey}`
+                    );
+                    const data = await response.json();
+                    
+                    if (data.routes && data.routes.length > 0) {
+                        const encodedPolyline = data.routes[0].overview_polyline.points;
+                        const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
+                            latitude: lat,
+                            longitude: lng
+                        }));
+                        setCoordinates(decodedCoordinates);
+                        const leg = data.routes[0].legs[0];
+                        setRouteInfo({ 
+                            distance: "Shuttle departing at:", 
+                            duration: `${nextTime}` 
+                        });
+                    }
+                } catch (err) {
+                    console.error("Route update error:", err);
+                    setError(err.message);
+                }
+                return;
+            } else {
                 Alert.alert(
                     "Shuttle Service",
                     "Shuttle service is only available between Loyola and SGW campuses.",
@@ -113,7 +143,8 @@ export default function DirectionsScreen() {
                 return;
             }
         }
-        
+
+        // Handle other modes (DRIVING, WALKING, TRANSIT)
         try {
             setIsLoading(true);
             const modeParam = mode.toLowerCase();
@@ -139,18 +170,18 @@ export default function DirectionsScreen() {
 
             setCoordinates(decodedCoordinates);
             const leg = data.routes[0].legs[0];
-            setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
+            setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
 
             // Extract directions from steps
-            if ( !isShuttleService ) {
+            
             const extractedDirections = leg.steps.map((step, index) => ({
                 id: index,
                 instruction: step.html_instructions.replace(/<[^>]+>/g, ''), 
-                distance: step.distance.text,
+                distance: `${step.distance.text}`,
                 duration: step.duration.text,
             }));
             setDirections(extractedDirections);
-        }
+        
        
 
             if (mapRef.current) {
