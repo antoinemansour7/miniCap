@@ -19,57 +19,62 @@ import {
 
 export default function DirectionsScreen() {
   
-    // Rertrive the destination from the params that were passed from the Map page
-    const params = useLocalSearchParams();
-    //console.log("Received params: ", params);
+       // Retrieve the destination from the params that were passed from the Map page
+       const params = useLocalSearchParams();
 
-    if (!params || !params.destination) {
-        console.error("Missing destination in navigation!");
-        return <Text>Error: No destination provided.</Text>;
-    }
-
-    let parsedDestination = null;
-    try {
-        parsedDestination = JSON.parse(params.destination);
-       // console.log("Parsed destination:", parsedDestination);
-    } catch (error) {
-        console.error("Error parsing destination:", error);
-    }
-
-    if (!parsedDestination || !parsedDestination.latitude || !parsedDestination.longitude) {
-        console.error("Invalid destination:", parsedDestination);
-        return <Text>Error: Invalid destination coordinates.</Text>;
-    }
-    const buildingName = params.buildingName || "No Destination set";
-    const [destinationName, setDestinationName] = useState(buildingName);
-
-    const mapRef = useRef(null);
-
-    // State management
-    const [destination, setDestination] = useState(parsedDestination);
-    const [userLocation, setUserLocation] = useState(null);
-    const [startLocation, setStartLocation] = useState(null);
-    const [coordinates, setCoordinates] = useState([]);
-    const [routeInfo, setRouteInfo] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [zoomLevel, setZoomLevel] = useState(20);
-    const [selectedStart, setSelectedStart] = useState('userLocation');
-    const [selectedDest, setSelectedDest] = useState('current');
-    const [customDest, setCustomDest] = useState('');
-    const [travelMode, setTravelMode] = useState('WALKING'); 
-    const [customStartName, setCustomStartName] = useState(''); 
-    const [customLocationDetails, setCustomLocationDetails] = useState({
-        name: '',
-        coordinates: null
-    });
-    const [customSearchText, setCustomSearchText] = useState(''); 
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [searchType, setSearchType] = useState("START");
-    const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
-    const [directions, setDirections] = useState([]);
-    const [ isShuttleService, setIsShuttleService ] = useState(false);
-
+       let parsedDestination = null;
+       let errorMessage = null;
+   
+       if (!params || !params.destination) {
+           console.error("Missing destination in navigation!");
+           errorMessage = "Error: No destination provided.";
+       } else {
+           try {
+               parsedDestination = JSON.parse(params.destination);
+           } catch (error) {
+               console.error("Error parsing destination:", error);
+               errorMessage = "Error: Invalid destination format.";
+           }
+   
+           if (!parsedDestination || !parsedDestination.latitude || !parsedDestination.longitude) {
+               console.error("Invalid destination:", parsedDestination);
+               errorMessage = "Error: Invalid destination coordinates.";
+           }
+       }
+   
+       const buildingName = params?.buildingName || "No Destination set";
+   
+       // State management (should always be defined in the same order)
+       const [destinationName, setDestinationName] = useState(buildingName);
+       const mapRef = useRef(null);
+       const [destination, setDestination] = useState(parsedDestination);
+       const [userLocation, setUserLocation] = useState(null);
+       const [startLocation, setStartLocation] = useState(null);
+       const [coordinates, setCoordinates] = useState([]);
+       const [routeInfo, setRouteInfo] = useState(null);
+       const [isLoading, setIsLoading] = useState(true);
+       const [error, setError] = useState(null);
+       const [zoomLevel, setZoomLevel] = useState(20);
+       const [selectedStart, setSelectedStart] = useState('userLocation');
+       const [selectedDest, setSelectedDest] = useState('current');
+       const [customDest, setCustomDest] = useState('');
+       const [travelMode, setTravelMode] = useState('WALKING');
+       const [customStartName, setCustomStartName] = useState('');
+       const [customLocationDetails, setCustomLocationDetails] = useState({
+           name: '',
+           coordinates: null
+       });
+       const [customSearchText, setCustomSearchText] = useState('');
+       const [isModalVisible, setIsModalVisible] = useState(false);
+       const [searchType, setSearchType] = useState("START");
+       const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
+       const [directions, setDirections] = useState([]);
+       const [isShuttleService, setIsShuttleService] = useState(false);
+   
+       // If there is an error, show the error message inside JSX
+       if (errorMessage) {
+           return <Text>{errorMessage}</Text>;
+       }
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
