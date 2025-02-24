@@ -109,6 +109,7 @@ const ModalSearchBars = ({
                     <TouchableOpacity 
                         style={styles.closeButton}
                         onPress={handleCloseModal}
+                        testID="close-button"
                     >
                         <Ionicons name="close" size={24} color="#666" />
                     </TouchableOpacity>
@@ -137,6 +138,7 @@ const ModalSearchBars = ({
                                         <TouchableOpacity 
                                             style={styles.clearButton}
                                             onPress={handleClearSearch}
+                                            testID="clear-button"
                                         >
                                             <Ionicons name="close-circle" size={20} color="#D3D3D3" />
                                         </TouchableOpacity>
