@@ -181,7 +181,7 @@ export default function DirectionsScreen() {
             
             const extractedDirections = leg.steps.map((step, index) => ({
                 id: index,
-                instruction: step.html_instructions.replace(/<[^>]+>/g, ''), 
+                instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), 
                 distance: `${step.distance.text}`,
                 duration: step.duration.text,
             }));
