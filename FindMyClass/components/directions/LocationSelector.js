@@ -28,7 +28,7 @@ const LocationSelector = ({
     setSearchType,
     updateRouteWithMode,
     updateRoute,
-    style, // Add style to props
+    style, 
 }) => {
 
     const router = useRouter();
@@ -133,7 +133,7 @@ const LocationSelector = ({
                 console.log('Current start location:', startLocation);
                 // Set the travel mode first
                 setTravelMode(mode);
-                
+                console.log('Current mode:', travelMode);
                 // Use the current startLocation instead of letting it default to userLocation
                 const currentStart = startLocation || userLocation;
                 if (currentStart && destination) {
@@ -193,7 +193,7 @@ const LocationSelector = ({
             </View>
 
             <View style={styles.travelModeContainer}>
-                {['DRIVING', 'WALKING', 'TRANSIT'].map((mode) => (
+                {['DRIVING', 'WALKING', 'TRANSIT', 'SHUTTLE'].map((mode) => (
                     <TouchableOpacity
                         key={mode}
                         style={[styles.travelModeButton, travelMode === mode && styles.selectedTravelMode]}
