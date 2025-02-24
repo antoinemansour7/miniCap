@@ -9,7 +9,18 @@ import { useRouter } from 'expo-router';
 export default function Profile() {
   const { user } = useAuth();
   const router = useRouter();
-  const [profilePicture, setProfilePicture] = useState(null);
+  // Initialize profilePicture as an empty string instead of null.
+  const [profilePicture, setProfilePicture] = useState("");
+
+  // Check camera roll permissions early on mount.
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Camera roll permission is required for profile picture!');
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     async function loadImage() {
@@ -20,8 +31,6 @@ export default function Profile() {
   }, []);
 
   const pickImage = async () => {
-    console.log("pickImage triggered"); // Debug log
-
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission required', 'Please allow access to your photos.');
@@ -38,10 +47,8 @@ export default function Profile() {
         aspect: [1, 1],
         quality: 1,
       });
-      console.log("ImagePicker result:", result); // Debug log
       if (result.canceled) return;
       const asset = result.assets[0];
-      console.log("Selected asset:", asset); // Debug log
       setProfilePicture(asset.uri);
       await AsyncStorage.setItem('profile_picture', asset.uri);
     } catch (error) {
