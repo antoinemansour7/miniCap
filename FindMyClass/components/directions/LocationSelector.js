@@ -149,6 +149,7 @@ const LocationSelector = ({
             <TouchableOpacity 
                 style={styles.leftArrow} 
                 onPress={() => router.push("/screens/map")}
+                testID="back-button"
             >
                 <FontAwesome5 name="arrow-left" size={24} color="#E9D3D7" />
             </TouchableOpacity>
@@ -198,6 +199,7 @@ const LocationSelector = ({
                         key={mode}
                         style={[styles.travelModeButton, travelMode === mode && styles.selectedTravelMode]}
                         onPress={() => handleTravelModeChange(mode)}
+                        testID={`travel-mode-${mode.toLowerCase()}`}
                     >
                         {mode === 'SHUTTLE' ? (
                             <Text style={[
