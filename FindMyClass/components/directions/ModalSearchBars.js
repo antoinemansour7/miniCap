@@ -104,7 +104,7 @@ const ModalSearchBars = ({
             transparent={true}
             onRequestClose={handleCloseModal}
         >
-            <View style={styles.modalOverlay}>
+            <View style={styles.modalOverlay} testID="modal-overlay">
                 <View style={styles.searchModalContent}>
                     <TouchableOpacity 
                         style={styles.closeButton}
