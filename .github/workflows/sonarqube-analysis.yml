@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: '16'
 
-      # Step 3: Move into FindMyClass directory
+      # Step 3: Move into the correct working directory
       - name: Move into FindMyClass directory
         working-directory: FindMyClass
         run: echo "Moved into FindMyClass directory"
@@ -40,21 +40,12 @@ jobs:
         working-directory: FindMyClass
         run: npm test -- --coverage || true
 
-      # Step 6: Install SonarScanner & Build Wrapper
-      - name: Install SonarScanner and Build Wrapper
+      # Step 6: Install SonarScanner
+      - name: Install SonarScanner
         run: |
           npm install -g sonar-scanner
-          curl -L https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip -o build-wrapper.zip
-          unzip build-wrapper.zip
-          sudo mv build-wrapper-linux-x86 /usr/local/bin/build-wrapper
 
-      # Step 7: Generate Compilation Database for C/C++/Objective-C
-      - name: Run Build Wrapper
-        working-directory: FindMyClass
-        run: |
-          build-wrapper-linux-x86-64 --out-dir bw-output make clean all
-
-      # Step 8: Run SonarCloud Analysis inside FindMyClass/
+      # Step 7: Run SonarCloud Analysis inside FindMyClass/
       - name: Run SonarScanner
         working-directory: FindMyClass
         env:
@@ -70,7 +61,6 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io/ \
               -Dsonar.token=$SONAR_TOKEN \
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
-              -Dsonar.cfamily.build-wrapper-output=bw-output \
               -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
               -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts** \
               -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
@@ -84,7 +74,6 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io/ \
               -Dsonar.token=$SONAR_TOKEN \
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
-              -Dsonar.cfamily.build-wrapper-output=bw-output \
               -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
               -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**
-          
+          fi
