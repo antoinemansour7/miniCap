@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import FloatingChatButton from '../../components/FloatingChatButton';
@@ -9,15 +9,15 @@ import { useRouter } from 'expo-router';
 export default function Profile() {
   const { user } = useAuth();
   const router = useRouter();
-  // Initialize profilePicture as an empty string instead of null.
   const [profilePicture, setProfilePicture] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // New state for errors
 
   // Check camera roll permissions early on mount.
   useEffect(() => {
     (async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Camera roll permission is required for profile picture!');
+        setErrorMessage('Camera roll permission is required for profile picture!');
       }
     })();
   }, []);
@@ -33,7 +33,7 @@ export default function Profile() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please allow access to your photos.');
+      setErrorMessage('Please allow access to your photos.');
       return;
     }
     try {
@@ -51,9 +51,10 @@ export default function Profile() {
       const asset = result.assets[0];
       setProfilePicture(asset.uri);
       await AsyncStorage.setItem('profile_picture', asset.uri);
+      setErrorMessage(""); // Clear any previous error after success
     } catch (error) {
       console.error("Error picking image:", error);
-      Alert.alert("Error", "An error occurred while picking the image.");
+      setErrorMessage("An error occurred while picking the image.");
     }
   };
 
@@ -70,6 +71,11 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
+      {errorMessage !== "" && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        </View>
+      )}
       <View style={styles.profileCard}>
         <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
           {profilePicture ? (
@@ -164,5 +170,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  errorBanner: {
+    backgroundColor: '#ffdddd',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    width: '100%',
+    maxWidth: 350,
+    borderColor: '#ff5c5c',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 15,
+    textAlign: 'center',
   },
 });
