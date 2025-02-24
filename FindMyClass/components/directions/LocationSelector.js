@@ -199,11 +199,20 @@ const LocationSelector = ({
                         style={[styles.travelModeButton, travelMode === mode && styles.selectedTravelMode]}
                         onPress={() => handleTravelModeChange(mode)}
                     >
-                        <Ionicons 
-                            name={mode === 'DRIVING' ? 'car' : mode === 'WALKING' ? 'walk' : 'bus'}
-                            size={25}
-                            color={travelMode === mode ? '#912338' : '#666'}
-                        />
+                        {mode === 'SHUTTLE' ? (
+                            <Text style={[
+                                { fontSize: 12 },
+                                travelMode === mode ? { color: '#912338' } : { color: '#666' }
+                            ]}>
+                                Shuttle
+                            </Text>
+                        ) : (
+                            <Ionicons 
+                                name={mode === 'DRIVING' ? 'car' : mode === 'WALKING' ? 'walk' : 'bus'}
+                                size={25}
+                                color={travelMode === mode ? '#912338' : '#666'}
+                            />
+                        )}
                     </TouchableOpacity>
                 ))}
             </View>
