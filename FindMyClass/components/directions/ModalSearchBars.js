@@ -65,7 +65,7 @@ const ModalSearchBars = ({
 
     const parseStreetName = (description) => {
         // Matches everything before first comma or before Montreal/QC/postal code
-        const streetRegex = /^[^,]*(?=\s*(?:,|Montreal|QC|Quebec|H\d[A-Z]\s*\d[A-Z]\d))/i;
+        const streetRegex = /^[^,]*(?=\s*(?:,|Montreal|QC|Quebec|H\d[A-Z]\s*\d[A-Z]\d))/i; // NOSONAR
         const match = description.match(streetRegex);
         return match ? match[0].trim() : description;
     };
