@@ -20,9 +20,9 @@ const ProfileButton = () => {
       }
     } else {
       if (option === 'login') {
-        router.push('/auth/login');
+        router.push('/screens/login');
       } else if (option === 'signup') {
-        router.push('/auth/register');
+        router.push('/screens/register');
       }
     }
   };

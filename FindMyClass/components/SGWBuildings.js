@@ -23,7 +23,7 @@ const SGWBuildings = [
         facilities: 'Classrooms, Computer Labs, Lecture Halls, Student Lounges',
         address: '1455 De Maisonneuve Blvd W, Montreal, QC',
         contact: 'Phone: +1 514-848-2424 ext. 1000',
-        description: 'The Hall Building is one of the main academic buildings at Concordia University. It hosts various lecture halls and classrooms used by students and faculty.',
+        description: 'Hall Building: Concordia’s hub with lecture halls & classrooms.',
     },
     {
         id: 'MB',
@@ -56,7 +56,7 @@ const SGWBuildings = [
         facilities: 'Lecture Halls, Classrooms, Computer Labs, Executive Suites, Auditorium, Cafeteria, Student Lounges',
         address: '1450 Guy St, Montreal, QC',
         contact: 'Phone: +1 514-848-2424 ext. 2000',
-        description: 'The John Molson School of Business at Concordia University is a leading business school offering undergraduate and graduate programs in business and administration. It provides top-tier facilities for students and professionals.',
+        description: 'John Molson: Concordia’s top business school for undergrad & grad programs with state-of-the-art facilities.',
     },
     {
         id: 'FT',
