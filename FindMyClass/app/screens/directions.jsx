@@ -335,6 +335,7 @@ export default function DirectionsScreen() {
                         // selectedStart === 'userLocation' ? 
                         (
                             <Circle
+                                testID="user-location-circle"
                                 center={userLocation}
                                 radius={getCircleRadius()}
                                 strokeColor="white"
