@@ -83,6 +83,6 @@ describe("LocationSelector Component", () => {
         const { getByTestId } = render(<LocationSelector {...mockProps} />);
         const backButton = getByTestId("back-button");
         fireEvent.press(backButton);
-        // Add assertion for router.push if needed
+
     });
 });
