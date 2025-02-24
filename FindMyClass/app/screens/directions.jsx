@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
@@ -9,13 +9,19 @@ import LocationSelector from "../../components/directions/LocationSelector";
 import ModalSearchBars from "../../components/directions/ModalSearchBars";
 import { styles } from "../../styles/directionsStyles";
 import SwipeUpModal from "../../components/directions/SwipeUpModal";
+import { 
+    isNearCampus, 
+    getNextShuttleTime, 
+    LOYOLA_COORDS, 
+    SGW_COORDS,
+            } from "../../utils/shuttleUtils";
 
 
 export default function DirectionsScreen() {
   
     // Rertrive the destination from the params that were passed from the Map page
     const params = useLocalSearchParams();
-    console.log("Received params: ", params);
+    //console.log("Received params: ", params);
 
     if (!params || !params.destination) {
         console.error("Missing destination in navigation!");
@@ -25,7 +31,7 @@ export default function DirectionsScreen() {
     let parsedDestination = null;
     try {
         parsedDestination = JSON.parse(params.destination);
-        console.log("Parsed destination:", parsedDestination);
+       // console.log("Parsed destination:", parsedDestination);
     } catch (error) {
         console.error("Error parsing destination:", error);
     }
@@ -62,6 +68,7 @@ export default function DirectionsScreen() {
     const [searchType, setSearchType] = useState("START");
     const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
     const [directions, setDirections] = useState([]);
+    const [ isShuttleService, setIsShuttleService ] = useState(false);
 
 
     //  calculate circle radius based on zoom level
@@ -83,6 +90,29 @@ export default function DirectionsScreen() {
 
     const updateRouteWithMode = async (start, end, mode) => {
         if (!start || !end) return;
+
+        if ( mode === 'SHUTTLE' ) {
+            const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
+            const isStartSGW = isNearCampus(start, SGW_COORDS);
+            const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
+            const isEndSGW = isNearCampus(end, SGW_COORDS);
+
+            if ( (isStartLoyola && isEndSGW || ( isStartSGW && isEndLoyola) ) )  {
+                const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
+                setIsShuttleService(true);
+                const nextTime = getNextShuttleTime(fromCampus);
+                let estimatedTime = `${nextTime} -  25 min ride`
+                setDirections([{  instruction: `Next shuttle from ${fromCampus} at ${nextTime}` }]);
+            }
+            else {
+                Alert.alert(
+                    "Shuttle Service",
+                    "Shuttle service is only available between Loyola and SGW campuses.",
+                    [{ text: "OK" }]
+                );
+                return;
+            }
+        }
         
         try {
             setIsLoading(true);
@@ -93,7 +123,7 @@ export default function DirectionsScreen() {
                 `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
             );
             const data = await response.json();
-            console.log("Route response:", data);
+            //console.log("Route response:", data);
 
             if (!data.routes || data.routes.length === 0) {
                 throw new Error("No route found");
@@ -112,6 +142,7 @@ export default function DirectionsScreen() {
             setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
 
             // Extract directions from steps
+            if ( !isShuttleService ) {
             const extractedDirections = leg.steps.map((step, index) => ({
                 id: index,
                 instruction: step.html_instructions.replace(/<[^>]+>/g, ''), 
@@ -119,6 +150,8 @@ export default function DirectionsScreen() {
                 duration: step.duration.text,
             }));
             setDirections(extractedDirections);
+        }
+       
 
             if (mapRef.current) {
                 const currentMapRef = mapRef.current; // store current reference
