@@ -86,7 +86,8 @@ export default function Layout() {
           <Drawer.Screen name="screens/directions" options={{
             drawerLabel: () => null, 
             title: 'Directions',
-            drawerItemStyle: { display: 'none' }
+            drawerItemStyle: { display: 'none' },
+            headerShown: false,
             }}
           />
 
