@@ -79,3 +79,4 @@ jobs:
               -Dsonar.cpp.file.suffixes=- \
               -Dsonar.objc.file.suffixes=-
           fi
+          #
