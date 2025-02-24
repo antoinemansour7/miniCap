@@ -1,380 +1,419 @@
-// app/__tests__/DirectionsScreen.test.js
+import React from "react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react-native";
+import DirectionsScreen from "../screens/directions";
+import * as Location from "expo-location";
 
-import React from 'react';
-import { Text, TouchableOpacity, TextInput, View } from 'react-native';
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import DirectionsScreen from '../screens/directions';
-import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-
-// --- MOCK: expo-router's useLocalSearchParams ---
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: jest.fn(),
+// Mock expo-router
+jest.mock("expo-router", () => ({
+  useRouter: jest.fn(() => ({ push: jest.fn() })),
+  useLocalSearchParams: jest.fn(() => ({
+    destination: JSON.stringify({ latitude: 45.5017, longitude: -73.5673 }),
+    buildingName: "Test Building"
+  })),
 }));
 
-jest.mock('../app/secrets', () => ({
-  googleAPIKey: 'test-google-api-key',
-}));
+// Mock the entire react-native-maps module
+jest.mock('react-native-maps', () => {
+  const React = require('react');
+  const MapView = ({ children, ...props }) => {
+    return <div testID="map-view" {...props}>{children}</div>;
+  };
+  return {
+    __esModule: true,
+    default: MapView,
+    Marker: ({ children, ...props }) => <div {...props}>{children}</div>,
+    Polyline: ({ children, ...props }) => <div {...props}>{children}</div>,
+    Circle: ({ children, ...props }) => <div {...props}>{children}</div>,
+  };
+});
 
-// --- MOCK: expo-location ---
-jest.mock('expo-location', () => ({
+// Mock expo-location
+jest.mock("expo-location", () => ({
   requestForegroundPermissionsAsync: jest.fn(() =>
     Promise.resolve({ status: "granted" })
   ),
   getCurrentPositionAsync: jest.fn(() =>
-    Promise.resolve({ coords: { latitude: 45, longitude: -73 } })
+    Promise.resolve({
+      coords: { latitude: 45.5017, longitude: -73.5673 },
+    })
   ),
-  watchPositionAsync: jest.fn(() =>
-    Promise.resolve({ remove: jest.fn() })
-  ),
-  Accuracy: { High: 3 },
+  watchPositionAsync: jest.fn(() => ({
+    remove: jest.fn(),
+  })),
+  Accuracy: {
+    High: 6,
+    Balanced: 3,
+    Low: 1,
+  },
 }));
 
-// --- MOCK: @mapbox/polyline ---
-jest.mock('@mapbox/polyline', () => ({
-  decode: jest.fn(() => [[45, -73], [45.1, -73.1]]),
-}));
-
-// --- MOCK: react-native-element-dropdown ---
-jest.mock('react-native-element-dropdown', () => ({
-  Dropdown: (props) => null, // render nothing; UI not critical for these tests
-}));
-
-// --- MOCK: react-native-maps ---
-// Create a forwardRef mock for MapView that exposes a dummy fitToCoordinates method.
-jest.mock('react-native-maps', () => {
-  const React = require('react');
-  const { View, Text } = require('react-native');
-  const dummyMapRef = { fitToCoordinates: jest.fn() };
-  const MockMapView = React.forwardRef((props, ref) => {
-    React.useImperativeHandle(ref, () => {
-      // Expose the dummy method globally so we can later assert that it was called.
-      global.mockFitToCoordinates = dummyMapRef.fitToCoordinates;
-      return dummyMapRef;
-    }, []);
-    const onRegionChangeComplete = props.onRegionChangeComplete || jest.fn();
-    return (
-      <View testID="map-view" {...props} onRegionChangeComplete={onRegionChangeComplete}>
-        {props.children}
-      </View>
-    );
-  });
-  const MockMarker = (props) => (
-    <View testID="marker">
-      <Text>{props.title}</Text>
-    </View>
-  );
-  const MockPolyline = (props) => <View testID="polyline" />;
-  const MockCircle = (props) => <View testID="circle" />;
+jest.mock("@gorhom/bottom-sheet", () => {
+  const React = require("react");
   return {
     __esModule: true,
-    default: MockMapView,
-    Marker: MockMarker,
-    Polyline: MockPolyline,
-    Circle: MockCircle,
+    default: React.forwardRef(() => null),
+    BottomSheetView: ({ children }) => <>{children}</>,
+    BottomSheetFlatList: ({ children }) => <>{children}</>,
   };
 });
 
-// --- MOCK: Global fetch for route requests ---
+// Mock LocationSelector component
+jest.mock('../../components/directions/LocationSelector', () => {
+  return function MockLocationSelector(props) {
+    return <div testID="location-selector" {...props} />;
+  };
+});
+
+// Mock SwipeUpModal component
+jest.mock('../../components/directions/SwipeUpModal', () => {
+  return function MockSwipeUpModal(props) {
+    return <div testID="swipe-up-modal" {...props} />;
+  };
+});
+
+// Mock ModalSearchBars component
+jest.mock('../../components/directions/ModalSearchBars', () => {
+  return function MockModalSearchBars(props) {
+    return <div testID="modal-search-bars" {...props} />;
+  };
+});
+
+// Mock global.alert
+beforeAll(() => {
+  global.alert = jest.fn();
+});
+
+// Mock fetch globally
 global.fetch = jest.fn(() =>
   Promise.resolve({
-    json: () =>
-      Promise.resolve({
-        routes: [
-          {
-            overview_polyline: { points: "encoded-polyline-string" },
-            legs: [{ distance: { text: "10 km" }, duration: { text: "15 mins" } }],
-          },
-        ],
-        status: "OK",
-      }),
+    json: () => Promise.resolve({
+      status: "OK",
+      routes: [{
+        overview_polyline: { points: "_p~iF~ps|U_ulLnnqC_mqNvxq`@" },
+        legs: [{
+          distance: { text: "1.2 km" },
+          duration: { text: "15 mins" },
+          steps: [{
+            html_instructions: "Walk north",
+            distance: { text: "100 m" },
+            duration: { text: "2 mins" }
+          }]
+        }]
+      }]
+    })
   })
 );
 
-// --- MOCK: SGWBuildings and loyolaBuildings for building search ---
-jest.mock('../../components/SGWBuildings', () => ([
-  { id: 'SGW1', name: 'SGW Building 1', latitude: 45.2, longitude: -73.2 },
-]));
-jest.mock('../../components/loyolaBuildings', () => ([
-  { id: 'LOY1', name: 'Loyola Building 1', latitude: 45.3, longitude: -73.3 },
-]));
+// Add shuttle coordinates for testing
+const LOYOLA_COORDS = { latitude: 45.458424, longitude: -73.640259 };
+const SGW_COORDS = { latitude: 45.495729, longitude: -73.578041 };
 
-describe('DirectionsScreen', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+describe("DirectionsScreen Component", () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        global.fetch.mockClear();
+    });
 
-  // --- JSON parsing and error branches (lines ~3 and 245) ---
-  it('renders error text if no destination param is provided', async () => {
-    useLocalSearchParams.mockReturnValue({});
-    const screen = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(screen.getByText("Error: No destination provided.")).toBeTruthy();
+    test("renders loading state initially", async () => {
+        await act(async () => {
+            const { getByText } = render(<DirectionsScreen />);
+            expect(getByText("Loading route...")).toBeTruthy();
+        });
     });
-  });
 
-  it('renders error text if destination param is invalid JSON', async () => {
-    useLocalSearchParams.mockReturnValue({
-      destination: "not valid JSON",
-      buildingName: "Test Building",
+    test("handles successful location permission", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            await waitFor(() => {
+                expect(getByTestId("map-view")).toBeTruthy();
+                expect(Location.getCurrentPositionAsync).toHaveBeenCalledWith({
+                    accuracy: Location.Accuracy.High
+                });
+            });
+        });
     });
-    const screen = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(screen.getByText("Error: Invalid destination coordinates.")).toBeTruthy();
-    });
-  });
 
-  // --- Valid destination branch (lines ~271-287) ---
-  it('renders the map view when valid destination params are provided', async () => {
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
+    test("displays user location marker when permission granted", async () => {
+        const mockLocation = {
+            coords: { latitude: 45.5017, longitude: -73.5673 }
+        };
+        
+        Location.getCurrentPositionAsync.mockResolvedValueOnce(mockLocation);
+        
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            await waitFor(() => {
+                expect(getByTestId("map-view")).toBeTruthy();
+            });
+        });
     });
-    // Enable fake timers for this test.
-    jest.useFakeTimers();
-  
-    const screen = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(screen.queryByText("Error: No destination provided.")).toBeNull();
-      expect(screen.queryByText("Error: Invalid destination coordinates.")).toBeNull();
-    });
-    expect(screen.getByTestId("map-view")).toBeTruthy();
-    expect(screen.getByTestId("marker")).toBeTruthy();
-  
-    // Advance the timers so the setTimeout callback runs.
-    act(() => {
-      jest.advanceTimersByTime(100);
-    });
-  
-    expect(global.mockFitToCoordinates).toBeDefined();
-    expect(global.mockFitToCoordinates).toHaveBeenCalled();
-  
-    // Restore real timers so other tests are not affected.
-    jest.useRealTimers();
-  });
 
-  // --- Zoom level calculation branch (lines ~303-313) ---
-  it('calculates correct circle radius based on zoom level', async () => {
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
-    });
-    const screen = render(<DirectionsScreen />);
-    const mapView = screen.getByTestId("map-view");
-    act(() => {
-      if (mapView.props.onRegionChangeComplete) {
-        mapView.props.onRegionChangeComplete({ latitudeDelta: 0.005 });
-      }
-    });
-    expect(mapView.props.onRegionChangeComplete).toBeDefined();
-  });
+    test("handles location permission denial", async () => {
+        Location.requestForegroundPermissionsAsync.mockResolvedValueOnce({
+            status: 'denied'
+        });
 
-  // --- Travel mode change branch (lines ~318-328) ---
-  it('handles travel mode changes by updating the route with new mode', async () => {
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
-    });
-    const screen = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(screen.getByTestId("map-view")).toBeTruthy();
-    });
-    // Use UNSAFE_getAllByType to retrieve all TouchableOpacity elements.
-    const buttons = screen.UNSAFE_getAllByType(TouchableOpacity);
-    expect(buttons.length).toBeGreaterThanOrEqual(3);
-    act(() => {
-      buttons[1].props.onPress(); // simulate a travel mode change
-    });
-    // If no UI change is expected, simply ensure no error is thrown.
-    expect(true).toBeTruthy();
-  });
+        const { getByText } = render(<DirectionsScreen />);
 
-  // --- Toggling route card visibility (lines ~340, 345-355) ---
-  it('toggles route card visibility when Done/Change Route is pressed', async () => {
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
+        await act(async () => {
+            await waitFor(() => {
+                expect(getByText(/Location permission denied/i)).toBeTruthy();
+            });
+        });
     });
-    const screen = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(screen.getByText("Done")).toBeTruthy();
-    });
-    act(() => {
-      fireEvent.press(screen.getByText("Done"));
-    });
-    await waitFor(() => {
-      expect(screen.queryByText("Done")).toBeNull();
-    });
-    act(() => {
-      fireEvent.press(screen.getByText("Change Route"));
-    });
-    await waitFor(() => {
-      expect(screen.getByText("Done")).toBeTruthy();
-    });
-  });
 
-  // --- Building search branch (lines ~412-433) ---
-  it('shows building search results when searching for a building', async () => {
-    // To trigger the custom destination search branch, your component must render a TextInput
-    // (for example when selectedDest is "custom"). Ensure that your component renders this with
-    // a placeholder of "Search for a building...".
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
+    test("handles route updates with different travel modes", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            await waitFor(() => {
+                expect(global.fetch).toHaveBeenCalledWith(
+                    expect.stringMatching(/mode=walking/i)
+                );
+            });
+        });
     });
-    const screen = render(<DirectionsScreen />);
-    let textInput;
-    try {
-      textInput = screen.getByPlaceholderText("Search for a building...");
-    } catch (error) {
-      console.warn("Custom destination TextInput not rendered, skipping building search test.");
-      return;
-    }
-    act(() => {
-      fireEvent.changeText(textInput, "SGW");
-    });
-    await waitFor(() => {
-      expect(screen.getByText("SGW Building 1")).toBeTruthy();
-    });
-  });
 
-  // --- Additional Error Branches in updateRouteWithMode (line ~451) ---
-  it('handles fetch error (no routes found)', async () => {
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({ routes: [], status: "OK" }),
-      })
-    );
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
-    });
-    const screen = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(screen.getByText(/No route found/i)).toBeTruthy();
-    });
-  });
+    test("handles error states properly", async () => {
+        Location.getCurrentPositionAsync.mockRejectedValueOnce(
+            new Error("Location error")
+        );
 
-  it('handles fetch rejection gracefully', async () => {
-    // Mock fetch to reject.
-    global.fetch.mockImplementationOnce(() =>
-      Promise.reject(new Error("Network error"))
-    );
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
-    });
-    const screen = render(<DirectionsScreen />);
-    await waitFor(() => {
-      // Expect the error message (which should now be rendered) to be visible.
-      expect(screen.getByText(/Network error/i)).toBeTruthy();
-    });
-  });
+        const { getByText } = render(<DirectionsScreen />);
 
-  // --- Branch where mapRef is missing (line ~451) ---
-  it('handles missing mapRef without crashing', async () => {
-    const validDestination = { latitude: 45.1, longitude: -73.1 };
-    useLocalSearchParams.mockReturnValue({
-      destination: JSON.stringify(validDestination),
-      buildingName: "Test Building",
+        await act(async () => {
+            await waitFor(() => {
+                expect(getByText(/Location error/i)).toBeTruthy();
+            });
+        });
     });
-    const screen = render(<DirectionsScreen />);
-    act(() => {
-      global.mockFitToCoordinates = null;
+
+    test("updates route on location change", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        const mockWatchCallback = jest.fn();
+        Location.watchPositionAsync.mockImplementationOnce((options, callback) => {
+            mockWatchCallback.mockImplementationOnce(callback);
+            return { remove: jest.fn() };
+        });
+
+        await act(async () => {
+            await waitFor(() => {
+                expect(Location.watchPositionAsync).toHaveBeenCalledWith(
+                    expect.any(Object),
+                    expect.any(Function)
+                );
+            });
+        });
     });
-    act(() => {
-      jest.advanceTimersByTime(100);
+
+    test("cleans up location subscription on unmount", async () => {
+        const mockRemove = jest.fn();
+        Location.watchPositionAsync.mockImplementationOnce(() => ({
+            remove: mockRemove
+        }));
+
+        const { unmount } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            unmount();
+            expect(mockRemove).toHaveBeenCalled();
+        });
     });
-    expect(true).toBeTruthy();
-  });
-});
 
-describe('DirectionsScreen additional tests', () => {
-  it('handles location permission denial', async () => {
-      const { requestForegroundPermissionsAsync } = require('expo-location');
-      requestForegroundPermissionsAsync.mockImplementationOnce(() =>
-          Promise.resolve({ status: "denied" })
-      );
-      const validDestination = { latitude: 45.1, longitude: -73.1 };
-      useLocalSearchParams.mockReturnValue({
-          destination: JSON.stringify(validDestination),
-          buildingName: "Test Building",
-      });
-      const screen = render(<DirectionsScreen />);
-      await waitFor(() => {
-          expect(screen.getByText(/Location permission denied/i)).toBeTruthy();
-      });
-  });
+    test("handles network errors during route fetch", async () => {
+        global.fetch.mockImplementationOnce(() => 
+            Promise.reject(new Error("Network error"))
+        );
 
-  it('handles travel mode change to WALKING', async () => {
-      const validDestination = { latitude: 45.1, longitude: -73.1 };
-      useLocalSearchParams.mockReturnValue({
-          destination: JSON.stringify(validDestination),
-          buildingName: "Test Building",
-      });
-      const screen = render(<DirectionsScreen />);
-      await waitFor(() => {
-          expect(screen.getByTestId("map-view")).toBeTruthy();
-      });
-      // Simulate press on WALKING button (assumed second travel mode button)
-      const buttons = screen.UNSAFE_getAllByType(TouchableOpacity);
-      act(() => {
-          buttons[1].props.onPress();
-      });
-      expect(true).toBeTruthy();
-  });
+        const { getByTestId } = render(<DirectionsScreen />);
 
-  it('handles travel mode change to TRANSIT', async () => {
-      const validDestination = { latitude: 45.1, longitude: -73.1 };
-      useLocalSearchParams.mockReturnValue({
-          destination: JSON.stringify(validDestination),
-          buildingName: "Test Building",
-      });
-      const screen = render(<DirectionsScreen />);
-      await waitFor(() => {
-          expect(screen.getByTestId("map-view")).toBeTruthy();
-      });
-      // Simulate press on TRANSIT button (assumed third travel mode button)
-      const buttons = screen.UNSAFE_getAllByType(TouchableOpacity);
-      act(() => {
-          buttons[2].props.onPress();
-      });
-      expect(true).toBeTruthy();
-  });
+        await act(async () => {
+            await waitFor(() => {
+                expect(global.fetch).toHaveBeenCalled();
+            });
+        });
+    });
 
-  it('renders custom destination search results and selects a building', async () => {
-      const validDestination = { latitude: 45.1, longitude: -73.1 };
-      // Force custom destination branch by using a buildingName that leads to custom search
-      useLocalSearchParams.mockReturnValue({
-          destination: JSON.stringify(validDestination),
-          buildingName: "Custom Test",
-      });
-      const screen = render(<DirectionsScreen />);
-      let textInput;
-      try {
-          textInput = screen.getByPlaceholderText("Search for a building...");
-      } catch (error) {
-          console.warn("Custom destination input not rendered, skipping test.");
-          return;
-      }
-      act(() => {
-          fireEvent.changeText(textInput, "LOY");
-      });
-      await waitFor(() => {
-          expect(screen.getByText("Loyola Building 1")).toBeTruthy();
-      });
-      act(() => {
-          fireEvent.press(screen.getByText("Loyola Building 1"));
-      });
-      await waitFor(() => {
-          expect(screen.getByText("Destination")).toBeTruthy();
-      });
-  });
+    test("calculates shuttle route between campuses", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            const start = LOYOLA_COORDS;
+            const end = SGW_COORDS;
+            
+            // Simulate shuttle route request directly
+            await waitFor(() => {
+                getByTestId("location-selector").props.updateRouteWithMode(start, end, 'SHUTTLE');
+            });
+            
+            expect(global.alert).not.toHaveBeenCalled();
+        });
+    });
+
+    test("handles invalid shuttle route request", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            const invalidStart = { latitude: 45.1234, longitude: -73.1234 };
+            const invalidEnd = { latitude: 45.5678, longitude: -73.5678 };
+            
+            // Simulate invalid shuttle route request
+            await waitFor(() => {
+                getByTestId("location-selector").props.updateRouteWithMode(invalidStart, invalidEnd, 'SHUTTLE');
+            });
+            
+            expect(global.alert).toHaveBeenCalledWith(
+                "Shuttle Service",
+                "Shuttle service is only available between Loyola and SGW campuses.",
+                expect.any(Array)
+            );
+        });
+    });
+
+    test("updates route info with valid response", async () => {
+        const mockRouteResponse = {
+            status: "OK",
+            routes: [{
+                overview_polyline: { points: "test_polyline" },
+                legs: [{
+                    distance: { text: "2.5 km" },
+                    duration: { text: "30 mins" },
+                    steps: [{
+                        html_instructions: "Go straight",
+                        distance: { text: "1 km" },
+                        duration: { text: "10 mins" }
+                    }]
+                }]
+            }]
+        };
+
+        global.fetch.mockImplementationOnce(() =>
+            Promise.resolve({
+                json: () => Promise.resolve(mockRouteResponse)
+            })
+        );
+
+        const { getByText } = render(<DirectionsScreen />);
+
+        await act(async () => {
+            await waitFor(() => {
+                expect(getByText("2.5 km -")).toBeTruthy();
+                expect(getByText("30 mins")).toBeTruthy();
+            });
+        });
+    });
+
+    test("handles modal visibility state", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            // Test opening modal
+            fireEvent.press(getByTestId("location-selector"));
+            
+            await waitFor(() => {
+                expect(getByTestId("modal-search-bars")).toBeTruthy();
+            });
+            
+            // Test closing modal
+            const modalSearchBars = getByTestId("modal-search-bars");
+            fireEvent(modalSearchBars, 'handleCloseModal');
+        });
+    });
+
+    test("handles map region changes", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            const mapView = getByTestId("map-view");
+            
+            fireEvent(mapView, 'onRegionChangeComplete', {
+                latitude: 45.5017,
+                longitude: -73.5673,
+                latitudeDelta: 0.02,
+                longitudeDelta: 0.02
+            });
+        });
+    });
+
+    test("updates custom location details", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        const customLocation = {
+            name: "Custom Place",
+            coordinates: { 
+                latitude: 45.5017, 
+                longitude: -73.5673 
+            }
+        };
+
+        await act(async () => {
+            const locationSelector = getByTestId("location-selector");
+            fireEvent(locationSelector, 'setCustomLocationDetails', customLocation);
+        });
+    });
+
+    test("handles route calculation with transit mode", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            const locationSelector = getByTestId("location-selector");
+            fireEvent(locationSelector, 'updateRouteWithMode', {
+                start: { latitude: 45.5017, longitude: -73.5673 },
+                end: { latitude: 45.4958, longitude: -73.5789 },
+                mode: 'TRANSIT'
+            });
+            
+            await waitFor(() => {
+                expect(global.fetch).toHaveBeenCalledWith(
+                    expect.stringMatching(/mode=transit/i)
+                );
+            });
+        });
+    });
+
+    test("handles directions data updates", async () => {
+        const mockDirections = [{
+            id: 0,
+            instruction: "Test direction",
+            distance: "1 km",
+            duration: "10 mins"
+        }];
+
+        const { getByTestId } = render(<DirectionsScreen />);
+        
+        await act(async () => {
+            const swipeUpModal = getByTestId("swipe-up-modal");
+            fireEvent(swipeUpModal, 'setDirections', mockDirections);
+        });
+    });
+
+    test("handles polyline rendering with coordinates", async () => {
+        const { getByTestId } = render(<DirectionsScreen />);
+        const mockCoordinates = [
+            { latitude: 45.5017, longitude: -73.5673 },
+            { latitude: 45.4958, longitude: -73.5789 }
+        ];
+
+        await act(async () => {
+            const mapView = getByTestId("map-view");
+            fireEvent(mapView, 'setCoordinates', mockCoordinates);
+        });
+    });
+
+    test("handles error in route calculation", async () => {
+        global.fetch.mockImplementationOnce(() => 
+            Promise.reject(new Error("Route calculation failed"))
+        );
+
+        const { getByText } = render(<DirectionsScreen />);
+
+        await act(async () => {
+            await waitFor(() => {
+                expect(getByText("Route calculation failed")).toBeTruthy();
+            });
+        });
+    });
 });

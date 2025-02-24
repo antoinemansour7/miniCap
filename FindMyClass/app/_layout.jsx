@@ -80,12 +80,13 @@ export default function Layout() {
 
           {/* Removed routes from the Drawer Nav below */}
 
-          <Drawer.Screen
-            name="screens/directions"
-            options={{
-              drawerLabel: () => null,
-              title: 'Directions',
-              drawerItemStyle: { display: 'none' },
+
+          <Drawer.Screen name="screens/directions" options={{
+            drawerLabel: () => null, 
+            title: 'Directions',
+            drawerItemStyle: { display: 'none' },
+            headerShown: false,
+
             }}
           />
 
