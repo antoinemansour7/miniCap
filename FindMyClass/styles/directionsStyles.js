@@ -58,25 +58,12 @@ export const styles = StyleSheet.create({
         backgroundColor: '#fff',
         width: '100%', // Ensure input takes full width
     },
-    label: {
-        fontSize: 16,
-        fontWeight: '500',
-        marginBottom: 5,
-    },
     pickerContainer: {
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
         backgroundColor: '#fff',
         overflow: 'hidden',
-    },
-    dropdown: {
-        height: 50,
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        borderColor: '#ccc',
-        backgroundColor: 'white',
     },
     placeholderStyle: {
         fontSize: 16,
@@ -146,7 +133,6 @@ export const styles = StyleSheet.create({
         color: '#666',
         marginLeft: 8,
     },
-   
     selectedTravelMode: {
         borderColor: '#912338',
         backgroundColor: '#fff',
@@ -155,12 +141,6 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: '#333',
-        width: 45,
     },
     dropdown: {
         flex: 1,
@@ -189,10 +169,6 @@ export const styles = StyleSheet.create({
         height: 30,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    selectedTravelMode: {
-        borderColor: '#912338',
-        backgroundColor: '#fff',
     },
     modalContainer: {
         flex: 1,
