@@ -20,7 +20,7 @@ const ProfileButton = () => {
       }
     } else {
       if (option === 'login') {
-        router.push('/screens/login');
+        router.push('/auth/login');
       } else if (option === 'signup') {
         router.push('/screens/register');
       }
