@@ -88,6 +88,10 @@ export default function Profile() {
           <Text style={styles.changeText}>Change Photo</Text>
         </TouchableOpacity>
         <Text style={styles.userText}>Welcome, {user.email}</Text>
+        {/* New button for viewing schedule */}
+        <TouchableOpacity style={styles.scheduleButton} onPress={() => router.push('/screens/schedule')}>
+          <Text style={styles.scheduleButtonText}>View My Schedule</Text>
+        </TouchableOpacity>
       </View>
       <FloatingChatButton />
     </View>
@@ -154,6 +158,18 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
     color: '#333',
+  },
+  scheduleButton: {
+    backgroundColor: '#800000',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 15,
+  },
+  scheduleButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   warning: {
     fontSize: 18,
