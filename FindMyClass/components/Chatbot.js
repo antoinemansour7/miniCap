@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -10,31 +10,39 @@ import {
   SafeAreaView 
 } from 'react-native';
 import { sendMessageToOpenAI } from '../services/openai';
+import { v4 as uuidv4 } from 'uuid';
 
 const Chatbot = ({ isVisible, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+  const scrollViewRef = useRef();
 
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
-    const userMessage = { id: Date.now(), text: inputText, isUser: true };
+    const userMessage = { id: uuidv4(), text: inputText, isUser: true };
     setMessages(prevMessages => [...prevMessages, userMessage]);
     setInputText('');
 
     try {
       const botResponse = await sendMessageToOpenAI(inputText);
-      const botMessage = { id: Date.now() + 1, text: botResponse, isUser: false };
+      const botMessage = { id: uuidv4(), text: botResponse, isUser: false };
       setMessages(prevMessages => [...prevMessages, botMessage]);
     } catch (error) {
       const errorMessage = { 
-        id: Date.now() + 1, 
+        id: uuidv4(), 
         text: 'Error fetching response. Please try again.', 
         isUser: false 
       };
       setMessages(prevMessages => [...prevMessages, errorMessage]);
     }
   };
+
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
 
   return (
     <Modal visible={isVisible} animationType="slide" onRequestClose={onClose}>
@@ -55,6 +63,7 @@ const Chatbot = ({ isVisible, onClose }) => {
           <ScrollView 
             style={styles.chatContainer} 
             contentContainerStyle={styles.chatContent}
+            ref={scrollViewRef}
           >
             {messages.map((message) => (
               <View
@@ -111,7 +120,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // Updated to use application accent color
     backgroundColor: '#912338',
     paddingHorizontal: 20,
     paddingVertical: 15,
@@ -179,7 +187,6 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   sendButton: {
-    // Updated to use application accent color
     backgroundColor: '#912338',
     borderRadius: 25,
     paddingVertical: 10,
