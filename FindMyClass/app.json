@@ -1,11 +1,12 @@
 {
   "expo": {
     "name": "FindMyClass",
+    "owner": "minicapsoen",
     "slug": "FindMyClass",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "findmyclass",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -14,7 +15,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFFFFF"
       }
     },
     "web": {
@@ -31,6 +32,13 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "schemeExternal": "com.googleusercontent.apps.285373753565-c090o5a2q9odeieb59sopfqfd613gpb7",
+          "iosUrlScheme": "com.googleusercontent.apps.285373753565-c090o5a2q9odeieb59sopfqfd613gpb7"
         }
       ]
     ]
