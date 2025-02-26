@@ -8,6 +8,8 @@ app.json
 /FindMyClass/app.json
 /FindMyClass/coverage/
 
+/FindMyClass/ios/*
+/FindMyClass/android/*
 
 # Expo
 .expo/
