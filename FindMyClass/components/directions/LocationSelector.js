@@ -148,7 +148,7 @@ const LocationSelector = ({
        
             <TouchableOpacity 
                 style={styles.leftArrow} 
-                onPress={() => router.push("index")}
+                onPress={() => router.push("/")}
                 testID="back-button"
             >
                 <FontAwesome5 name="arrow-left" size={24} color="#E9D3D7" />
