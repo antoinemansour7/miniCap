@@ -3,6 +3,8 @@ import { View, Text, Button, Alert } from "react-native";
 import * as Google from "expo-auth-session/providers/google";
 import { getAuth, GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { initializeApp } from "firebase/app";
+import { useAuth } from '../../contexts/AuthContext'; // new import
+import { useRouter } from 'expo-router'; // new import
 
 // ✅ Your Firebase config (copy from Firebase Console)
 const firebaseConfig = {
@@ -21,6 +23,8 @@ const auth = getAuth(app);
 
 export default function GoogleAuth() {
     const [user, setUser] = useState(null);
+    const { login } = useAuth(); // get global login function
+    const router = useRouter(); // get router
   
     // ✅ Google Sign-In Configuration
     const [request, response, promptAsync] = Google.useAuthRequest({
@@ -35,10 +39,12 @@ export default function GoogleAuth() {
         const { id_token } = response.params;
         const credential = GoogleAuthProvider.credential(id_token);
   
-        signInWithCredential(auth, credential)
+        signInWithCredential(getAuth(), credential)
           .then((userCredential) => {
             setUser(userCredential.user);
-            Alert.alert("Success", `Welcome ${userCredential.user.displayName}!`);
+            login(userCredential.user); // update global auth state
+            Alert.alert("Success", `Welcome ${userCredential.user.displayName || userCredential.user.email}!`);
+            router.push('/screens/profile'); // navigate to Profile screen
           })
           .catch((error) => {
             console.error("Google Sign-In Error:", error);
@@ -57,7 +63,7 @@ export default function GoogleAuth() {
             onPress={() => promptAsync()}
           />
         ) : (
-          <Text>Welcome, {user.displayName}</Text>
+          <Text>Welcome, {user.displayName || user.email}</Text>
         )}
       </View>
     );
