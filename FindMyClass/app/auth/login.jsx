@@ -32,6 +32,11 @@ export default function Login() {
     router.push('/auth/register');
   };
 
+  // New handler for Google login navigation
+  const handleGoogleLogin = () => {
+    router.push('/auth/GoogleAuth'); // Updated the route to match file name
+  };
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
@@ -57,6 +62,13 @@ export default function Login() {
           <Text style={styles.buttonText}>
             {isLoading ? "Logging in..." : "Log In"}
           </Text>
+        </TouchableOpacity>
+        {/* New Google login button */}
+        <TouchableOpacity 
+          style={[styles.button, { backgroundColor: "#DB4437", marginTop: 10 }]} 
+          onPress={handleGoogleLogin}
+        >
+          <Text style={styles.buttonText}>Login with Google</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRegisterNavigation}>
           <Text style={styles.registerLink}>Not a User? Register Now!</Text>
