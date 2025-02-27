@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -118,38 +118,38 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-yes">119x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">118x</span>
+<span class="cline-any cline-yes">2231x</span>
+<span class="cline-any cline-yes">2231x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">118x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -168,38 +168,38 @@ import BuildingMap from './BuildingMap';
 import SGWBuildings from './SGWBuildings';
 &nbsp;
 // Compute centroid for SGW buildings (no additional adjustment)
-const getSGWMarkerPosition = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(b</span>uilding) =&gt; {</span>
-  const boundary = <span class="cstat-no" title="statement not covered" >building.boundary?.outer || building.boundary;</span>
-<span class="cstat-no" title="statement not covered" >  if (!boundary || boundary.length === 0) <span class="cstat-no" title="statement not covered" >return null;</span></span>
+const getSGWMarkerPosition = (building) =&gt; {
+  const boundary = building.boundary?.outer || building.boundary;
+  if (!boundary || boundary.length === 0) return null;
 &nbsp;
-  const totalPoints = <span class="cstat-no" title="statement not covered" >boundary.length;</span>
-  const sumLat = <span class="cstat-no" title="statement not covered" >boundary.reduce(<span class="fstat-no" title="function not covered" >(s</span>um, point) =&gt; <span class="cstat-no" title="statement not covered" >sum + point.latitude,</span> 0);</span>
-  const sumLon = <span class="cstat-no" title="statement not covered" >boundary.reduce(<span class="fstat-no" title="function not covered" >(s</span>um, point) =&gt; <span class="cstat-no" title="statement not covered" >sum + point.longitude,</span> 0);</span>
+  const totalPoints = boundary.length;
+  const sumLat = boundary.reduce((sum, point) =&gt; sum + point.latitude, 0);
+  const sumLon = boundary.reduce((sum, point) =&gt; sum + point.longitude, 0);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return {</span>
+  return {
     latitude: sumLat / totalPoints,
     longitude: sumLon / totalPoints,
   };
 };
 &nbsp;
 // For SGW search, use the building's provided latitude/longitude directly
-const getSGWSearchCoordinates = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(b</span>uilding) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  return { latitude: building.latitude, longitude: building.longitude };</span>
+const getSGWSearchCoordinates = (building) =&gt; {
+  return { latitude: building.latitude, longitude: building.longitude };
 };
 &nbsp;
-const initialRegion = <span class="cstat-no" title="statement not covered" >{</span>
+const initialRegion = {
   latitude: 45.4965,
   longitude: -73.5780,
   latitudeDelta: 0.002,
   longitudeDelta: 0.002,
 };
 &nbsp;
-const buildingsRegion = <span class="cstat-no" title="statement not covered" >{ latitude: 45.4965, longitude: -73.5780 };</span>
-const recenterDeltaUser = <span class="cstat-no" title="statement not covered" >{ latitudeDelta: 0.001, longitudeDelta: 0.001 };</span>
-const recenterDeltaBuildings = <span class="cstat-no" title="statement not covered" >{ latitudeDelta: 0.002, longitudeDelta: 0.002 };</span>
+const buildingsRegion = { latitude: 45.4965, longitude: -73.5780 };
+const recenterDeltaUser = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
+const recenterDeltaBuildings = { latitudeDelta: 0.002, longitudeDelta: 0.002 };
 &nbsp;
-const SGWMap = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  return (</span>
+const SGWMap = () =&gt; {
+  return (
     &lt;BuildingMap
       buildings={SGWBuildings}
       initialRegion={initialRegion}
@@ -220,7 +220,7 @@ export default SGWMap;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-02-27T19:26:49.015Z
+                at 2025-02-27T21:22:39.667Z
             </div>
         <script src="../prettify.js"></script>
         <script>

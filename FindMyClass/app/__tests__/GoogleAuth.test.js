@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import GoogleAuth from './GoogleAuth';
+import GoogleAuth from '../auth/GoogleAuth';
 
 // Mock expo-router's useRouter
 jest.mock('expo-router', () => ({
