@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Image } from 'react-native'; // Added Image import
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router'; // Use Expo Router
 import { loginUser } from '../api/auth.js'; // Import your login API function
 import { useAuth } from '../../contexts/AuthContext.js';
@@ -63,28 +63,12 @@ export default function Login() {
             {isLoading ? "Logging in..." : "Log In"}
           </Text>
         </TouchableOpacity>
-        {/* Replaced Google login button UI */}
+        {/* New Google login button */}
         <TouchableOpacity 
+          style={[styles.button, { backgroundColor: "#DB4437", marginTop: 10 }]} 
           onPress={handleGoogleLogin}
-          style={[
-            {
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#fff',
-              borderWidth: 1,
-              borderColor: '#dcdcdc',
-              borderRadius: 4,
-              paddingVertical: 10,
-              paddingHorizontal: 15,
-              marginTop: 10,
-            }
-          ]}
         >
-          <Image 
-            source={require('../../assets/googleLogo.png')}
-            style={{ width: 20, height: 20, marginRight: 10 }} 
-          />
-          <Text style={{ color: '#757575', fontSize: 16 }}>Sign in with Google</Text>
+          <Text style={styles.buttonText}>Login with Google</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRegisterNavigation}>
           <Text style={styles.registerLink}>Not a User? Register Now!</Text>
