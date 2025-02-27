@@ -24,4 +24,19 @@ export const registerUser = async (email, password, firstName, lastName) => {
   }
 };
 
-// Rest of your code remains the same...
+export const logoutUser = async () => {
+  try {
+    const response = await axios.post(`${API_URL}/logout`);
+    return response.data;
+  } catch (error) {
+    console.error("Logout error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// ✅ Add default export to fix Expo Router warning
+export default {
+  loginUser,
+  registerUser,
+  logoutUser,
+};
