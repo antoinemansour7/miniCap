@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   FlatList,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import fetchGoogleCalendarEvents from '../api/googleCalendar'; // NEW import
 
 const { width } = Dimensions.get('window');
 const TOTAL_COLUMNS = 6; // 1 time column + 5 day columns
@@ -23,6 +24,7 @@ export default function Schedule() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
+  const [events, setEvents] = useState([]); // NEW state for calendar events
 
   // Animation values
   const addButtonAnim = useRef(new Animated.Value(0)).current;
@@ -68,6 +70,15 @@ export default function Schedule() {
     setIsSearchOpen(false);
     setSearchQuery('');
   };
+
+  // Fetch Google Calendar events on mount
+  useEffect(() => {
+    async function loadEvents() {
+      const fetchedEvents = await fetchGoogleCalendarEvents();
+      setEvents(fetchedEvents);
+    }
+    loadEvents();
+  }, []);
 
   // Transform animations
   const addButtonTransform = {
@@ -154,6 +165,24 @@ export default function Schedule() {
 
   return (
     <View style={styles.container}>
+      {/* NEW: Display Google Calendar events */}
+      {events.length > 0 && (
+        <View style={styles.eventsContainer}>
+          <Text style={styles.eventsHeader}>My Calendar Events</Text>
+          <FlatList
+            data={events}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.eventItem}>
+                <Text style={styles.eventTitle}>{item.summary}</Text>
+                <Text style={styles.eventTime}>
+                  {item.start?.dateTime || item.start?.date}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
+      )}
       {/* Schedule Grid */}
       <FlatList
         data={timeSlots}
@@ -401,5 +430,29 @@ const styles = StyleSheet.create({
   },
   searchResults: {
     flex: 1,
+  },
+  eventsContainer: {
+    width: '100%',
+    marginBottom: 20,
+    paddingHorizontal: 16,
+  },
+  eventsHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  eventItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+  },
+  eventTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  eventTime: {
+    fontSize: 14,
+    color: '#666',
   },
 });
