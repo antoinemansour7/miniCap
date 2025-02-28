@@ -30,7 +30,14 @@ export default function GoogleAuth() {
     const [request, response, promptAsync] = Google.useAuthRequest({
       
       iosClientId: "625867070738-vdkl0rjh31rgdjbcrkdk1f7t26rvgule.apps.googleusercontent.com",
-      webClientId: "625867070738-tuutugqs4lki8pv3gie97tfnqvm056ha.apps.googleusercontent.com"
+      webClientId: "625867070738-tuutugqs4lki8pv3gie97tfnqvm056ha.apps.googleusercontent.com",
+      scopes: [
+        "openid",
+        "email",
+        "profile",
+        "https://www.googleapis.com/auth/calendar.app.created",
+        "https://www.googleapis.com/auth/calendar.readonly" // ✅ Add Calendar read permission
+      ],
     });
   
     // ✅ Handle authentication response
