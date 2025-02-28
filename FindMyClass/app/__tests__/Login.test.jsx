@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import Login from './login';
+import Login from '../auth/login';
 
 // Mock expo-router
 jest.mock('expo-router', () => ({
