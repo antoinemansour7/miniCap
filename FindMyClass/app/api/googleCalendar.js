@@ -7,7 +7,9 @@ const fetchGoogleCalendarEvents = async () => {
   if (!user) return;
 
   try {
-    // Get the user’s Google access token
+    // Note: Using user.getIdToken(true) returns a Firebase ID token.
+    // For Google Calendar API calls, you typically need the Google access token.
+    // Consider storing the Google access token from GoogleAuth upon sign-in.
     const token = await user.getIdToken(true);
 
     const response = await fetch(
@@ -28,3 +30,5 @@ const fetchGoogleCalendarEvents = async () => {
     return [];
   }
 };
+
+export default fetchGoogleCalendarEvents;
