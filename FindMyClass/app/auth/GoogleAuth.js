@@ -59,6 +59,9 @@ export default function GoogleAuth() {
             console.error("Google Sign-In Error:", error);
             Alert.alert("Error", "Failed to sign in with Google");
           });
+      } else if (response && response.type !== "success") {
+        // New branch to handle non-success responses (covers additional lines)
+        console.log("Google sign in not successful. Response:", response);
       }
     }, [response]);
 

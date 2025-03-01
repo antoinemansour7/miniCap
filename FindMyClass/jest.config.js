@@ -2,6 +2,7 @@ module.exports = {
   preset: 'jest-expo',
   transform: {
     '^.+\\.[tj]sx?$': 'babel-jest',
+    '^.+\\.mjs$': 'babel-jest',
   },
   transformIgnorePatterns: [
     // Update the regex to include react-native-google-places-autocomplete, @mapbox/polyline, uuid, and react-native-maps.
@@ -29,6 +30,7 @@ module.exports = {
     '!**/jest.setup.js',
     '!**/*.config.js',
     '!**/_layout.jsx',  // Exclude _layout.jsx
+    '!**/styles/**',
     '!**/app/secrets.js' // Exclude secrets.js
   ],
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],
