@@ -3,6 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ Ret
 
 const fetchGoogleCalendarEvents = async () => {
   try {
+    const auth = getAuth();
+    if (!auth.currentUser) {
+      console.error("User not logged in. Please sign in with Google.");
+      return [];
+    }
     // ✅ Get the stored Google access token
     const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
 
