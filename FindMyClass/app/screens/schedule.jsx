@@ -16,6 +16,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth'; // NEW import for auth check
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import fetchGoogleCalendarEvents from '../api/googleCalendar';
+import { useAuth } from '../../contexts/AuthContext'; // NEW import
 
 const { width } = Dimensions.get('window');
 const TOTAL_COLUMNS = 6;
@@ -24,6 +25,7 @@ const TIME_COLUMN_WIDTH = CELL_WIDTH;
 const BORDER_RADIUS = 12;
 
 export default function Schedule() {
+  const { user } = useAuth(); // NEW: Get current user
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
@@ -77,10 +79,12 @@ export default function Schedule() {
     setSearchQuery('');
   };
 
-  // NEW: Sync handler with login check
+  // NEW: Updated sync handler
   const handleSync = async () => {
     const auth = getAuth();
     if (!auth.currentUser) {
+      // Clear cached token to avoid stale data
+      await AsyncStorage.removeItem("googleAccessToken");
       setShowLoginPopup(true);
       return;
     }
@@ -100,6 +104,16 @@ export default function Schedule() {
       setIsSyncing(false);
     }
   };
+
+  // NEW: Clear events when user is logged out
+  React.useEffect(() => {
+    if (!user) {
+      setEvents([]);
+      setLastSynced(null);
+      // Clear the stored Google access token to avoid stale data
+      AsyncStorage.removeItem("googleAccessToken");
+    }
+  }, [user]);
 
   // Transform animations
   const addButtonTransform = {
