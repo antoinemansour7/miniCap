@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth.js';
 import { useAuth } from '../../contexts/AuthContext.js';
+// Import Google Auth dependencies:
+import * as Google from 'expo-auth-session/providers/google';
+import { getAuth, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,6 +14,37 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
+
+  // Setup Google auth request
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    iosClientId: '625867070738-vdkl0rjh31rgdjbcrkdk1f7t26rvgule.apps.googleusercontent.com', // Replace with your iOS client ID
+    webClientId: 'YOUR_WEB_CLIENT_ID', // Replace with your web client ID
+    scopes: [
+      'openid',
+      'email',
+      'profile',
+      'https://www.googleapis.com/auth/calendar.readonly'
+    ],
+  });
+
+  // Handle Google response
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token, access_token } = response.params;
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(getAuth(), credential)
+        .then(async (userCredential) => {
+          login(userCredential.user);
+          await AsyncStorage.setItem("googleAccessToken", access_token);
+          Alert.alert('Success', `Welcome ${userCredential.user.displayName || userCredential.user.email}`);
+          router.push('/screens/profile');
+        })
+        .catch((error) => {
+          console.error('Google Sign-In Error:', error);
+          Alert.alert('Error', 'Failed to sign in with Google');
+        });
+    }
+  }, [response]);
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -29,9 +64,9 @@ export default function Login() {
     router.push('/auth/register');
   };
 
-  // Navigate to your existing GoogleAuth screen
+  // Change this handler to start the Google sign-in flow
   const handleGoogleLogin = () => {
-    router.push('/auth/GoogleAuth');
+    promptAsync();
   };
 
   return (
