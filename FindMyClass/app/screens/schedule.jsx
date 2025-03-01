@@ -478,21 +478,27 @@ const styles = StyleSheet.create({
     width: '80%',
     padding: 20,
     borderRadius: 8,
+    alignItems: 'center', // Center content horizontally
+    justifyContent: 'center', // Center content vertically
   },
   modalTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center', // Center title text
   },
   modalMessage: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
+    fontSize: 16,
+    marginBottom: 5,
+    textAlign: 'center', // Center message text
   },
   modalButton: {
     backgroundColor: '#912338',
     paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 4,
+    marginTop: 15,
+    alignSelf: 'center', // Center button horizontally
   },
   modalButtonText: {
     color: '#fff',
@@ -503,6 +509,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
+    alignItems: 'center', // Added to center the pop-up
     padding: 20,
   },
   searchContainer: {
@@ -541,11 +548,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center', // Center title text
   },
   modalMessage: {
     fontSize: 16,
     marginBottom: 5,
-    textAlign: 'center',
+    textAlign: 'center', // Center message text
   },
   modalButton: {
     backgroundColor: '#912338',
@@ -553,6 +561,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 4,
     marginTop: 15,
+    alignSelf: 'center', // Center button horizontally
   },
   modalButtonText: {
     color: '#fff',
