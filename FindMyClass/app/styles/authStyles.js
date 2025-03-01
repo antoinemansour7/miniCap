@@ -1,4 +1,5 @@
-// ...existing styles...
+import { StyleSheet } from 'react-native';
+
 export const styles = StyleSheet.create({
   // ...existing styles...
   googleButton: {
@@ -25,3 +26,6 @@ export const styles = StyleSheet.create({
   },
   // ...existing styles...
 });
+
+// Add a default export to satisfy routes expecting a default export.
+export default styles;
