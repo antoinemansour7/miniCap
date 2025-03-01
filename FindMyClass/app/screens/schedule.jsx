@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,14 @@ import {
   Dimensions,
   Animated,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import fetchGoogleCalendarEvents from '../api/googleCalendar'; // NEW import
+import fetchGoogleCalendarEvents from '../api/googleCalendar';
 
 const { width } = Dimensions.get('window');
-const TOTAL_COLUMNS = 6; // 1 time column + 5 day columns
-const CELL_WIDTH = (width - 32) / TOTAL_COLUMNS; // Accounting for container padding
+const TOTAL_COLUMNS = 6;
+const CELL_WIDTH = (width - 32) / TOTAL_COLUMNS;
 const TIME_COLUMN_WIDTH = CELL_WIDTH;
 const BORDER_RADIUS = 12;
 
@@ -24,7 +25,9 @@ export default function Schedule() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
-  const [events, setEvents] = useState([]); // NEW state for calendar events
+  const [events, setEvents] = useState([]); // NEW: Calendar events state
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState(null);
 
   // Animation values
   const addButtonAnim = useRef(new Animated.Value(0)).current;
@@ -71,14 +74,19 @@ export default function Schedule() {
     setSearchQuery('');
   };
 
-  // Fetch Google Calendar events on mount
-  useEffect(() => {
-    async function loadEvents() {
+  // NEW: Manual sync handler (removed auto-fetch useEffect)
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
       const fetchedEvents = await fetchGoogleCalendarEvents();
-      setEvents(fetchedEvents);
+      setEvents(fetchedEvents || []);
+      setLastSynced(new Date());
+    } catch (error) {
+      console.error("Sync failed:", error);
+    } finally {
+      setIsSyncing(false);
     }
-    loadEvents();
-  }, []);
+  };
 
   // Transform animations
   const addButtonTransform = {
@@ -165,7 +173,23 @@ export default function Schedule() {
 
   return (
     <View style={styles.container}>
-      {/* NEW: Display Google Calendar events */}
+      {/* NEW: Sync Header */}
+      <View style={styles.syncHeader}>
+        <TouchableOpacity style={styles.syncButton} onPress={handleSync} disabled={isSyncing}>
+          {isSyncing ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.syncButtonText}>Sync Calendar</Text>
+          )}
+        </TouchableOpacity>
+        {lastSynced && (
+          <Text style={styles.lastSyncedText}>
+            Last synced: {lastSynced.toLocaleTimeString()}
+          </Text>
+        )}
+      </View>
+
+      {/* NEW: Display fetched Google Calendar events if available */}
       {events.length > 0 && (
         <View style={styles.eventsContainer}>
           <Text style={styles.eventsHeader}>My Calendar Events</Text>
@@ -183,6 +207,7 @@ export default function Schedule() {
           />
         </View>
       )}
+
       {/* Schedule Grid */}
       <FlatList
         data={timeSlots}
@@ -431,28 +456,13 @@ const styles = StyleSheet.create({
   searchResults: {
     flex: 1,
   },
-  eventsContainer: {
-    width: '100%',
-    marginBottom: 20,
-    paddingHorizontal: 16,
-  },
-  eventsHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  eventItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  eventTime: {
-    fontSize: 14,
-    color: '#666',
-  },
+  syncHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, marginBottom: 10 },
+  syncButton: { backgroundColor: '#912338', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
+  syncButtonText: { color: '#fff', marginLeft: 8, fontWeight: '500' },
+  lastSyncedText: { fontSize: 12, color: '#666', fontStyle: 'italic' },
+  eventsContainer: { width: '100%', marginBottom: 20, paddingHorizontal: 16 },
+  eventsHeader: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  eventItem: { padding: 10, borderBottomWidth: 1, borderColor: '#eee' },
+  eventTitle: { fontSize: 16, fontWeight: '600', color: '#333' },
+  eventTime: { fontSize: 14, color: '#666' },
 });
