@@ -13,6 +13,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getAuth } from 'firebase/auth'; // NEW import for auth check
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import fetchGoogleCalendarEvents from '../api/googleCalendar';
 
 const { width } = Dimensions.get('window');
@@ -25,9 +27,10 @@ export default function Schedule() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
-  const [events, setEvents] = useState([]); // NEW: Calendar events state
+  const [events, setEvents] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false); // NEW popup state
 
   // Animation values
   const addButtonAnim = useRef(new Animated.Value(0)).current;
@@ -74,8 +77,18 @@ export default function Schedule() {
     setSearchQuery('');
   };
 
-  // NEW: Manual sync handler (removed auto-fetch useEffect)
+  // NEW: Sync handler with login check
   const handleSync = async () => {
+    const auth = getAuth();
+    if (!auth.currentUser) {
+      setShowLoginPopup(true);
+      return;
+    }
+    const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
+    if (!googleAccessToken) {
+      setShowLoginPopup(true);
+      return;
+    }
     setIsSyncing(true);
     try {
       const fetchedEvents = await fetchGoogleCalendarEvents();
@@ -173,6 +186,28 @@ export default function Schedule() {
 
   return (
     <View style={styles.container}>
+      {/* NEW: Login Popup for unsynced user */}
+      <Modal
+        visible={showLoginPopup}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowLoginPopup(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowLoginPopup(false)}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Google Login Required</Text>
+              <Text style={styles.modalMessage}>
+                User not logged in. Please sign in with Google.
+              </Text>
+              <TouchableOpacity style={styles.modalButton} onPress={() => setShowLoginPopup(false)}>
+                <Text style={styles.modalButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
       {/* NEW: Sync Header */}
       <View style={styles.syncHeader}>
         <TouchableOpacity style={styles.syncButton} onPress={handleSync} disabled={isSyncing}>
@@ -465,4 +500,38 @@ const styles = StyleSheet.create({
   eventItem: { padding: 10, borderBottomWidth: 1, borderColor: '#eee' },
   eventTitle: { fontSize: 16, fontWeight: '600', color: '#333' },
   eventTime: { fontSize: 14, color: '#666' },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: BORDER_RADIUS,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: '#912338',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: '500',
+  },
 });
