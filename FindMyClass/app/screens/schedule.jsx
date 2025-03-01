@@ -25,6 +25,7 @@ const TOTAL_COLUMNS = 6;
 const CELL_WIDTH = (width - 32) / TOTAL_COLUMNS; // 32 = horizontal padding/margins if desired
 const TIME_COLUMN_WIDTH = CELL_WIDTH; 
 const BORDER_RADIUS = 12;
+const CELL_HEIGHT = 50;
 
 export default function Schedule() {
   const { user } = useAuth();
@@ -41,11 +42,10 @@ export default function Schedule() {
   const deleteButtonAnim = useRef(new Animated.Value(0)).current;
   const editButtonRotation = useRef(new Animated.Value(0)).current;
 
-  // Half-hour intervals from 8:00 to 22:00
-  const timeSlots = Array.from({ length: 29 }, (_, i) => {
-    const hour = Math.floor(i / 2) + 8; 
-    const minute = i % 2 === 0 ? '00' : '30';
-    return `${hour.toString().padStart(2, '0')}:${minute}`;
+  // One-hour intervals from 8:00 to 22:00
+  const timeSlots = Array.from({ length: 15 }, (_, i) => {   // 15 slots from 8:00 to 22:00
+    const hour = i + 8;
+    return `${hour.toString().padStart(2, '0')}:00`;
   });
 
   // Monday–Friday
@@ -129,17 +129,19 @@ export default function Schedule() {
         const startDate = new Date(event.start.dateTime || event.start.date);
         const endDate = new Date(event.end.dateTime || event.end.date);
 
-        // Duration in hours (for height)
+        // Calculate event duration in hours and then height using CELL_HEIGHT
         const durationHours = (endDate - startDate) / (1000 * 60 * 60);
-        const eventHeight = Math.max(durationHours * 60, 30); // minimum 30 px
-        // Calculate top position from 8:00
-        const hoursFrom8 = startDate.getHours() + startDate.getMinutes()/60 - 8;
-        const topPosition = hoursFrom8 * 60;
+        const eventHeight = Math.max(durationHours * CELL_HEIGHT, CELL_HEIGHT); // minimum one cell
 
-        // Day index (Mon=1 in JS, so dayIndex = getDay() - 1 => 0-based for array)
-        const dayIndex = startDate.getDay() - 1; 
-        if (dayIndex < 0 || dayIndex >= days.length) return null; // skip if weekend
+        // Calculate top offset: time from 8:00 multiplied by CELL_HEIGHT
+        const timeFrom8 = startDate.getHours() + startDate.getMinutes() / 60 - 8;
+        // New fixed offset (adjust as desired)
+        const EVENT_OFFSET = 36;
+        const topPosition = timeFrom8 * CELL_HEIGHT + EVENT_OFFSET;
 
+        // Calculate horizontal offset (Monday = index 0)
+        const dayIndex = startDate.getDay() - 1;
+        if (dayIndex < 0 || dayIndex >= days.length) return null;
         const leftPosition = TIME_COLUMN_WIDTH + dayIndex * CELL_WIDTH;
 
         return (
@@ -147,12 +149,7 @@ export default function Schedule() {
             key={idx}
             style={[
               styles.eventBox,
-              {
-                top: topPosition,
-                left: leftPosition,
-                width: CELL_WIDTH,
-                height: eventHeight,
-              },
+              { top: topPosition, left: leftPosition, width: CELL_WIDTH, height: eventHeight },
             ]}
           >
             <Text style={styles.eventBoxText} numberOfLines={2}>
