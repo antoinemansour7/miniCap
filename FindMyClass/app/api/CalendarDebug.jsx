@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import fetchGoogleCalendarEvents from './googleCalendar';
 
 export default function CalendarDebug() {
@@ -9,6 +10,12 @@ export default function CalendarDebug() {
   const [isSyncing, setIsSyncing] = useState(false);
 
   const loadEvents = async () => {
+    const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
+    if (!googleAccessToken) {
+      setError("Please sign in with Google to sync your calendar.");
+      setEvents([]);
+      return;
+    }
     try {
       setError(null);
       setIsSyncing(true);
