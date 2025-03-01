@@ -51,29 +51,6 @@ export default function Schedule() {
   // Monday–Friday
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
-  // Toggle edit mode with animation
-  const toggleEditMode = () => {
-    const toValue = isEditMode ? 0 : 1;
-    Animated.parallel([
-      Animated.spring(addButtonAnim, {
-        toValue,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-      Animated.spring(deleteButtonAnim, {
-        toValue,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-      Animated.spring(editButtonRotation, {
-        toValue,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    setIsEditMode(!isEditMode);
-  };
-
   // Close search modal
   const closeSearch = () => {
     setIsSearchOpen(false);
@@ -140,12 +117,7 @@ export default function Schedule() {
       </View>
       {/* Cells for Mon–Fri */}
       {days.map((day, dayIndex) => (
-        <TouchableOpacity
-          key={`${day}-${time}`}
-          testID={`schedule-cell-${day}-${time}`}
-          style={styles.cell}
-          onPress={() => setIsSearchOpen(true)}
-        />
+        <View key={`${day}-${time}`} style={styles.cell} />
       ))}
     </View>
   );
@@ -216,11 +188,6 @@ export default function Schedule() {
     ],
     opacity: deleteButtonAnim,
   };
-
-  const editButtonSpin = editButtonRotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '45deg'],
-  });
 
   return (
     <View style={styles.container}>
@@ -296,16 +263,6 @@ export default function Schedule() {
           <MaterialIcons name="delete" size={24} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
-
-      <TouchableOpacity
-        testID="edit-button"
-        style={styles.editButton}
-        onPress={toggleEditMode}
-      >
-        <Animated.View style={{ transform: [{ rotate: editButtonSpin }] }}>
-          <MaterialIcons name="edit" size={24} color="#912338" />
-        </Animated.View>
-      </TouchableOpacity>
 
       {/* Search Modal */}
       <Modal
@@ -461,20 +418,6 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     // will animate upward
-  },
-  editButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    zIndex: 11,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#912338',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   // Modals
