@@ -36,6 +36,8 @@ export default function Schedule() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventModalVisible, setEventModalVisible] = useState(false);
 
   // Animation values
   const addButtonAnim = useRef(new Animated.Value(0)).current;
@@ -122,6 +124,12 @@ export default function Schedule() {
     </View>
   );
 
+  // New handler to open event details modal
+  const handleEventPress = (event) => {
+    setSelectedEvent(event);
+    setEventModalVisible(true);
+  };
+
   // Render event boxes on top of the grid
   const renderEventsOverlay = () => (
     <View style={styles.eventsOverlay}>
@@ -145,17 +153,18 @@ export default function Schedule() {
         const leftPosition = TIME_COLUMN_WIDTH + dayIndex * CELL_WIDTH;
 
         return (
-          <View
-            key={idx}
-            style={[
-              styles.eventBox,
-              { top: topPosition, left: leftPosition, width: CELL_WIDTH, height: eventHeight },
-            ]}
-          >
-            <Text style={styles.eventBoxText} numberOfLines={2}>
-              {event.summary}
-            </Text>
-          </View>
+          <TouchableOpacity key={idx} onPress={() => handleEventPress(event)}>
+            <View
+              style={[
+                styles.eventBox,
+                { top: topPosition, left: leftPosition, width: CELL_WIDTH, height: eventHeight },
+              ]}
+            >
+              <Text style={styles.eventBoxText} numberOfLines={2}>
+                {event.summary}
+              </Text>
+            </View>
+          </TouchableOpacity>
         );
       })}
     </View>
@@ -297,6 +306,45 @@ export default function Schedule() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      {/* New Modal for event details */}
+      <Modal
+        visible={eventModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setEventModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setEventModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContainer}>
+                {selectedEvent && (
+                  <>
+                    <Text style={styles.modalTitle}>{selectedEvent.summary}</Text>
+                    <Text style={styles.modalMessage}>
+                      Start: {new Date(selectedEvent.start.dateTime || selectedEvent.start.date).toLocaleString()}
+                    </Text>
+                    <Text style={styles.modalMessage}>
+                      End: {new Date(selectedEvent.end.dateTime || selectedEvent.end.date).toLocaleString()}
+                    </Text>
+                    {selectedEvent.location && (
+                      <Text style={styles.modalMessage}>
+                        Location: {selectedEvent.location}
+                      </Text>
+                    )}
+                  </>
+                )}
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setEventModalVisible(false)}
+                >
+                  <Text style={styles.modalButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }
@@ -383,6 +431,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    zIndex: 9999, // Added zIndex to ensure overlay is on top
   },
   eventBox: {
     position: 'absolute',
@@ -487,5 +536,26 @@ const styles = StyleSheet.create({
   },
   searchResults: {
     marginTop: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontSize: 16,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  modalButton: {
+    backgroundColor: '#912338',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    marginTop: 15,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
