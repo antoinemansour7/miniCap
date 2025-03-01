@@ -1,40 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import fetchGoogleCalendarEvents from './googleCalendar';
 
 export default function CalendarDebug() {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const loadEvents = async () => {
     try {
       setError(null);
+      setIsSyncing(true);
       const fetchedEvents = await fetchGoogleCalendarEvents();
-      setEvents(fetchedEvents);
-      console.log('Fetched events:', fetchedEvents); // Debug log
+      setEvents(fetchedEvents || []);
     } catch (err) {
       setError(err.message);
       console.error('Error fetching events:', err);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
-  useEffect(() => {
-    loadEvents();
-  }, []);
-
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    loadEvents().finally(() => setRefreshing(false));
-  }, []);
+    await loadEvents();
+    setRefreshing(false);
+  };
 
   return (
     <ScrollView 
       style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
+      <View style={styles.syncButtonContainer}>
+        <TouchableOpacity style={styles.syncButton} onPress={loadEvents} disabled={isSyncing}>
+          {isSyncing ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.syncButtonText}>Sync Calendar</Text>
+          )}
+        </TouchableOpacity>
+      </View>
       <Text style={styles.header}>Calendar Debug View</Text>
       
       {error && (
@@ -109,4 +116,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontFamily: 'monospace',
   },
+  syncButtonContainer: { alignItems: 'center', marginBottom: 20 },
+  syncButton: { backgroundColor: '#912338', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
+  syncButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
