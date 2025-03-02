@@ -1,12 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import "react-native-get-random-values";
+import { View, StyleSheet } from 'react-native';
+import { useRoute } from '@react-navigation/native'; 
+import ToggleCampusMap from '../components/ToggleCampusMap';
+import FloatingChatButton from '../components/FloatingChatButton';
+import 'react-native-get-random-values'
 
+export default function MapScreen() {  // ✅ Renamed to avoid conflict
+  const route = useRoute();
+  const searchText = route?.params?.searchText || ''; // Cleaner fallback
 
-export default function Home() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome to FindMyClass</Text>
+    <View style={styles.container} testID="map-container">
+      <ToggleCampusMap searchText={searchText} testID="toggle-campus-map" />
+      <FloatingChatButton testID="floating-chat-button" />
     </View>
   );
 }
@@ -14,11 +20,5 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
 });

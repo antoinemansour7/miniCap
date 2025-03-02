@@ -8,12 +8,11 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 
 # Tap the menu button to open navigation
 - tapOn:
-    id: "menu-button"
+    id: "profile-button"
 - waitForAnimationToEnd  # Ensure menu is open
 
 # Tap Register option in the menu (assuming there is one)
-- tapOn:
-    text: "Register"
+- tapOn: "Signup"
 - waitForAnimationToEnd  # Ensure register screen is loaded
 
 # Tap on the First Name field
@@ -51,5 +50,7 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 
 - waitForAnimationToEnd
 
+- tapOn: "OK"
+
 # Verify registration was successful (modify based on your app's response)
-- assertVisible: "Login"  # Assuming user is redirected to Login after registration
+- assertVisible: "Register"  # Assuming user is redirected to Login after registration

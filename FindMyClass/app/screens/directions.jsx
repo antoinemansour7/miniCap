@@ -1,83 +1,80 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, Alert, Platform, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import { Dropdown } from 'react-native-element-dropdown';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
-import SGWBuildings from '../../components/SGWBuildings';
-import LoyolaBuildings from '../../components/loyolaBuildings';
-import GoogleSearchBar from "../../components/GoogleSearchBar";
-import { Ionicons } from '@expo/vector-icons'; // Add this import at the top
+import LocationSelector from "../../components/directions/LocationSelector";
+import ModalSearchBars from "../../components/directions/ModalSearchBars";
+import { styles } from "../../styles/directionsStyles";
+import SwipeUpModal from "../../components/directions/SwipeUpModal";
+import { 
+    isNearCampus, 
+    getNextShuttleTime, 
+    LOYOLA_COORDS, 
+    SGW_COORDS,
+            } from "../../utils/shuttleUtils";
+
 
 export default function DirectionsScreen() {
-    const params = useLocalSearchParams();
-    console.log("Received params: ", params);
+  
+       // Retrieve the destination from the params that were passed from the Map page
+       const params = useLocalSearchParams();
 
-    if (!params || !params.destination) {
-        console.error("Missing destination in navigation!");
-        return <Text>Error: No destination provided.</Text>;
-    }
-
-    let parsedDestination = null;
-    try {
-        parsedDestination = JSON.parse(params.destination);
-        console.log("Parsed destination:", parsedDestination);
-    } catch (error) {
-        console.error("Error parsing destination:", error);
-    }
-
-    if (!parsedDestination || !parsedDestination.latitude || !parsedDestination.longitude) {
-        console.error("Invalid destination:", parsedDestination);
-        return <Text>Error: Invalid destination coordinates.</Text>;
-    }
-    const buildingName = params.buildingName || "No Destination set";
-    const [destinationName, setDestinationName] = useState(buildingName);
-
-    const mapRef = useRef(null);
-    const [destination, setDestination] = useState(parsedDestination);
-    const [userLocation, setUserLocation] = useState(null);
-    const [startLocation, setStartLocation] = useState(null);
-    const [coordinates, setCoordinates] = useState([]);
-    const [routeInfo, setRouteInfo] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [zoomLevel, setZoomLevel] = useState(20); // Add this state
-
-    const [selectedStart, setSelectedStart] = useState('userLocation');
-    const [selectedDest, setSelectedDest] = useState('current');
-    const [customStart, setCustomStart] = useState('');
-    const [customDest, setCustomDest] = useState('');
-    const [showCustomStart, setShowCustomStart] = useState(false);
-    const [showCustomDest, setShowCustomDest] = useState(false);
-    const [isRouteCardVisible, setIsRouteCardVisible] = useState(true);
-    const [travelMode, setTravelMode] = useState('DRIVING'); // Add this new state
-    const [customStartName, setCustomStartName] = useState(''); // Add this new state
-    const [customLocationDetails, setCustomLocationDetails] = useState({
-        name: '',
-        coordinates: null
-    });
-    const [customSearchText, setCustomSearchText] = useState(''); // Add this new state
-
-    const predefinedLocations = {
-        SGWCampus: { latitude: 45.495729, longitude: -73.578041 },
-        LoyolaCampus: { latitude: 45.458424, longitude: -73.640259 }
-    };
-
-    const startLocationData = [
-        { label: 'My Location', value: 'userLocation' },
-        { label: 'SGW Campus', value: 'SGWCampus' },
-        { label: 'Loyola Campus', value: 'LoyolaCampus' },
-        { label: 'Custom Location', value: 'custom' },
-    ];
-
-    const destinationData = [
-        { label:`${buildingName}`, value: 'current' },
-        { label: 'SGW Campus', value: 'SGWCampus' },
-        { label: 'Loyola Campus', value: 'LoyolaCampus' },
-        { label: 'Custom Location', value: 'custom' },
-    ];
+       let parsedDestination = null;
+       let errorMessage = null;
+   
+       if (!params || !params.destination) {
+           console.error("Missing destination in navigation!");
+           errorMessage = "Error: No destination provided.";
+       } else {
+           try {
+               parsedDestination = JSON.parse(params.destination);
+           } catch (error) {
+               console.error("Error parsing destination:", error);
+               errorMessage = "Error: Invalid destination format.";
+           }
+   
+           if (!parsedDestination || !parsedDestination.latitude || !parsedDestination.longitude) {
+               console.error("Invalid destination:", parsedDestination);
+               errorMessage = "Error: Invalid destination coordinates.";
+           }
+       }
+   
+       const buildingName = params?.buildingName || "No Destination set";
+   
+       // State management (should always be defined in the same order)
+       const [destinationName, setDestinationName] = useState(buildingName);
+       const mapRef = useRef(null);
+       const [destination, setDestination] = useState(parsedDestination);
+       const [userLocation, setUserLocation] = useState(null);
+       const [startLocation, setStartLocation] = useState(null);
+       const [coordinates, setCoordinates] = useState([]);
+       const [routeInfo, setRouteInfo] = useState(null);
+       const [isLoading, setIsLoading] = useState(true);
+       const [error, setError] = useState(null);
+       const [zoomLevel, setZoomLevel] = useState(20);
+       const [selectedStart, setSelectedStart] = useState('userLocation');
+       const [selectedDest, setSelectedDest] = useState('current');
+       const [customDest, setCustomDest] = useState('');
+       const [travelMode, setTravelMode] = useState('WALKING');
+       const [customStartName, setCustomStartName] = useState('');
+       const [customLocationDetails, setCustomLocationDetails] = useState({
+           name: '',
+           coordinates: null
+       });
+       const [customSearchText, setCustomSearchText] = useState('');
+       const [isModalVisible, setIsModalVisible] = useState(false);
+       const [searchType, setSearchType] = useState("START");
+       const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
+       const [directions, setDirections] = useState([]);
+       const [isShuttleService, setIsShuttleService] = useState(false);
+   
+       // If there is an error, show the error message inside JSX
+       if (errorMessage) {
+           return <Text>{errorMessage}</Text>;
+       }
 
     //  calculate circle radius based on zoom level
     const getCircleRadius = () => {
@@ -95,98 +92,64 @@ export default function DirectionsScreen() {
         return zoomLevel;
     };
 
-    const handleStartLocationChange = async (item) => {
-        setSelectedStart(item.value);
-        setShowCustomStart(item.value === 'custom');
-        
-        if (item.value !== 'custom') {
-            setCustomLocationDetails({ name: '', coordinates: null }); // Clear custom location
-            setCustomSearchText(''); // Clear the search text
-            
-            let newStartLocation;
-            switch(item.value) {
-                case 'userLocation':
-                    if (userLocation) {
-                        newStartLocation = userLocation;
-                    } else {
-                        try {
-                            const currentLocation = await Location.getCurrentPositionAsync({
-                                accuracy: Location.Accuracy.High
-                            });
-                            newStartLocation = {
-                                latitude: currentLocation.coords.latitude,
-                                longitude: currentLocation.coords.longitude,
-                            };
-                            setUserLocation(newStartLocation);
-                        } catch (error) {
-                            console.error("Error getting current location:", error);
-                            setError("Could not get current location");
-                            return;
-                        }
-                    }
-                    break;
-                case 'SGWCampus':
-                case 'LoyolaCampus':
-                    newStartLocation = predefinedLocations[item.value];
-                    break;
-                default:
-                    return;
-            }
-            
-            if (newStartLocation && destination) {
-                setStartLocation(newStartLocation);
-                updateRoute(newStartLocation, destination);
-            }
-        }
-    };
-
-    const handleDestinationChange = (item) => {
-        setSelectedDest(item.value);
-        setShowCustomDest(item.value === 'custom');
-        
-        if (item.value !== 'custom') {
-            let newDestination;
-            let newDestinationName;
-            switch(item.value) {
-                case 'current':
-                    newDestination = parsedDestination;
-                    newDestinationName = buildingName;
-                    break;
-                case 'SGWCampus':
-                    newDestination = predefinedLocations[item.value];
-                    newDestinationName = 'SGW Campus';
-                    break;
-                case 'LoyolaCampus':
-                    newDestination = predefinedLocations[item.value];
-                    newDestinationName = 'Loyola Campus';
-                    break;
-                default:
-                    return;
-            }
-            setDestination(newDestination);
-            setDestinationName(newDestinationName);
-            updateRoute(startLocation, newDestination);
-        }
-    };
-
-    const handleCustomStartSubmit = () => {
-        if (customStart.trim()) {
-            // Here you would implement geocoding to convert address to coordinates
-            // For now, just showing how to handle the submit
-            console.log("Custom start location:", customStart);
-        }
-    };
-
-    const handleCustomDestSubmit = () => {
-        if (customDest.trim()) {
-            // Here you would implement geocoding to convert address to coordinates
-            console.log("Custom destination:", customDest);
-        }
-    };
 
     const updateRouteWithMode = async (start, end, mode) => {
         if (!start || !end) return;
-        
+
+        // SHUTTLE mode handling
+        if (mode === 'SHUTTLE') {
+            const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
+            const isStartSGW = isNearCampus(start, SGW_COORDS);
+            const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
+            const isEndSGW = isNearCampus(end, SGW_COORDS);
+
+            if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
+                const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
+                const nextTime = getNextShuttleTime(fromCampus);
+                // Set shuttle-specific information
+                setDirections([{
+                    id: 0,
+                    instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
+                    distance: 'Shuttle Service',
+                    duration: `${nextTime} - 25 min ride`
+                }]);
+                
+                // Get driving route for map display but keep shuttle directions
+                try {
+                    const response = await fetch(
+                        `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=driving&key=${googleAPIKey}`
+                    );
+                    const data = await response.json();
+                    
+                    if (data.routes && data.routes.length > 0) {
+                        const encodedPolyline = data.routes[0].overview_polyline.points;
+                        const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
+                            latitude: lat,
+                            longitude: lng
+                        }));
+                        setCoordinates(decodedCoordinates);
+                        const leg = data.routes[0].legs[0];
+                        setRouteInfo({ 
+                            distance: "Shuttle departing at:", 
+                            duration: `${nextTime}` 
+                        });
+                    }
+                } catch (err) {
+                    console.error("Route update error:", err);
+                    setError(err.message);
+                }
+                return;
+            } else {
+                Alert.alert(
+                    "Shuttle Service",
+                    "Shuttle service is only available between Loyola and SGW campuses.",
+                    [{ text: "OK" }]
+                );
+                return;
+            }
+        }
+
+        // Handle other modes (DRIVING, WALKING, TRANSIT)
         try {
             setIsLoading(true);
             const modeParam = mode.toLowerCase();
@@ -196,7 +159,7 @@ export default function DirectionsScreen() {
                 `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
             );
             const data = await response.json();
-            console.log("Route response:", data);
+            //console.log("Route response:", data);
 
             if (!data.routes || data.routes.length === 0) {
                 throw new Error("No route found");
@@ -212,7 +175,19 @@ export default function DirectionsScreen() {
 
             setCoordinates(decodedCoordinates);
             const leg = data.routes[0].legs[0];
-            setRouteInfo({ distance: leg.distance.text, duration: leg.duration.text });
+            setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
+
+            // Extract directions from steps
+            
+            const extractedDirections = leg.steps.map((step, index) => ({
+                id: index,
+                instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), // NOSONAR
+                distance: `${step.distance.text}`,
+                duration: step.duration.text,
+            }));
+            setDirections(extractedDirections);
+        
+       
 
             if (mapRef.current) {
                 const currentMapRef = mapRef.current; // store current reference
@@ -302,424 +277,214 @@ export default function DirectionsScreen() {
         return () => locationSubscription?.remove();
     }, [destination, selectedStart]); // Add selectedStart as dependency
 
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
 
-    const allBuildings = [...SGWBuildings, ...LoyolaBuildings];
-
-    const searchBuildings = (searchText) => {
-        setCustomDest(searchText);
-        if (searchText.trim().length > 0) {
-            const filtered = allBuildings.filter(building => 
-                building.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                building.id.toLowerCase().includes(searchText.toLowerCase())
-            );
-            setSearchResults(filtered);
-            setIsSearching(true);
-        } else {
-            setSearchResults([]);
-            setIsSearching(false);
-        }
+    const handleCloseModal = () => {
+        setIsModalVisible(false);
     };
 
-    const selectBuilding = (building) => {
-        setCustomDest(building.name);
-        setSearchResults([]);
-        setIsSearching(false);
-        
-        const newDestination = {
-            latitude: building.latitude,
-            longitude: building.longitude
-        };
-        setDestination(newDestination);
-        setDestinationName(building.name);
-        updateRoute(startLocation, newDestination);
+    const handleSwipeModalClose = () => {
+        setIsSwipeModalVisible(false);
     };
 
-    const handleTravelModeChange = (mode) => {
-        console.log(`Changing travel mode to: ${mode}`);
-        console.log('Current start location:', startLocation);
-        // Set the travel mode first
-        setTravelMode(mode);
-        
-        // Use the current startLocation instead of letting it default to userLocation
-        const currentStart = startLocation || userLocation;
-        if (currentStart && destination) {
-            updateRouteWithMode(currentStart, destination, mode);
-        }
-    };
-
-    const handleCustomLocation = (location, description) => {
-        const newStartLocation = {
-            latitude: location.latitude,
-            longitude: location.longitude
-        };
-        setStartLocation(newStartLocation);
-        setCustomSearchText(description);
-        setCustomLocationDetails({
-            name: description,
-            coordinates: newStartLocation
-        });
-        updateRoute(newStartLocation, destination);
-    };
 
     return (
-        <View style={{ flex: 1 }}>
-            {isRouteCardVisible ? (
-                <View style={[styles.card, styles.topCard]}>
-                    <View style={styles.dropdownContainer}>
-                        <Text style={styles.label}>Start Location</Text>
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            data={startLocationData}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select start location"
-                            value={selectedStart}
-                            onChange={handleStartLocationChange}
-                            testID="dropdown-start"
-                        />
-                        {showCustomStart && (
-                            <View style={styles.customInputContainer}>
-                                <GoogleSearchBar 
-                                    onLocationSelected={handleCustomLocation}
-                                    initialValue={customLocationDetails.name || customSearchText}
-                                    key={`search-${customLocationDetails.name || customSearchText}`}
-                                />
-                            </View>
-                        )}
-                    </View>
+        <View style={styles.mainContainer}>
+        
+            <View style={styles.container}>
 
-                    <View style={styles.dropdownContainer}>
-                        <Text style={styles.label}>Destination</Text>
-                        <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            data={destinationData}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select destination"
-                            value={selectedDest}
-                            onChange={handleDestinationChange}
-                            testID="dropdown-dest"
-                        />
-                        {showCustomDest && (
-                            <View style={styles.searchContainer}>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Search for a building..."
-                                    value={customDest}
-                                    onChangeText={searchBuildings}
-                                />
-                                {isSearching && searchResults.length > 0 && (
-                                    <View style={styles.searchResults}>
-                                        {searchResults.map((building) => (
-                                            <TouchableOpacity
-                                                key={building.id}
-                                                style={styles.searchResult}
-                                                onPress={() => selectBuilding(building)}
-                                            >
-                                                <Text style={styles.buildingName}>{building.name}</Text>
-                                                <Text style={styles.buildingId}>({building.id})</Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                )}
-                            </View>
-                        )}
-                    </View>
 
-                    <View style={styles.travelModeContainer}>
-                        <TouchableOpacity 
-                            style={[
-                                styles.travelModeButton, 
-                                travelMode === 'DRIVING' && styles.selectedTravelMode
-                            ]}
-                            onPress={() => handleTravelModeChange('DRIVING')}
-                        >
-                            <Ionicons name="car" size={24} color={travelMode === 'DRIVING' ? '#912338' : '#666'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                            style={[
-                                styles.travelModeButton, 
-                                travelMode === 'WALKING' && styles.selectedTravelMode
-                            ]}
-                            onPress={() => handleTravelModeChange('WALKING')}
-                        >
-                            <Ionicons name="walk" size={24} color={travelMode === 'WALKING' ? '#912338' : '#666'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                            style={[
-                                styles.travelModeButton, 
-                                travelMode === 'TRANSIT' && styles.selectedTravelMode
-                            ]}
-                            onPress={() => handleTravelModeChange('TRANSIT')}
-                        >
-                            <Ionicons name="bus" size={24} color={travelMode === 'TRANSIT' ? '#912338' : '#666'} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <TouchableOpacity 
-                        style={styles.doneButton}
-                        onPress={() => setIsRouteCardVisible(false)}
+                <View style={styles.mapContainer}>
+                            <MapView
+                        ref={mapRef}
+                        style={{ flex: 1 }}
+                        initialRegion={{
+                            latitude: destination.latitude,
+                            longitude: destination.longitude,
+                            latitudeDelta: 0.05,
+                            longitudeDelta: 0.05,
+                        }}
+                        onRegionChangeComplete={(region) => {
+                            const newZoomLevel = calculateZoomLevel(region);
+                            setZoomLevel(newZoomLevel);
+                        }}
+                        testID="map-view"
                     >
-                        <Text style={styles.buttonText}>Done</Text>
-                    </TouchableOpacity>
-                </View>
-            ) : (
-                <TouchableOpacity 
-                    style={styles.changeRouteButton}
-                    onPress={() => setIsRouteCardVisible(true)}
-                >
-                    <Text style={styles.buttonText}>Change Route</Text>
-                </TouchableOpacity>
-            )}
-            <MapView
-                ref={mapRef}
-                style={{ flex: 1 }}
-                initialRegion={{
-                    latitude: destination.latitude,
-                    longitude: destination.longitude,
-                    latitudeDelta: 0.05,
-                    longitudeDelta: 0.05,
-                }}
-                onRegionChangeComplete={(region) => {
-                    const newZoomLevel = calculateZoomLevel(region);
-                    setZoomLevel(newZoomLevel);
-                }}
-                testID="map-view"
-            >
-                {userLocation && 
-                // selectedStart === 'userLocation' ? 
-                (
-                    <Circle
-                        center={userLocation}
-                        radius={getCircleRadius()}
-                        strokeColor="white"
-                        fillColor="rgba(0, 122, 255, 0.7)"
-                    />
-                ) 
-                // : null
-                }
-                {startLocation && selectedStart !== 'userLocation' && (
-                    <Marker 
-                        coordinate={startLocation}
-                        title="Start"
-                        pinColor="green"
-                    />
-                )}
-                {destination && <Marker coordinate={destination} title="Destination" />}
-                {coordinates.length > 0 && (
-                    <Polyline 
-                        coordinates={coordinates}
-                        strokeWidth={2}
-                        strokeColor="#912338"
-                        lineDashPattern={[0]}
-                    />
-                )}
-            </MapView>
+                            <LocationSelector 
+                    startLocation={startLocation}
+                    setStartLocation={setStartLocation}
+                    customStartName={customStartName }
+                    selectedStart={selectedStart}
+                    setSelectedStart={setSelectedStart}
+                    userLocation={userLocation}
+                    setUserLocation={setUserLocation}   
+                    buildingName={buildingName}
+                    destinationName={destinationName}
+                    destination={destination}   
+                    parsedDestination={parsedDestination}
+                    selectedDest={selectedDest}
+                    setSelectedDest={setSelectedDest}
+                    setDestination={setDestination}
+                    setDestinationName={setDestinationName}
+                    travelMode={travelMode}
+                    setTravelMode={setTravelMode}
+                    setIsModalVisible={setIsModalVisible}
+                    setSearchType={setSearchType}
+                    updateRouteWithMode={updateRouteWithMode}
+                    updateRoute={updateRoute}
+                    style={styles.locationSelector}
+                />
+                           
 
-            {isLoading && (
-                <View style={[styles.card, {  
-                    position: "absolute", bottom: 40, left: 20, right: 20,
-          }]}>
-                    <Text 
-                        style={{ fontWeight: "bold", fontSize: 16 }}
-                    >
-                        Loading route...</Text>
+
+                        {userLocation && 
+                        // selectedStart === 'userLocation' ? 
+                        (
+                            <Circle
+                                testID="user-location-circle"
+                                center={userLocation}
+                                radius={getCircleRadius()}
+                                strokeColor="white"
+                                fillColor="rgba(0, 122, 255, 0.7)"
+                            />
+                        ) 
+                        // : null
+                        }
+                        {startLocation && selectedStart !== 'userLocation' && (
+                            <Marker 
+                                coordinate={startLocation}
+                                title="Start"
+                                pinColor="green"
+                            />
+                        )}
+                        {destination && <Marker coordinate={destination} title="Destination" />}
+                        {coordinates.length > 0 && (
+                            <Polyline 
+                                coordinates={coordinates}
+                                strokeWidth={2}
+                                strokeColor="#912338"
+                                lineDashPattern={[0]}
+                            />
+                        )}
+                    </MapView>
                 </View>
+
+                {isLoading && (
+                    <View style={styles.loadingCard}>
+                        <Text style={styles.loadingText}>Loading route...</Text>
+                    </View>
+                )}
+                {error && (
+                    <View style={styles.errorCard}>
+                        <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                )}
+                {/* {routeInfo && (
+
+                    <SwipeUpModal
+                        distance={routeInfo.distance}
+                        duration={routeInfo.duration}
+                        directions={directions}
+                    
+                    /> 
+                )} */}
+            
+            </View>
+
+            <ModalSearchBars
+
+            searchType={searchType}
+            isModalVisible={isModalVisible}
+            handleCloseModal={handleCloseModal}
+            updateRoute={updateRoute}
+
+            startLocation={startLocation}
+            setStartLocation={setStartLocation}
+            customSearchText={customSearchText}
+            setCustomSearchText={setCustomSearchText}
+            setCustomStartName={setCustomStartName}
+            customLocationDetails={customLocationDetails}
+            setCustomLocationDetails={setCustomLocationDetails}
+
+            destination={destination}
+            setDestination={setDestination}
+            customDest={customDest}
+            setCustomDest={setCustomDest}
+            setDestinationName={setDestinationName}
+            
+            />
+            {routeInfo && directions.length > 0 && (
+                <SwipeUpModal
+                    distance={routeInfo.distance}
+                    duration={routeInfo.duration}
+                    directions={directions}
+                />
             )}
-            {error && (
-                <View style={[styles.card, { position: 'absolute', top: 50, width: '100%', alignItems: 'center' }]}>
-                    <Text style={{ color: 'red' }}>{error}</Text>
-                </View>
-            )}
-            {routeInfo && (
-                <View style={[styles.card, {
-                    position: "absolute", bottom: 40, left: 20, right: 20,
-                }]}>
-                    <Text style={{ fontWeight: "bold", fontSize: 16 }}>Estimated Time: {routeInfo.duration}</Text>
-                    <Text style={{ fontSize: 14 }}>
-                        Destination: {destinationName}  {"\n"}
-                        Distance: {routeInfo.distance}</Text>
-                </View>
-            )}
-            <Text testID="building-name">{destinationName}</Text>
         </View>
     );
 }
 
+// Add these new styles at the bottom of your existing styles
+const stylesModal = StyleSheet.create({
+    modalContent: {
+        flex: 1,
+    },
+    compactView: {
+        height: 40,
+        justifyContent: 'center',
+    },
+    expandedView: {
+       // flex:  ,
+        marginTop: 20,
+        paddingTop: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#EBEBEB',
+    },
+    mainText: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginBottom: 4,
+    },
+    subText: {
+        fontSize: 14,
+        color: '#666',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 15,
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    // ...existing styles...
+    locationSelector: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 2,
+    },
+    mapContainer: {
+        flex: 1,
+        marginTop: 180, // Adjust based on LocationSelector height
+    },
+    loadingCard: {
+        position: "absolute",
+        bottom: 40,
+        left: 20,
+        right: 20,
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 8,
+        zIndex: 1,
+    },
+    errorCard: {
+        position: 'absolute',
+        top: 50,
+        width: '100%',
+        alignItems: 'center',
+        zIndex: 1,
+    },
+});
 
-
-const styles = StyleSheet.create({
-card: {
-
-backgroundColor: "white", padding: 10, borderRadius: 10,
-shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 5,
-},
-topCard: {
-    position: 'absolute',
-    top: 40,
-    left: 10,
-    right: 10,
-    zIndex: 1,
-},
-dropdownContainer: {
-    marginVertical: 8,
-},
-picker: {
-    height: 45,
-    width: '100%',
-    backgroundColor: 'transparent',
-},
-input: {
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginTop: 8,
-    backgroundColor: '#fff',
-},
-label: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 5,
-},
-pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-},
-dropdown: {
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    borderColor: '#ccc',
-    backgroundColor: 'white',
-},
-placeholderStyle: {
-    fontSize: 16,
-    color: '#666',
-},
-selectedTextStyle: {
-    fontSize: 16,
-    color: '#333',
-},
-topCard: {
-    position: 'absolute',
-    top: 50,
-    left: 10,
-    right: 10,
-    zIndex: 1,
-    elevation: 1, // Required for Android
-},
-dropdownContainer: {
-    marginVertical: 8,
-    zIndex: 2,
-},
-label: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 8,
-    color: '#333',
-},
-customInputContainer: {
-    marginTop: 8,
-    zIndex: 1,
-},
-input: {
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
-},
-doneButton: {
-    backgroundColor: '#912338',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-},
-changeRouteButton: {
-    position: 'absolute',
-    top: 50,
-    right: 10,
-    backgroundColor: '#912338',
-    padding: 12,
-    borderRadius: 8,
-    zIndex: 1,
-    elevation: 1,
-},
-buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '500',
-},
-searchContainer: {
-    position: 'relative',
-    zIndex: 3,
-},
-searchResults: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    maxHeight: 200,
-    overflow: 'scroll',
-    zIndex: 4,
-},
-searchResult: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-},
-buildingName: {
-    fontSize: 14,
-    flex: 1,
-},
-buildingId: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 8,
-},
-travelModeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 10,
-    gap: 10,
-},
-travelModeButton: {
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: 'white',
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-},
-selectedTravelMode: {
-    borderColor: '#912338',
-    backgroundColor: '#fff',
-},
-}) ;
