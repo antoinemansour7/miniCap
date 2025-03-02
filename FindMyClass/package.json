@@ -62,7 +62,8 @@
     "react-native-screens": "~4.4.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-webview": "13.12.5",
-    "use-latest-callback": "^0.2.3"
+    "use-latest-callback": "^0.2.3",
+    "expo-modules-core": "~2.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

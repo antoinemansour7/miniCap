@@ -1,0 +1,53 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+- tapOn:
+    id: "menu-button"
+
+- tapOn: "Profile"
+
+- tapOn: "Go to Login"
+
+
+# Tap on the Email field
+- tapOn: "Email"
+- inputText: "test@exemple.com"
+
+# Tap on the Password field
+- tapOn:
+    point: "50%,59%"
+- inputText: "password123"
+
+- waitForAnimationToEnd
+
+# Tap on the actual Login button
+- tapOn:
+    text: "Log In"
+
+- tapOn:
+    text: "Log In"
+
+- waitForAnimationToEnd
+
+
+- tapOn: "OK"
+
+- tapOn: "Add Photo Change Photo"
+
+- waitForAnimationToEnd
+
+- tapOn:
+    point: "16%,28%"
+
+- waitForAnimationToEnd
+
+- tapOn: "Choose"
+
+
+- assertNotVisible: "Add Photo Change Photo"
+
