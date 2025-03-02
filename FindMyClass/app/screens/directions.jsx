@@ -358,12 +358,11 @@ export default function DirectionsScreen() {
                         )}
                         {destination && <Marker coordinate={destination} title="Destination" />}
                         {coordinates.length > 0 && (
-                            <Polyline 
-                                coordinates={coordinates}
-                                strokeWidth={2}
-                                strokeColor="#912338"
-                                lineDashPattern={[0]}
-                            />
+                    <Polyline 
+                    coordinates={coordinates}
+                    strokeWidth={2}
+                    strokeColor="#912338"
+                />
                         )}
                     </MapView>
                 </View>
