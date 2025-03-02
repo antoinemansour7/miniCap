@@ -8,18 +8,27 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-"ios": {
-  "supportsTablet": true,
-  "bundleIdentifier": "com.findmyclass.app", 
-  
-  "buildNumber": "1"
-  
-},
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.findmyclass.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app requires location access to show nearby classes.",
+        "NSLocationAlwaysUsageDescription": "This app requires location access to track location in the background."
+      }
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "package": "com.findmyclass.app"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +46,17 @@
           "backgroundColor": "#ffffff"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "googleAuth": {
+        "scopes": [
+          "openid",
+          "email",
+          "profile",
+          "https://www.googleapis.com/auth/calendar.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ]
+      }
+    }
   }
 }

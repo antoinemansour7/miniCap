@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import Login from '../screens/login';
+import Login from '../auth/login';
 import { loginUser } from '../api/auth';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
@@ -12,6 +12,10 @@ jest.mock('../api/auth', () => ({
 
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
+}));
+
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuth: () => ({ login: jest.fn() }),
 }));
 
 jest.spyOn(Alert, 'alert'); // Spy on Alert.alert
@@ -90,6 +94,6 @@ describe('Login Screen', () => {
 
     fireEvent.press(registerLink);
 
-    expect(routerMock.push).toHaveBeenCalledWith('/register');
+    expect(routerMock.push).toHaveBeenCalledWith('/auth/register');
   });
 });

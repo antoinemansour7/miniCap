@@ -1,8 +1,14 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import Register from '../screens/register'; // Ensure this is the correct path
+import Register from '../auth/register';
 import { useRouter } from 'expo-router';
 import { registerUser } from '../api/auth';
+import { Alert } from 'react-native';
+
+// Add Alert mock
+jest.mock('react-native/Libraries/Alert/Alert', () => ({
+  alert: jest.fn(),
+}));
 
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
@@ -18,6 +24,8 @@ describe('Register Component', () => {
   beforeEach(() => {
     mockRouter = { push: jest.fn() };
     useRouter.mockReturnValue(mockRouter);
+    // Clear Alert mock before each test
+    Alert.alert.mockClear();
   });
 
   test('renders correctly', () => {
@@ -72,16 +80,14 @@ describe('Register Component', () => {
     
     fireEvent.press(getByText('Already a User? Login!'));
 
-    expect(mockRouter.push).toHaveBeenCalledWith('/screens/login');
+    expect(mockRouter.push).toHaveBeenCalledWith('/auth/login');
   });
 
   test('shows alert on failed registration', async () => {
     const mockError = new Error('Email already in use');
     registerUser.mockRejectedValueOnce(mockError);
 
-    jest.spyOn(window, 'alert').mockImplementation(() => {}); // Mock window.alert
-
-    const { getByText, getByPlaceholderText, getByTestId } = render(<Register />);
+    const { getByPlaceholderText, getByTestId } = render(<Register />);
 
     fireEvent.changeText(getByPlaceholderText('Email'), 'taken@example.com');
     fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
@@ -91,9 +97,7 @@ describe('Register Component', () => {
     fireEvent.press(getByTestId('register-button'));
 
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith('Registration Error', 'Email already in use');
+      expect(Alert.alert).toHaveBeenCalledWith('Registration Error', mockError.message);
     });
-
-    window.alert.mockRestore(); // Restore alert function
   });
 });

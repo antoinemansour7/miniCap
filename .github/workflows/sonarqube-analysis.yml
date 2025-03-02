@@ -42,8 +42,7 @@ jobs:
 
       # Step 6: Install SonarScanner
       - name: Install SonarScanner
-        run: |
-          npm install -g sonar-scanner
+        run: npm install -g sonar-scanner
 
       # Step 7: Run SonarCloud Analysis inside FindMyClass/
       - name: Run SonarScanner
@@ -63,6 +62,9 @@ jobs:
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
               -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
               -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts** \
+              -Dsonar.c.file.suffixes=- \
+              -Dsonar.cpp.file.suffixes=- \
+              -Dsonar.objc.file.suffixes=- \
               -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
               -Dsonar.pullrequest.branch=${{ github.head_ref }} \
               -Dsonar.pullrequest.base=${{ github.base_ref }}
@@ -75,5 +77,9 @@ jobs:
               -Dsonar.token=$SONAR_TOKEN \
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
               -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
-              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**
+              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts** \
+              -Dsonar.c.file.suffixes=- \
+              -Dsonar.cpp.file.suffixes=- \
+              -Dsonar.objc.file.suffixes=-
           fi
+          #
