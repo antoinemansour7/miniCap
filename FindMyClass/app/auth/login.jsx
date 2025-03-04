@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth.js';
 import { useAuth } from '../../contexts/AuthContext.js';
@@ -8,6 +8,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firebaseConfig, googleAuthConfig } from '../secrets';
+import CustomModal from '../../components/CustomModal';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -19,12 +20,18 @@ export default function Login() {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState({ type: '', message: '' });
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    type: '',
+    message: ''
+  });
 
   const showAlert = (type, message) => {
-    setAlertMessage({ type, message });
-    setAlertVisible(true);
+    setModalConfig({
+      visible: true,
+      type,
+      message
+    });
   };
 
   // Setup Google auth request
@@ -50,9 +57,9 @@ export default function Login() {
           await AsyncStorage.setItem("googleAccessToken", access_token);
           showAlert('success', `Welcome ${userCredential.user.displayName || userCredential.user.email}`);
           setTimeout(() => {
-            setAlertVisible(false);
+            setModalConfig(prev => ({ ...prev, visible: false }));
             router.push('/screens/profile');
-          }, 1500);
+          }, 5000);
         })
         .catch((error) => {
           console.error('Google Sign-In Error:', error);
@@ -69,7 +76,7 @@ export default function Login() {
       login(user);
       showAlert('success', `Welcome ${user.email}`);
       setTimeout(() => {
-        setAlertVisible(false);
+        setModalConfig(prev => ({ ...prev, visible: false }));
         router.push('/screens/profile');
       }, 1500);
     } catch (error) {
@@ -124,35 +131,12 @@ export default function Login() {
         </TouchableOpacity>
       </View>
 
-      {/* Updated Custom Alert Modal */}
-      <Modal
-        visible={alertVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setAlertVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setAlertVisible(false)}>
-          <View style={styles.modalBackground}>
-            <TouchableWithoutFeedback>
-              <View style={[
-                styles.modalContainer,
-                alertMessage.type === 'success' ? styles.successBg : styles.errorBg
-              ]}>
-                <Text style={styles.modalTitle}>
-                  {alertMessage.type === 'success' ? 'Welcome!' : 'Error'}
-                </Text>
-                <Text style={styles.modalMessage}>{alertMessage.message}</Text>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => setAlertVisible(false)}
-                >
-                  <Text style={styles.modalButtonText}>OK</Text>
-                </TouchableOpacity>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      <CustomModal
+        visible={modalConfig.visible}
+        type={modalConfig.type}
+        message={modalConfig.message}
+        onClose={() => setModalConfig(prev => ({ ...prev, visible: false }))}
+      />
     </View>
   );
 }
@@ -233,71 +217,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     marginTop: 10,
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: '#fff',
-    width: '80%',
-    padding: 20,
-    borderRadius: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333',
-    textAlign: 'center',
-  },
-  modalMessage: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  successBg: {
-    backgroundColor: '#fff',
-    borderTopWidth: 4,
-    borderTopColor: '#912338', // Changed to maroon color
-  },
-  errorBg: {
-    backgroundColor: '#fff',
-    borderTopWidth: 4,
-    borderTopColor: '#dc3545', // Keep red for errors
-  },
-  modalButton: {
-    backgroundColor: '#912338',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    minWidth: 120,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
-  modalButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
   },
 });
