@@ -5,8 +5,8 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --coverage",
     "test:watch": "jest --config jest.config.js --watch",
@@ -28,7 +28,7 @@
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "expect.js": "^0.3.1",
-    "expo": "^52.0.28",
+    "expo": "~52.0.36",
     "expo-asset": "^11.0.2",
     "expo-blur": "~14.0.2",
     "expo-constants": "~17.0.4",
@@ -62,6 +62,7 @@
     "react-native-screens": "~4.4.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-webview": "13.12.5",
+    "smartlook-react-native-wrapper": "^1.2.8",
     "use-latest-callback": "^0.2.3"
   },
   "devDependencies": {

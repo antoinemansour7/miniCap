@@ -7,10 +7,59 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 import { AuthProvider } from '../contexts/AuthContext';
 import ProfileButton from '../components/ProfileButton';
+import Smartlook from 'smartlook-react-native-wrapper';
+
+// Define task tracking functions globally
+global.taskStartTimes = {};
+
+global.startTask = (taskName) => {
+  const startTime = new Date().getTime();
+  global.taskStartTimes[taskName] = startTime;
+  
+  Smartlook.trackCustomEvent('task_start', {
+    'task_name': taskName,
+    'timestamp': startTime
+  });
+  console.log(`Started task: ${taskName}`);
+};
+
+global.completeTask = (taskName, success = true) => {
+  const endTime = new Date().getTime();
+  const startTime = global.taskStartTimes[taskName] || 0;
+  const duration = startTime ? endTime - startTime : 0;
+  
+  Smartlook.trackCustomEvent('task_complete', {
+    'task_name': taskName,
+    'duration_ms': duration,
+    'success': success,
+    'timestamp': endTime
+  });
+  
+  console.log(`Completed task: ${taskName} in ${duration}ms, success: ${success}`);
+  
+  // Remove from tracking
+  if (global.taskStartTimes[taskName]) {
+    delete global.taskStartTimes[taskName];
+  }
+  
+  return duration;
+};
+
 
 export default function Layout() {
   // Removed searchText state since search bar is no longer needed for maps
   const fontsLoaded = true; // ✅ Remove useFonts if not using fonts
+
+  useEffect(() => {
+    // Initialize Smartlook
+    Smartlook.setupAndStartRecording('1055c7b0a4d9b75fbb11b86b9bdbea933cfe0239');
+    
+    // Configure recording settings for better performance
+    Smartlook.setRenderingMode(Smartlook.RenderingMode.NoRendering);
+    Smartlook.setFrameRate(2);
+    
+    console.log('Smartlook initialized');
+  }, []);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
