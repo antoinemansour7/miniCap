@@ -70,14 +70,23 @@ export default function Schedule() {
   const handleSync = async () => {
     const auth = getAuth();
     if (!auth.currentUser) {
-      // Clear cached token to avoid stale data
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        title: 'Authentication Required',
+        message: 'Please sign in to sync your calendar.'
+      });
       await AsyncStorage.removeItem("googleAccessToken");
-      setModalConfig(prev => ({ ...prev, visible: true }));
       return;
     }
     const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
     if (!googleAccessToken) {
-      setModalConfig(prev => ({ ...prev, visible: true }));
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        title: 'Google Login Required',
+        message: 'Please sign in with Google to sync your schedule.'
+      });
       return;
     }
     setIsSyncing(true);
@@ -85,8 +94,20 @@ export default function Schedule() {
       const fetchedEvents = await fetchGoogleCalendarEvents();
       setEvents(fetchedEvents || []);
       setLastSynced(new Date());
+      setModalConfig({
+        visible: true,
+        type: 'success',
+        title: 'Sync Complete',
+        message: 'Your calendar has been successfully synchronized.'
+      });
     } catch (error) {
       console.error("Sync failed:", error);
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        title: 'Sync Failed',
+        message: error.message || 'Failed to sync calendar. Please try again.'
+      });
     } finally {
       setIsSyncing(false);
     }
