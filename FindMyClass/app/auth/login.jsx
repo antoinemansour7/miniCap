@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth.js';
 import { useAuth } from '../../contexts/AuthContext.js';
@@ -124,27 +124,34 @@ export default function Login() {
         </TouchableOpacity>
       </View>
 
-      {/* Add Custom Alert Modal */}
+      {/* Updated Custom Alert Modal */}
       <Modal
         visible={alertVisible}
         transparent={true}
         animationType="fade"
         onRequestClose={() => setAlertVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[
-            styles.modalContainer,
-            alertMessage.type === 'success' ? styles.successBg : styles.errorBg
-          ]}>
-            <Text style={styles.modalMessage}>{alertMessage.message}</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setAlertVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>OK</Text>
-            </TouchableOpacity>
+        <TouchableWithoutFeedback onPress={() => setAlertVisible(false)}>
+          <View style={styles.modalBackground}>
+            <TouchableWithoutFeedback>
+              <View style={[
+                styles.modalContainer,
+                alertMessage.type === 'success' ? styles.successBg : styles.errorBg
+              ]}>
+                <Text style={styles.modalTitle}>
+                  {alertMessage.type === 'success' ? 'Welcome!' : 'Error'}
+                </Text>
+                <Text style={styles.modalMessage}>{alertMessage.message}</Text>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setAlertVisible(false)}
+                >
+                  <Text style={styles.modalButtonText}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
@@ -227,48 +234,70 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 10,
   },
-  modalOverlay: {
+  modalBackground: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
+    backgroundColor: '#fff',
     width: '80%',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: 'center',
-    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    elevation: 5,
   },
-  successBg: {
-    backgroundColor: '#d4edda',
-    borderColor: '#c3e6cb',
-    borderWidth: 1,
-  },
-  errorBg: {
-    backgroundColor: '#f8d7da',
-    borderColor: '#f5c6cb',
-    borderWidth: 1,
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
+    textAlign: 'center',
   },
   modalMessage: {
     fontSize: 16,
-    marginBottom: 15,
+    marginBottom: 20,
+    color: '#666',
     textAlign: 'center',
-    color: '#333',
+    lineHeight: 22,
+  },
+  successBg: {
+    backgroundColor: '#fff',
+    borderTopWidth: 4,
+    borderTopColor: '#912338', // Changed to maroon color
+  },
+  errorBg: {
+    backgroundColor: '#fff',
+    borderTopWidth: 4,
+    borderTopColor: '#dc3545', // Keep red for errors
   },
   modalButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
     backgroundColor: '#912338',
-    borderRadius: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    minWidth: 120,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   modalButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '500',
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
