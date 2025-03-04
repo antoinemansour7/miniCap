@@ -5,16 +5,9 @@ import { getAuth, GoogleAuthProvider, signInWithCredential } from "firebase/auth
 import { initializeApp } from "firebase/app";
 import { useAuth } from '../../contexts/AuthContext'; // new import
 import { useRouter } from 'expo-router'; // new import
+import { firebaseConfig } from '../secrets';
 
-// ✅ Your Firebase config (copy from Firebase Console)
-const firebaseConfig = {
-    apiKey: "AIzaSyAOj18hgmMc9-GiCCYH3_qJyG1HlrukoEc",
-    authDomain: "findmyclass-de714.firebaseapp.com",
-    projectId: "findmyclass-de714",
-    storageBucket: "findmyclass-de714.firebasestorage.app",
-    messagingSenderId: "566973195502",
-    appId: "1:566973195502:web:165b434272a1ee6e613fff"
-  };
+
 
 // 🔥 Initialize Firebase only once
 const app = initializeApp(firebaseConfig);
