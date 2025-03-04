@@ -17,6 +17,7 @@ import { getAuth } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import fetchGoogleCalendarEvents from '../api/googleCalendar';
 import { useAuth } from '../../contexts/AuthContext';
+import CustomModal from '../../components/CustomModal';
 
 const { width } = Dimensions.get('window');
 
@@ -38,6 +39,12 @@ export default function Schedule() {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventModalVisible, setEventModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    type: 'error',
+    message: 'Please sign in with Google to sync your schedule.',
+    title: 'Google Login Required'
+  });
 
   // Animation values
   const addButtonAnim = useRef(new Animated.Value(0)).current;
@@ -65,12 +72,12 @@ export default function Schedule() {
     if (!auth.currentUser) {
       // Clear cached token to avoid stale data
       await AsyncStorage.removeItem("googleAccessToken");
-      setShowLoginPopup(true);
+      setModalConfig(prev => ({ ...prev, visible: true }));
       return;
     }
     const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
     if (!googleAccessToken) {
-      setShowLoginPopup(true);
+      setModalConfig(prev => ({ ...prev, visible: true }));
       return;
     }
     setIsSyncing(true);
@@ -197,30 +204,14 @@ export default function Schedule() {
 
   return (
     <View style={styles.container}>
-      {/* Popup for non-logged-in user */}
-      <Modal
-        visible={showLoginPopup}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowLoginPopup(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setShowLoginPopup(false)}>
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Google Login Required</Text>
-              <Text style={styles.modalMessage}>
-                User not logged in. Please sign in with Google.
-              </Text>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => setShowLoginPopup(false)}
-              >
-                <Text style={styles.modalButtonText}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      {/* Replace the old Modal with CustomModal */}
+      <CustomModal
+        visible={modalConfig.visible}
+        onClose={() => setModalConfig(prev => ({ ...prev, visible: false }))}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        message={modalConfig.message}
+      />
 
       {/* Sync Header */}
       <View style={styles.syncHeader}>
