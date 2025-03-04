@@ -12,10 +12,13 @@ const CustomModal = ({ visible, onClose, type, title, message }) => {
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalBackground}>
           <TouchableWithoutFeedback>
-            <View style={[
-              styles.modalContainer,
-              type === 'success' ? styles.successBg : styles.errorBg
-            ]}>
+            <View 
+              testID="modal-container"
+              style={[
+                styles.modalContainer,
+                type === 'success' ? styles.successBg : styles.errorBg
+              ]}
+            >
               <Text style={styles.modalTitle}>
                 {title || (type === 'success' ? 'Welcome!' : 'Error')}
               </Text>
