@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth.js';
 import { useAuth } from '../../contexts/AuthContext.js';
-// Import Google Auth dependencies:
 import * as Google from 'expo-auth-session/providers/google';
+import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { firebaseConfig, googleAuthConfig } from '../secrets';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,6 +15,17 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ type: '', message: '' });
+
+  const showAlert = (type, message) => {
+    setAlertMessage({ type, message });
+    setAlertVisible(true);
+  };
 
   // Setup Google auth request
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -36,12 +48,15 @@ export default function Login() {
         .then(async (userCredential) => {
           login(userCredential.user);
           await AsyncStorage.setItem("googleAccessToken", access_token);
-          Alert.alert('Success', `Welcome ${userCredential.user.displayName || userCredential.user.email}`);
-          router.push('/screens/profile');
+          showAlert('success', `Welcome ${userCredential.user.displayName || userCredential.user.email}`);
+          setTimeout(() => {
+            setAlertVisible(false);
+            router.push('/screens/profile');
+          }, 1500);
         })
         .catch((error) => {
           console.error('Google Sign-In Error:', error);
-          Alert.alert('Error', 'Failed to sign in with Google');
+          showAlert('error', 'Failed to sign in with Google');
         });
     }
   }, [response]);
@@ -52,11 +67,14 @@ export default function Login() {
       const user = await loginUser(email, password);
       setIsLoading(false);
       login(user);
-      Alert.alert('Success', `Welcome ${user.email}`);
-      router.push('/screens/profile');
+      showAlert('success', `Welcome ${user.email}`);
+      setTimeout(() => {
+        setAlertVisible(false);
+        router.push('/screens/profile');
+      }, 1500);
     } catch (error) {
       setIsLoading(false);
-      Alert.alert('Login Error', error.message);
+      showAlert('error', error.message);
     }
   };
 
@@ -105,6 +123,29 @@ export default function Login() {
           <Text style={styles.registerLink}>Not a User? Register Now!</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Add Custom Alert Modal */}
+      <Modal
+        visible={alertVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[
+            styles.modalContainer,
+            alertMessage.type === 'success' ? styles.successBg : styles.errorBg
+          ]}>
+            <Text style={styles.modalMessage}>{alertMessage.message}</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setAlertVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -185,5 +226,49 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     marginTop: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  successBg: {
+    backgroundColor: '#d4edda',
+    borderColor: '#c3e6cb',
+    borderWidth: 1,
+  },
+  errorBg: {
+    backgroundColor: '#f8d7da',
+    borderColor: '#f5c6cb',
+    borderWidth: 1,
+  },
+  modalMessage: {
+    fontSize: 16,
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#333',
+  },
+  modalButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    backgroundColor: '#912338',
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
