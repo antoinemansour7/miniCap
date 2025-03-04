@@ -1,4 +1,4 @@
-package com.concordiauniversity.findmyclass
+package com.anonymous.FindMyClass
 
 import android.app.Application
 import android.content.res.Configuration

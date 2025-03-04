@@ -1,4 +1,4 @@
-package com.concordiauniversity.findmyclass
+package com.anonymous.FindMyClass
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

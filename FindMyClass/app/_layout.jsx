@@ -1,6 +1,6 @@
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useCallback, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -56,7 +56,7 @@ export default function Layout() {
     
     // Configure recording settings for better performance
     Smartlook.setRenderingMode(Smartlook.RenderingMode.NoRendering);
-    Smartlook.setFrameRate(2);
+    //Smartlook.setFrameRate(2);
     
     console.log('Smartlook initialized');
   }, []);

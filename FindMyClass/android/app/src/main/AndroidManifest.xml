@@ -29,6 +29,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.concordiauniversity.findmyclass"/>
+        <data android:scheme="com.anonymous.FindMyClass"/>
       </intent-filter>
     </activity>
   </application>

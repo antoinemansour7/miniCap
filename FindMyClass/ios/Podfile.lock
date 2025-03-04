@@ -1,20 +1,22 @@
 PODS:
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
-  - EXConstants (17.0.5):
+  - EXApplication (6.0.2):
+    - ExpoModulesCore
+  - EXConstants (17.0.7):
     - ExpoModulesCore
   - EXImageLoader (5.0.0):
     - ExpoModulesCore
     - React-Core
-  - Expo (52.0.28):
+  - Expo (52.0.37):
     - ExpoModulesCore
-  - ExpoAsset (11.0.2):
+  - ExpoAsset (11.0.4):
     - ExpoModulesCore
   - ExpoBlur (14.0.2):
     - ExpoModulesCore
-  - ExpoFileSystem (18.0.7):
+  - ExpoFileSystem (18.0.11):
     - ExpoModulesCore
-  - ExpoFont (13.0.3):
+  - ExpoFont (13.0.4):
     - ExpoModulesCore
   - ExpoHaptics (14.0.1):
     - ExpoModulesCore
@@ -22,13 +24,13 @@ PODS:
     - ExpoModulesCore
   - ExpoImagePicker (16.0.6):
     - ExpoModulesCore
-  - ExpoKeepAwake (14.0.2):
+  - ExpoKeepAwake (14.0.3):
     - ExpoModulesCore
   - ExpoLinking (7.0.4):
     - ExpoModulesCore
   - ExpoLocation (18.0.5):
     - ExpoModulesCore
-  - ExpoModulesCore (2.2.0):
+  - ExpoModulesCore (2.2.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1874,12 +1876,17 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - Smartlook (1.8.9)
+  - smartlook-react-native-bridge (1.2.8):
+    - React
+    - Smartlook (~> 1.8.6)
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
   - Expo (from `../node_modules/expo`)
@@ -1970,10 +1977,12 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - smartlook-react-native-bridge (from `../node_modules/smartlook-react-native-wrapper`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
+    - Smartlook
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -1981,6 +1990,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  EXApplication:
+    :path: "../node_modules/expo-application/ios"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
   EXImageLoader:
@@ -2158,26 +2169,29 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
+  smartlook-react-native-bridge:
+    :path: "../node_modules/smartlook-react-native-wrapper"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
-  EXConstants: e25c3f3ef5d1cf7a6ef911ebf7a3ab94d8d06d82
+  EXApplication: 4c72f6017a14a65e338c5e74fca418f35141e819
+  EXConstants: 30c43b9ca8391c31bab9cc45c97f16eddcf11042
   EXImageLoader: e5da974e25b13585c196b658a440720c075482d5
-  Expo: f160c4be97b390767b78adaae25fd9492bebb6c6
-  ExpoAsset: d2d2cbc6a4efadf51a3da27d85d589935abd0b98
+  Expo: 63515728b6f238842dc95702eb0fb385f00d7c5a
+  ExpoAsset: 4033893dfb333b444bf45e951351254137b658d5
   ExpoBlur: cb75554318a537db7a65ad589a0a5f32173ca39b
-  ExpoFileSystem: 818e82dbb71175414d1ca310e926c48ff0d07348
-  ExpoFont: 38656978c2a4022fb7e0c43e4968d66340f5e2f3
+  ExpoFileSystem: 2d804c73034c0d65eb2a640e0a77627033b69edc
+  ExpoFont: f354e926f8feae5e831ec8087f36652b44a0b188
   ExpoHaptics: 8d199b2f33245ea85289ff6c954c7ee7c00a5b5d
   ExpoHead: 5d1c5c20e3933db5d9ca349424cb3b9a4a84b706
   ExpoImagePicker: 24e5ba8da111f74519b1e6dc556e0b438b2b8464
-  ExpoKeepAwake: 62ff49bbc3bff90d8ee28329190f9ba371bf88e7
+  ExpoKeepAwake: b0171a73665bfcefcfcc311742a72a956e6aa680
   ExpoLinking: 4a09f2f0dc1132607c20f5628ba30d94795ea73d
   ExpoLocation: 5437fb925d0b0dbe728c20536335a964e9202f5a
-  ExpoModulesCore: 231638400651045f797b1da72feccbd86f96dbf5
+  ExpoModulesCore: 7f5e59799b89e5fad1d7cc6070744c1003ca320f
   ExpoSplashScreen: c64f3b577e1cb0b6a2f47d01c528ad7d80d9ae6a
   ExpoSymbols: a2543b833cfa11d9477247d5c7b5230e03e98031
   ExpoSystemUI: 36f50ee42da3e814bffd01ee38edcf3c7cc0015d
@@ -2252,6 +2266,8 @@ SPEC CHECKSUMS:
   RNReanimated: a2692304a6568bc656c04c8ffea812887d37436e
   RNScreens: 351f431ef2a042a1887d4d90e1c1024b8ae9d123
   RNVectorIcons: a24016b773380b1aa37fca501ec6b94a951890a0
+  Smartlook: 9a49d32502f9c659045c1a599aad495c2a0b9480
+  smartlook-react-native-bridge: c7102439ed59bf897eaecc75e8c9a7b1f966134b
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: be6f55a028e86c83ae066f018e9b5d24ffc45436
 
