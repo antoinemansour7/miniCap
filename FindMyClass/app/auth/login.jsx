@@ -59,7 +59,7 @@ export default function Login() {
           setTimeout(() => {
             setModalConfig(prev => ({ ...prev, visible: false }));
             router.push('/screens/profile');
-          }, 5000);
+          }, 1500);
         })
         .catch((error) => {
           console.error('Google Sign-In Error:', error);
