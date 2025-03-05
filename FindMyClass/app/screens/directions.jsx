@@ -95,44 +95,39 @@ export default function DirectionsScreen() {
 
     const updateRouteWithMode = async (start, end, mode) => {
         if (!start || !end) return;
-
+    
         // SHUTTLE mode handling
         if (mode === 'SHUTTLE') {
             const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
             const isStartSGW = isNearCampus(start, SGW_COORDS);
             const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
             const isEndSGW = isNearCampus(end, SGW_COORDS);
-
+    
             if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
                 const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
                 const nextTime = getNextShuttleTime(fromCampus);
-                // Set shuttle-specific information
+                
                 setDirections([{
                     id: 0,
                     instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
                     distance: 'Shuttle Service',
                     duration: `${nextTime} - 25 min ride`
                 }]);
-                
-                // Get driving route for map display but keep shuttle directions
+    
                 try {
                     const response = await fetch(
                         `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=driving&key=${googleAPIKey}`
                     );
                     const data = await response.json();
-                    
+    
                     if (data.routes && data.routes.length > 0) {
                         const encodedPolyline = data.routes[0].overview_polyline.points;
                         const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
                             latitude: lat,
                             longitude: lng
                         }));
-                        setCoordinates(decodedCoordinates);
-                        const leg = data.routes[0].legs[0];
-                        setRouteInfo({ 
-                            distance: "Shuttle departing at:", 
-                            duration: `${nextTime}` 
-                        });
+                        setCoordinates([{ coordinates: decodedCoordinates, color: "gray", width: 4 }]);
+                        setRouteInfo({ distance: "Shuttle departing at:", duration: `${nextTime}` });
                     }
                 } catch (err) {
                     console.error("Route update error:", err);
@@ -148,59 +143,93 @@ export default function DirectionsScreen() {
                 return;
             }
         }
-
+    
         // Handle other modes (DRIVING, WALKING, TRANSIT)
         try {
             setIsLoading(true);
             const modeParam = mode.toLowerCase();
             console.log(`Requesting route with mode: ${modeParam}`);
-
+    
             const response = await fetch(
                 `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
             );
             const data = await response.json();
-            //console.log("Route response:", data);
-
+    
             if (!data.routes || data.routes.length === 0) {
                 throw new Error("No route found");
             }
-
+    
             setCoordinates([]);
-            
-            const encodedPolyline = data.routes[0].overview_polyline.points;
-            const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
-                latitude: lat,
-                longitude: lng
-            }));
-
-            setCoordinates(decodedCoordinates);
             const leg = data.routes[0].legs[0];
             setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
+    
+            // Extract and process segments from steps
+            const extractedSegments = [];
+            const extractedDirections = leg.steps.map((step, index) => {
+                if (!step.polyline) return null; // Prevents undefined polyline errors
+    
+                const decodedStep = polyline.decode(step.polyline.points).map(([lat, lng]) => ({
+                    latitude: lat,
+                    longitude: lng
+                }));
+    
+               // Determine the transport mode and assign properties
+                    let segmentColor = "#007AFF"; // Default: Blue
+                    let lineWidth = 3; // Default thickness
+                    let isDashed = false; // Default: solid line
 
-            // Extract directions from steps
-            
-            const extractedDirections = leg.steps.map((step, index) => ({
-                id: index,
-                instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), // NOSONAR
-                distance: `${step.distance.text}`,
-                duration: step.duration.text,
-            }));
-            setDirections(extractedDirections);
-        
-       
-
-            if (mapRef.current) {
-                const currentMapRef = mapRef.current; // store current reference
-                setTimeout(() => {
-                    if (currentMapRef) { // use stored reference instead of mapRef.current
-                        currentMapRef.fitToCoordinates(
-                            [start, end, ...decodedCoordinates],
-                            {
-                                edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                                animated: true,
-                            }
-                        );
+                    if (step.travel_mode === "WALKING") {
+                        segmentColor = "#007AFF"; // Blue for walking
+                        lineWidth = 2; // Thinner line
+                        isDashed = true; // Dashed for walking
+                    } else if (step.travel_mode === "DRIVING") {
+                        segmentColor = "#007AFF"; // Blue for car
+                        lineWidth = 4; // Thicker than walking
+                        isDashed = false; // Solid line for driving
+                    } else if (step.travel_mode === "TRANSIT" && step.transit_details) {
+                        const { line } = step.transit_details;
+                        if (line.vehicle.type === "BUS") {
+                            segmentColor = "purple"; // Bus color
+                        } else if (line.vehicle.type === "SUBWAY") {
+                            if (line.name.includes("Green")) segmentColor = "green";
+                            else if (line.name.includes("Blue")) segmentColor = "darkblue";
+                            else if (line.name.includes("Yellow")) segmentColor = "yellow";
+                            else if (line.name.includes("Orange")) segmentColor = "orange";
+                        }
+                        lineWidth = 6; // Thicker for transit
+                        isDashed = false; // Transit lines should be solid
                     }
+
+                    // Store each segment with its correct style
+                    extractedSegments.push({
+                        id: index,
+                        coordinates: decodedStep,
+                        color: segmentColor,
+                        width: lineWidth,
+                        isDashed: isDashed
+                    });
+
+    
+                return {
+                    id: index,
+                    instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), // Remove HTML tags
+                    distance: `${step.distance.text}`,
+                    duration: step.duration.text,
+                };
+            }).filter(Boolean); // Removes null values
+    
+            setDirections(extractedDirections);
+            setCoordinates(extractedSegments);
+    
+            if (mapRef.current) {
+                setTimeout(() => {
+                    mapRef.current?.fitToCoordinates(
+                        extractedSegments.flatMap(segment => segment.coordinates),
+                        {
+                            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                            animated: true,
+                        }
+                    );
                 }, 100);
             }
         } catch (err) {
@@ -208,10 +237,11 @@ export default function DirectionsScreen() {
             setError(err.message);
         } finally {
             setTimeout(() => {
-              setIsLoading(false);
+                setIsLoading(false);
             }, 0);
         }
     };
+    
 
     const updateRoute = (start, end) => {
         updateRouteWithMode(start, end, travelMode);
@@ -357,14 +387,18 @@ export default function DirectionsScreen() {
                             />
                         )}
                         {destination && <Marker coordinate={destination} title="Destination" />}
-                        {coordinates.length > 0 && (
+                        {coordinates.length > 0 && coordinates.map((segment, index) => (
                             <Polyline 
-                                coordinates={coordinates}
-                                strokeWidth={2}
-                                strokeColor="#912338"
-                                lineDashPattern={[0]}
+                                key={index}
+                                coordinates={segment.coordinates}
+                                strokeWidth={segment.width}
+                                strokeColor={segment.color}
+                                lineDashPattern={segment.isDashed ? [5, 5] : undefined} // Dashed for walking only
                             />
-                        )}
+                        ))}
+
+
+
                     </MapView>
                 </View>
 
