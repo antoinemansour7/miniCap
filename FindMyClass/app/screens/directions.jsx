@@ -191,9 +191,9 @@ export default function DirectionsScreen() {
                         if (line.vehicle.type === "BUS") {
                             segmentColor = "purple"; // Bus color
                         } else if (line.vehicle.type === "SUBWAY") {
-                            if (line.name.includes("Green")) segmentColor = "green";
-                            else if (line.name.includes("Blue")) segmentColor = "darkblue";
-                            else if (line.name.includes("Yellow")) segmentColor = "yellow";
+                            if (line.name.includes("Verte")) segmentColor = "green";
+                            else if (line.name.includes("Bleue")) segmentColor = "darkblue";
+                            else if (line.name.includes("Jaune")) segmentColor = "yellow";
                             else if (line.name.includes("Orange")) segmentColor = "orange";
                         }
                         lineWidth = 6; // Thicker for transit
@@ -414,9 +414,7 @@ export default function DirectionsScreen() {
                                 lineDashPattern={segment.isDashed ? [5, 5] : undefined} // Dashed for walking only
                             />
                         ))}
-
-
-
+                        
                     </MapView>
                 </View>
 
