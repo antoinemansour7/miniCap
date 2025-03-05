@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, FlatList, TextInput, Animated, StyleSheet } from "react-native";
 import * as Location from "expo-location";
 import Slider from "@react-native-community/slider";
+import { useRouter } from "expo-router"; // Import navigation hook
 
 const categories = ["Restaurant", "Café", "Bakery", "Other"];
 const googleAPIKey = "AIzaSyAMimof390OY-MHLbUOkdwsTh3f56StuRk"; // Replace with your API key
@@ -13,6 +14,7 @@ export default function PointsOfInterests() {
   const [places, setPlaces] = useState([]);
   const [maxResults, setMaxResults] = useState(10);
   const fadeAnim = useState(new Animated.Value(0))[0]; // Fade animation for initial message
+  const router = useRouter(); 
 
   useEffect(() => {
     (async () => {
@@ -179,7 +181,21 @@ export default function PointsOfInterests() {
                 <Text style={styles.placeDetails}>{item.vicinity}</Text>
                 <Text style={styles.placeDetails}>Rating: {item.rating || "N/A"} | {item.distance} km away</Text>
               </View>
-              <TouchableOpacity style={styles.directionsButton} onPress={() => console.log("Navigate to:", item)}>
+              <TouchableOpacity
+              style={styles.directionsButton}
+              onPress={() =>
+                router.push({
+                  pathname: "/screens/directions",
+                  params: {
+                    destination: JSON.stringify({
+                      latitude: item.geometry.location.lat,
+                      longitude: item.geometry.location.lng,
+                    }),
+                    buildingName: item.name, 
+                  },
+                })
+              }
+            >
                 <Text style={styles.directionsButtonText}>Get Directions</Text>
               </TouchableOpacity>
             </View>
@@ -206,7 +222,7 @@ const styles = StyleSheet.create({
   
   categoryButton: {
     flexShrink: 1, // Allows buttons to shrink if necessary
-    maxWidth: "30%", // Increases width slightly so "Restaurants" fits
+    maxWidth: "35%", // Increases width slightly so "Restaurants" fits
     paddingVertical: 8, 
     paddingHorizontal: 8, // Adjust padding to prevent text wrapping
     marginHorizontal: 2, // Keeps buttons evenly spaced
@@ -221,7 +237,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#9B1B30",
   },
   categoryText: {
-    fontSize: 15, 
+    fontSize: 18, 
     fontWeight: "bold",
     textAlign: "center",
     flexWrap: "nowrap", // Prevents text from breaking into two lines
