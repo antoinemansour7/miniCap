@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView, Animate
 import * as Location from "expo-location";
 import Slider from "@react-native-community/slider";
 
-const categories = ["Restaurants", "Café", "Barber"];
+const categories = ["Restaurants", "Café", "Bakery"];
 const googleAPIKey = "AIzaSyAMimof390OY-MHLbUOkdwsTh3f56StuRk"; // Replace with your API key
 
 export default function PointsOfInterests() {
@@ -50,28 +50,47 @@ export default function PointsOfInterests() {
 
   const fetchPlaces = async (category) => {
     if (!location) return;
+    
+    // Map categories to Google API types
+    const categoryMap = {
+      "Restaurants": "restaurant",
+      "Café": "cafe",
+      "Bakery": "bakery"
+    };
+  
+    const placeType = categoryMap[category] || "restaurant"; // Default to restaurant if undefined
+  
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=5000&type=restaurant&key=${googleAPIKey}`
+        `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=5000&type=${placeType}&key=${googleAPIKey}`
       );
+  
       const data = await response.json();
-      const placesWithDistance = data.results.slice(0, maxResults).map((place) => ({
+  
+      // Calculate distance for all places first
+      let placesWithDistance = data.results.map((place) => ({
         ...place,
-        distance: calculateDistance(
-          location.latitude,
-          location.longitude,
-          place.geometry.location.lat,
-          place.geometry.location.lng
+        distance: parseFloat(
+          calculateDistance(
+            location.latitude,
+            location.longitude,
+            place.geometry.location.lat,
+            place.geometry.location.lng
+          )
         ),
       }));
-
-      placesWithDistance.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
-      
-      setPlaces(placesWithDistance);
+  
+      // Sort all places by distance (nearest first)
+      placesWithDistance.sort((a, b) => a.distance - b.distance);
+  
+      // Slice after sorting, ensuring nearest ones are kept when increasing maxResults
+      setPlaces(placesWithDistance.slice(0, maxResults));
     } catch (error) {
       console.error("Error fetching places:", error);
     }
   };
+  
+  
 
   // 🔹 Fetch places when `maxResults` changes
   useEffect(() => {
