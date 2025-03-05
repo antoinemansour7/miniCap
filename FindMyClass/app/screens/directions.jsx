@@ -126,7 +126,7 @@ export default function DirectionsScreen() {
                             latitude: lat,
                             longitude: lng
                         }));
-                        setCoordinates([{ coordinates: decodedCoordinates, color: "gray", width: 4 }]);
+                        setCoordinates([{ coordinates: decodedCoordinates, color: "#912338", width: 4 }]);
                         setRouteInfo({ distance: "Shuttle departing at:", duration: `${nextTime}` });
                     }
                 } catch (err) {
