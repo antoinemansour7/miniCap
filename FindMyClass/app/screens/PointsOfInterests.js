@@ -64,11 +64,21 @@ export default function PointsOfInterests() {
           place.geometry.location.lng
         ),
       }));
+
+      placesWithDistance.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+      
       setPlaces(placesWithDistance);
     } catch (error) {
       console.error("Error fetching places:", error);
     }
   };
+
+  // 🔹 Fetch places when `maxResults` changes
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchPlaces(selectedCategory);
+    }
+  }, [maxResults]);
 
   return (
     <View style={styles.container}>
@@ -246,4 +256,3 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
-
