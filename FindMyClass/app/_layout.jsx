@@ -7,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 import { AuthProvider } from '../contexts/AuthContext';
 import ProfileButton from '../components/ProfileButton';
+import PointsOfInterests from './screens/PointsOfInterests';
 
 export default function Layout() {
   // Removed searchText state since search bar is no longer needed for maps
@@ -78,15 +79,17 @@ export default function Layout() {
             options={{ drawerLabel: 'Profile', title: 'Profile' }}
           />
 
-          {/* Removed routes from the Drawer Nav below */}
-
+          <Drawer.Screen
+            name="screens/pointsOfInterests"
+            // component={PointsOfInterests}
+            options={{ drawerLabel: 'Points of Interest', title: 'Points of Interest' }}
+          />
 
           <Drawer.Screen name="screens/directions" options={{
             drawerLabel: () => null, 
             title: 'Directions',
             drawerItemStyle: { display: 'none' },
             headerShown: false,
-
             }}
           />
 

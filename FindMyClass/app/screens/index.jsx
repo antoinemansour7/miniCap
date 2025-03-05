@@ -47,7 +47,8 @@ export default function Index() {
         />
         <Card 
           iconName="lock-closed" 
-          title="Security" 
+          onPress={() => navigation.navigate('screens/pointsOfInterests')}
+          title="Points of Interest" 
         />
       </View>
     </View>
