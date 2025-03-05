@@ -7,7 +7,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 import { AuthProvider } from '../contexts/AuthContext';
 import ProfileButton from '../components/ProfileButton';
-import PointsOfInterests from './screens/PointsOfInterests';
 
 export default function Layout() {
   // Removed searchText state since search bar is no longer needed for maps
@@ -55,8 +54,12 @@ export default function Layout() {
                 <Text style={styles.headerTitle}>Home</Text>
               ) : (
                 <Text style={styles.headerTitle}>
-                  {route.name.replace('screens/', '')}
-                </Text>
+                {route.name
+                  .replace('screens/', '')
+                  .replace(/([A-Z])/g, ' $1')
+                  .trim()}
+              </Text>
+              
               ),
             drawerActiveBackgroundColor: '#800000',
             drawerActiveTintColor: '#fff',
@@ -80,8 +83,7 @@ export default function Layout() {
           />
 
           <Drawer.Screen
-            name="screens/pointsOfInterests"
-            // component={PointsOfInterests}
+            name="screens/PointsOfInterests"
             options={{ drawerLabel: 'Points of Interest', title: 'Points of Interest' }}
           />
 

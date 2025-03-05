@@ -47,7 +47,7 @@ export default function Index() {
         />
         <Card 
           iconName="navigate" 
-          onPress={() => navigation.navigate('screens/pointsOfInterests')}
+          onPress={() => navigation.navigate('screens/PointsOfInterests')}
           title="Points of Interest" 
         />
       </View>
