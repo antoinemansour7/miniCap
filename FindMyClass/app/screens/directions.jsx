@@ -243,69 +243,87 @@ export default function DirectionsScreen() {
     };
     
 
-    const updateRoute = (start, end) => {
-        updateRouteWithMode(start, end, travelMode);
+    const updateRoute = async (start, end) => {
+        if (!start || !end) return;
+    
+        console.log("🚀 Ensuring correct mode in updateRoute.");
+        setTimeout(() => {
+            console.log("🛣 Using mode:", travelMode);
+            updateRouteWithMode(start, end, travelMode); // Always uses latest mode
+        }, 300); // Give React time to update state
     };
 
     useEffect(() => {
-        let locationSubscription;
-
+        console.log("🚀 Travel mode updated, calling updateRoute.");
+        if (startLocation && destination) {
+            updateRoute(startLocation, destination);
+        }
+    }, [travelMode]); // Runs only after travelMode updates
+    
+    useEffect(() => {
+        let locationSubscriptionRef = null;
+    
         const setupLocationAndRoute = async () => {
             try {
                 setIsLoading(true);
-                let { status } = await Location.requestForegroundPermissionsAsync();
+    
+                const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== "granted") {
                     throw new Error("Location permission denied");
                 }
-
+    
                 const initialLocation = await Location.getCurrentPositionAsync({
                     accuracy: Location.Accuracy.High
                 });
-                
+    
                 const newLocation = {
                     latitude: initialLocation.coords.latitude,
                     longitude: initialLocation.coords.longitude,
                 };
-
+    
+                console.log("📍 Initial user location:", newLocation);
                 setUserLocation(newLocation);
-                if (selectedStart === 'userLocation') {
+    
+                if (selectedStart === "userLocation") {
                     setStartLocation(newLocation);
-                    updateRoute(newLocation, destination);
                 }
-
-                // Update location watcher
-                locationSubscription = await Location.watchPositionAsync(
-                    { 
-                        accuracy: Location.Accuracy.High, 
-                        timeInterval: 5000, 
-                        distanceInterval: 10 
-                    },
+    
+                if (locationSubscriptionRef) locationSubscriptionRef.remove();
+    
+                locationSubscriptionRef = await Location.watchPositionAsync(
+                    { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
                     (location) => {
                         const updatedLocation = {
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude,
                         };
-                        setTimeout(() => {
-                            setUserLocation(updatedLocation);
-                            if (selectedStart === 'userLocation') {
-                                setStartLocation(updatedLocation);
-                                updateRoute(updatedLocation, destination);
-                            }
-                        }, 0);
+    
+                        console.log("📍 Updated user location:", updatedLocation);
+                        setUserLocation(updatedLocation);
+    
+                        if (selectedStart === "userLocation") {
+                            setStartLocation(updatedLocation);
+                        }
                     }
                 );
-                
+    
             } catch (err) {
-                console.error("Setup error:", err);
+                console.error("🚨 Setup error:", err);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
             }
         };
-
+    
         setupLocationAndRoute();
-        return () => locationSubscription?.remove();
-    }, [destination, selectedStart]); // Add selectedStart as dependency
+    
+        return () => {
+            console.log("🔄 Cleanup: Removing location watcher...");
+            if (locationSubscriptionRef) locationSubscriptionRef.remove();
+        };
+    }, [destination, selectedStart]); // Keeps selected travelMode
+    
+    
 
 
     const handleCloseModal = () => {
