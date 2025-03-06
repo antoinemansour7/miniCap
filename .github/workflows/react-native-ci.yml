@@ -35,13 +35,6 @@ jobs:
         run: |
           echo "export const googleAPIKey = '${{ secrets.GOOGLE_API_KEY }}';" > app/secrets.js
           echo "export const openaiAPIKey = '${{ secrets.OPENAI_API_KEY }}';" >> app/secrets.js
-          echo "export const firebaseConfig = ${{
-            secrets.FIREBASE_CONFIG || '{}' }}" >> app/secrets.js
-          # Optional: If you want to generate googleCalendarConfig dynamically, add it here:
-          echo "export const googleCalendarConfig = {" >> app/secrets.js
-          echo "  baseUrl: 'https://www.googleapis.com/calendar/v3/calendars/primary/events'," >> app/secrets.js
-          echo "  params: { maxResults: 10, orderBy: 'startTime', singleEvents: true }" >> app/secrets.js
-          echo "};" >> app/secrets.js
 
       # Step 5: Install dependencies
       - name: Install dependencies
