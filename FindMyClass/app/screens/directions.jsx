@@ -203,38 +203,47 @@ export default function DirectionsScreen() {
             
                     lineWidth = 6;
                     isDashed = false;
-            
-                  // 🚏 **Detect Proper Transfer Points (Transit ↔ Walking, Transit ↔ Transit)**
+
+                    // Detect Proper Transfer Points (Transit ↔ Walking, Transit ↔ Transit)
                     if (index > 0) {
                         const prevStep = leg.steps[index - 1];
                         const prevTransportType = prevStep.travel_mode;
                         const prevLine = prevStep.transit_details?.line;
-
-                        // 🚏 **Walking → Bus/Metro** (Place marker at START of transit)
+                    
                         if (prevTransportType === "WALKING" && transportType === "TRANSIT") {
-                            transferPoint = decodedStep[0]; // First point of transit step
+                            transferPoint = decodedStep[0];
+                            console.log("🚏 Walking → Transit Transfer at:", transferPoint);
                         }
-
-                        // 🚏 **Bus/Metro → Walking** (Place marker at END of transit)
+                    
                         if (prevTransportType === "TRANSIT" && transportType === "WALKING") {
-                            transferPoint = prevStep.polyline 
-                                ? polyline.decode(prevStep.polyline.points).slice(-1)[0] // Last point of transit step
-                                : decodedStep[0]; // Fallback to first walking step
+                            if (prevStep.transit_details && prevStep.transit_details.arrival_stop) {
+                                transferPoint = {
+                                    latitude: prevStep.transit_details.arrival_stop.location.lat,
+                                    longitude: prevStep.transit_details.arrival_stop.location.lng,
+                                };
+                            } else {
+                                const decodedPrevStep = prevStep.polyline ? polyline.decode(prevStep.polyline.points) : [];
+                                transferPoint = decodedPrevStep.length > 0 ? decodedPrevStep.slice(-1)[0] : decodedStep[0];
+                            }
+                            console.log("🚏 Transit → Walking Transfer at:", transferPoint);
                         }
-
-                        // 🚏 **Bus → Metro / Metro → Bus** (Place marker at END of bus, START of metro)
+                    
                         if (
                             prevTransportType === "TRANSIT" &&
                             transportType === "TRANSIT" &&
                             prevLine && line &&
                             prevLine.vehicle.type !== line.vehicle.type
                         ) {
-                            transferPoint = prevStep.polyline
-                                ? polyline.decode(prevStep.polyline.points).slice(-1)[0] // Last point of first transit step
-                                : decodedStep[0]; // First point of next transit step
+                            transferPoint = prevStep.transit_details && prevStep.transit_details.arrival_stop
+                                ? {
+                                    latitude: prevStep.transit_details.arrival_stop.location.lat,
+                                    longitude: prevStep.transit_details.arrival_stop.location.lng,
+                                }
+                                : decodedStep[0];
+                    
+                            console.log("🚏 Transit Mode Change (Bus ↔ Metro) at:", transferPoint);
                         }
-
-                        // 🚇 **Metro Line Transfer (Different Metro Lines)** (Place marker at START of new metro)
+                    
                         if (
                             prevTransportType === "TRANSIT" &&
                             isMetro &&
@@ -242,12 +251,24 @@ export default function DirectionsScreen() {
                             prevLine.vehicle.type === "SUBWAY" &&
                             prevLine.name !== line.name
                         ) {
-                            transferPoint = decodedStep[0]; // First point of new metro line
+                            transferPoint = decodedStep[0];
+                            console.log("🚏 Metro Line Change at:", transferPoint);
                         }
                     
-
-                        
+                        if (transferPoint) {
+                            extractedSegments.push({
+                                id: `transfer-${index}`,
+                                coordinates: [transferPoint],
+                                color: "black",
+                                width: 6,
+                                isDashed: false,
+                                transportLabel: "Transfer Point",
+                            });
+                            console.log("📍 Added Transfer Point Marker:", transferPoint);
+                        }
                     }
+                    
+
                 }
             
                 extractedSegments.push({
