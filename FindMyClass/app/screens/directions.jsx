@@ -173,43 +173,53 @@ export default function DirectionsScreen() {
                     longitude: lng
                 }));
     
-               // Determine the transport mode and assign properties
-                    let segmentColor = "#007AFF"; // Default: Blue
-                    let lineWidth = 3; // Default thickness
-                    let isDashed = false; // Default: solid line
+                // Determine the transport mode and assign properties
+                let segmentColor = "#007AFF"; // Default: Blue
+                let lineWidth = 3; // Default thickness
+                let isDashed = false; // Default: solid line
+                let busNumber = null; // New: Store bus number
 
-                    if (step.travel_mode === "WALKING") {
-                        segmentColor = "#007AFF"; // Blue for walking
-                        lineWidth = 2; // Thinner line
-                        isDashed = true; // Dashed for walking
-                    } else if (step.travel_mode === "DRIVING") {
-                        segmentColor = "#007AFF"; // Blue for car
-                        lineWidth = 4; // Thicker than walking
-                        isDashed = false; // Solid line for driving
-                    } else if (step.travel_mode === "TRANSIT" && step.transit_details) {
-                        const { line } = step.transit_details;
-                        if (line.vehicle.type === "BUS") {
-                            segmentColor = "purple"; // Bus color
-                        } else if (line.vehicle.type === "SUBWAY") {
-                            if (line.name.includes("Verte")) segmentColor = "green";
-                            else if (line.name.includes("Bleue")) segmentColor = "darkblue";
-                            else if (line.name.includes("Jaune")) segmentColor = "yellow";
-                            else if (line.name.includes("Orange")) segmentColor = "orange";
-                        }
-                        lineWidth = 6; // Thicker for transit
-                        isDashed = false; // Transit lines should be solid
+                if (step.travel_mode === "WALKING") {
+                    segmentColor = "#007AFF"; // Blue for walking
+                    lineWidth = 2; // Thinner line
+                    isDashed = true; // Dashed for walking
+                } else if (step.travel_mode === "DRIVING") {
+                    segmentColor = "#007AFF"; // Blue for car
+                    lineWidth = 4; // Thicker than walking
+                    isDashed = false; // Solid line for driving
+                } else if (step.travel_mode === "TRANSIT" && step.transit_details) {
+                    const { line } = step.transit_details;
+
+                    if (line.vehicle.type === "BUS") {
+                        segmentColor = "purple"; // Bus color
+                        busNumber = line.short_name; // Store bus number
+                    } else if (line.vehicle.type === "SUBWAY") {
+                        if (line.name.includes("Verte")) segmentColor = "green";
+                        else if (line.name.includes("Bleue")) segmentColor = "darkblue";
+                        else if (line.name.includes("Jaune")) segmentColor = "yellow";
+                        else if (line.name.includes("Orange")) segmentColor = "orange";
                     }
+                    lineWidth = 6; // Thicker for transit
+                    isDashed = false; // Transit lines should be solid
+                }
 
-                    // Store each segment with its correct style
-                    extractedSegments.push({
-                        id: index,
-                        coordinates: decodedStep,
-                        color: segmentColor,
-                        width: lineWidth,
-                        isDashed: isDashed
-                    });
+                // Find the midpoint for the bus route
+                let midpoint = null;
+                if (busNumber && decodedStep.length > 0) {
+                    midpoint = decodedStep[Math.floor(decodedStep.length / 2)]; // Get the midpoint safely
+                }
 
-    
+                // Store each segment with its correct style
+                extractedSegments.push({
+                    id: index,
+                    coordinates: decodedStep,
+                    color: segmentColor,
+                    width: lineWidth,
+                    isDashed: isDashed,
+                    busNumber: busNumber, // Store the bus number for later use
+                    midpoint: midpoint, // Store the midpoint location
+                });
+
                 return {
                     id: index,
                     instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), // Remove HTML tags
@@ -217,7 +227,7 @@ export default function DirectionsScreen() {
                     duration: step.duration.text,
                 };
             }).filter(Boolean); // Removes null values
-    
+
             setDirections(extractedDirections);
             setCoordinates(extractedSegments);
     
@@ -406,17 +416,35 @@ export default function DirectionsScreen() {
                         )}
                         {destination && <Marker coordinate={destination} title="Destination" />}
                         {coordinates.length > 0 && coordinates.map((segment, index) => (
+                        <React.Fragment key={index}>
                             <Polyline 
-                                key={index}
                                 coordinates={segment.coordinates}
                                 strokeWidth={segment.width}
                                 strokeColor={segment.color}
-                                lineDashPattern={segment.isDashed ? [5, 5] : undefined} // Dashed for walking only
+                                lineDashPattern={segment.isDashed ? [5, 5] : undefined} // Dashed for walking
                             />
-                        ))}
-                        
-                    </MapView>
-                </View>
+                            {segment.busNumber && segment.midpoint && (
+                                <Marker coordinate={segment.midpoint}>
+                                    <View style={{
+                                        backgroundColor: "white", 
+                                        paddingHorizontal: 8, 
+                                        paddingVertical: 4, 
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: "black",
+                                        alignItems: "center"
+                                    }}>
+                                        <Text style={{ color: "black", fontWeight: "bold" }}>
+                                            {segment.busNumber}
+                                        </Text>
+                                    </View>
+                                </Marker>
+                            )}
+                        </React.Fragment>
+                    ))}
+                                
+                            </MapView>
+                        </View>
 
                 {isLoading && (
                     <View style={styles.loadingCard}>
