@@ -93,229 +93,198 @@ export default function DirectionsScreen() {
     };
 
 
-    const updateRouteWithMode = async (start, end, mode) => {
-        if (!start || !end) return;
-    
-        // SHUTTLE mode handling
-        if (mode === 'SHUTTLE') {
-            const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
-            const isStartSGW = isNearCampus(start, SGW_COORDS);
-            const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
-            const isEndSGW = isNearCampus(end, SGW_COORDS);
-    
-            if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
-                const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
-                const nextTime = getNextShuttleTime(fromCampus);
-                
-                setDirections([{
-                    id: 0,
-                    instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
-                    distance: 'Shuttle Service',
-                    duration: `${nextTime} - 25 min ride`
-                }]);
-    
-                try {
-                    const response = await fetch(
-                        `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=driving&key=${googleAPIKey}`
-                    );
-                    const data = await response.json();
-    
-                    if (data.routes && data.routes.length > 0) {
-                        const encodedPolyline = data.routes[0].overview_polyline.points;
-                        const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
-                            latitude: lat,
-                            longitude: lng
-                        }));
-                        setCoordinates([{ coordinates: decodedCoordinates, color: "#912338", width: 4 }]);
-                        setRouteInfo({ distance: "Shuttle departing at:", duration: `${nextTime}` });
-                    }
-                } catch (err) {
-                    console.error("Route update error:", err);
-                    setError(err.message);
-                }
-                return;
-            } else {
-                Alert.alert(
-                    "Shuttle Service",
-                    "Shuttle service is only available between Loyola and SGW campuses.",
-                    [{ text: "OK" }]
-                );
-                return;
-            }
-        }
-    
-        // Handle other modes (DRIVING, WALKING, TRANSIT)
+    const fetchRouteData = async (start, end, mode) => {
         try {
-            setIsLoading(true);
-            const modeParam = mode.toLowerCase();
-            console.log(`Requesting route with mode: ${modeParam}`);
-    
             const response = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${mode.toLowerCase()}&key=${googleAPIKey}`
             );
             const data = await response.json();
-    
-            if (!data.routes || data.routes.length === 0) {
-                throw new Error("No route found");
-            }
-    
-            setCoordinates([]);
-            const leg = data.routes[0].legs[0];
-            setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
-    
-            // Extract and process segments from steps
-            const extractedSegments = [];
-            const extractedDirections = leg.steps.map((step, index) => {
-                if (!step.polyline) return null; // Prevent undefined polyline errors
-            
-                const decodedStep = polyline.decode(step.polyline.points).map(([lat, lng]) => ({
-                    latitude: lat,
-                    longitude: lng
-                }));
-            
-                let segmentColor = "#007AFF"; // Default: Blue
-                let lineWidth = 3;
-                let isDashed = false;
-                let transportType = step.travel_mode;
-                let transferPoint = null;
-                let transportLabel = null;
-                let isBus = false;
-                let isMetro = false;
-            
-                if (transportType === "WALKING") {
-                    segmentColor = "#007AFF"; // Blue for walking
-                    lineWidth = 2;
-                    isDashed = true;
-                } else if (transportType === "TRANSIT" && step.transit_details) {
-                    const { line } = step.transit_details;
-                    transportLabel = line.short_name || line.name; // Store label
-            
-                    if (line.vehicle.type === "BUS") {
-                        segmentColor = "purple"; // Bus color
-                        isBus = true;
-                    } else if (line.vehicle.type === "SUBWAY") {
-                        if (line.name.includes("Verte")) segmentColor = "green";
-                        else if (line.name.includes("Bleue")) segmentColor = "darkblue";
-                        else if (line.name.includes("Jaune")) segmentColor = "yellow";
-                        else if (line.name.includes("Orange")) segmentColor = "orange";
-                        isMetro = true;
-                    }
-            
-                    lineWidth = 6;
-                    isDashed = false;
-
-                    // Detect Proper Transfer Points (Transit ↔ Walking, Transit ↔ Transit)
-                    if (index > 0) {
-                        const prevStep = leg.steps[index - 1];
-                        const prevTransportType = prevStep.travel_mode;
-                        const prevLine = prevStep.transit_details?.line;
-                    
-                        if (prevTransportType === "WALKING" && transportType === "TRANSIT") {
-                            transferPoint = decodedStep[0];
-                            console.log("🚏 Walking → Transit Transfer at:", transferPoint);
-                        }
-                    
-                        if (prevTransportType === "TRANSIT" && transportType === "WALKING") {
-                            if (prevStep.transit_details && prevStep.transit_details.arrival_stop) {
-                                transferPoint = {
-                                    latitude: prevStep.transit_details.arrival_stop.location.lat,
-                                    longitude: prevStep.transit_details.arrival_stop.location.lng,
-                                };
-                            } else {
-                                const decodedPrevStep = prevStep.polyline ? polyline.decode(prevStep.polyline.points) : [];
-                                transferPoint = decodedPrevStep.length > 0 ? decodedPrevStep.slice(-1)[0] : decodedStep[0];
-                            }
-                            console.log("🚏 Transit → Walking Transfer at:", transferPoint);
-                        }
-                    
-                        if (
-                            prevTransportType === "TRANSIT" &&
-                            transportType === "TRANSIT" &&
-                            prevLine && line &&
-                            prevLine.vehicle.type !== line.vehicle.type
-                        ) {
-                            transferPoint = prevStep.transit_details && prevStep.transit_details.arrival_stop
-                                ? {
-                                    latitude: prevStep.transit_details.arrival_stop.location.lat,
-                                    longitude: prevStep.transit_details.arrival_stop.location.lng,
-                                }
-                                : decodedStep[0];
-                    
-                            console.log("🚏 Transit Mode Change (Bus ↔ Metro) at:", transferPoint);
-                        }
-                    
-                        if (
-                            prevTransportType === "TRANSIT" &&
-                            isMetro &&
-                            prevLine &&
-                            prevLine.vehicle.type === "SUBWAY" &&
-                            prevLine.name !== line.name
-                        ) {
-                            transferPoint = decodedStep[0];
-                            console.log("🚏 Metro Line Change at:", transferPoint);
-                        }
-                    
-                        if (transferPoint) {
-                            extractedSegments.push({
-                                id: `transfer-${index}`,
-                                coordinates: [transferPoint],
-                                color: "black",
-                                width: 6,
-                                isDashed: false,
-                                transportLabel: "Transfer Point",
-                            });
-                            console.log("📍 Added Transfer Point Marker:", transferPoint);
-                        }
-                    }
-                    
-
-                }
-            
-                extractedSegments.push({
-                    id: index,
-                    coordinates: decodedStep,
-                    color: segmentColor,
-                    width: lineWidth,
-                    isDashed: isDashed,
-                    transportLabel: transportLabel,
-                    transferPoint: transferPoint,
-                    isBus: isBus,
-                    isMetro: isMetro
-                });
-            
-                return {
-                    id: index,
-                    instruction: step.html_instructions.replace(/<\/?[a-z][a-z0-9]*\b[^>]*>/gi, ''), // Remove HTML tags
-                    distance: `${step.distance.text}`,
-                    duration: step.duration.text,
-                };
-            }).filter(Boolean);
-            
-            setDirections(extractedDirections);
-            setCoordinates(extractedSegments);            
-
-    
-            if (mapRef.current) {
-                setTimeout(() => {
-                    mapRef.current?.fitToCoordinates(
-                        extractedSegments.flatMap(segment => segment.coordinates),
-                        {
-                            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                            animated: true,
-                        }
-                    );
-                }, 100);
-            }
+            if (!data.routes || data.routes.length === 0) throw new Error("No route found");
+            return data;
         } catch (err) {
-            console.error("Route update error:", err);
-            setError(err.message);
-        } finally {
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 0);
+            console.error("Route fetch error:", err);
+            throw err;
         }
     };
     
+    const processShuttleMode = async (start, end) => {
+        const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
+        const isStartSGW = isNearCampus(start, SGW_COORDS);
+        const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
+        const isEndSGW = isNearCampus(end, SGW_COORDS);
+    
+        if (!(isStartLoyola && isEndSGW) && !(isStartSGW && isEndLoyola)) {
+            Alert.alert("Shuttle Service", "Shuttle service is only available between Loyola and SGW campuses.", [{ text: "OK" }]);
+            return;
+        }
+    
+        const fromCampus = isStartLoyola ? "loyola" : "sgw";
+        const nextTime = getNextShuttleTime(fromCampus);
+    
+        setDirections([
+            {
+                id: 0,
+                instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
+                distance: "Shuttle Service",
+                duration: `${nextTime} - 25 min ride`
+            }
+        ]);
+    
+        try {
+            const data = await fetchRouteData(start, end, "driving");
+            const encodedPolyline = data.routes[0].overview_polyline.points;
+            const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
+                latitude: lat,
+                longitude: lng
+            }));
+    
+            setCoordinates([{ coordinates: decodedCoordinates, color: "#912338", width: 4 }]);
+            setRouteInfo({ distance: "Shuttle departing at:", duration: `${nextTime}` });
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+    
+    const processRouteData = (data) => {
+        setCoordinates([]);
+        const leg = data.routes[0].legs[0];
+        setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
+    
+        const extractedSegments = [];
+        const extractedDirections = leg.steps.map((step, index) => {
+            if (!step.polyline) return null;
+    
+            const decodedStep = polyline.decode(step.polyline.points).map(([lat, lng]) => ({
+                latitude: lat,
+                longitude: lng
+            }));
+    
+            let segmentColor = "#007AFF";
+            let lineWidth = 3;
+            let isDashed = false;
+            let transportType = step.travel_mode;
+            let transferPoint = null;
+            let transportLabel = null;
+            let isBus = false;
+            let isMetro = false;
+    
+            if (transportType === "WALKING") {
+                segmentColor = "#007AFF";
+                lineWidth = 2;
+                isDashed = true;
+            } else if (transportType === "TRANSIT" && step.transit_details) {
+                const { line } = step.transit_details;
+                transportLabel = line.short_name || line.name;
+    
+                if (line.vehicle.type === "BUS") {
+                    segmentColor = "purple";
+                    isBus = true;
+                } else if (line.vehicle.type === "SUBWAY") {
+                    segmentColor = getMetroLineColor(line.name);
+                    isMetro = true;
+                }
+    
+                lineWidth = 6;
+                isDashed = false;
+                transferPoint = detectTransferPoint(leg.steps, index, decodedStep, line);
+            }
+    
+            if (transferPoint) {
+                extractedSegments.push({
+                    id: `transfer-${index}`,
+                    coordinates: [transferPoint],
+                    color: "black",
+                    width: 6,
+                    isDashed: false,
+                    transportLabel: "Transfer Point"
+                });
+            }
+    
+            extractedSegments.push({
+                id: index,
+                coordinates: decodedStep,
+                color: segmentColor,
+                width: lineWidth,
+                isDashed: isDashed,
+                transportLabel: transportLabel,
+                transferPoint: transferPoint,
+                isBus: isBus,
+                isMetro: isMetro
+            });
+    
+            return {
+                id: index,
+                instruction: step.html_instructions.replace(/<\/?[a-z][a-z0-9]*\b[^>]*>/gi, ""),
+                distance: `${step.distance.text}`,
+                duration: step.duration.text
+            };
+        }).filter(Boolean);
+    
+        setDirections(extractedDirections);
+        setCoordinates(extractedSegments);
+    
+        if (mapRef.current) {
+            setTimeout(() => {
+                mapRef.current?.fitToCoordinates(
+                    extractedSegments.flatMap(segment => segment.coordinates),
+                    { edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, animated: true }
+                );
+            }, 100);
+        }
+    };
+    
+    const getMetroLineColor = (lineName) => {
+        if (lineName.includes("Verte")) return "green";
+        if (lineName.includes("Bleue")) return "darkblue";
+        if (lineName.includes("Jaune")) return "yellow";
+        if (lineName.includes("Orange")) return "orange";
+        return "#000"; // Default color
+    };
+    
+    const detectTransferPoint = (steps, index, decodedStep, currentLine) => {
+        if (index === 0) return null;
+        const prevStep = steps[index - 1];
+        const prevTransportType = prevStep.travel_mode;
+        const prevLine = prevStep.transit_details?.line;
+    
+        if (prevTransportType === "WALKING" && currentLine) return decodedStep[0];
+    
+        if (prevTransportType === "TRANSIT" && prevLine && prevLine.vehicle.type !== currentLine.vehicle.type) {
+            return prevStep.transit_details?.arrival_stop
+                ? {
+                    latitude: prevStep.transit_details.arrival_stop.location.lat,
+                    longitude: prevStep.transit_details.arrival_stop.location.lng
+                }
+                : decodedStep[0];
+        }
+    
+        if (prevTransportType === "TRANSIT" && prevLine?.vehicle.type === "SUBWAY" && prevLine.name !== currentLine.name) {
+            return decodedStep[0];
+        }
+    
+        return null;
+    };
+    
+    const updateRouteWithMode = async (start, end, mode) => {
+        if (!start || !end) return;
+    
+        try {
+            setIsLoading(true);
+    
+            if (mode === "SHUTTLE") {
+                await processShuttleMode(start, end);
+                return;
+            }
+    
+            console.log(`Requesting route with mode: ${mode}`);
+            const data = await fetchRouteData(start, end, mode);
+            processRouteData(data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }; 
 
     const updateRoute = async (start, end) => {
         if (!start || !end) return;
