@@ -166,70 +166,113 @@ export default function DirectionsScreen() {
             // Extract and process segments from steps
             const extractedSegments = [];
             const extractedDirections = leg.steps.map((step, index) => {
-                if (!step.polyline) return null; // Prevents undefined polyline errors
-    
+                if (!step.polyline) return null; // Prevent undefined polyline errors
+            
                 const decodedStep = polyline.decode(step.polyline.points).map(([lat, lng]) => ({
                     latitude: lat,
                     longitude: lng
                 }));
-    
-                // Determine the transport mode and assign properties
+            
                 let segmentColor = "#007AFF"; // Default: Blue
-                let lineWidth = 3; // Default thickness
-                let isDashed = false; // Default: solid line
-                let busNumber = null; // New: Store bus number
-
-                if (step.travel_mode === "WALKING") {
+                let lineWidth = 3;
+                let isDashed = false;
+                let transportType = step.travel_mode;
+                let transferPoint = null;
+                let transportLabel = null;
+                let isBus = false;
+                let isMetro = false;
+            
+                if (transportType === "WALKING") {
                     segmentColor = "#007AFF"; // Blue for walking
-                    lineWidth = 2; // Thinner line
-                    isDashed = true; // Dashed for walking
-                } else if (step.travel_mode === "DRIVING") {
-                    segmentColor = "#007AFF"; // Blue for car
-                    lineWidth = 4; // Thicker than walking
-                    isDashed = false; // Solid line for driving
-                } else if (step.travel_mode === "TRANSIT" && step.transit_details) {
+                    lineWidth = 2;
+                    isDashed = true;
+                } else if (transportType === "TRANSIT" && step.transit_details) {
                     const { line } = step.transit_details;
-
+                    transportLabel = line.short_name || line.name; // Store label
+            
                     if (line.vehicle.type === "BUS") {
                         segmentColor = "purple"; // Bus color
-                        busNumber = line.short_name; // Store bus number
+                        isBus = true;
                     } else if (line.vehicle.type === "SUBWAY") {
                         if (line.name.includes("Verte")) segmentColor = "green";
                         else if (line.name.includes("Bleue")) segmentColor = "darkblue";
                         else if (line.name.includes("Jaune")) segmentColor = "yellow";
                         else if (line.name.includes("Orange")) segmentColor = "orange";
+                        isMetro = true;
                     }
-                    lineWidth = 6; // Thicker for transit
-                    isDashed = false; // Transit lines should be solid
-                }
+            
+                    lineWidth = 6;
+                    isDashed = false;
+            
+                  // 🚏 **Detect Proper Transfer Points (Transit ↔ Walking, Transit ↔ Transit)**
+                    if (index > 0) {
+                        const prevStep = leg.steps[index - 1];
+                        const prevTransportType = prevStep.travel_mode;
+                        const prevLine = prevStep.transit_details?.line;
 
-                // Find the midpoint for the bus route
-                let midpoint = null;
-                if (busNumber && decodedStep.length > 0) {
-                    midpoint = decodedStep[Math.floor(decodedStep.length / 2)]; // Get the midpoint safely
-                }
+                        // 🚏 **Walking → Bus/Metro** (Place marker at START of transit)
+                        if (prevTransportType === "WALKING" && transportType === "TRANSIT") {
+                            transferPoint = decodedStep[0]; // First point of transit step
+                        }
 
-                // Store each segment with its correct style
+                        // 🚏 **Bus/Metro → Walking** (Place marker at END of transit)
+                        if (prevTransportType === "TRANSIT" && transportType === "WALKING") {
+                            transferPoint = prevStep.polyline 
+                                ? polyline.decode(prevStep.polyline.points).slice(-1)[0] // Last point of transit step
+                                : decodedStep[0]; // Fallback to first walking step
+                        }
+
+                        // 🚏 **Bus → Metro / Metro → Bus** (Place marker at END of bus, START of metro)
+                        if (
+                            prevTransportType === "TRANSIT" &&
+                            transportType === "TRANSIT" &&
+                            prevLine && line &&
+                            prevLine.vehicle.type !== line.vehicle.type
+                        ) {
+                            transferPoint = prevStep.polyline
+                                ? polyline.decode(prevStep.polyline.points).slice(-1)[0] // Last point of first transit step
+                                : decodedStep[0]; // First point of next transit step
+                        }
+
+                        // 🚇 **Metro Line Transfer (Different Metro Lines)** (Place marker at START of new metro)
+                        if (
+                            prevTransportType === "TRANSIT" &&
+                            isMetro &&
+                            prevLine &&
+                            prevLine.vehicle.type === "SUBWAY" &&
+                            prevLine.name !== line.name
+                        ) {
+                            transferPoint = decodedStep[0]; // First point of new metro line
+                        }
+                    
+
+                        
+                    }
+                }
+            
                 extractedSegments.push({
                     id: index,
                     coordinates: decodedStep,
                     color: segmentColor,
                     width: lineWidth,
                     isDashed: isDashed,
-                    busNumber: busNumber, // Store the bus number for later use
-                    midpoint: midpoint, // Store the midpoint location
+                    transportLabel: transportLabel,
+                    transferPoint: transferPoint,
+                    isBus: isBus,
+                    isMetro: isMetro
                 });
-
+            
                 return {
                     id: index,
                     instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), // Remove HTML tags
                     distance: `${step.distance.text}`,
                     duration: step.duration.text,
                 };
-            }).filter(Boolean); // Removes null values
-
+            }).filter(Boolean);
+            
             setDirections(extractedDirections);
-            setCoordinates(extractedSegments);
+            setCoordinates(extractedSegments);            
+
     
             if (mapRef.current) {
                 setTimeout(() => {
@@ -416,32 +459,51 @@ export default function DirectionsScreen() {
                         )}
                         {destination && <Marker coordinate={destination} title="Destination" />}
                         {coordinates.length > 0 && coordinates.map((segment, index) => (
-                        <React.Fragment key={index}>
-                            <Polyline 
-                                coordinates={segment.coordinates}
-                                strokeWidth={segment.width}
-                                strokeColor={segment.color}
-                                lineDashPattern={segment.isDashed ? [5, 5] : undefined} // Dashed for walking
-                            />
-                            {segment.busNumber && segment.midpoint && (
-                                <Marker coordinate={segment.midpoint}>
-                                    <View style={{
-                                        backgroundColor: "white", 
-                                        paddingHorizontal: 8, 
-                                        paddingVertical: 4, 
-                                        borderRadius: 5,
-                                        borderWidth: 1,
-                                        borderColor: "black",
-                                        alignItems: "center"
-                                    }}>
-                                        <Text style={{ color: "black", fontWeight: "bold" }}>
-                                            {segment.busNumber}
-                                        </Text>
-                                    </View>
-                                </Marker>
-                            )}
-                        </React.Fragment>
-                    ))}
+                            <React.Fragment key={index}>
+                                <Polyline 
+                                    coordinates={segment.coordinates}
+                                    strokeWidth={segment.width}
+                                    strokeColor={segment.color}
+                                    lineDashPattern={segment.isDashed ? [5, 5] : undefined} // Dashed for walking
+                                />
+
+                                {/* 🏷 Show Bus Number at Midpoint, BUT NOT FOR METRO */}
+                                {segment.isBus && segment.transportLabel && segment.coordinates.length > 0 && (
+                                    <Marker 
+                                        coordinate={segment.coordinates[Math.floor(segment.coordinates.length / 2)]}
+                                    >
+                                        <View style={{
+                                            backgroundColor: "white", 
+                                            paddingHorizontal: 8, 
+                                            paddingVertical: 4, 
+                                            borderRadius: 5,
+                                            borderWidth: 1,
+                                            borderColor: "black",
+                                            alignItems: "center"
+                                        }}>
+                                            <Text style={{ color: "black", fontWeight: "bold" }}>
+                                                {segment.transportLabel}
+                                            </Text>
+                                        </View>
+                                    </Marker>
+                                )}
+
+                                {/* 🚏 Highlight Transfer Points (White Circle) */}
+                                {segment.transferPoint && (
+                                    <Marker coordinate={segment.transferPoint}>
+                                        <View style={{
+                                            backgroundColor: "white", 
+                                            width: 14,
+                                            height: 14,
+                                            borderRadius: 7, // Make it a circle
+                                            borderWidth: 2,
+                                            borderColor: "black"
+                                        }} />
+                                    </Marker>
+                                )}
+                            </React.Fragment>
+                        ))}
+
                                 
                             </MapView>
                         </View>
