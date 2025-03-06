@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.29% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>26/27</span>
+                <span class='fraction'>0/27</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/20</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -235,29 +235,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -296,7 +296,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -320,7 +320,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -402,29 +402,29 @@ import { View, Text, StyleSheet } from 'react-native';
 import BottomSheet, { BottomSheetView, BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 &nbsp;
-const getDirectionIcon = (instruction) =&gt; {
-  const lowercase = instruction.toLowerCase();
-  if (lowercase.includes('turn right')) return 'turn-right';
-  if (lowercase.includes('turn left')) return 'turn-left';
-  if (lowercase.includes('straight')) return 'straight';
-  if (lowercase.includes('destination')) return 'place';
-  if (lowercase.includes('stairs')) return 'stairs';
-  if (lowercase.includes('elevator')) return 'elevator';
-  return 'arrow-forward';
+const getDirectionIcon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>nstruction) =&gt; {</span>
+  const lowercase = <span class="cstat-no" title="statement not covered" >instruction.toLowerCase();</span>
+<span class="cstat-no" title="statement not covered" >  if (lowercase.includes('turn right')) <span class="cstat-no" title="statement not covered" >return 'turn-right';</span></span>
+<span class="cstat-no" title="statement not covered" >  if (lowercase.includes('turn left')) <span class="cstat-no" title="statement not covered" >return 'turn-left';</span></span>
+<span class="cstat-no" title="statement not covered" >  if (lowercase.includes('straight')) <span class="cstat-no" title="statement not covered" >return 'straight';</span></span>
+<span class="cstat-no" title="statement not covered" >  if (lowercase.includes('destination')) <span class="cstat-no" title="statement not covered" >return 'place';</span></span>
+<span class="cstat-no" title="statement not covered" >  if (lowercase.includes('stairs')) <span class="cstat-no" title="statement not covered" >return 'stairs';</span></span>
+<span class="cstat-no" title="statement not covered" >  if (lowercase.includes('elevator')) <span class="cstat-no" title="statement not covered" >return 'elevator';</span></span>
+<span class="cstat-no" title="statement not covered" >  return 'arrow-forward';</span>
 };
 &nbsp;
-const SwipeUpModal = ({ distance, duration, directions }) =&gt; {
-  const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() =&gt; ['4%' ,'15%', '50%', '74%'], []);
+const SwipeUpModal = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> distance, duration, directions }) =&gt; {</span>
+  const bottomSheetRef = <span class="cstat-no" title="statement not covered" >useRef(null);</span>
+  const snapPoints = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >['4%' ,'15%', '50%', '74%'],</span> []);</span>
 &nbsp;
-  const handleSheetChanges = useCallback((index) =&gt; {
-    console.log('handleSheetChanges', index);
+  const handleSheetChanges = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >(i</span>ndex) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    console.log('handleSheetChanges', index);</span>
   }, []);
 &nbsp;
-  const firstDirection = directions &amp;&amp; directions.length &gt; 0 ? directions[0] : null;
-  const remainingDirections = directions ? directions.slice(1) : [];
+  const firstDirection = <span class="cstat-no" title="statement not covered" >directions &amp;&amp; directions.length &gt; 0 ? directions[0] : null;</span>
+  const remainingDirections = <span class="cstat-no" title="statement not covered" >directions ? directions.slice(1) : [];</span>
 &nbsp;
-  return (
+<span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;BottomSheet
       ref={bottomSheetRef}
       onChange={handleSheetChanges}
@@ -462,8 +462,8 @@ const SwipeUpModal = ({ distance, duration, directions }) =&gt; {
         &lt;BottomSheetFlatList
           data={remainingDirections}
           keyExtractor={<span class="fstat-no" title="function not covered" >(i</span>tem, index) =&gt; <span class="cstat-no" title="statement not covered" >index.toString()}</span>
-          renderItem={({ item }) =&gt; (
-            &lt;View style={styles.itemContainer}&gt;
+          renderItem={<span class="fstat-no" title="function not covered" >({</span> item }) =&gt; (
+<span class="cstat-no" title="statement not covered" >            &lt;View style={styles.itemContainer}&gt;</span>
               &lt;View style={styles.iconContainer}&gt;
                 &lt;MaterialIcons 
                   name={getDirectionIcon(item.instruction)}
@@ -487,7 +487,7 @@ const SwipeUpModal = ({ distance, duration, directions }) =&gt; {
   );
 };
 &nbsp;
-const styles = StyleSheet.create({
+const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   headerContainer: {
     padding:0,
     backgroundColor: '#ffffff',
@@ -571,7 +571,7 @@ export default SwipeUpModal;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-06T01:04:44.240Z
+                at 2025-03-06T01:37:16.128Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
