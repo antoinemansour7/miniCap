@@ -93,189 +93,280 @@ export default function DirectionsScreen() {
     };
 
 
-    const updateRouteWithMode = async (start, end, mode) => {
-        if (!start || !end) return;
-
-        // SHUTTLE mode handling
-        if (mode === 'SHUTTLE') {
-            const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
-            const isStartSGW = isNearCampus(start, SGW_COORDS);
-            const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
-            const isEndSGW = isNearCampus(end, SGW_COORDS);
-
-            if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
-                const fromCampus = isStartLoyola ? 'loyola' : 'sgw';
-                const nextTime = getNextShuttleTime(fromCampus);
-                // Set shuttle-specific information
-                setDirections([{
-                    id: 0,
-                    instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
-                    distance: 'Shuttle Service',
-                    duration: `${nextTime} - 25 min ride`
-                }]);
-                
-                // Get driving route for map display but keep shuttle directions
-                try {
-                    const response = await fetch(
-                        `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=driving&key=${googleAPIKey}`
-                    );
-                    const data = await response.json();
-                    
-                    if (data.routes && data.routes.length > 0) {
-                        const encodedPolyline = data.routes[0].overview_polyline.points;
-                        const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
-                            latitude: lat,
-                            longitude: lng
-                        }));
-                        setCoordinates(decodedCoordinates);
-                        const leg = data.routes[0].legs[0];
-                        setRouteInfo({ 
-                            distance: "Shuttle departing at:", 
-                            duration: `${nextTime}` 
-                        });
-                    }
-                } catch (err) {
-                    console.error("Route update error:", err);
-                    setError(err.message);
-                }
-                return;
-            } else {
-                Alert.alert(
-                    "Shuttle Service",
-                    "Shuttle service is only available between Loyola and SGW campuses.",
-                    [{ text: "OK" }]
-                );
-                return;
-            }
-        }
-
-        // Handle other modes (DRIVING, WALKING, TRANSIT)
+    const fetchRouteData = async (start, end, mode) => {
         try {
-            setIsLoading(true);
-            const modeParam = mode.toLowerCase();
-            console.log(`Requesting route with mode: ${modeParam}`);
-
             const response = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${mode.toLowerCase()}&key=${googleAPIKey}`
             );
             const data = await response.json();
-            //console.log("Route response:", data);
-
-            if (!data.routes || data.routes.length === 0) {
-                throw new Error("No route found");
+            if (!data.routes || data.routes.length === 0) throw new Error("No route found");
+            return data;
+        } catch (err) {
+            console.error("Route fetch error:", err);
+            throw err;
+        }
+    };
+    
+    const processShuttleMode = async (start, end) => {
+        const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
+        const isStartSGW = isNearCampus(start, SGW_COORDS);
+        const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
+        const isEndSGW = isNearCampus(end, SGW_COORDS);
+    
+        if (!(isStartLoyola && isEndSGW) && !(isStartSGW && isEndLoyola)) {
+            Alert.alert("Shuttle Service", "Shuttle service is only available between Loyola and SGW campuses.", [{ text: "OK" }]);
+            return;
+        }
+    
+        const fromCampus = isStartLoyola ? "loyola" : "sgw";
+        const nextTime = getNextShuttleTime(fromCampus);
+    
+        setDirections([
+            {
+                id: 0,
+                instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
+                distance: "Shuttle Service",
+                duration: `${nextTime} - 25 min ride`
             }
-
-            setCoordinates([]);
-            
+        ]);
+    
+        try {
+            const data = await fetchRouteData(start, end, "driving");
             const encodedPolyline = data.routes[0].overview_polyline.points;
             const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({
                 latitude: lat,
                 longitude: lng
             }));
-
-            setCoordinates(decodedCoordinates);
-            const leg = data.routes[0].legs[0];
-            setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
-
-            // Extract directions from steps
-            
-            const extractedDirections = leg.steps.map((step, index) => ({
-                id: index,
-                instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), // NOSONAR
-                distance: `${step.distance.text}`,
-                duration: step.duration.text,
-            }));
-            setDirections(extractedDirections);
-        
-       
-
-            if (mapRef.current) {
-                const currentMapRef = mapRef.current; // store current reference
-                setTimeout(() => {
-                    if (currentMapRef) { // use stored reference instead of mapRef.current
-                        currentMapRef.fitToCoordinates(
-                            [start, end, ...decodedCoordinates],
-                            {
-                                edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                                animated: true,
-                            }
-                        );
-                    }
-                }, 100);
-            }
+    
+            setCoordinates([{ coordinates: decodedCoordinates, color: "#912338", width: 4 }]);
+            setRouteInfo({ distance: "Shuttle departing at:", duration: `${nextTime}` });
         } catch (err) {
-            console.error("Route update error:", err);
             setError(err.message);
-        } finally {
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 0);
         }
     };
+    
+    const processRouteData = (data) => {
+        setCoordinates([]);
+        const leg = data.routes[0].legs[0];
+        setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
+    
+        const extractedSegments = [];
+        const extractedDirections = leg.steps.map((step, index) => {
+            if (!step.polyline) return null;
+    
+            const decodedStep = polyline.decode(step.polyline.points).map(([lat, lng]) => ({
+                latitude: lat,
+                longitude: lng
+            }));
+    
+            let segmentColor = "#007AFF";
+            let lineWidth = 3;
+            let isDashed = false;
+            let transportType = step.travel_mode;
+            let transferPoint = null;
+            let transportLabel = null;
+            let isBus = false;
+            let isMetro = false;
+    
+            if (transportType === "WALKING") {
+                segmentColor = "#007AFF";
+                lineWidth = 2;
+                isDashed = true;
+            } else if (transportType === "TRANSIT" && step.transit_details) {
+                const { line } = step.transit_details;
+                transportLabel = line.short_name || line.name;
+    
+                if (line.vehicle.type === "BUS") {
+                    segmentColor = "purple";
+                    isBus = true;
+                } else if (line.vehicle.type === "SUBWAY") {
+                    segmentColor = getMetroLineColor(line.name);
+                    isMetro = true;
+                }
+    
+                lineWidth = 6;
+                isDashed = false;
+                transferPoint = detectTransferPoint(leg.steps, index, decodedStep, line);
+            }
+    
+            if (transferPoint) {
+                extractedSegments.push({
+                    id: `transfer-${index}`,
+                    coordinates: [transferPoint],
+                    color: "black",
+                    width: 6,
+                    isDashed: false,
+                    transportLabel: "Transfer Point"
+                });
+            }
+    
+            extractedSegments.push({
+                id: index,
+                coordinates: decodedStep,
+                color: segmentColor,
+                width: lineWidth,
+                isDashed: isDashed,
+                transportLabel: transportLabel,
+                transferPoint: transferPoint,
+                isBus: isBus,
+                isMetro: isMetro
+            });
+    
+            return {
+                id: index,
+                instruction: step.html_instructions.replace(/<\/?[a-z][a-z0-9]*\b[^>]*>/gi, ""),
+                distance: `${step.distance.text}`,
+                duration: step.duration.text
+            };
+        }).filter(Boolean);
+    
+        setDirections(extractedDirections);
+        setCoordinates(extractedSegments);
+    
+        if (mapRef.current) {
+            setTimeout(() => {
+                mapRef.current?.fitToCoordinates(
+                    extractedSegments.flatMap(segment => segment.coordinates),
+                    { edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, animated: true }
+                );
+            }, 100);
+        }
+    };
+    
+    const getMetroLineColor = (lineName) => {
+        if (lineName.includes("Verte")) return "green";
+        if (lineName.includes("Bleue")) return "darkblue";
+        if (lineName.includes("Jaune")) return "yellow";
+        if (lineName.includes("Orange")) return "orange";
+        return "#000"; // Default color
+    };
+    
+    const detectTransferPoint = (steps, index, decodedStep, currentLine) => {
+        if (index === 0) return null;
+        const prevStep = steps[index - 1];
+        const prevTransportType = prevStep.travel_mode;
+        const prevLine = prevStep.transit_details?.line;
+    
+        if (prevTransportType === "WALKING" && currentLine) return decodedStep[0];
+    
+        if (prevTransportType === "TRANSIT" && prevLine && prevLine.vehicle.type !== currentLine.vehicle.type) {
+            return prevStep.transit_details?.arrival_stop
+                ? {
+                    latitude: prevStep.transit_details.arrival_stop.location.lat,
+                    longitude: prevStep.transit_details.arrival_stop.location.lng
+                }
+                : decodedStep[0];
+        }
+    
+        if (prevTransportType === "TRANSIT" && prevLine?.vehicle.type === "SUBWAY" && prevLine.name !== currentLine.name) {
+            return decodedStep[0];
+        }
+    
+        return null;
+    };
+    
+    const updateRouteWithMode = async (start, end, mode) => {
+        if (!start || !end) return;
+    
+        try {
+            setIsLoading(true);
+    
+            if (mode === "SHUTTLE") {
+                await processShuttleMode(start, end);
+                return;
+            }
+    
+            console.log(`Requesting route with mode: ${mode}`);
+            const data = await fetchRouteData(start, end, mode);
+            processRouteData(data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }; 
 
-    const updateRoute = (start, end) => {
-        updateRouteWithMode(start, end, travelMode);
+    const updateRoute = async (start, end) => {
+        if (!start || !end) return;
+    
+        console.log("🚀 Ensuring correct mode in updateRoute.");
+        setTimeout(() => {
+            console.log("🛣 Using mode:", travelMode);
+            updateRouteWithMode(start, end, travelMode); // Always uses latest mode
+        }, 300); // Give React time to update state
     };
 
     useEffect(() => {
-        let locationSubscription;
-
+        console.log("🚀 Travel mode updated, calling updateRoute.");
+        if (startLocation && destination) {
+            updateRoute(startLocation, destination);
+        }
+    }, [travelMode]); // Runs only after travelMode updates
+    
+    useEffect(() => {
+        let locationSubscriptionRef = null;
+    
         const setupLocationAndRoute = async () => {
             try {
                 setIsLoading(true);
-                let { status } = await Location.requestForegroundPermissionsAsync();
+    
+                const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== "granted") {
                     throw new Error("Location permission denied");
                 }
-
+    
                 const initialLocation = await Location.getCurrentPositionAsync({
                     accuracy: Location.Accuracy.High
                 });
-                
+    
                 const newLocation = {
                     latitude: initialLocation.coords.latitude,
                     longitude: initialLocation.coords.longitude,
                 };
-
+    
+                console.log("📍 Initial user location:", newLocation);
                 setUserLocation(newLocation);
-                if (selectedStart === 'userLocation') {
+    
+                if (selectedStart === "userLocation") {
                     setStartLocation(newLocation);
-                    updateRoute(newLocation, destination);
                 }
-
-                // Update location watcher
-                locationSubscription = await Location.watchPositionAsync(
-                    { 
-                        accuracy: Location.Accuracy.High, 
-                        timeInterval: 5000, 
-                        distanceInterval: 10 
-                    },
+    
+                if (locationSubscriptionRef) locationSubscriptionRef.remove();
+    
+                locationSubscriptionRef = await Location.watchPositionAsync(
+                    { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
                     (location) => {
                         const updatedLocation = {
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude,
                         };
-                        setTimeout(() => {
-                            setUserLocation(updatedLocation);
-                            if (selectedStart === 'userLocation') {
-                                setStartLocation(updatedLocation);
-                                updateRoute(updatedLocation, destination);
-                            }
-                        }, 0);
+    
+                        console.log("📍 Updated user location:", updatedLocation);
+                        setUserLocation(updatedLocation);
+    
+                        if (selectedStart === "userLocation") {
+                            setStartLocation(updatedLocation);
+                        }
                     }
                 );
-                
+    
             } catch (err) {
-                console.error("Setup error:", err);
+                console.error("🚨 Setup error:", err);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
             }
         };
-
+    
         setupLocationAndRoute();
-        return () => locationSubscription?.remove();
-    }, [destination, selectedStart]); // Add selectedStart as dependency
+    
+        return () => {
+            console.log("🔄 Cleanup: Removing location watcher...");
+            if (locationSubscriptionRef) locationSubscriptionRef.remove();
+        };
+    }, [destination, selectedStart]); // Keeps selected travelMode
+    
+    
 
 
     const handleCloseModal = () => {
@@ -357,16 +448,55 @@ export default function DirectionsScreen() {
                             />
                         )}
                         {destination && <Marker coordinate={destination} title="Destination" />}
-                        {coordinates.length > 0 && (
-                            <Polyline 
-                                coordinates={coordinates}
-                                strokeWidth={2}
-                                strokeColor="#912338"
-                                lineDashPattern={[0]}
-                            />
-                        )}
-                    </MapView>
-                </View>
+                        {coordinates.length > 0 && coordinates.map((segment, index) => (
+                            <React.Fragment key={index}>
+                                <Polyline 
+                                    coordinates={segment.coordinates}
+                                    strokeWidth={segment.width}
+                                    strokeColor={segment.color}
+                                    lineDashPattern={segment.isDashed ? [5, 5] : undefined} // Dashed for walking
+                                />
+
+                                {/* 🏷 Show Bus Number at Midpoint, BUT NOT FOR METRO */}
+                                {segment.isBus && segment.transportLabel && segment.coordinates.length > 0 && (
+                                    <Marker 
+                                        coordinate={segment.coordinates[Math.floor(segment.coordinates.length / 2)]}
+                                    >
+                                        <View style={{
+                                            backgroundColor: "white", 
+                                            paddingHorizontal: 8, 
+                                            paddingVertical: 4, 
+                                            borderRadius: 5,
+                                            borderWidth: 1,
+                                            borderColor: "black",
+                                            alignItems: "center"
+                                        }}>
+                                            <Text style={{ color: "black", fontWeight: "bold" }}>
+                                                {segment.transportLabel}
+                                            </Text>
+                                        </View>
+                                    </Marker>
+                                )}
+
+                                {/* 🚏 Highlight Transfer Points (White Circle) */}
+                                {segment.transferPoint && (
+                                    <Marker coordinate={segment.transferPoint}>
+                                        <View style={{
+                                            backgroundColor: "white", 
+                                            width: 14,
+                                            height: 14,
+                                            borderRadius: 7, // Make it a circle
+                                            borderWidth: 2,
+                                            borderColor: "black"
+                                        }} />
+                                    </Marker>
+                                )}
+                            </React.Fragment>
+                        ))}
+
+                                
+                            </MapView>
+                        </View>
 
                 {isLoading && (
                     <View style={styles.loadingCard}>
