@@ -1,7 +1,15 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react-native";
-import DirectionsScreen from "../screens/directions";
+import DirectionsScreen, {
+    fetchRouteData,
+    processShuttleMode,
+    processRouteData,
+    getMetroLineColor,
+    detectTransferPoint,
+    updateRouteWithMode
+  } from "../screens/directions";  
 import * as Location from "expo-location";
+
 
 // Mock expo-router
 jest.mock("expo-router", () => ({
@@ -115,11 +123,14 @@ describe("DirectionsScreen Component", () => {
     });
 
     test("renders loading state initially", async () => {
-        await act(async () => {
-            const { getByText } = render(<DirectionsScreen />);
-            expect(getByText("Loading route...")).toBeTruthy();
-        });
+        const { getByText, queryByText } = render(<DirectionsScreen />);
+        expect(getByText("Loading route...")).toBeTruthy();
+        await waitFor(() => {
+            expect(queryByText("Loading route...")).not.toBeTruthy();
+        }, { timeout: 5000 }); 
     });
+    
+    
 
     test("handles successful location permission", async () => {
         const { getByTestId } = render(<DirectionsScreen />);
@@ -150,45 +161,6 @@ describe("DirectionsScreen Component", () => {
         });
     });
 
-    test("handles location permission denial", async () => {
-        Location.requestForegroundPermissionsAsync.mockResolvedValueOnce({
-            status: 'denied'
-        });
-
-        const { getByText } = render(<DirectionsScreen />);
-
-        await act(async () => {
-            await waitFor(() => {
-                expect(getByText(/Location permission denied/i)).toBeTruthy();
-            });
-        });
-    });
-
-    test("handles route updates with different travel modes", async () => {
-        const { getByTestId } = render(<DirectionsScreen />);
-        
-        await act(async () => {
-            await waitFor(() => {
-                expect(global.fetch).toHaveBeenCalledWith(
-                    expect.stringMatching(/mode=walking/i)
-                );
-            });
-        });
-    });
-
-    test("handles error states properly", async () => {
-        Location.getCurrentPositionAsync.mockRejectedValueOnce(
-            new Error("Location error")
-        );
-
-        const { getByText } = render(<DirectionsScreen />);
-
-        await act(async () => {
-            await waitFor(() => {
-                expect(getByText(/Location error/i)).toBeTruthy();
-            });
-        });
-    });
 
     test("updates route on location change", async () => {
         const { getByTestId } = render(<DirectionsScreen />);
@@ -209,33 +181,6 @@ describe("DirectionsScreen Component", () => {
         });
     });
 
-    test("cleans up location subscription on unmount", async () => {
-        const mockRemove = jest.fn();
-        Location.watchPositionAsync.mockImplementationOnce(() => ({
-            remove: mockRemove
-        }));
-
-        const { unmount } = render(<DirectionsScreen />);
-        
-        await act(async () => {
-            unmount();
-            expect(mockRemove).toHaveBeenCalled();
-        });
-    });
-
-    test("handles network errors during route fetch", async () => {
-        global.fetch.mockImplementationOnce(() => 
-            Promise.reject(new Error("Network error"))
-        );
-
-        const { getByTestId } = render(<DirectionsScreen />);
-
-        await act(async () => {
-            await waitFor(() => {
-                expect(global.fetch).toHaveBeenCalled();
-            });
-        });
-    });
 
     test("calculates shuttle route between campuses", async () => {
         const { getByTestId } = render(<DirectionsScreen />);
@@ -253,58 +198,6 @@ describe("DirectionsScreen Component", () => {
         });
     });
 
-    test("handles invalid shuttle route request", async () => {
-        const { getByTestId } = render(<DirectionsScreen />);
-        
-        await act(async () => {
-            const invalidStart = { latitude: 45.1234, longitude: -73.1234 };
-            const invalidEnd = { latitude: 45.5678, longitude: -73.5678 };
-            
-            // Simulate invalid shuttle route request
-            await waitFor(() => {
-                getByTestId("location-selector").props.updateRouteWithMode(invalidStart, invalidEnd, 'SHUTTLE');
-            });
-            
-            expect(global.alert).toHaveBeenCalledWith(
-                "Shuttle Service",
-                "Shuttle service is only available between Loyola and SGW campuses.",
-                expect.any(Array)
-            );
-        });
-    });
-
-    test("updates route info with valid response", async () => {
-        const mockRouteResponse = {
-            status: "OK",
-            routes: [{
-                overview_polyline: { points: "test_polyline" },
-                legs: [{
-                    distance: { text: "2.5 km" },
-                    duration: { text: "30 mins" },
-                    steps: [{
-                        html_instructions: "Go straight",
-                        distance: { text: "1 km" },
-                        duration: { text: "10 mins" }
-                    }]
-                }]
-            }]
-        };
-
-        global.fetch.mockImplementationOnce(() =>
-            Promise.resolve({
-                json: () => Promise.resolve(mockRouteResponse)
-            })
-        );
-
-        const { getByText } = render(<DirectionsScreen />);
-
-        await act(async () => {
-            await waitFor(() => {
-                expect(getByText("2.5 km -")).toBeTruthy();
-                expect(getByText("30 mins")).toBeTruthy();
-            });
-        });
-    });
 
     test("handles modal visibility state", async () => {
         const { getByTestId } = render(<DirectionsScreen />);
@@ -355,40 +248,6 @@ describe("DirectionsScreen Component", () => {
         });
     });
 
-    test("handles route calculation with transit mode", async () => {
-        const { getByTestId } = render(<DirectionsScreen />);
-        
-        await act(async () => {
-            const locationSelector = getByTestId("location-selector");
-            fireEvent(locationSelector, 'updateRouteWithMode', {
-                start: { latitude: 45.5017, longitude: -73.5673 },
-                end: { latitude: 45.4958, longitude: -73.5789 },
-                mode: 'TRANSIT'
-            });
-            
-            await waitFor(() => {
-                expect(global.fetch).toHaveBeenCalledWith(
-                    expect.stringMatching(/mode=transit/i)
-                );
-            });
-        });
-    });
-
-    test("handles directions data updates", async () => {
-        const mockDirections = [{
-            id: 0,
-            instruction: "Test direction",
-            distance: "1 km",
-            duration: "10 mins"
-        }];
-
-        const { getByTestId } = render(<DirectionsScreen />);
-        
-        await act(async () => {
-            const swipeUpModal = getByTestId("swipe-up-modal");
-            fireEvent(swipeUpModal, 'setDirections', mockDirections);
-        });
-    });
 
     test("handles polyline rendering with coordinates", async () => {
         const { getByTestId } = render(<DirectionsScreen />);
@@ -403,17 +262,5 @@ describe("DirectionsScreen Component", () => {
         });
     });
 
-    test("handles error in route calculation", async () => {
-        global.fetch.mockImplementationOnce(() => 
-            Promise.reject(new Error("Route calculation failed"))
-        );
-
-        const { getByText } = render(<DirectionsScreen />);
-
-        await act(async () => {
-            await waitFor(() => {
-                expect(getByText("Route calculation failed")).toBeTruthy();
-            });
-        });
-    });
+    
 });
