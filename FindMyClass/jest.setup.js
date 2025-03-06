@@ -1,5 +1,24 @@
 import 'react-native-gesture-handler/jestSetup';
 
+// Polyfill for crypto.getRandomValues (needed for uuid)
+if (typeof crypto === 'undefined') {
+  global.crypto = {
+    getRandomValues: (arr) => {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 256);
+      }
+      return arr;
+    },
+  };
+} else if (!crypto.getRandomValues) {
+  crypto.getRandomValues = (arr) => {
+    for (let i = 0; i < arr.length; i++) {
+      arr[i] = Math.floor(Math.random() * 256);
+    }
+    return arr;
+  };
+}
+
 // Firebase mocks
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(() => ({})),
@@ -30,7 +49,7 @@ jest.mock('expo-splash-screen', () => ({
 jest.mock('expo-modules-core', () => ({
   NativeModulesProxy: { ExponentDevice: { getPlatformName: () => 'ios' } },
   EventEmitter: jest.fn(),
-  requireOptionalNativeModule: jest.fn(), // ✅ Fix for "requireOptionalNativeModule is not a function"
+  requireOptionalNativeModule: jest.fn(), // Fix for "requireOptionalNativeModule is not a function"
 }));
 
 // Mock `react-native-reanimated`
@@ -44,7 +63,29 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
-// Mocks for secrets
+// Mocks for secrets (this mock will be used by modules importing "../secrets")
+jest.mock('../secrets', () => ({
+  googleCalendarConfig: {
+    baseUrl: 'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+    params: {
+      maxResults: 10,
+      orderBy: 'startTime',
+      singleEvents: true,
+    },
+  },
+  googleAPIKey: 'test-google-api-key',
+  openaiAPIKey: 'test-openai-api-key',
+  firebaseConfig: {
+    apiKey: 'dummy',
+    authDomain: 'dummy.firebaseapp.com',
+    projectId: 'dummy',
+    storageBucket: 'dummy.appspot.com',
+    messagingSenderId: 'dummy',
+    appId: 'dummy',
+  },
+}));
+
+// Additional mocks for other secrets paths (if they are imported elsewhere)
 jest.mock('../../app/secrets', () => ({
   googleAPIKey: 'test-google-api-key',
 }));
@@ -93,7 +134,7 @@ jest.mock('react-native/Libraries/Utilities/Platform', () => ({
 // Mock `expo-location`
 jest.mock('expo-location');
 
-// ✅ Mock `axios` for API requests (prevents actual network calls)
+// Mock `axios` for API requests (prevent actual network calls)
 jest.mock('axios', () => ({
   create: jest.fn(() => ({
     post: jest.fn().mockResolvedValue({
