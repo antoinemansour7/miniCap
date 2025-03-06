@@ -285,7 +285,7 @@ export default function DirectionsScreen() {
             
                 return {
                     id: index,
-                    instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ''), // Remove HTML tags
+                    instruction: step.html_instructions.replace(/<\/?[a-z][a-z0-9]*\b[^>]*>/gi, ''), // Remove HTML tags
                     distance: `${step.distance.text}`,
                     duration: step.duration.text,
                 };
