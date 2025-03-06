@@ -106,6 +106,23 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
             }}
           />
+             <Drawer.Screen
+            name="api/googleCalendar"
+            options={{
+              drawerLabel: () => null,
+              title: 'api/googleCalendar',
+              drawerItemStyle: { display: 'none' },
+            }}
+          />
+              <Drawer.Screen
+            name="styles/authStyles"
+            options={{
+              drawerLabel: () => null,
+              title: 'styles/authStyles',
+              drawerItemStyle: { display: 'none' },
+            }}
+          />
+             
         </Drawer>
       </GestureHandlerRootView>
     </AuthProvider>
