@@ -5,11 +5,9 @@ on:
     branches:
       - main
       - UnitTests
-      
   pull_request:
     branches:
       - main
-      
 
 jobs:
   build:
@@ -31,25 +29,33 @@ jobs:
         working-directory: FindMyClass
         run: echo "Changed to FindMyClass directory"
 
-      # Step 4: Install dependencies
+      # Step 4: Generate secrets.js file using GitHub secrets
+      - name: Generate secrets.js file
+        working-directory: FindMyClass
+        run: |
+          echo "export const googleAPIKey = '${{ secrets.GOOGLE_API_KEY }}';" > app/secrets.js
+          echo "export const openaiAPIKey = '${{ secrets.OPENAI_API_KEY }}';" >> app/secrets.js
+
+      # Step 5: Install dependencies
       - name: Install dependencies
         working-directory: FindMyClass
         run: npm install
 
-      # Step 5: Install Expo CLI globally
+      # Step 6: Install Expo CLI globally
       - name: Install Expo CLI
         run: npm install -g expo-cli
 
-      # Step 6: Start Expo in offline mode (Sanity Check)
+      # Step 7: Start Expo in offline mode (Sanity Check)
       - name: Start Expo (Offline Mode)
         working-directory: FindMyClass
         run: npx expo start --offline || echo "Expo initialized successfully"
 
+      # Step 8: Run tests and collect coverage
       - name: Run tests and collect coverage
         working-directory: FindMyClass
         run: npm test || true
 
-
+      # Step 9: Upload coverage to CodeCov
       - name: Upload coverage to CodeCov
         uses: codecov/codecov-action@v3
         with:
