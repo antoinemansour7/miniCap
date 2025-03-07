@@ -289,7 +289,7 @@ export default function DirectionsScreen() {
     const updateRoute = async (start, end) => {
         if (!start || !end) return;
     
-        console.log("🚀 Ensuring correct mode in updateRoute.");
+        console.log(" Ensuring correct mode in updateRoute.");
         setTimeout(() => {
             console.log("🛣 Using mode:", travelMode);
             updateRouteWithMode(start, end, travelMode); // Always uses latest mode
@@ -297,11 +297,12 @@ export default function DirectionsScreen() {
     };
 
     useEffect(() => {
-        console.log("🚀 Travel mode updated, calling updateRoute.");
+        console.log("Ensuring route is loaded on app start.");
         if (startLocation && destination) {
             updateRoute(startLocation, destination);
         }
-    }, [travelMode]); // Runs only after travelMode updates
+    }, [startLocation, destination, travelMode]); 
+    
     
     useEffect(() => {
         let locationSubscriptionRef = null;
@@ -309,59 +310,56 @@ export default function DirectionsScreen() {
         const setupLocationAndRoute = async () => {
             try {
                 setIsLoading(true);
-    
+        
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== "granted") {
                     throw new Error("Location permission denied");
                 }
-    
+        
+                const lastKnownLocation = await Location.getLastKnownPositionAsync();
+                if (lastKnownLocation) {
+                    const newLocation = {
+                        latitude: lastKnownLocation.coords.latitude,
+                        longitude: lastKnownLocation.coords.longitude,
+                    };
+        
+                    console.log("Using last known location:", newLocation);
+                    setUserLocation(newLocation);
+        
+                    if (selectedStart === "userLocation") {
+                        setStartLocation(newLocation);
+                    }
+                }
+        
+                // Request a more accurate update in the background
                 const initialLocation = await Location.getCurrentPositionAsync({
-                    accuracy: Location.Accuracy.High
+                    accuracy: Location.Accuracy.Balanced, // Use Balanced for faster results
+                    maximumAge: 5000, // Accept location data up to 5 seconds old
                 });
-    
-                const newLocation = {
+        
+                const updatedLocation = {
                     latitude: initialLocation.coords.latitude,
                     longitude: initialLocation.coords.longitude,
                 };
-    
-                console.log("📍 Initial user location:", newLocation);
-                setUserLocation(newLocation);
-    
+        
+                console.log("Updated user location:", updatedLocation);
+                setUserLocation(updatedLocation);
+        
                 if (selectedStart === "userLocation") {
-                    setStartLocation(newLocation);
+                    setStartLocation(updatedLocation);
                 }
-    
-                if (locationSubscriptionRef) locationSubscriptionRef.remove();
-    
-                locationSubscriptionRef = await Location.watchPositionAsync(
-                    { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
-                    (location) => {
-                        const updatedLocation = {
-                            latitude: location.coords.latitude,
-                            longitude: location.coords.longitude,
-                        };
-    
-                        console.log("📍 Updated user location:", updatedLocation);
-                        setUserLocation(updatedLocation);
-    
-                        if (selectedStart === "userLocation") {
-                            setStartLocation(updatedLocation);
-                        }
-                    }
-                );
-    
             } catch (err) {
-                console.error("🚨 Setup error:", err);
+                console.error("Setup error:", err);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
             }
-        };
+        };        
     
         setupLocationAndRoute();
     
         return () => {
-            console.log("🔄 Cleanup: Removing location watcher...");
+            console.log("Cleanup: Removing location watcher...");
             if (locationSubscriptionRef) locationSubscriptionRef.remove();
         };
     }, [destination, selectedStart]); // Keeps selected travelMode
