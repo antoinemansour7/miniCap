@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "npxme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
@@ -16,6 +16,7 @@
         "NSLocationWhenInUseUsageDescription": "This app requires location access to show nearby classes.",
         "NSLocationAlwaysUsageDescription": "This app requires location access to track location in the background."
       }
+      
     },
     "android": {
       "adaptiveIcon": {
@@ -58,5 +59,6 @@
         ]
       }
     }
+    
   }
 }
