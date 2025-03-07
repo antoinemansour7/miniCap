@@ -159,7 +159,7 @@ export default function DirectionsScreen() {
                 longitude: lng
             }));
     
-            let segmentColor = "#007AFF";
+            let segmentColor = "#912238";
             let lineWidth = 3;
             let isDashed = false;
             let transportType = step.travel_mode;
@@ -169,7 +169,7 @@ export default function DirectionsScreen() {
             let isMetro = false;
     
             if (transportType === "WALKING") {
-                segmentColor = "#007AFF";
+                segmentColor = "#912338";
                 lineWidth = 2;
                 isDashed = true;
             } else if (transportType === "TRANSIT" && step.transit_details) {
