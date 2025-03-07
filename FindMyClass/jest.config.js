@@ -28,6 +28,7 @@ module.exports = {
     '!**/node_modules/**',
     '!**/coverage/**',
     '!**/jest.setup.js',
+    '!**/maestro/**',
     '!**/CustomAlert.js',
     '!**/*.config.js',
     '!**/_layout.jsx',  // Exclude _layout.jsx

@@ -1,0 +1,41 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+# Tap the menu button to open navigation
+- tapOn:
+    id: "profile-button"
+- waitForAnimationToEnd  # Ensure menu is open
+
+# Tap Login option in the menu
+- tapOn: "Login"
+- waitForAnimationToEnd  # Ensure login screen is loaded
+
+# Tap on the Email field
+- tapOn: "Email"
+- inputText: "test@exemple.com"
+
+# Tap on the Password field
+- tapOn:
+    point: "50%,59%"
+- inputText: "password123"
+
+- waitForAnimationToEnd
+
+# Tap on the actual Login button
+- tapOn:
+    text: "Log In"
+
+- tapOn:
+    text: "Log In"
+
+- waitForAnimationToEnd
+
+- tapOn: "OK"
+
+# Verify login was successful (modify based on your app's response)
+- assertVisible: "View My Schedule"  # Change to any success message that appears
