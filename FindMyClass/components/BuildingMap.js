@@ -8,12 +8,15 @@ import SearchBar from './SearchBar';
 import mapStyles from './mapStyles';
 import useLocationHandler from '../hooks/useLocationHandler';
 
+
+
+
 // Define paths to floor plan images/SVGs
 const floorPlans = {
-  1: require('./Hall-1.png'),
+  1: require('./hall-1-rotated.png'),
   2: require('./Hall-2.png'),
-  8: require('./h_8.png'),
-  9: require('./h_9.png')
+  8: require('./Hall-8.png'),
+  9: require('./Hall-9.png')
 };
 
 const BuildingMap = ({
@@ -40,6 +43,17 @@ const BuildingMap = ({
   
   // Get the Hall Building reference
   const hallBuilding = buildings.find(b => b.id === 'H');
+  const websterLibrary = buildings.find(b => b.id === 'WL');
+  const [showPolygons, setShowPolygons] = useState(false);
+  const [forceKey, setForceKey] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() =>{ 
+      //setShowPolygons(true);
+      setForceKey((prev) => prev + 1);
+    }, 239);
+    return () => clearTimeout(timer);
+  }, [])
   
   // Handle region change (zoom/pan)
   const onRegionChange = (region) => {
@@ -179,41 +193,36 @@ const BuildingMap = ({
         showsUserLocation={false}
         onRegionChange={onRegionChange}
       >
-        {/* Floor Plan Overlay - Always present beneath polygon */}
-        {hallBuilding && bounds && (
-          <Overlay 
-            bounds={[
-              [bounds.north, bounds.west],
-              [bounds.south, bounds.east]
-            ]}
-            image={floorPlans[selectedFloor]}
-            zIndex={1}
-          />
-        )}
+        {/* Floor Plan Overlay - Should be rendered first with lowest zIndex */}
+        {hallBuilding && bounds &&   (
+          <View 
+            style={{opacity: zoomLevel <= 18 ? 0.5 : 1 }}
+          >
 
-        {userLocation && (
-          <Marker coordinate={userLocation} anchor={{ x: 0.5, y: 0.5 }}>
-            <View style={mapStyles.userMarker}>
-              <View style={mapStyles.whiteOutline}>
-                <View style={mapStyles.userDot} />
-              </View>
-            </View>
-          </Marker>
+            <Overlay 
+              bounds={[
+                [bounds.south, bounds.west],
+                [bounds.north, bounds.east]
+              ]}
+              image={floorPlans[selectedFloor]}
+              zIndex={1}
+            />
+          </View>
         )}
 
         {buildings.map((building) => {
-          // Only show Hall polygon when not zoomed in enough
           if (building.id === 'H') {
-            return zoomLevel <= 18 ? (
+            return zoomLevel <= 18  ? (
               <Polygon
+                //key={`${building.id}-${forceKey}`}
                 key={building.id}
                 coordinates={building.boundary}
-                fillColor="rgba(155, 27, 48, 0.3)" // #9B1B30 with opacity
-                strokeColor="rgba(155, 27, 48, 0.8)" // #9B1B30 with opacity
+                fillColor="rgba(155, 27, 48, 0.3)"
+                strokeColor="rgba(155, 27, 48, 0.8)"
                 strokeWidth={2}
                 tappable={true}
                 onPress={focusOnHallBuilding}
-                zIndex={2}
+                zIndex={999}  
               />
             ) : null;
           } else {
@@ -224,10 +233,25 @@ const BuildingMap = ({
                 router={router}
                 position={getMarkerPosition(building)}
                 nearestBuilding={nearestBuilding}
+                zIndex={3}  
               />
             );
           }
         })}
+
+        {userLocation && (
+          <Marker 
+            coordinate={userLocation} 
+            anchor={{ x: 0.5, y: 0.5 }}
+            zIndex={4} 
+          >
+            <View style={mapStyles.userMarker}>
+              <View style={mapStyles.whiteOutline}>
+                <View style={mapStyles.userDot} />
+              </View>
+            </View>
+          </Marker>
+        )}
       </MapView>
       
       {/* Floor Selector - Only visible when zoomed in on Hall Building */}
