@@ -558,27 +558,5 @@ const styles = StyleSheet.create({
   searchResults: {
     marginTop: 16,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center', // Center title text
-  },
-  modalMessage: {
-    fontSize: 16,
-    marginBottom: 5,
-    textAlign: 'center', // Center message text
-  },
-  modalButton: {
-    backgroundColor: '#912338',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-    marginTop: 15,
-    alignSelf: 'center', // Center button horizontally
-  },
-  modalButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
+ 
 });
