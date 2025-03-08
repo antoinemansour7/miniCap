@@ -36,7 +36,7 @@ export default function Schedule() {
   const [events, setEvents] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState(null);
-  const [showLoginPopup, setShowLoginPopup] = useState(false);
+ 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventModalVisible, setEventModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState({
@@ -49,7 +49,7 @@ export default function Schedule() {
   // Animation values
   const addButtonAnim = useRef(new Animated.Value(0)).current;
   const deleteButtonAnim = useRef(new Animated.Value(0)).current;
-  const editButtonRotation = useRef(new Animated.Value(0)).current;
+
 
   // One-hour intervals from 8:00 to 22:00
   const timeSlots = Array.from({ length: 15 }, (_, i) => {   // 15 slots from 8:00 to 22:00
