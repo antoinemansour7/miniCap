@@ -161,7 +161,7 @@ export default function Schedule() {
   // Render event boxes on top of the grid
   const renderEventsOverlay = () => (
     <View style={styles.eventsOverlay}>
-      {events.map((event, idx) => {
+      {events.map((event) => {
         const startDate = new Date(event.start.dateTime || event.start.date);
         const endDate = new Date(event.end.dateTime || event.end.date);
 
@@ -181,7 +181,9 @@ export default function Schedule() {
         const leftPosition = TIME_COLUMN_WIDTH + dayIndex * CELL_WIDTH;
 
         return (
-          <TouchableOpacity key={idx} onPress={() => handleEventPress(event)}>
+          <TouchableOpacity 
+            key={event.id || `${event.summary}-${event.start.dateTime || event.start.date}`} 
+            onPress={() => handleEventPress(event)}>
             <View
               style={[
                 styles.eventBox,
