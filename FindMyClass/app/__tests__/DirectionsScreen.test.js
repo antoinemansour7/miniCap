@@ -6,8 +6,10 @@ import DirectionsScreen, {
     processRouteData,
     getMetroLineColor,
     detectTransferPoint,
-    updateRouteWithMode
-  } from "../screens/directions";  
+    updateRouteWithMode,
+    calculateZoomLevel,
+    getCircleRadius,
+  } from "../screens/directions.jsx";  
 import * as Location from "expo-location";
 
 
@@ -260,7 +262,240 @@ describe("DirectionsScreen Component", () => {
             const mapView = getByTestId("map-view");
             fireEvent(mapView, 'setCoordinates', mockCoordinates);
         });
-    });
-
-    
+    }); 
 });
+describe("getMetroLineColor", () => {
+  test("returns green for 'Verte' line", () => {
+      expect(getMetroLineColor("Ligne Verte")).toBe("green");
+      expect(getMetroLineColor("Verte")).toBe("green");
+  });
+
+  test("returns darkblue for 'Bleue' line", () => {
+      expect(getMetroLineColor("Ligne Bleue")).toBe("darkblue");
+      expect(getMetroLineColor("Bleue")).toBe("darkblue");
+  });
+
+  test("returns yellow for 'Jaune' line", () => {
+      expect(getMetroLineColor("Ligne Jaune")).toBe("yellow");
+      expect(getMetroLineColor("Jaune")).toBe("yellow");
+  });
+
+  test("returns orange for 'Orange' line", () => {
+      expect(getMetroLineColor("Ligne Orange")).toBe("orange");
+      expect(getMetroLineColor("Orange")).toBe("orange");
+  });
+
+  test("returns black (#000) for unknown lines", () => {
+      expect(getMetroLineColor("Ligne Rouge")).toBe("#000");
+      expect(getMetroLineColor("Some Random Line Name")).toBe("#000");
+  });
+});
+
+describe("calculateZoomLevel", () => {
+  test("calculates correct zoom level for given latitude delta", () => {
+      expect(calculateZoomLevel({ latitudeDelta: 1 })).toBe(Math.round(Math.log2(360 / 1)));
+      expect(calculateZoomLevel({ latitudeDelta: 10 })).toBe(Math.round(Math.log2(360 / 10)));
+      expect(calculateZoomLevel({ latitudeDelta: 0.5 })).toBe(Math.round(Math.log2(360 / 0.5)));
+  });
+});
+
+describe("getCircleRadius", () => {
+  test("calculates correct circle radius based on zoom level", () => {
+      const zoomLevelValues = [10, 12, 15, 17];
+      zoomLevelValues.forEach(zoomLevel => {
+          const expectedRadius = 20 * Math.pow(2, (15 - zoomLevel));
+          expect(getCircleRadius(zoomLevel)).toBe(expectedRadius);
+      });
+  });
+});
+
+describe("fetchRouteData", () => {
+  beforeEach(() => {
+      jest.clearAllMocks();
+  });
+
+  test("fetches route data successfully", async () => {
+      const mockResponse = {
+          routes: [{ overview_polyline: { points: "encodedPolyline" } }]
+      };
+
+      global.fetch.mockResolvedValue({
+          json: jest.fn().mockResolvedValue(mockResponse)
+      });
+
+      const start = { latitude: 45.5017, longitude: -73.5673 };
+      const end = { latitude: 45.5088, longitude: -73.5617 };
+      const mode = "driving";
+
+      const data = await fetchRouteData(start, end, mode);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining("https://maps.googleapis.com/maps/api/directions/json"),
+      );
+      expect(data).toEqual(mockResponse);
+  });
+
+  test("throws an error when no route is found", async () => {
+      global.fetch.mockResolvedValue({
+          json: jest.fn().mockResolvedValue({ routes: [] })
+      });
+
+      const start = { latitude: 45.5017, longitude: -73.5673 };
+      const end = { latitude: 45.5088, longitude: -73.5617 };
+      const mode = "driving";
+
+      await expect(fetchRouteData(start, end, mode)).rejects.toThrow("No route found");
+  });
+
+  test("handles fetch errors", async () => {
+      global.fetch.mockRejectedValue(new Error("Network error"));
+
+      const start = { latitude: 45.5017, longitude: -73.5673 };
+      const end = { latitude: 45.5088, longitude: -73.5617 };
+      const mode = "driving";
+
+      await expect(fetchRouteData(start, end, mode)).rejects.toThrow("Network error");
+  });
+});
+
+
+describe("detectTransferPoint", () => {
+  test("returns null if first step", () => {
+      const result = detectTransferPoint([{ travel_mode: "TRANSIT" }], 0, [], {});
+      expect(result).toBeNull();
+  });
+
+  test("returns first coordinate for walking to transit transfer", () => {
+      const steps = [
+          { travel_mode: "WALKING" },
+          { travel_mode: "TRANSIT", transit_details: { line: { vehicle: { type: "BUS" } } } }
+      ];
+      const decodedStep = [{ latitude: 45.5, longitude: -73.5 }];
+      const result = detectTransferPoint(steps, 1, decodedStep, steps[1].transit_details.line);
+      expect(result).toEqual(decodedStep[0]);
+  });
+
+  test("returns correct transfer location between different transit types", () => {
+      const steps = [
+          { travel_mode: "TRANSIT", transit_details: { line: { vehicle: { type: "BUS" } } } },
+          { travel_mode: "TRANSIT", transit_details: { line: { vehicle: { type: "SUBWAY" } } } }
+      ];
+      const decodedStep = [{ latitude: 45.6, longitude: -73.6 }];
+      steps[0].transit_details.arrival_stop = { location: { lat: 45.7, lng: -73.7 } };
+      
+      const result = detectTransferPoint(steps, 1, decodedStep, steps[1].transit_details.line);
+      expect(result).toEqual({ latitude: 45.7, longitude: -73.7 });
+  });
+
+  test("returns correct transfer point for subway line change", () => {
+      const steps = [
+          { travel_mode: "TRANSIT", transit_details: { line: { name: "Red Line", vehicle: { type: "SUBWAY" } } } },
+          { travel_mode: "TRANSIT", transit_details: { line: { name: "Blue Line", vehicle: { type: "SUBWAY" } } } }
+      ];
+      const decodedStep = [{ latitude: 45.8, longitude: -73.8 }];
+
+      const result = detectTransferPoint(steps, 1, decodedStep, steps[1].transit_details.line);
+      expect(result).toEqual(decodedStep[0]);
+  });
+});
+
+describe("processRouteData", () => {
+  let setCoordinates, setRouteInfo, setDirections, mapRef;
+
+  beforeEach(() => {
+      global.setCoordinates = jest.fn();
+      global.setRouteInfo = jest.fn();
+      global.setDirections = jest.fn();
+      global.mapRef = { current: { fitToCoordinates: jest.fn() } };
+  });
+
+  test("processes walking step correctly", () => {
+      const mockData = {
+          routes: [{
+              legs: [{
+                  distance: { text: "5 km" },
+                  duration: { text: "10 mins" },
+                  steps: [
+                      {
+                          travel_mode: "WALKING",
+                          polyline: { points: "_encodedPolyline" },
+                          html_instructions: "Walk straight",
+                          distance: { text: "500m" },
+                          duration: { text: "5 mins" }
+                      }
+                  ]
+              }]
+          }]
+      };
+
+      processRouteData(mockData);
+
+      expect(global.setCoordinates).toHaveBeenCalled();
+      expect(global.setRouteInfo).toHaveBeenCalledWith({ distance: "5 km -", duration: "10 mins" });
+      expect(global.setDirections).toHaveBeenCalled();
+      expect(global.mapRef.current.fitToCoordinates).toHaveBeenCalled();
+  });
+
+  test("processes transit step correctly for BUS", () => {
+      const mockData = {
+          routes: [{
+              legs: [{
+                  distance: { text: "10 km" },
+                  duration: { text: "20 mins" },
+                  steps: [
+                      {
+                          travel_mode: "TRANSIT",
+                          polyline: { points: "_encodedPolyline" },
+                          transit_details: {
+                              line: {
+                                  vehicle: { type: "BUS" },
+                                  short_name: "Bus 45"
+                              }
+                          },
+                          distance: { text: "10 km" },
+                          duration: { text: "20 mins" }
+                      }
+                  ]
+              }]
+          }]
+      };
+
+      processRouteData(mockData);
+
+      expect(global.setCoordinates).toHaveBeenCalled();
+      expect(global.setRouteInfo).toHaveBeenCalledWith({ distance: "10 km -", duration: "20 mins" });
+      expect(global.setDirections).toHaveBeenCalled();
+  });
+
+  test("processes transit step correctly for SUBWAY", () => {
+      const mockData = {
+          routes: [{
+              legs: [{
+                  distance: { text: "15 km" },
+                  duration: { text: "30 mins" },
+                  steps: [
+                      {
+                          travel_mode: "TRANSIT",
+                          polyline: { points: "_encodedPolyline" },
+                          transit_details: {
+                              line: {
+                                  vehicle: { type: "SUBWAY" },
+                                  name: "Metro Green Line"
+                              }
+                          },
+                          distance: { text: "15 km" },
+                          duration: { text: "30 mins" }
+                      }
+                  ]
+              }]
+          }]
+      };
+
+      processRouteData(mockData);
+
+      expect(global.setCoordinates).toHaveBeenCalled();
+      expect(global.setRouteInfo).toHaveBeenCalledWith({ distance: "15 km -", duration: "30 mins" });
+      expect(global.setDirections).toHaveBeenCalled();
+  });
+});
+
