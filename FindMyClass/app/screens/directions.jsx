@@ -252,9 +252,6 @@ const handleError = (err) => {
     setIsModalVisible(false);
   };
 
-  const handleSwipeModalClose = () => {
-    setIsSwipeModalVisible(false);
-  };
 
   return (
     <View style={stylesB.mainContainer}>
