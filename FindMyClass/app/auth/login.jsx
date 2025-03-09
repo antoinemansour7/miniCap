@@ -48,24 +48,33 @@ export default function Login() {
 
   // Handle Google response
   useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token, access_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(getAuth(), credential)
-        .then(async (userCredential) => {
-          login(userCredential.user);
-          await AsyncStorage.setItem("googleAccessToken", access_token);
-          showAlert('success', `Welcome ${userCredential.user.displayName || userCredential.user.email}`);
-          setTimeout(() => {
-            setModalConfig(prev => ({ ...prev, visible: false }));
-            router.push('/screens/profile');
-          }, 1500);
-        })
-        .catch((error) => {
-          console.error('Google Sign-In Error:', error);
-          showAlert('error', 'Failed to sign in with Google');
-        });
-    }
+
+    if (response?.type !== 'success') return;
+
+    const { id_token, access_token } = response.params;
+    const credential = GoogleAuthProvider.credential(id_token);
+
+    const handleUserSignIn = async (userCredential) => {
+      await login(userCredential.user);
+      await AsyncStorage.setItem("googleAccessToken", access_token);
+      showAlert('success', `Welcome ${userCredential.user.displayName || userCredential.user.email}`);
+      closeModalAndNavigate();
+    };
+
+    const closeModalAndNavigate = () => {
+      setTimeout(() => {
+        setModalConfig(prev => ({ ...prev, visible: false }));
+        router.push('/screens/profile');
+      }, 1500);
+    };
+
+    signInWithCredential(auth, credential)
+      .then(handleUserSignIn)
+      .catch((error) => {
+        console.error('Google Sign-In Error:', error);
+        showAlert('error', 'Failed to sign in with Google');
+      });
+    
   }, [response]);
 
   const handleLogin = async () => {
