@@ -1,81 +1,111 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import ToggleCampusMap from '../ToggleCampusMap';
+import { useRoute } from '@react-navigation/native';
 
-// Mock navigation
 jest.mock('@react-navigation/native', () => ({
-  useRoute: () => ({
-    params: { campus: 'SGW' }
-  })
+  useRoute: jest.fn(),
 }));
 
-// Mock map components
 jest.mock('../SGWMap', () => {
   const { View } = require('react-native');
-  return jest.fn(props => <View testID="sgw-map" {...props} />);
+  return jest.fn((props) => <View testID="sgw-map" {...props} />);
 });
 
 jest.mock('../LoyolaMap', () => {
   const { View } = require('react-native');
-  return jest.fn(props => <View testID="loyola-map" {...props} />);
+  return jest.fn((props) => <View testID="loyola-map" {...props} />);
 });
 
 describe('ToggleCampusMap', () => {
-  it('renders with default SGW campus', () => {
-    const { getByTestId, getByText } = render(<ToggleCampusMap />);
-    
-    expect(getByTestId('sgw-map')).toBeTruthy();
-    expect(getByText('SGW Campus')).toBeTruthy();
-    expect(getByText('Loyola Campus')).toBeTruthy();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('switches between campuses when toggle buttons are pressed', () => {
-    const { getByText, queryByTestId } = render(<ToggleCampusMap />);
-    
-    // Initial state should show SGW map
-    expect(queryByTestId('sgw-map')).toBeTruthy();
+  it('renders SGWMap when campus param is SGW', () => {
+    useRoute.mockReturnValue({ params: { campus: 'SGW' } });
+
+    const { getByTestId, getByText } = render(<ToggleCampusMap />);
+
+    expect(getByTestId('sgw-map')).toBeTruthy();
+    expect(getByText('Loyola')).toBeTruthy();
+  });
+
+  it('renders LoyolaMap when campus param is Loyola', () => {
+    useRoute.mockReturnValue({ params: { campus: 'Loyola' } });
+
+    const { getByTestId, getByText } = render(<ToggleCampusMap />);
+
+    expect(getByTestId('loyola-map')).toBeTruthy();
+    expect(getByText('SGW')).toBeTruthy();
+  });
+
+  it('defaults to SGW when no campus param provided', () => {
+    useRoute.mockReturnValue({ params: {} });
+
+    const { getByTestId, getByText } = render(<ToggleCampusMap />);
+
+    expect(getByTestId('sgw-map')).toBeTruthy();
+    expect(getByText('Loyola')).toBeTruthy();
+  });
+
+  it('toggles from SGW to Loyola and back correctly', () => {
+    useRoute.mockReturnValue({ params: { campus: 'SGW' } });
+
+    const { getByTestId, getByText, queryByTestId } = render(<ToggleCampusMap />);
+
+    // Initial SGW
+    expect(getByTestId('sgw-map')).toBeTruthy();
     expect(queryByTestId('loyola-map')).toBeNull();
 
-    // Switch to Loyola
-    fireEvent.press(getByText('Loyola Campus'));
-    expect(queryByTestId('loyola-map')).toBeTruthy();
+    // Toggle to Loyola
+    fireEvent.press(getByText('Loyola'));
+    expect(getByTestId('loyola-map')).toBeTruthy();
     expect(queryByTestId('sgw-map')).toBeNull();
 
-    // Switch back to SGW
-    fireEvent.press(getByText('SGW Campus'));
-    expect(queryByTestId('sgw-map')).toBeTruthy();
+    // Toggle back to SGW
+    fireEvent.press(getByText('SGW'));
+    expect(getByTestId('sgw-map')).toBeTruthy();
     expect(queryByTestId('loyola-map')).toBeNull();
   });
 
-  it('passes searchText prop to map components', () => {
-    const searchText = 'H-110';
-    const { getByTestId } = render(<ToggleCampusMap searchText={searchText} />);
-    
-    const sgwMap = getByTestId('sgw-map');
-    expect(sgwMap.props.searchText).toBe(searchText);
+  it('correctly updates map when route param changes', () => {
+    const { rerender, getByTestId, queryByTestId } = render(<ToggleCampusMap />);
+
+    useRoute.mockReturnValue({ params: { campus: 'SGW' } });
+    rerender(<ToggleCampusMap />);
+    expect(getByTestId('sgw-map')).toBeTruthy();
+    expect(queryByTestId('loyola-map')).toBeNull();
+
+    useRoute.mockReturnValue({ params: { campus: 'Loyola' } });
+    rerender(<ToggleCampusMap />);
+    expect(getByTestId('loyola-map')).toBeTruthy();
+    expect(queryByTestId('sgw-map')).toBeNull();
   });
 
-  it('applies correct styles to active/inactive buttons', () => {
-    const { getByText } = render(<ToggleCampusMap />);
-    
-    const sgwButton = getByText('SGW Campus').parent;
-    const loyolaButton = getByText('Loyola Campus').parent;
+  it('passes searchText prop correctly to SGWMap and LoyolaMap', () => {
+    useRoute.mockReturnValue({ params: { campus: 'SGW' } });
 
-    // Check initial state (SGW active)
-    expect(sgwButton.props.style).toContainEqual(expect.objectContaining({
-      backgroundColor: '#800000'
-    }));
-    expect(loyolaButton.props.style).not.toContainEqual(expect.objectContaining({
-      backgroundColor: '#800000'
-    }));
+    const searchText = 'MB-1.210';
+    const { getByTestId, getByText } = render(
+      <ToggleCampusMap searchText={searchText} />
+    );
 
-    // Switch to Loyola and check styles
-    fireEvent.press(loyolaButton);
-    expect(loyolaButton.props.style).toContainEqual(expect.objectContaining({
-      backgroundColor: '#800000'
-    }));
-    expect(sgwButton.props.style).not.toContainEqual(expect.objectContaining({
-      backgroundColor: '#800000'
-    }));
+    const sgwMap = getByTestId('sgw-map');
+    expect(sgwMap.props.searchText).toBe(searchText);
+
+    // Toggle to Loyola
+    fireEvent.press(getByText('Loyola'));
+
+    const loyolaMap = getByTestId('loyola-map');
+    expect(loyolaMap.props.searchText).toBe(searchText);
+  });
+
+  it('renders correctly without crashing when searchText is undefined', () => {
+    useRoute.mockReturnValue({ params: { campus: 'SGW' } });
+
+    const { getByTestId } = render(<ToggleCampusMap />);
+
+    expect(getByTestId('sgw-map')).toBeTruthy();
   });
 });
