@@ -224,13 +224,13 @@ export default function BuildingMap({
               key={category.label}
               style={[
                 mapStyles.chip,
-                selectedCategory === category.label && mapStyles.chipSelected,
+                selectedCategory == category.label && mapStyles.chipSelected,
               ]}
               onPress={() => handleCategorySelect(category.label)}
             >
               <Text style={[
                 mapStyles.chipText,
-                selectedCategory === category.label && mapStyles.chipTextSelected,
+                selectedCategory == category.label && mapStyles.chipTextSelected,
               ]}>
                 {category.icon} {category.label}
               </Text>
