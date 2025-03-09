@@ -64,9 +64,7 @@ export default function DirectionsScreen() {
   const [customSearchText, setCustomSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchType, setSearchType] = useState("START");
-  const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
   const [directions, setDirections] = useState([]);
-  const [isShuttleService, setIsShuttleService] = useState(false);
 
   if (errorMessage) {
     return <Text>{errorMessage}</Text>;
@@ -83,104 +81,108 @@ export default function DirectionsScreen() {
     return Math.round(Math.log2(360 / LATITUDE_DELTA));
   };
 
-  const updateRouteWithMode = async (start, end, mode) => {
-    if (!start || !end) return;
-
-    if (mode === "SHUTTLE") {
-      const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
-      const isStartSGW = isNearCampus(start, SGW_COORDS);
-      const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
-      const isEndSGW = isNearCampus(end, SGW_COORDS);
-
-      if ((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola)) {
-        const fromCampus = isStartLoyola ? "loyola" : "sgw";
-        const nextTime = getNextShuttleTime(fromCampus);
-        setDirections([
-          {
-            id: 0,
-            instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
-            distance: "Shuttle Service",
-            duration: `${nextTime} - 25 min ride`,
-          },
-        ]);
-        try {
-          const response = await fetch(
-            `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=driving&key=${googleAPIKey}`
-          );
-          const data = await response.json();
-          if (data.routes && data.routes.length > 0) {
-            const encodedPolyline = data.routes[0].overview_polyline.points;
-            const decodedCoordinates = polyline.decode(encodedPolyline).map(
-              ([lat, lng]) => ({ latitude: lat, longitude: lng })
-            );
-            setCoordinates(decodedCoordinates);
-            const leg = data.routes[0].legs[0];
-            setRouteInfo({
-              distance: "Shuttle departing at:",
-              duration: `${nextTime}`,
-            });
-          }
-        } catch (err) {
-          console.error("Route update error:", err);
-          setError(err.message);
-        }
-        return;
-      } else {
-        Alert.alert(
-          "Shuttle Service",
-          "Shuttle service is only available between Loyola and SGW campuses.",
-          [{ text: "OK" }]
-        );
-        return;
-      }
+  // Function to handle shuttle mode
+  const handleShuttleMode = async (start, end) => {
+    const isStartLoyola = isNearCampus(start, LOYOLA_COORDS);
+    const isStartSGW = isNearCampus(start, SGW_COORDS);
+    const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
+    const isEndSGW = isNearCampus(end, SGW_COORDS);
+  
+    if (!((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola))) {
+      return Alert.alert(
+        "Shuttle Service",
+        "Shuttle service is only available between Loyola and SGW campuses.",
+        [{ text: "OK" }]
+      );
     }
+  
+    const fromCampus = isStartLoyola ? "loyola" : "sgw";
+    const nextTime = getNextShuttleTime(fromCampus);
+    setDirections([
+      {
+        id: 0,
+        instruction: `Next shuttle departing from ${fromCampus.toUpperCase()} Campus`,
+        distance: "Shuttle Service",
+        duration: `${nextTime} - 25 min ride`,
+      },
+    ]);
+  
+    try {
+      const routeData = await fetchRouteData(start, end, "driving");
+      if (!routeData) return;
+      
+      updateRouteInformation(routeData, start, end,  { distance: "Shuttle departing at:", duration: `${nextTime}` });
+    } catch (err) {
+      handleError(err);
+    }
+  };
 
-    // Other modes
+  // Function to handle other modes
+  const handleOtherModes = async (start, end, mode) => {
     try {
       setIsLoading(true);
-      const modeParam = mode.toLowerCase();
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${modeParam}&key=${googleAPIKey}`
-      );
-      const data = await response.json();
+      const routeData = await fetchRouteData(start, end, mode.toLowerCase());
+      if (!routeData) throw new Error("No route found");
+  
+      updateRouteInformation(routeData, start, end);
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setTimeout(() => setIsLoading(false), 0);
+    }
+  };
 
-      if (!data.routes || data.routes.length === 0) {
-        throw new Error("No route found");
-      }
+  // Function to fetch route update
+  const fetchRouteData = async (start, end, mode) => {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=${mode}&key=${googleAPIKey}`
+    );
+    const data = await response.json();
+    return data.routes?.length > 0 ? data : null;
+  };
 
-      setCoordinates([]);
-      const encodedPolyline = data.routes[0].overview_polyline.points;
-      const decodedCoordinates = polyline.decode(encodedPolyline).map(
-        ([lat, lng]) => ({ latitude: lat, longitude: lng })
-      );
-      setCoordinates(decodedCoordinates);
-      const leg = data.routes[0].legs[0];
-      setRouteInfo({ distance: `${leg.distance.text} -`, duration: leg.duration.text });
-
-      const extractedDirections = leg.steps.map((step, index) => ({
+  // Function to update route information
+  const updateRouteInformation = (data, start, end, customRouteInfo = null) => {
+    const encodedPolyline = data.routes[0].overview_polyline.points;
+    const decodedCoordinates = polyline.decode(encodedPolyline).map(([lat, lng]) => ({ latitude: lat, longitude: lng }));
+    
+    setCoordinates(decodedCoordinates);
+    const leg = data.routes[0].legs[0];
+    setRouteInfo(customRouteInfo || { distance: `${leg.distance.text} -`, duration: leg.duration.text });
+  
+    setDirections(
+      leg.steps.map((step, index) => ({
         id: index,
         instruction: step.html_instructions.replace(/<\/?[^>]*>/g, ""),
         distance: step.distance.text,
         duration: step.duration.text,
-      }));
-      setDirections(extractedDirections);
-
-      if (mapRef.current) {
-        setTimeout(() => {
-          mapRef.current.fitToCoordinates([start, end, ...decodedCoordinates], {
-            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-            animated: true,
-          });
-        }, 100);
-      }
-    } catch (err) {
-      console.error("Route update error:", err);
-      setError(err.message);
-    } finally {
+      }))
+    );
+  
+    if (mapRef.current) {
       setTimeout(() => {
-        setIsLoading(false);
-      }, 0);
+        mapRef.current.fitToCoordinates([start, end, ...decodedCoordinates], {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }, 100);
     }
+  };
+  
+// Function to handle errors
+const handleError = (err) => {
+  console.error("Route update error:", err);
+  setError(err.message);
+};
+
+  const updateRouteWithMode = async (start, end, mode) => {
+    if (!start || !end) return;
+
+    if (mode === "SHUTTLE") {
+      return handleShuttleMode(start, end);
+    }
+    // Other modes
+    return handleOtherModes(start, end, mode);
   };
 
   const updateRoute = (start, end) => {
@@ -248,9 +250,6 @@ export default function DirectionsScreen() {
     setIsModalVisible(false);
   };
 
-  const handleSwipeModalClose = () => {
-    setIsSwipeModalVisible(false);
-  };
 
   return (
     <View style={stylesB.mainContainer}>
