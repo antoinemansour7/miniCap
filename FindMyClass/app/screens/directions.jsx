@@ -64,9 +64,7 @@ export default function DirectionsScreen() {
   const [customSearchText, setCustomSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchType, setSearchType] = useState("START");
-  const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
   const [directions, setDirections] = useState([]);
-  const [isShuttleService, setIsShuttleService] = useState(false);
 
   if (errorMessage) {
     return <Text>{errorMessage}</Text>;
