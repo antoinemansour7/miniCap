@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { useRoute } from '@react-navigation/native';  // Import useRoute to get the campus parameter
+import { useRoute } from '@react-navigation/native';
 import SGWMap from './SGWMap';
 import LoyolaMap from './LoyolaMap';
 
 const ToggleCampusMap = ({ searchText }) => {
   const route = useRoute();
-  const [selectedCampus, setSelectedCampus] = useState(route?.params?.campus || 'SGW'); // Default to 'SGW'
+  const [selectedCampus, setSelectedCampus] = useState(route?.params?.campus || 'SGW');
 
   useEffect(() => {
     if (route?.params?.campus) {
@@ -24,29 +24,17 @@ const ToggleCampusMap = ({ searchText }) => {
         )}
       </View>
 
-      <View style={styles.toggleContainer}>
-        <TouchableOpacity
-          style={[styles.toggleButton, selectedCampus === 'Loyola' && styles.activeButton]}
-          onPress={() => setSelectedCampus('Loyola')}
-        >
-          <Text
-            style={[styles.toggleText, selectedCampus === 'Loyola' && styles.activeText]}
-          >
-            Loyola Campus
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.toggleButton, selectedCampus === 'SGW' && styles.activeButton]}
-          onPress={() => setSelectedCampus('SGW')}
-        >
-          <Text
-            style={[styles.toggleText, selectedCampus === 'SGW' && styles.activeText]}
-          >
-            SGW Campus
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* Single Floating Toggle Button on the Left */}
+      <TouchableOpacity
+        style={styles.toggleButtonSingle}
+        onPress={() =>
+          setSelectedCampus((prev) => (prev === 'SGW' ? 'Loyola' : 'SGW'))
+        }
+      >
+        <Text style={styles.toggleButtonText}>
+          {selectedCampus === 'SGW' ? 'Loyola' : 'SGW'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -58,39 +46,25 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
   },
-  toggleContainer: {
+
+  toggleButtonSingle: {
     position: 'absolute',
-    bottom: 50,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    backgroundColor: '#F8F8F8',
+    top: 110,
+    left: 5,
+    backgroundColor: '#800000',
+    padding: 12,
     borderRadius: 25,
-    overflow: 'hidden',
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation: 5,
   },
-  toggleButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#D3D3D3',
-  },
-  activeButton: {
-    backgroundColor: '#800000',
-  },
-  toggleText: {
-    color: '#333',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  activeText: {
-    color: '#FFF',
-    fontWeight: '700',
+  toggleButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 

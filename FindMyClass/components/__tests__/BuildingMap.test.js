@@ -1,0 +1,186 @@
+import React from 'react';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import BuildingMap from '../BuildingMap';
+import useLocationHandler from '../../hooks/useLocationHandler';
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useLocationHandler');
+
+jest.mock('react-native-maps', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  const MockMapView = React.forwardRef((props, ref) => {
+    React.useImperativeHandle(ref, () => ({
+      getCamera: () =>
+        Promise.resolve({
+          center: { latitude: 46, longitude: -74 }, // Forces recenter button visibility
+        }),
+      animateToRegion: jest.fn(),
+    }));
+
+    return <View {...props}>{props.children}</View>;
+  });
+
+  const MockMarker = (props) => <View {...props} />;
+  const MockPolygon = (props) => <View {...props} />;
+
+  return { __esModule: true, default: MockMapView, Marker: MockMarker, Polygon: MockPolygon };
+});
+
+jest.mock('@gorhom/bottom-sheet', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  const BottomSheet = React.forwardRef((props, ref) => {
+    React.useImperativeHandle(ref, () => ({
+      snapToIndex: jest.fn(),
+    }));
+
+    return <View {...props} />;
+  });
+
+  const BottomSheetView = (props) => <View {...props} />;
+
+  return { __esModule: true, default: BottomSheet, BottomSheetView };
+});
+
+jest.mock('../BuildingMarker', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return () => <View testID="building-marker" />;
+});
+
+// Mock global fetch
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () =>
+      Promise.resolve({
+        results: [
+          {
+            place_id: '1',
+            name: 'Test Place',
+            geometry: { location: { lat: 45.1, lng: -73.1 } },
+            vicinity: '123 Test Street',
+            types: ['restaurant'],
+          },
+        ],
+      }),
+  }),
+);
+
+describe('BuildingMap Extended Tests', () => {
+  const buildingsMock = [
+    {
+      id: '1',
+      name: 'Building One',
+      boundary: { outer: [{ latitude: 45.5, longitude: -73.5 }, { latitude: 45.6, longitude: -73.6 }] },
+    },
+    {
+      id: '2',
+      name: 'Building Two',
+      boundary: { outer: [{ latitude: 45.7, longitude: -73.7 }, { latitude: 45.8, longitude: -73.8 }] },
+    },
+  ];
+
+  const defaultProps = {
+    buildings: buildingsMock,
+    initialRegion: { latitude: 45, longitude: -73, latitudeDelta: 0.05, longitudeDelta: 0.05 },
+    buildingsRegion: { latitude: 45, longitude: -73 },
+    searchCoordinates: jest.fn(() => ({ latitude: 45.5, longitude: -73.5 })),
+    recenterDeltaUser: { latitudeDelta: 0.05, longitudeDelta: 0.05 },
+    recenterDeltaBuildings: { latitudeDelta: 0.1, longitudeDelta: 0.1 },
+    getMarkerPosition: jest.fn(() => ({ latitude: 45.5, longitude: -73.5 })),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useLocationHandler.mockReturnValue({
+      userLocation: { latitude: 45, longitude: -73 },
+      nearestBuilding: buildingsMock[0],
+    });
+  });
+
+  it('renders correctly with all required components', () => {
+    const { getByText, getAllByTestId } = render(<BuildingMap {...defaultProps} />);
+
+    expect(getByText(/Restaurant/)).toBeTruthy();
+    expect(getByText(/Café/)).toBeTruthy();
+    expect(getAllByTestId('building-marker').length).toBeGreaterThan(0);
+  });
+
+  it('recenters map when recenter button is pressed', async () => {
+    const { getByText } = render(<BuildingMap {...defaultProps} />);
+
+    await waitFor(() => {
+      expect(getByText('📍')).toBeTruthy();
+    });
+
+    await act(async () => {
+      fireEvent.press(getByText('📍'));
+    });
+
+    expect(defaultProps.getMarkerPosition).toHaveBeenCalled();
+  });
+
+  it('searches and zooms into a building correctly', async () => {
+    const { getByPlaceholderText } = render(<BuildingMap {...defaultProps} />);
+
+    const searchBar = getByPlaceholderText(/search/i);
+    await act(async () => {
+      fireEvent.changeText(searchBar, 'Building One');
+    });
+
+    expect(defaultProps.searchCoordinates).toHaveBeenCalledWith(buildingsMock[0]);
+  });
+
+  it('fetches places correctly upon selecting a category', async () => {
+    const { getByText } = render(<BuildingMap {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText(/Restaurant/));
+    });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+      expect(getByText('Restaurant Nearby')).toBeTruthy();
+    });
+  });
+
+  it('handles empty results gracefully', async () => {
+    fetch.mockImplementationOnce(() => Promise.resolve({ json: () => Promise.resolve({ results: [] }) }));
+
+    const { getByText } = render(<BuildingMap {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText(/Café/));
+    });
+
+    await waitFor(() => {
+      expect(getByText(/No results found/)).toBeTruthy();
+    });
+  });
+
+  it('zooms to a specific place when a place item is pressed', async () => {
+    const { getByText } = render(<BuildingMap {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText(/Restaurant/));
+    });
+
+    await waitFor(() => {
+      expect(getByText('Test Place')).toBeTruthy();
+    });
+
+    await act(async () => {
+      fireEvent.press(getByText('Test Place'));
+    });
+
+    expect(defaultProps.getMarkerPosition).toHaveBeenCalled();
+  });
+});
