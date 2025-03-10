@@ -5,9 +5,13 @@ import ToggleCampusMap from '../components/ToggleCampusMap';
 import FloatingChatButton from '../components/FloatingChatButton';
 import 'react-native-get-random-values'
 
-export default function MapScreen() {  // ✅ Renamed to avoid conflict
+
+export default function MapScreen() {  // Renamed to avoid conflict
   const route = useRoute();
   const searchText = route?.params?.searchText || ''; // Cleaner fallback
+  
+
+
 
   return (
     <View style={styles.container} testID="map-container">
