@@ -2,7 +2,7 @@ import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCallback, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import { View, Text, StyleSheet, TouchableOpacity, AppState } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 import { AuthProvider } from '../contexts/AuthContext';
