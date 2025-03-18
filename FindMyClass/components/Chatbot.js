@@ -29,6 +29,9 @@ Your role is to:
 - Provide accessibility info (elevators, washrooms).
 - If you do not know the answer, say so rather than inventing one.
 Current date: March 18, 2025
+-If a user asks about their schedule, you should first check their Google Calendar events.
+-if a user asks about the weather, give the montreal weather of the day.
+
 `
 };
 
