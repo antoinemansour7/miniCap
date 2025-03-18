@@ -1,4 +1,4 @@
-# FindMyClass
+# FindMyClass - Full Stack Fiends
 
 FindMyClass is a React Native mobile application designed to help students navigate university buildings and find their classrooms efficiently. Built with Expo and Firebase, it provides an intuitive interface for classroom discovery and navigation.
 
