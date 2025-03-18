@@ -1,43 +1,104 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Modal, 
-  ScrollView, 
-  SafeAreaView 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  ScrollView,
+  SafeAreaView
 } from 'react-native';
-import { sendMessageToOpenAI } from '../services/openai';
 import { v4 as uuidv4 } from 'uuid';
+
+// Import the new function that sends an array of messages
+import { sendConversationToOpenAI } from '../services/openai';
+
+// Import your existing Google Calendar fetch function
+import fetchGoogleCalendarEvents from '../app/api/googleCalendar';
+
+// Example system prompt to define the bot's behavior
+const systemPrompt = {
+  role: 'system',
+  content: `
+You are a Campus Guide Assistant for Concordia University. 
+Your role is to:
+- Help users access their class schedules.
+- Provide Google Maps directions to their next class.
+- Answer questions about SGW and Loyola campuses.
+- Provide accessibility info (elevators, washrooms).
+- If you do not know the answer, say so rather than inventing one.
+Current date: March 18, 2025
+`
+};
 
 const Chatbot = ({ isVisible, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const scrollViewRef = useRef();
 
+  // This function sends a new user message to the bot
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
+    // 1) Add the user message to state
     const userMessage = { id: uuidv4(), text: inputText, isUser: true };
     setMessages(prevMessages => [...prevMessages, userMessage]);
+
+    // Clear the input
     setInputText('');
 
+    // 2) Check if the user wants schedule info
+    let finalUserInput = inputText;
+    const lowerInput = inputText.toLowerCase();
+
+    if (lowerInput.includes('next class') || lowerInput.includes('schedule')) {
+      const events = await fetchGoogleCalendarEvents();
+      if (events.length > 0) {
+        // Format each event
+        const eventsText = events
+          .map(event => {
+            const start = event.start?.dateTime || event.start?.date;
+            return `Title: ${event.summary}, Start: ${start}`;
+          })
+          .join('\n');
+        finalUserInput = `User calendar events:\n${eventsText}\n\nUser question: ${inputText}`;
+      } else {
+        finalUserInput = `No upcoming events found.\n\nUser question: ${inputText}`;
+      }
+    }
+
+    // 3) Build the entire conversation for OpenAI
+    //    - Start with systemPrompt
+    //    - Then add all previous messages
+    //    - Finally add the new user message
+    const conversation = [
+      systemPrompt,
+      ...messages.map(msg => ({
+        role: msg.isUser ? 'user' : 'assistant',
+        content: msg.text
+      })),
+      { role: 'user', content: finalUserInput }
+    ];
+
+    // 4) Send the conversation to OpenAI
     try {
-      const botResponse = await sendMessageToOpenAI(inputText);
+      const botResponse = await sendConversationToOpenAI(conversation);
+      // 5) Add the bot's reply to state
       const botMessage = { id: uuidv4(), text: botResponse, isUser: false };
       setMessages(prevMessages => [...prevMessages, botMessage]);
     } catch (error) {
-      const errorMessage = { 
-        id: uuidv4(), 
-        text: 'Error fetching response. Please try again.', 
-        isUser: false 
+      console.error(error);
+      const errorMessage = {
+        id: uuidv4(),
+        text: 'Error fetching response. Please try again.',
+        isUser: false
       };
       setMessages(prevMessages => [...prevMessages, errorMessage]);
     }
   };
 
+  // Keep the ScrollView pinned to the bottom when messages update
   useEffect(() => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollToEnd({ animated: true });
@@ -51,8 +112,8 @@ const Chatbot = ({ isVisible, onClose }) => {
           {/* Header with title and close button */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Chatbot</Text>
-            <TouchableOpacity 
-              style={styles.closeButtonContainer} 
+            <TouchableOpacity
+              style={styles.closeButtonContainer}
               onPress={onClose}
             >
               <Text style={styles.closeButton}>✕</Text>
@@ -60,8 +121,8 @@ const Chatbot = ({ isVisible, onClose }) => {
           </View>
 
           {/* Chat messages */}
-          <ScrollView 
-            style={styles.chatContainer} 
+          <ScrollView
+            style={styles.chatContainer}
             contentContainerStyle={styles.chatContent}
             ref={scrollViewRef}
           >
