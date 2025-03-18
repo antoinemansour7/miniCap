@@ -1,42 +1,29 @@
+// services/openai.js
 import axios from 'axios';
-import { openaiAPIKey } from "../app/secrets";
+import { openaiAPIKey } from '../app/secrets';
 
-// Validate API key existence
 if (!openaiAPIKey) {
   throw new Error('OpenAI API key is missing. Ensure it is defined in your environment variables.');
 }
 
-// Axios instance configuration
+// Create Axios instance
 const api = axios.create({
   baseURL: 'https://api.openai.com/v1',
   headers: {
-    Authorization: `Bearer ${openaiAPIKey}`, // Fixed string interpolation for Bearer token
+    Authorization: `Bearer ${openaiAPIKey}`,
     'Content-Type': 'application/json',
   },
 });
 
-// System message content for the chatbot
-const systemMessage = `
-You are a Campus Guide Assistant for Concordia University. Your role is to:
-- Help users access their class schedules.
-- Provide Google Maps directions to their next class.
-- Answer questions about the SGW and Loyola campuses, including building details and facilities.
-- Provide special navigation assistance for students with disabilities, including elevator and washroom locations.
-`;
-
-// Function to send user input to OpenAI and get the response
-export const sendMessageToOpenAI = async (userInput) => {
+// A new function that expects an array of messages (system, user, assistant)
+export const sendConversationToOpenAI = async (conversation) => {
   try {
     const response = await api.post('/chat/completions', {
       model: 'gpt-3.5-turbo',
-      temperature: 0.7, // Optional: Adjust response creativity
-      messages: [
-        { role: 'system', content: systemMessage },
-        { role: 'user', content: userInput },
-      ],
+      temperature: 0.7,
+      messages: conversation, 
     });
 
-    // Validate response structure
     const botMessage = response.data?.choices?.[0]?.message?.content;
     if (!botMessage) {
       throw new Error('Invalid response structure from OpenAI');
@@ -44,12 +31,10 @@ export const sendMessageToOpenAI = async (userInput) => {
 
     return botMessage;
   } catch (error) {
-    // Handle API-specific errors
     if (error.response) {
       console.error('OpenAI API Error:', error.response.data);
       throw new Error(`OpenAI API Error: ${error.response.data.error?.message || 'Unknown API error'}`);
     }
-    // Handle general errors
     console.error('Error communicating with OpenAI:', error);
     throw new Error('Failed to communicate with OpenAI. Please try again later.');
   }
