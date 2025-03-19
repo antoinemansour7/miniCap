@@ -7,7 +7,7 @@ import mapStyles from './mapStyles';
 import SearchBar from './SearchBar';
 import BuildingMarker from './BuildingMarker';
 import useLocationHandler from '../hooks/useLocationHandler';
-import { googleAPIKey } from "../app/secrets";
+import { googleAPIKey } from '../app/secrets';
 
 const categories = [
   { label: 'Restaurant', icon: '🍽️' },
@@ -28,7 +28,7 @@ export default function BuildingMap({
 }) {
   const mapRef = useRef(null);
   const bottomSheetRef = useRef(null);
-  const debounceTimeout = useRef(null); // 🔥 Debounce ref
+  const debounceTimeout = useRef(null);
 
   const router = useRouter();
   const { userLocation, nearestBuilding } = useLocationHandler(buildings, getMarkerPosition);
@@ -154,7 +154,6 @@ export default function BuildingMap({
     }
   };
 
-  // ✅ Debounced version of handleCategorySelect
   const handleCategorySelect = useCallback((categoryLabel) => {
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
@@ -163,7 +162,7 @@ export default function BuildingMap({
     debounceTimeout.current = setTimeout(() => {
       setSelectedCategory(categoryLabel);
       fetchPlaces(categoryLabel);
-    }, 350); // Debounce delay in ms
+    }, 350);
   }, [fetchPlaces]);
 
   const zoomToPlace = (place) => {
@@ -246,38 +245,42 @@ export default function BuildingMap({
         </View>
       </Modal>
 
+      {/* Search Bar */}
       <SearchBar value={searchText} onChangeText={setSearchText} data={buildings} />
 
-      <View style={mapStyles.categoryChipsContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {categories.map((category) => (
-            <TouchableOpacity
-              key={category.label}
-              style={[
-                mapStyles.chip,
-                selectedCategory === category.label && mapStyles.chipSelected,
-              ]}
-              onPress={() => handleCategorySelect(category.label)}
-            >
-              <Text
-                style={[
-                  mapStyles.chipText,
-                  selectedCategory === category.label && mapStyles.chipTextSelected,
-                ]}
-              >
-                {category.icon} {category.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
+      {/* Map */}
       <MapView
         ref={mapRef}
         style={mapStyles.map}
         initialRegion={initialRegion}
         showsUserLocation={false}
       >
+        {/* Overlay Category Chips */}
+        <View style={overlayStyles.categoryChipsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.label}
+                style={[
+                  mapStyles.chip,
+                  selectedCategory === category.label && mapStyles.chipSelected,
+                ]}
+                onPress={() => handleCategorySelect(category.label)}
+              >
+                <Text
+                  style={[
+                    mapStyles.chipText,
+                    selectedCategory === category.label && mapStyles.chipTextSelected,
+                  ]}
+                >
+                  {category.icon} {category.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Markers and Polygons */}
         {userLocation && (
           <Marker coordinate={userLocation}>
             <View style={mapStyles.userMarker}>
@@ -330,12 +333,14 @@ export default function BuildingMap({
         ))}
       </MapView>
 
+      {/* Recenter Button */}
       {showRecenterButton && (
         <TouchableOpacity style={mapStyles.recenterButton} onPress={recenterMap}>
           <Text style={mapStyles.recenterText}>📍</Text>
         </TouchableOpacity>
       )}
 
+      {/* Bottom Sheet */}
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
@@ -403,5 +408,16 @@ const errorStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+});
+
+const overlayStyles = StyleSheet.create({
+  categoryChipsContainer: {
+    position: 'absolute',
+    top: 15,
+    left: 10,
+    right: 10,
+    zIndex: 10,
+    flexDirection: 'row',
   },
 });
