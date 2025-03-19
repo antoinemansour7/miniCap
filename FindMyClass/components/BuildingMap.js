@@ -97,11 +97,62 @@ export default function BuildingMap({
   };
 
   const fetchPlaces = async (categoryLabel) => {
-    // 🔥 Force an error to simulate failure
-    setErrorMessage('Simulated error for testing purposes.');
-    setErrorVisible(true);
-    return; // stop further execution
+    if (!userLocation) return;
+
+    const categoryMap = {
+      Restaurant: 'restaurant',
+      Café: 'cafe',
+      Bakery: 'bakery',
+      Library: 'library',
+      Hospital: 'hospital',
+    };
+
+    const placeType = categoryMap[categoryLabel] || categoryLabel.toLowerCase();
+    const keyword = placeType;
+
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${userLocation.latitude},${userLocation.longitude}&rankby=distance&type=${placeType}&keyword=${keyword}&key=${googleAPIKey}`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (!data?.results || data.results.length === 0) {
+        throw new Error('No places found nearby.');
+      }
+
+      const filteredResults = data.results.filter((place) =>
+        place.types.includes(placeType) || place.name.toLowerCase().includes(keyword)
+      );
+
+      const placesWithDistance = filteredResults.map((place) => ({
+        ...place,
+        distance: calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          place.geometry.location.lat,
+          place.geometry.location.lng
+        ),
+      }));
+
+      placesWithDistance.sort((a, b) => a.distance - b.distance);
+      setPlaces(placesWithDistance);
+
+      bottomSheetRef.current?.snapToIndex(1);
+
+      mapRef.current?.animateToRegion({
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        latitudeDelta: 0.03,
+        longitudeDelta: 0.03,
+      });
+
+    } catch (err) {
+      console.error('Error fetching places:', err);
+      setErrorMessage('Failed to load nearby places. Please try again later.');
+      setErrorVisible(true);
+    }
   };
+
   const handleCategorySelect = (categoryLabel) => {
     setSelectedCategory(categoryLabel);
     fetchPlaces(categoryLabel);
