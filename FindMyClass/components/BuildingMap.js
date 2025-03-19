@@ -29,8 +29,8 @@ export default function BuildingMap({
   const mapRef = useRef(null);
   const bottomSheetRef = useRef(null);
   const debounceTimeout = useRef(null);
-
   const router = useRouter();
+
   const { userLocation, nearestBuilding } = useLocationHandler(buildings, getMarkerPosition);
 
   const [searchText, setSearchText] = useState('');
@@ -38,13 +38,10 @@ export default function BuildingMap({
   const [mapCenteredOnBuildings, setMapCenteredOnBuildings] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [places, setPlaces] = useState([]);
-
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const snapPoints = useMemo(() => ['25%', '50%', '80%'], []);
-
-  const handleSheetChanges = useCallback(() => {}, []);
 
   useEffect(() => {
     if (!userLocation || !mapRef.current) return;
@@ -69,16 +66,8 @@ export default function BuildingMap({
     if (!mapRef.current) return;
 
     const targetRegion = mapCenteredOnBuildings && userLocation
-      ? {
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude,
-          ...recenterDeltaUser,
-        }
-      : {
-          latitude: buildingsRegion.latitude,
-          longitude: buildingsRegion.longitude,
-          ...recenterDeltaBuildings,
-        };
+      ? { latitude: userLocation.latitude, longitude: userLocation.longitude, ...recenterDeltaUser }
+      : { latitude: buildingsRegion.latitude, longitude: buildingsRegion.longitude, ...recenterDeltaBuildings };
 
     mapRef.current.animateToRegion(targetRegion);
     setMapCenteredOnBuildings(!mapCenteredOnBuildings);
@@ -91,8 +80,7 @@ export default function BuildingMap({
     const dLon = toRad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return (R * c).toFixed(2);
   };
@@ -117,9 +105,7 @@ export default function BuildingMap({
       const res = await fetch(url);
       const data = await res.json();
 
-      if (!data?.results || data.results.length === 0) {
-        throw new Error('No places found nearby.');
-      }
+      if (!data?.results || data.results.length === 0) throw new Error('No places found nearby.');
 
       const filteredResults = data.results.filter((place) =>
         place.types.includes(placeType) || place.name.toLowerCase().includes(keyword)
@@ -139,14 +125,12 @@ export default function BuildingMap({
       setPlaces(placesWithDistance);
 
       bottomSheetRef.current?.snapToIndex(1);
-
       mapRef.current?.animateToRegion({
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
         latitudeDelta: 0.03,
         longitudeDelta: 0.03,
       });
-
     } catch (err) {
       console.error('Error fetching places:', err);
       setErrorMessage('Failed to load nearby places. Please try again later.');
@@ -155,9 +139,7 @@ export default function BuildingMap({
   };
 
   const handleCategorySelect = useCallback((categoryLabel) => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current);
-    }
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
     debounceTimeout.current = setTimeout(() => {
       setSelectedCategory(categoryLabel);
@@ -175,10 +157,7 @@ export default function BuildingMap({
   };
 
   const renderPlaceItem = ({ item }) => (
-    <TouchableOpacity
-      style={mapStyles.placeItemContainer}
-      onPress={() => zoomToPlace(item)}
-    >
+    <TouchableOpacity style={mapStyles.placeItemContainer} onPress={() => zoomToPlace(item)}>
       <View style={mapStyles.placeInfo}>
         <Text style={mapStyles.placeName}>{item.name}</Text>
         <Text style={mapStyles.placeVicinity}>{item.vicinity || 'No address available'}</Text>
@@ -205,58 +184,29 @@ export default function BuildingMap({
   );
 
   useEffect(() => {
-    if (searchText) {
-      const building = buildings.find((b) =>
-        b.name.toLowerCase().includes(searchText.toLowerCase())
-      );
+    if (!searchText) return;
 
-      if (building && mapRef.current) {
-        const coords = searchCoordinates(building);
-        mapRef.current.animateToRegion({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-          latitudeDelta: recenterDeltaUser.latitudeDelta,
-          longitudeDelta: recenterDeltaUser.longitudeDelta,
-        });
-      }
+    const building = buildings.find((b) =>
+      b.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    if (building && mapRef.current) {
+      const coords = searchCoordinates(building);
+      mapRef.current.animateToRegion({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: recenterDeltaUser.latitudeDelta,
+        longitudeDelta: recenterDeltaUser.longitudeDelta,
+      });
     }
   }, [searchText]);
 
   return (
     <View style={mapStyles.container}>
-      {/* Error Modal */}
-      <Modal
-        visible={errorVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setErrorVisible(false)}
-      >
-        <View style={errorStyles.overlay}>
-          <View style={errorStyles.modalContainer}>
-            <Text style={errorStyles.title}>Oops!</Text>
-            <Text style={errorStyles.message}>{errorMessage}</Text>
-            <TouchableOpacity
-              style={errorStyles.button}
-              onPress={() => setErrorVisible(false)}
-            >
-              <Text style={errorStyles.buttonText}>Got it</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Search Bar */}
-      <SearchBar value={searchText} onChangeText={setSearchText} data={buildings} />
-
-      {/* Map */}
-      <MapView
-        ref={mapRef}
-        style={mapStyles.map}
-        initialRegion={initialRegion}
-        showsUserLocation={false}
-      >
-        {/* Overlay Category Chips */}
-        <View style={overlayStyles.categoryChipsContainer}>
+      {/* Floating SearchBar and Chips */}
+      <View style={overlayStyles.floatingContainer}>
+        <SearchBar value={searchText} onChangeText={setSearchText} data={buildings} />
+        <View style={overlayStyles.chipsContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {categories.map((category) => (
               <TouchableOpacity
@@ -279,8 +229,10 @@ export default function BuildingMap({
             ))}
           </ScrollView>
         </View>
+      </View>
 
-        {/* Markers and Polygons */}
+      {/* Map */}
+      <MapView ref={mapRef} style={mapStyles.map} initialRegion={initialRegion} showsUserLocation={false}>
         {userLocation && (
           <Marker coordinate={userLocation}>
             <View style={mapStyles.userMarker}>
@@ -345,7 +297,7 @@ export default function BuildingMap({
         ref={bottomSheetRef}
         index={-1}
         snapPoints={snapPoints}
-        onChange={handleSheetChanges}
+        onChange={() => {}}
         enablePanDownToClose
         handleIndicatorStyle={{ backgroundColor: '#912338' }}
       >
@@ -353,7 +305,6 @@ export default function BuildingMap({
           <Text style={mapStyles.bottomSheetHeader}>
             {selectedCategory ? `${selectedCategory} Nearby` : 'Places Nearby'}
           </Text>
-
           <FlatList
             data={places}
             keyExtractor={(item) => item.place_id}
@@ -363,9 +314,35 @@ export default function BuildingMap({
           />
         </BottomSheetView>
       </BottomSheet>
+
+      {/* Error Modal */}
+      <Modal visible={errorVisible} transparent animationType="fade" onRequestClose={() => setErrorVisible(false)}>
+        <View style={errorStyles.overlay}>
+          <View style={errorStyles.modalContainer}>
+            <Text style={errorStyles.title}>Oops!</Text>
+            <Text style={errorStyles.message}>{errorMessage}</Text>
+            <TouchableOpacity style={errorStyles.button} onPress={() => setErrorVisible(false)}>
+              <Text style={errorStyles.buttonText}>Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
+
+const overlayStyles = StyleSheet.create({
+  floatingContainer: {
+    position: 'absolute',
+    top: 5,  // 👈 Move higher (was 20)
+    left: 10,
+    right: 10,
+    zIndex: 10,
+  },
+  chipsContainer: {
+    marginTop: 8,
+  },
+});
 
 const errorStyles = StyleSheet.create({
   overlay: {
@@ -380,11 +357,6 @@ const errorStyles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   title: {
     fontSize: 20,
@@ -408,16 +380,5 @@ const errorStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-});
-
-const overlayStyles = StyleSheet.create({
-  categoryChipsContainer: {
-    position: 'absolute',
-    top: 15,
-    left: 10,
-    right: 10,
-    zIndex: 10,
-    flexDirection: 'row',
   },
 });
