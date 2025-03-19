@@ -28,8 +28,9 @@ export default function BuildingMap({
 }) {
   const mapRef = useRef(null);
   const bottomSheetRef = useRef(null);
-  const router = useRouter();
+  const debounceTimeout = useRef(null); // 🔥 Debounce ref
 
+  const router = useRouter();
   const { userLocation, nearestBuilding } = useLocationHandler(buildings, getMarkerPosition);
 
   const [searchText, setSearchText] = useState('');
@@ -153,10 +154,17 @@ export default function BuildingMap({
     }
   };
 
-  const handleCategorySelect = (categoryLabel) => {
-    setSelectedCategory(categoryLabel);
-    fetchPlaces(categoryLabel);
-  };
+  // ✅ Debounced version of handleCategorySelect
+  const handleCategorySelect = useCallback((categoryLabel) => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      setSelectedCategory(categoryLabel);
+      fetchPlaces(categoryLabel);
+    }, 300); // Debounce delay in ms
+  }, [fetchPlaces]);
 
   const zoomToPlace = (place) => {
     mapRef.current?.animateToRegion({
