@@ -223,7 +223,7 @@ export default function BuildingMap({
                 key={category.label}
                 style={[
                   mapStyles.chip,
-                  selectedCategory === category.label && mapStyles.chipSelected,
+                  selectedCategory == category.label && mapStyles.chipSelected,
                 ]}
                 onPress={() => handleCategorySelect(category.label)}
               >
