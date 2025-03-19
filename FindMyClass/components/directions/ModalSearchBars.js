@@ -5,6 +5,7 @@ import { styles } from "../../styles/directionsStyles";
 import GoogleSearchBar from "../GoogleSearchBar";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
+import hallBuildingRooms from "../rooms/HallBuildingRooms";
 
 
 const ModalSearchBars = ({ 
@@ -26,11 +27,12 @@ const ModalSearchBars = ({
     customDest,
     setCustomDest,
     setDestinationName, 
+    setRoomNumber,
     
 
 }) => {
     const isStartSearch = searchType === 'START'; // The modal will display a specific searh bar based on the searchType
-    const allBuildings = [...SGWBuildings, ...LoyolaBuildings];
+    const allBuildings = [...SGWBuildings, ...LoyolaBuildings,...hallBuildingRooms];
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -49,18 +51,26 @@ const ModalSearchBars = ({
         }
     };
     const selectBuilding = (building) => {
-        setCustomDest(building.name);
-        setSearchResults([]);
-        setIsSearching(false);
-        
-        const newDestination = {
-            latitude: building.latitude,
-            longitude: building.longitude
-        };
-        setDestination(newDestination);
-        setDestinationName(building.name);
-        updateRoute(startLocation, newDestination);
-        handleCloseModal();
+        if ( building.type === "room") {
+            selectBuilding(SGWBuildings.find(b => b.id === "H"));
+            setRoomNumber(building.id);
+        }
+        else {
+            
+            setCustomDest(building.name);
+            setSearchResults([]);
+            setIsSearching(false);
+            
+            const newDestination = {
+                latitude: building.latitude,
+                longitude: building.longitude
+            };
+            setDestination(newDestination);
+            setDestinationName(building.name);
+            updateRoute(startLocation, newDestination);
+            handleCloseModal();
+
+        }
     };
 
     const parseStreetName = (description) => {
