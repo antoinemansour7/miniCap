@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import MapView, { Marker, Polyline, Circle } from "react-native-maps";
+import MapView, { Marker, Polyline, Circle, Overlay } from "react-native-maps";
 import * as Location from "expo-location";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
@@ -15,9 +15,90 @@ import {
     LOYOLA_COORDS, 
     SGW_COORDS,
             } from "../../utils/shuttleUtils";
+import  SGWBuildings  from "../../components/SGWBuildings";
+import PF from "pathfinding";
 
+
+
+const floorPlans = {
+  1: require('../../floorPlans/hall-1-rotated.png'),
+  2: require('../../floorPlans/Hall-2.png'),
+  8: require('../../floorPlans//Hall-8.png'),
+  9: require('../../floorPlans/Hall-9.png')
+};            
+
+const floorGrid = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0],
+  [0,0,1,1,2,0,2,0,2,0,2,0,2,0,2,2,1,1,2,0],
+  [0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0],
+  [0,0,0,1,0,0,2,0,2,0,0,0,1,3,3,3,1,0,0,0],
+  [0,0,2,1,4,0,0,0,0,0,0,0,1,4,0,0,1,2,0,0],
+  [0,0,0,1,2,2,0,0,0,0,0,0,1,5,0,0,1,0,0,0],
+  [0,0,2,1,1,1,2,0,0,0,0,0,1,0,0,3,1,2,0,0],
+  [0,0,0,1,0,0,0,4,4,4,4,0,1,0,0,0,1,0,0,0],
+  [0,0,2,1,2,0,1,1,1,1,1,1,1,0,0,0,1,2,0,0],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [0,0,0,1,2,2,2,0,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,3,1,2,0,0],
+  [0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,4,1,0,0,0],
+  [0,0,2,1,2,0,0,0,0,0,0,0,0,0,0,0,1,2,0,0],
+  [0,0,0,1,4,0,0,2,0,0,0,0,0,0,0,0,1,2,0,0],
+  [0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0],
+  [0,0,2,1,2,0,2,0,2,0,2,0,2,0,2,0,2,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+ ];
 
 export default function DirectionsScreen() {
+
+const hallBuilding = SGWBuildings.find(b => b.id === 'H');
+
+const getFloorPlanBounds = () => {
+  if (!hallBuilding || !hallBuilding.boundary || hallBuilding.boundary.length === 0) {
+    return null;
+  }
+  
+  // Calculate bounds based on the polygon coordinates
+  const lats = hallBuilding.boundary.map(coord => coord.latitude);
+  const lngs = hallBuilding.boundary.map(coord => coord.longitude);
+  
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  
+  return {
+    north: maxLat,
+    south: minLat,
+    east: maxLng,
+    west: minLng
+  };
+};
+
+const bounds = hallBuilding ? getFloorPlanBounds() : null;
+
+
+const gridToLatLong = (x, y) => {
+  const minLat = bounds.south, maxLat = bounds.north;
+  const minLong = bounds.west, maxLong = bounds.east;
+  
+  const gridSize = 20; 
+
+  const lat = minLat + (maxLat - minLat) * (y / gridSize);
+  const long = minLong + (maxLong - minLong) * (x / gridSize);
+
+  return { latitude: lat, longitude: long };
+}
+
+const grid = new PF.Grid(floorGrid);
+const finder = new PF.AStarFinder();
+
+const path = finder.findPath(10, 9, 7, 15, grid);
+
+const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+
+
   
        // Retrieve the destination from the params that were passed from the Map page
        const params = useLocalSearchParams();
@@ -70,6 +151,7 @@ export default function DirectionsScreen() {
        const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
        const [directions, setDirections] = useState([]);
        const [isShuttleService, setIsShuttleService] = useState(false);
+       const [roomNumber, setRoomNumber] = useState('');
    
        // If there is an error, show the error message inside JSX
        if (errorMessage) {
@@ -333,7 +415,17 @@ export default function DirectionsScreen() {
                     updateRoute={updateRoute}
                     style={styles.locationSelector}
                 />
-                           
+                    <View 
+                        style={{opacity: zoomLevel <= 13 ? 0.5 : 1 }}>
+                          <Overlay 
+                            bounds={[
+                              [bounds.south, bounds.west],
+                              [bounds.north, bounds.east]
+                            ]}
+                            image={floorPlans[8]}
+                            zIndex={1}
+                          />
+                    </View>
 
 
                         {userLocation && 
@@ -365,6 +457,17 @@ export default function DirectionsScreen() {
                                 lineDashPattern={[0]}
                             />
                         )}
+
+                     
+                          <Polyline
+                            coordinates={routeCoordinates}
+                            strokeWidth={4}
+                            strokeColor="#912338"
+                            //lineDashPattern={[0]}
+                          />
+                        
+
+
                     </MapView>
                 </View>
 
@@ -410,6 +513,7 @@ export default function DirectionsScreen() {
             customDest={customDest}
             setCustomDest={setCustomDest}
             setDestinationName={setDestinationName}
+            setRoomNumber={setRoomNumber}
             
             />
             {routeInfo && directions.length > 0 && (
