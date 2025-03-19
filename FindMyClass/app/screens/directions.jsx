@@ -12,7 +12,7 @@ import {
   isNearCampus, 
   getNextShuttleTime, 
   LOYOLA_COORDS, 
-  SGW_COORDS,
+  SGW_COORDS,x
 } from "../../utils/shuttleUtils";
 
 export default function DirectionsScreen() {
