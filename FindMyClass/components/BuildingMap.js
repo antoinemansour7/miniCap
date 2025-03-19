@@ -13,10 +13,10 @@ import useLocationHandler from '../hooks/useLocationHandler';
 
 // Define paths to floor plan images/SVGs
 const floorPlans = {
-  1: require('./hall-1-rotated.png'),
-  2: require('./Hall-2.png'),
-  8: require('./Hall-8.png'),
-  9: require('./Hall-9.png')
+  1: require('../floorPlans/hall-1-rotated.png'),
+  2: require('../floorPlans/Hall-2.png'),
+  8: require('../floorPlans//Hall-8.png'),
+  9: require('../floorPlans/Hall-9.png')
 };
 
 const BuildingMap = ({
