@@ -43,7 +43,7 @@ const CalloutContent = memo(
   (prevProps, nextProps) => prevProps.building.id === nextProps.building.id
 );
 
-const BuildingMarker = ({ building, router, position }) => {
+const BuildingMarker = ({ building, router, position, nearestBuilding }) => {
   const markerRef = useRef(null);
 
   const openAlert = useCallback(() => {
@@ -59,15 +59,15 @@ const BuildingMarker = ({ building, router, position }) => {
 
   if (!position) return null;
 
-  // ✅ MOCK: Pretend user is inside ONLY the Hall Building (id === 'H')
-  const isUserInside = building.id === 'H';
+  // ✅ Check if the user is inside THIS building
+  const isUserInside = nearestBuilding?.id === building.id;
 
-  // ✅ Define colors for "inside" state
+  // ✅ Define colors for the active building
   const highlightStrokeColor = 'rgba(218, 165, 32, 1)';     // Goldenrod (stroke)
   const highlightFillColor = 'rgba(218, 165, 32, 0.4)';     // Goldenrod (fill)
-  const highlightPinColor = '#DAA520';                      // Goldenrod HEX (pin)
+  const highlightPinColor = '#DAA520';                      // Goldenrod pin
 
-  // ✅ Use default colors otherwise
+  // ✅ Default building colors
   const defaultStrokeColor = 'rgba(155, 27, 48, 0.8)';      // Dark red stroke
   const defaultFillColor = 'rgba(155, 27, 48, 0.4)';        // Dark red fill
 
