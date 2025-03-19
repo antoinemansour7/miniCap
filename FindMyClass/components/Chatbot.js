@@ -140,8 +140,8 @@ const Chatbot = ({ isVisible, onClose }) => {
       const botResponse = await sendConversationToOpenAI(conversation);
       const botMessage = { id: uuidv4(), text: botResponse, isUser: false };
       setMessages(prev => [...prev, botMessage]);
-      // After bot reply, if a next-class event exists, show the directions popup
-      if (nextClassEvent && nextClassEvent.destinationCoordinates) {
+      // After bot reply, if a next-class event exists and popup isn't already shown, show the directions popup
+      if (nextClassEvent && nextClassEvent.destinationCoordinates && !showDirectionsPopup) {
         setShowDirectionsPopup(true);
       }
     } catch (error) {
@@ -179,6 +179,20 @@ const Chatbot = ({ isVisible, onClose }) => {
       scrollViewRef.current.scrollToEnd({ animated: true });
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (showDirectionsPopup) {
+      console.log("Popup shown, starting 10-second timer...");
+      const timer = setTimeout(() => {
+        console.log("Timer finished: closing popup.");
+        setShowDirectionsPopup(false);
+      }, 10000); // 10 seconds
+      return () => {
+        console.log("Clearing timer.");
+        clearTimeout(timer);
+      };
+    }
+  }, [showDirectionsPopup]);
 
   return (
     <Modal visible={isVisible} animationType="slide" onRequestClose={onClose}>
@@ -223,8 +237,18 @@ const Chatbot = ({ isVisible, onClose }) => {
             </TouchableOpacity>
           </View>
         </View>
-       
- 
+        {/* Popup Modal: displayed after bot reply, appears inline */}
+        {showDirectionsPopup && (
+          <Modal transparent animationType="fade" visible={showDirectionsPopup}>
+            <TouchableOpacity style={styles.popupOverlay} onPress={() => setShowDirectionsPopup(false)}>
+              <View style={styles.popupBubble}>
+                <TouchableOpacity onPress={handleGetDirections}>
+                  <Text style={styles.popupText}>Next Directions</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
+        )}
       </SafeAreaView>
     </Modal>
   );
@@ -346,7 +370,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   // Popup modal bubble styles
- 
+  popupOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  popupBubble: {
+    backgroundColor: '#912338',
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+  },
+  popupText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
 });
 
 export default Chatbot;
