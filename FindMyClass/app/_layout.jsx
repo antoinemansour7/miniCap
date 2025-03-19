@@ -1,14 +1,68 @@
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 import { AuthProvider } from '../contexts/AuthContext';
 import ProfileButton from '../components/ProfileButton';
+import { usePathname } from 'expo-router';
+import RNUxcam from 'react-native-ux-cam';
+import { uxCamKey } from './secrets'; 
+import Constants from 'expo-constants';
 
 export default function Layout() {
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+
+    if (Constants.appOwnership === 'expo') {
+      console.warn('Skipping UXCam, Running in Expo Go');
+      return;
+    }
+    // Initialize UXCam only once when the app starts
+    const configuration = {
+      userAppKey: uxCamKey,
+      enableAutomaticScreenNameTagging: false,
+      enableAdvancedGestureRecognition: true,
+      enableImprovedScreenCapture: true,
+    };
+
+    RNUxcam.startWithConfiguration(configuration);
+  }, []);
+
+  useEffect(() => {
+    // Tag the current screen name whenever route changes
+    RNUxcam.tagScreenName(pathname);
+  }, [pathname]);
+
+  // Detect UI Freeze
+  useEffect(() => {
+    let lastFrameTime = Date.now();
+
+    const detectFreeze = () => {
+      const now = Date.now();
+      const timeSinceLastFrame = now - lastFrameTime;
+
+      if (timeSinceLastFrame > 3000) { // If no frame update for 3+ seconds
+        RNUxcam.logEvent('AppFreezeDetected', {
+          screen: pathname,
+          freezeDuration: timeSinceLastFrame + 'ms',
+          timestamp: new Date().toISOString(),
+        });
+        console.warn(' App freeze detected:', timeSinceLastFrame, 'ms');
+      }
+
+      lastFrameTime = now;
+      requestAnimationFrame(detectFreeze);
+    };
+
+    requestAnimationFrame(detectFreeze);
+  }, []);
+
+
   // Removed searchText state since search bar is no longer needed for maps
   const fontsLoaded = true; // ✅ Remove useFonts if not using fonts
 
