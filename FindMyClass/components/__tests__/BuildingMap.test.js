@@ -3,23 +3,30 @@ import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import BuildingMap from '../BuildingMap';
 import useLocationHandler from '../../hooks/useLocationHandler';
 
+// Mock expo-router
 jest.mock('expo-router', () => ({
   useRouter: () => ({
     push: jest.fn(),
   }),
 }));
 
+// Mock useLocationHandler hook
 jest.mock('../../hooks/useLocationHandler');
+
+// ---- react-native-maps mock with exposed onRegionChangeComplete ---- //
+let onRegionChangeCompleteMock = jest.fn();
 
 jest.mock('react-native-maps', () => {
   const React = require('react');
   const { View } = require('react-native');
 
   const MockMapView = React.forwardRef((props, ref) => {
+    onRegionChangeCompleteMock = props.onRegionChangeComplete;
+
     React.useImperativeHandle(ref, () => ({
       getCamera: () =>
         Promise.resolve({
-          center: { latitude: 46, longitude: -74 }, // Forces recenter button visibility
+          center: { latitude: 46, longitude: -74 },
         }),
       animateToRegion: jest.fn(),
     }));
@@ -30,9 +37,15 @@ jest.mock('react-native-maps', () => {
   const MockMarker = (props) => <View {...props} />;
   const MockPolygon = (props) => <View {...props} />;
 
-  return { __esModule: true, default: MockMapView, Marker: MockMarker, Polygon: MockPolygon };
+  return {
+    __esModule: true,
+    default: MockMapView,
+    Marker: MockMarker,
+    Polygon: MockPolygon,
+  };
 });
 
+// Mock bottom sheet component
 jest.mock('@gorhom/bottom-sheet', () => {
   const React = require('react');
   const { View } = require('react-native');
@@ -50,13 +63,14 @@ jest.mock('@gorhom/bottom-sheet', () => {
   return { __esModule: true, default: BottomSheet, BottomSheetView };
 });
 
+// Mock BuildingMarker component
 jest.mock('../BuildingMarker', () => {
   const React = require('react');
   const { View } = require('react-native');
   return () => <View testID="building-marker" />;
 });
 
-// Mock global fetch
+// Mock fetch for places API
 global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () =>
@@ -68,10 +82,11 @@ global.fetch = jest.fn(() =>
             geometry: { location: { lat: 45.1, lng: -73.1 } },
             vicinity: '123 Test Street',
             types: ['restaurant'],
+            rating: 4.5,
           },
         ],
       }),
-  }),
+  })
 );
 
 describe('BuildingMap Extended Tests', () => {
@@ -183,4 +198,56 @@ describe('BuildingMap Extended Tests', () => {
 
     expect(defaultProps.getMarkerPosition).toHaveBeenCalled();
   });
+
+  it('displays POI name when zoom level is high enough (>= 16)', async () => {
+    const { getByText, getAllByText } = render(<BuildingMap {...defaultProps} />);
+  
+    // Select the category first
+    await act(async () => {
+      fireEvent.press(getByText(/Restaurant/));
+    });
+  
+    // Simulate zoom in (high zoom level)
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45,
+        longitude: -73,
+        latitudeDelta: 0.001, // zoomed in
+        longitudeDelta: 0.001,
+      });
+    });
+  
+    // Wait for UI to reflect
+    await waitFor(() => {
+      const places = getAllByText('Test Place');
+      // Expect two instances: one in bottom sheet + one on the marker label
+      expect(places.length).toBe(2);
+    });
+  });
+  
+  it('does not display POI name when zoom level is low (< 16)', async () => {
+    const { getByText, queryAllByText } = render(<BuildingMap {...defaultProps} />);
+  
+    // Select the category first
+    await act(async () => {
+      fireEvent.press(getByText(/Restaurant/));
+    });
+  
+    // Simulate zoom out (low zoom level)
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45,
+        longitude: -73,
+        latitudeDelta: 1, // zoomed out
+        longitudeDelta: 1,
+      });
+    });
+  
+    // Wait for UI to reflect
+    await waitFor(() => {
+      const places = queryAllByText('Test Place');
+      // Expect only one instance: in bottom sheet
+      expect(places.length).toBe(1);
+    });
+  });  
 });
