@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, FlatList, Modal, StyleSheet } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -38,11 +38,13 @@ export default function BuildingMap({
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [places, setPlaces] = useState([]);
 
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const snapPoints = useMemo(() => ['25%', '50%', '80%'], []);
 
   const handleSheetChanges = useCallback(() => {}, []);
 
-  // Show recenter button if user is far from buildings or camera center
   useEffect(() => {
     if (!userLocation || !mapRef.current) return;
 
@@ -62,7 +64,6 @@ export default function BuildingMap({
     });
   }, [userLocation]);
 
-  // Recenter map between user and buildings region
   const recenterMap = () => {
     if (!mapRef.current) return;
 
@@ -82,7 +83,6 @@ export default function BuildingMap({
     setMapCenteredOnBuildings(!mapCenteredOnBuildings);
   };
 
-  // Calculate distance between two coordinates in km
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const toRad = (v) => (v * Math.PI) / 180;
     const R = 6371;
@@ -96,59 +96,12 @@ export default function BuildingMap({
     return (R * c).toFixed(2);
   };
 
-  // Fetch places by category around user location
   const fetchPlaces = async (categoryLabel) => {
-    if (!userLocation) return;
-
-    const categoryMap = {
-      Restaurant: 'restaurant',
-      Café: 'cafe',
-      Bakery: 'bakery',
-      Library: 'library',
-      Hospital: 'hospital',
-    };
-
-    const placeType = categoryMap[categoryLabel] || categoryLabel.toLowerCase();
-    const keyword = placeType;
-
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${userLocation.latitude},${userLocation.longitude}&rankby=distance&type=${placeType}&keyword=${keyword}&key=${googleAPIKey}`;
-
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const filteredResults = data.results.filter((place) =>
-        place.types.includes(placeType) || place.name.toLowerCase().includes(keyword)
-      );
-
-      const placesWithDistance = filteredResults.map((place) => ({
-        ...place,
-        distance: calculateDistance(
-          userLocation.latitude,
-          userLocation.longitude,
-          place.geometry.location.lat,
-          place.geometry.location.lng
-        ),
-      }));
-
-      placesWithDistance.sort((a, b) => a.distance - b.distance);
-      setPlaces(placesWithDistance);
-
-      bottomSheetRef.current?.snapToIndex(1);
-
-      // Center map on user after fetching places
-      mapRef.current?.animateToRegion({
-        latitude: userLocation.latitude,
-        longitude: userLocation.longitude,
-        latitudeDelta: 0.03,
-        longitudeDelta: 0.03,
-      });
-
-    } catch (err) {
-      console.error('Error fetching places:', err);
-    }
+    // 🔥 Force an error to simulate failure
+    setErrorMessage('Simulated error for testing purposes.');
+    setErrorVisible(true);
+    return; // stop further execution
   };
-
   const handleCategorySelect = (categoryLabel) => {
     setSelectedCategory(categoryLabel);
     fetchPlaces(categoryLabel);
@@ -193,7 +146,6 @@ export default function BuildingMap({
     </TouchableOpacity>
   );
 
-  // Search and zoom into building by searchText
   useEffect(() => {
     if (searchText) {
       const building = buildings.find((b) =>
@@ -214,9 +166,29 @@ export default function BuildingMap({
 
   return (
     <View style={mapStyles.container}>
+      {/* Error Modal */}
+      <Modal
+        visible={errorVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setErrorVisible(false)}
+      >
+        <View style={errorStyles.overlay}>
+          <View style={errorStyles.modalContainer}>
+            <Text style={errorStyles.title}>Oops!</Text>
+            <Text style={errorStyles.message}>{errorMessage}</Text>
+            <TouchableOpacity
+              style={errorStyles.button}
+              onPress={() => setErrorVisible(false)}
+            >
+              <Text style={errorStyles.buttonText}>Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <SearchBar value={searchText} onChangeText={setSearchText} data={buildings} />
 
-      {/* Category chips */}
       <View style={mapStyles.categoryChipsContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {categories.map((category) => (
@@ -224,14 +196,16 @@ export default function BuildingMap({
               key={category.label}
               style={[
                 mapStyles.chip,
-                selectedCategory == category.label && mapStyles.chipSelected,
+                selectedCategory === category.label && mapStyles.chipSelected,
               ]}
               onPress={() => handleCategorySelect(category.label)}
             >
-              <Text style={[
-                mapStyles.chipText,
-                selectedCategory == category.label && mapStyles.chipTextSelected,
-              ]}>
+              <Text
+                style={[
+                  mapStyles.chipText,
+                  selectedCategory === category.label && mapStyles.chipTextSelected,
+                ]}
+              >
                 {category.icon} {category.label}
               </Text>
             </TouchableOpacity>
@@ -245,7 +219,6 @@ export default function BuildingMap({
         initialRegion={initialRegion}
         showsUserLocation={false}
       >
-        {/* User marker */}
         {userLocation && (
           <Marker coordinate={userLocation}>
             <View style={mapStyles.userMarker}>
@@ -256,7 +229,6 @@ export default function BuildingMap({
           </Marker>
         )}
 
-        {/* Building polygons */}
         {buildings.map((building) => {
           const boundary = building.boundary?.outer || building.boundary;
           if (!boundary?.length) return null;
@@ -277,7 +249,6 @@ export default function BuildingMap({
           );
         })}
 
-        {/* Building markers */}
         {buildings.map((building) => (
           <BuildingMarker
             key={building.id}
@@ -288,7 +259,6 @@ export default function BuildingMap({
           />
         ))}
 
-        {/* Places markers */}
         {places.map((place) => (
           <Marker
             key={place.place_id}
@@ -301,14 +271,12 @@ export default function BuildingMap({
         ))}
       </MapView>
 
-      {/* Recenter button */}
       {showRecenterButton && (
         <TouchableOpacity style={mapStyles.recenterButton} onPress={recenterMap}>
           <Text style={mapStyles.recenterText}>📍</Text>
         </TouchableOpacity>
       )}
 
-      {/* Bottom sheet showing places */}
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
@@ -334,3 +302,47 @@ export default function BuildingMap({
     </View>
   );
 }
+
+const errorStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#912338',
+    marginBottom: 10,
+  },
+  message: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#912338',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
