@@ -163,7 +163,7 @@ export default function BuildingMap({
     debounceTimeout.current = setTimeout(() => {
       setSelectedCategory(categoryLabel);
       fetchPlaces(categoryLabel);
-    }, 300); // Debounce delay in ms
+    }, 350); // Debounce delay in ms
   }, [fetchPlaces]);
 
   const zoomToPlace = (place) => {
