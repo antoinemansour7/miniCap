@@ -106,7 +106,7 @@ export default function BuildingMap({
       const res = await fetch(url);
       const data = await res.json();
 
-      if (!data?.results || data.results.length === 0) throw new Error('No places found nearby.');
+      if (!data?.results || data.results.length == 0) throw new Error('No places found nearby.');
 
       const filteredResults = data.results.filter((place) =>
         place.types.includes(placeType) || place.name.toLowerCase().includes(keyword)
@@ -230,7 +230,7 @@ export default function BuildingMap({
                 <Text
                   style={[
                     mapStyles.chipText,
-                    selectedCategory === category.label && mapStyles.chipTextSelected,
+                    selectedCategory == category.label && mapStyles.chipTextSelected,
                   ]}
                 >
                   {category.icon} {category.label}
