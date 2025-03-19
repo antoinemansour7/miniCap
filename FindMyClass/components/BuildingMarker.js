@@ -62,10 +62,14 @@ const BuildingMarker = ({ building, router, position }) => {
   // ✅ MOCK: Pretend user is inside ONLY the Hall Building (id === 'H')
   const isUserInside = building.id === 'H';
 
-  // ✅ Polygon fill color: Only Hall Building gets green highlight
-  const polygonFillColor = isUserInside
-    ? 'rgba(0, 150, 0, 0.4)' // Green for Hall Building
-    : 'rgba(155, 27, 48, 0.4)'; // Default for others
+  // ✅ Define colors for "inside" state
+  const highlightStrokeColor = 'rgba(218, 165, 32, 1)';     // Goldenrod (stroke)
+  const highlightFillColor = 'rgba(218, 165, 32, 0.4)';     // Goldenrod (fill)
+  const highlightPinColor = '#DAA520';                      // Goldenrod HEX (pin)
+
+  // ✅ Use default colors otherwise
+  const defaultStrokeColor = 'rgba(155, 27, 48, 0.8)';      // Dark red stroke
+  const defaultFillColor = 'rgba(155, 27, 48, 0.4)';        // Dark red fill
 
   return (
     <>
@@ -73,7 +77,7 @@ const BuildingMarker = ({ building, router, position }) => {
         ref={markerRef}
         coordinate={position}
         title={building.name}
-        pinColor={isUserInside ? 'green' : undefined} // Green pin for Hall Building
+        pinColor={isUserInside ? highlightPinColor : undefined}
       >
         <Callout>
           <CalloutContent
@@ -90,8 +94,8 @@ const BuildingMarker = ({ building, router, position }) => {
         <Polygon
           coordinates={building.boundary.outer || building.boundary}
           holes={building.boundary.inner ? [building.boundary.inner] : undefined}
-          strokeColor={'rgba(155, 27, 48, 0.8)'} // 🔴 Always default stroke color
-          fillColor={polygonFillColor}            // ✅ Green fill for Hall Building only
+          strokeColor={isUserInside ? highlightStrokeColor : defaultStrokeColor}
+          fillColor={isUserInside ? highlightFillColor : defaultFillColor}
           strokeWidth={2}
         />
       )}
@@ -128,7 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    backgroundColor: '#912338',
+    backgroundColor: '#912338', // Maroon button color
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
