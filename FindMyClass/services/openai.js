@@ -20,7 +20,7 @@ export const sendConversationToOpenAI = async (conversation) => {
   try {
     const response = await api.post('/chat/completions', {
       model: 'gpt-3.5-turbo',
-      temperature: 0.7,
+      temperature: 0.2,
       messages: conversation, 
     });
 
