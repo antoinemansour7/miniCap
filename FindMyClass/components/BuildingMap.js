@@ -40,6 +40,7 @@ export default function BuildingMap({
   const [places, setPlaces] = useState([]);
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [zoomLevel, setZoomLevel] = useState(0);
 
   const snapPoints = useMemo(() => ['25%', '50%', '80%'], []);
 
@@ -105,7 +106,7 @@ export default function BuildingMap({
       const res = await fetch(url);
       const data = await res.json();
 
-      if (!data?.results || data.results.length == 0) throw new Error('No places found nearby.');
+      if (!data?.results || data.results.length === 0) throw new Error('No places found nearby.');
 
       const filteredResults = data.results.filter((place) =>
         place.types.includes(placeType) || place.name.toLowerCase().includes(keyword)
@@ -201,6 +202,15 @@ export default function BuildingMap({
     }
   }, [searchText]);
 
+  const getPlaceIcon = (types) => {
+    if (types.includes('restaurant')) return '🍽️';
+    if (types.includes('cafe')) return '☕';
+    if (types.includes('bakery')) return '🥐';
+    if (types.includes('library')) return '📚';
+    if (types.includes('hospital')) return '🏥';
+    return '📍';
+  };
+
   return (
     <View style={mapStyles.container}>
       {/* Floating SearchBar and Chips */}
@@ -213,14 +223,14 @@ export default function BuildingMap({
                 key={category.label}
                 style={[
                   mapStyles.chip,
-                  selectedCategory == category.label && mapStyles.chipSelected,
+                  selectedCategory === category.label && mapStyles.chipSelected,
                 ]}
                 onPress={() => handleCategorySelect(category.label)}
               >
                 <Text
                   style={[
                     mapStyles.chipText,
-                    selectedCategory == category.label && mapStyles.chipTextSelected,
+                    selectedCategory === category.label && mapStyles.chipTextSelected,
                   ]}
                 >
                   {category.icon} {category.label}
@@ -232,7 +242,16 @@ export default function BuildingMap({
       </View>
 
       {/* Map */}
-      <MapView ref={mapRef} style={mapStyles.map} initialRegion={initialRegion} showsUserLocation={false}>
+      <MapView
+        ref={mapRef}
+        style={mapStyles.map}
+        initialRegion={initialRegion}
+        showsUserLocation={false}
+        onRegionChangeComplete={(region) => {
+          const calculatedZoom = Math.round(Math.log(360 / region.longitudeDelta) / Math.LN2);
+          setZoomLevel(calculatedZoom);
+        }}
+      >
         {userLocation && (
           <Marker coordinate={userLocation}>
             <View style={mapStyles.userMarker}>
@@ -280,9 +299,24 @@ export default function BuildingMap({
               latitude: place.geometry.location.lat,
               longitude: place.geometry.location.lng,
             }}
-            title={place.name}
-          />
+            onPress={() => zoomToPlace(place)}
+          >
+            <View style={customMarkerStyles.markerCapsule}>
+              <Text style={customMarkerStyles.icon}>{getPlaceIcon(place.types)}</Text>
+              {place.rating && (
+                <Text style={customMarkerStyles.ratingText}>
+                  {place.rating.toFixed(1)}
+                </Text>
+              )}
+              {zoomLevel >= 17 && (
+                <Text style={customMarkerStyles.poiName}>
+                  {place.name.length > 20 ? `${place.name.slice(0, 20)}...` : place.name}
+                </Text>
+              )}
+            </View>
+          </Marker>
         ))}
+
       </MapView>
 
       {/* Recenter Button */}
@@ -334,7 +368,7 @@ export default function BuildingMap({
 const overlayStyles = StyleSheet.create({
   floatingContainer: {
     position: 'absolute',
-    top: 5,  // 👈 Move higher (was 20)
+    top: 5,
     left: 10,
     right: 10,
     zIndex: 10,
@@ -380,5 +414,41 @@ const errorStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+});
+
+const customMarkerStyles = StyleSheet.create({
+  markerCapsule: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#912338',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#fff',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    minWidth: 50,
+  },
+  icon: {
+    fontSize: 12,
+    color: '#fff',
+    marginRight: 4,
+  },
+  ratingText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  poiName: {
+    fontSize: 10,
+    color: '#fff',
+    marginLeft: 4,
+    fontWeight: '500',
+    maxWidth: 100,
   },
 });
