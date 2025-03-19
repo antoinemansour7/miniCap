@@ -10,14 +10,21 @@ import {
   SafeAreaView
 } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
+import { useRouter } from 'expo-router';
 
-// Import the new function that sends an array of messages
+// Import the function that sends an array of messages to OpenAI
 import { sendConversationToOpenAI } from '../services/openai';
-
 // Import your existing Google Calendar fetch function
 import fetchGoogleCalendarEvents from '../app/api/googleCalendar';
 
-// Example system prompt to define the bot's behavior
+// A simple mapping from building names to coordinates (update with your actual coordinates)
+const buildingCoordinatesMap = {
+  "JMSB": { latitude: 45.4945, longitude: -73.5780 },
+  "EV": { latitude: 45.4950, longitude: -73.5770 },
+  "HALL": { latitude: 45.4960, longitude: -73.5760 },
+  // Add other building mappings as needed.
+};
+
 const systemPrompt = {
   role: 'system',
   content: `
@@ -29,67 +36,96 @@ Your role is to:
 - Provide accessibility info (elevators, washrooms).
 - If you do not know the answer, say so rather than inventing one.
 - If a user asks about their schedule, you should first check their Google Calendar events. If there are no events, tell the user to login with Google.
-- When giving the next class details, include the time and location, and ask the user if they want directions. 
-- For directions, note that the shuttle is only available between the two campuses. The EV, Hall, and JMSB buildings are all on the SGW campus, and "S2" indicates the second floor in the basement.
+- When giving the next class details, include the time and location, and say that you have added a link to the directions of the next class.
+- For directions, note that the shuttle is only available between the two campuses. The EV, Hall, and JMSB buildings are on the SGW campus, and "S2" indicates the second floor in the basement.
 - If a user asks about the weather, give the Montreal weather of the day.
-
 `
 };
 
 const Chatbot = ({ isVisible, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
-  const scrollViewRef = useRef();
+  // State for storing the next class event with destination coordinates
+  const [nextClassEvent, setNextClassEvent] = useState(null);
+  const [showDirectionsPopup, setShowDirectionsPopup] = useState(false);
+  const scrollViewRef = useRef(null);
+  const router = useRouter();
 
-  // This function sends a new user message to the bot
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
     // 1) Add the user message to state
     const userMessage = { id: uuidv4(), text: inputText, isUser: true };
-    setMessages(prevMessages => [...prevMessages, userMessage]);
-
-    // Clear the input
+    setMessages(prev => [...prev, userMessage]);
     setInputText('');
 
-    // 2) Process schedule-related queries with improved logic
+    // 2) Process schedule-related queries
     let finalUserInput = inputText;
     const lowerInput = inputText.toLowerCase();
 
     if (lowerInput.includes('next class') || lowerInput.includes('schedule')) {
       const events = await fetchGoogleCalendarEvents();
       if (events.length > 0) {
-        // Sort events by their start time so the soonest upcoming event is first.
+        // Sort events by start time so that the soonest event is first
         events.sort((a, b) => {
           const aStart = new Date(a.start?.dateTime || a.start?.date);
           const bStart = new Date(b.start?.dateTime || b.start?.date);
           return aStart - bStart;
         });
-        const nextEvent = events[0];
-        // Format the start time
-        const startStr = nextEvent.start?.dateTime || nextEvent.start?.date;
-        let formattedTime = '';
-        if (startStr) {
-          const eventDate = new Date(startStr);
-          formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (lowerInput.includes('next class')) {
+          // For "next class", pick only the earliest event
+          let nextEvent = events[0];
+          // If destinationCoordinates is not provided, try to determine it by matching the event location
+          if (!nextEvent.destinationCoordinates && nextEvent.location) {
+            const rawLocation = nextEvent.location.trim().toUpperCase();
+            let foundCoordinates = null;
+            Object.keys(buildingCoordinatesMap).forEach((key) => {
+              if (rawLocation.includes(key)) {
+                foundCoordinates = buildingCoordinatesMap[key];
+              }
+            });
+            nextEvent = {
+              ...nextEvent,
+              destinationCoordinates: foundCoordinates,
+            };
+          }
+          setNextClassEvent(nextEvent);
+
+          // Format the start time
+          const startStr = nextEvent.start?.dateTime || nextEvent.start?.date;
+          let formattedTime = '';
+          if (startStr) {
+            const eventDate = new Date(startStr);
+            formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          }
+          const location = nextEvent.location || 'No location provided';
+          const directionsContext = `Note: EV, Hall, and JMSB are on the SGW campus. "S2" indicates the second floor in the basement. The shuttle operates only between the two campuses.`;
+          const eventsText = `Title: ${nextEvent.summary}, Time: ${formattedTime}, Location: ${location}\n${directionsContext}`;
+          finalUserInput = `Your next class details:\n${eventsText}\n\nUser question: ${inputText}`;
+        } else {
+          // For a generic "schedule" query, show the full schedule overview
+          setNextClassEvent(null);
+          const eventsText = events
+            .map(event => {
+              const startStr = event.start?.dateTime || event.start?.date;
+              let formattedTime = '';
+              if (startStr) {
+                const eventDate = new Date(startStr);
+                formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              }
+              const location = event.location || 'No location provided';
+              return `Title: ${event.summary}, Time: ${formattedTime}, Location: ${location}`;
+            })
+            .join('\n');
+          finalUserInput = `Your full schedule:\n${eventsText}\n\nUser question: ${inputText}`;
         }
-        const location = nextEvent.location || 'No location provided';
-
-        // Add additional directions context
-        const directionsContext = `Note: EV, Hall, and JMSB are on the SGW campus. "S2" indicates the second floor in the basement. The shuttle only operates between the two campuses.`;
-
-        const eventsText = `Title: ${nextEvent.summary}, Time: ${formattedTime}, Location: ${location}\n${directionsContext}`;
-
-        finalUserInput = `Your next class details:\n${eventsText}\n\nUser question: ${inputText}`;
       } else {
         finalUserInput = `No upcoming events found.\n\nUser question: ${inputText}`;
+        setNextClassEvent(null);
       }
     }
 
-    // 3) Build the entire conversation for OpenAI:
-    //    - Start with the system prompt
-    //    - Then add all previous messages
-    //    - Finally add the new user message
+    // 3) Build the conversation for OpenAI
     const conversation = [
       systemPrompt,
       ...messages.map(msg => ({
@@ -102,9 +138,12 @@ const Chatbot = ({ isVisible, onClose }) => {
     // 4) Send the conversation to OpenAI
     try {
       const botResponse = await sendConversationToOpenAI(conversation);
-      // 5) Add the bot's reply to state
       const botMessage = { id: uuidv4(), text: botResponse, isUser: false };
-      setMessages(prevMessages => [...prevMessages, botMessage]);
+      setMessages(prev => [...prev, botMessage]);
+      // After bot reply, if a next-class event exists, show the directions popup
+      if (nextClassEvent && nextClassEvent.destinationCoordinates) {
+        setShowDirectionsPopup(true);
+      }
     } catch (error) {
       console.error(error);
       const errorMessage = {
@@ -112,11 +151,29 @@ const Chatbot = ({ isVisible, onClose }) => {
         text: 'Error fetching response. Please try again.',
         isUser: false
       };
-      setMessages(prevMessages => [...prevMessages, errorMessage]);
+      setMessages(prev => [...prev, errorMessage]);
     }
   };
 
-  // Keep the ScrollView pinned to the bottom when messages update
+  // Handler for the "Get Directions" button
+  const handleGetDirections = () => {
+    console.log("Get Directions pressed");
+    if (nextClassEvent && nextClassEvent.destinationCoordinates) {
+      setShowDirectionsPopup(false);
+      // Close the Chatbot modal before navigating
+      onClose();
+      router.push({
+        pathname: '/screens/directions',
+        params: {
+          destination: JSON.stringify(nextClassEvent.destinationCoordinates),
+          buildingName: nextClassEvent.location || nextClassEvent.summary
+        }
+      });
+    } else {
+      alert("Directions unavailable – no valid coordinates found for this event.");
+    }
+  };
+
   useEffect(() => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollToEnd({ animated: true });
@@ -127,38 +184,30 @@ const Chatbot = ({ isVisible, onClose }) => {
     <Modal visible={isVisible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.modalContainer}>
-          {/* Header with title and close button */}
+          {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Chatbot</Text>
-            <TouchableOpacity
-              style={styles.closeButtonContainer}
-              onPress={onClose}
-            >
+            <Text style={styles.headerTitle}>Campus Guide Chatbot</Text>
+            <TouchableOpacity style={styles.closeButtonContainer} onPress={onClose}>
               <Text style={styles.closeButton}>✕</Text>
             </TouchableOpacity>
           </View>
-
-          {/* Chat messages */}
-          <ScrollView
-            style={styles.chatContainer}
-            contentContainerStyle={styles.chatContent}
-            ref={scrollViewRef}
-          >
-            {messages.map((message) => (
-              <View
-                key={message.id}
-                style={[
-                  styles.message,
-                  message.isUser ? styles.userMessage : styles.botMessage,
-                ]}
-              >
-                <Text style={message.isUser ? styles.userText : styles.botText}>
-                  {message.text}
-                </Text>
+          {/* Chat messages with inline directions module */}
+          <ScrollView style={styles.chatContainer} contentContainerStyle={styles.chatContent} ref={scrollViewRef}>
+            {messages.map(message => (
+              <View key={message.id} style={[styles.message, message.isUser ? styles.userMessage : styles.botMessage]}>
+                <Text style={message.isUser ? styles.userText : styles.botText}>{message.text}</Text>
               </View>
             ))}
+            {nextClassEvent && nextClassEvent.destinationCoordinates && (
+              <View style={styles.inlineDirectionsBubble}>
+                <TouchableOpacity onPress={handleGetDirections}>
+                  <Text style={styles.inlineDirectionsText}>
+                    Get Directions to {nextClassEvent.location || nextClassEvent.summary}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </ScrollView>
-
           {/* Input area */}
           <View style={styles.inputContainer}>
             <TextInput
@@ -174,6 +223,8 @@ const Chatbot = ({ isVisible, onClose }) => {
             </TouchableOpacity>
           </View>
         </View>
+       
+ 
       </SafeAreaView>
     </Modal>
   );
@@ -182,17 +233,17 @@ const Chatbot = ({ isVisible, onClose }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f6fa',
+    backgroundColor: '#fdfdfd',
   },
   modalContainer: {
     flex: 1,
     backgroundColor: '#ffffff',
     margin: 20,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
+    borderRadius: 20,
+    shadowColor: '#333',
+    shadowOpacity: 0.2,
     shadowRadius: 10,
-    elevation: 5,
+    elevation: 8,
     overflow: 'hidden',
   },
   header: {
@@ -204,33 +255,33 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   closeButtonContainer: {
     padding: 5,
   },
   closeButton: {
-    fontSize: 20,
+    fontSize: 24,
     color: '#fff',
   },
   chatContainer: {
     flex: 1,
     backgroundColor: '#f0f0f0',
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
   },
   chatContent: {
-    paddingVertical: 10,
+    paddingVertical: 15,
   },
   message: {
-    padding: 12,
-    marginVertical: 6,
-    borderRadius: 10,
+    padding: 14,
+    marginVertical: 8,
+    borderRadius: 12,
     maxWidth: '80%',
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
     elevation: 2,
   },
   userMessage: {
@@ -239,35 +290,36 @@ const styles = StyleSheet.create({
   },
   botMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#e5e5ea',
+    backgroundColor: '#e1e1e1',
   },
   userText: {
     color: '#fff',
     fontSize: 16,
   },
   botText: {
-    color: '#000',
+    color: '#333',
     fontSize: 16,
   },
   inputContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    padding: 10,
+    backgroundColor: '#ffffff',
+    padding: 12,
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: '#ccc',
+    alignItems: 'center',
   },
   input: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 15,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 25,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 30,
     fontSize: 16,
-    color: '#000',
+    color: '#333',
   },
   sendButton: {
     backgroundColor: '#912338',
-    borderRadius: 25,
+    borderRadius: 30,
     paddingVertical: 10,
     paddingHorizontal: 20,
     justifyContent: 'center',
@@ -279,6 +331,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  // Inline directions bubble (within chat messages)
+  inlineDirectionsBubble: {
+    alignSelf: 'center',
+    marginVertical: 10,
+    backgroundColor: '#912338',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 30,
+  },
+  inlineDirectionsText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  // Popup modal bubble styles
+ 
 });
 
 export default Chatbot;
