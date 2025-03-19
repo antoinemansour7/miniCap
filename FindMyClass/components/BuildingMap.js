@@ -308,7 +308,7 @@ export default function BuildingMap({
                   {place.rating.toFixed(1)}
                 </Text>
               )}
-              {zoomLevel >= 17 && (
+              {zoomLevel >= 16 && (
                 <Text style={customMarkerStyles.poiName}>
                   {place.name.length > 20 ? `${place.name.slice(0, 20)}...` : place.name}
                 </Text>
