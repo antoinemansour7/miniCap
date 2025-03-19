@@ -21,17 +21,17 @@ import fetchGoogleCalendarEvents from '../app/api/googleCalendar';
 const systemPrompt = {
   role: 'system',
   content: `
-You are a Campus Guide Assistant for Concordia University. 
+You are a Campus Guide Assistant for Concordia University.
 Your role is to:
 - Help users access their class schedules.
 - Provide Google Maps directions to their next class.
 - Answer questions about SGW and Loyola campuses.
 - Provide accessibility info (elevators, washrooms).
 - If you do not know the answer, say so rather than inventing one.
--If a user asks about their schedule, you should first check their Google Calendar events. If there are no events, tell the user to login with google, do not say there is no upcomming events in his calendar.
--When you give the next class, also provide the location, and ask the user if they want directions to the class.
--If a user asks about the weather, give the montreal weather of the day.
--The current date is Tuesday, March 18 2025. Do not give out-dated information. Please access the real time information.
+- If a user asks about their schedule, you should first check their Google Calendar events. If there are no events, tell the user to login with Google.
+- When giving the next class details, include the time and location, and ask the user if they want directions. 
+- For directions, note that the shuttle is only available between the two campuses. The EV, Hall, and JMSB buildings are all on the SGW campus, and "S2" indicates the second floor in the basement.
+- If a user asks about the weather, give the Montreal weather of the day.
 
 `
 };
@@ -52,28 +52,42 @@ const Chatbot = ({ isVisible, onClose }) => {
     // Clear the input
     setInputText('');
 
-    // 2) Check if the user wants schedule info
+    // 2) Process schedule-related queries with improved logic
     let finalUserInput = inputText;
     const lowerInput = inputText.toLowerCase();
 
     if (lowerInput.includes('next class') || lowerInput.includes('schedule')) {
       const events = await fetchGoogleCalendarEvents();
       if (events.length > 0) {
-        // Format each event
-        const eventsText = events
-          .map(event => {
-            const start = event.start?.dateTime || event.start?.date;
-            return `Title: ${event.summary}, Start: ${start}`;
-          })
-          .join('\n');
-        finalUserInput = `User calendar events:\n${eventsText}\n\nUser question: ${inputText}`;
+        // Sort events by their start time so the soonest upcoming event is first.
+        events.sort((a, b) => {
+          const aStart = new Date(a.start?.dateTime || a.start?.date);
+          const bStart = new Date(b.start?.dateTime || b.start?.date);
+          return aStart - bStart;
+        });
+        const nextEvent = events[0];
+        // Format the start time
+        const startStr = nextEvent.start?.dateTime || nextEvent.start?.date;
+        let formattedTime = '';
+        if (startStr) {
+          const eventDate = new Date(startStr);
+          formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        const location = nextEvent.location || 'No location provided';
+
+        // Add additional directions context
+        const directionsContext = `Note: EV, Hall, and JMSB are on the SGW campus. "S2" indicates the second floor in the basement. The shuttle only operates between the two campuses.`;
+
+        const eventsText = `Title: ${nextEvent.summary}, Time: ${formattedTime}, Location: ${location}\n${directionsContext}`;
+
+        finalUserInput = `Your next class details:\n${eventsText}\n\nUser question: ${inputText}`;
       } else {
         finalUserInput = `No upcoming events found.\n\nUser question: ${inputText}`;
       }
     }
 
-    // 3) Build the entire conversation for OpenAI
-    //    - Start with systemPrompt
+    // 3) Build the entire conversation for OpenAI:
+    //    - Start with the system prompt
     //    - Then add all previous messages
     //    - Finally add the new user message
     const conversation = [
