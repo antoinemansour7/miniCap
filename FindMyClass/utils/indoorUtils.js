@@ -86,10 +86,18 @@ const floorGrid = [
   };
   
   const buildingCorners = [
-    { latitude: 45.497719731999865, longitude: -73.5790184018779 }, // Top-left
-    { latitude: 45.497166369044606, longitude: -73.57954564222209 }, // Top-right
-    { latitude: 45.49682620347588, longitude: -73.57882583640877 }, // Bottom-left
-    { latitude: 45.49736555248697, longitude: -73.5782906512137 }  // Bottom-right
+    // { latitude: 45.497719731999865, longitude: -73.5790184018779 }, // Top-left
+    // { latitude: 45.497166369044606, longitude: -73.57954564222209 }, // Top-right
+    // { latitude: 45.49682620347588, longitude: -73.57882583640877 }, // Bottom-left
+    // { latitude: 45.49736555248697, longitude: -73.5782906512137 }  // Bottom-right
+
+
+    { latitude: 45.49768679480641, longitude: -73.5790354969782 }, // North
+    { latitude: 45.49721791026846, longitude:  -73.57950555999666}, // West
+    { latitude: 45.49685885190155, longitude: -73.57879845665272 }, // South
+    { latitude: 45.49731647491001, longitude: -73.57833642889916 } // East
+
+
   ];
   
   const overlayRotationAngle = 1; // Change this based on your map overlay angle
