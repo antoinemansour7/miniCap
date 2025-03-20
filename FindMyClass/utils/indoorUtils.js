@@ -98,24 +98,27 @@ const floorGrid = [
     const gridSizeX = floorGrid[0].length - 1; // Width of the grid
     const gridSizeY = floorGrid.length - 1;    // Height of the grid
   
-    // Normalize grid coordinates to range (0 to 1)
+    // Normalize grid coordinates (0 to 1)
     const normX = x / gridSizeX;
     const normY = y / gridSizeY;
   
-    // Interpolate latitude and longitude between the four polygon corners
-    const topLat = buildingCorners[0].latitude * (1 - normX) + buildingCorners[1].latitude * normX;
-    const topLong = buildingCorners[0].longitude * (1 - normX) + buildingCorners[1].longitude * normX;
+    // Compute lat/lng using a perspective transformation
+    const lat =
+      (1 - normX) * ((1 - normY) * buildingCorners[0].latitude + normY * buildingCorners[2].latitude) +
+      normX * ((1 - normY) * buildingCorners[1].latitude + normY * buildingCorners[3].latitude);
   
-    const bottomLat = buildingCorners[2].latitude * (1 - normX) + buildingCorners[3].latitude * normX;
-    const bottomLong = buildingCorners[2].longitude * (1 - normX) + buildingCorners[3].longitude * normX;
+    const long =
+      (1 - normX) * ((1 - normY) * buildingCorners[0].longitude + normY * buildingCorners[2].longitude) +
+      normX * ((1 - normY) * buildingCorners[1].longitude + normY * buildingCorners[3].longitude);
   
-    // Final lat/lng by interpolating between top and bottom edges
-    const finalLat = topLat * (1 - normY) + bottomLat * normY;
-    const finalLong = topLong * (1 - normY) + bottomLong * normY;
-  
-    return { latitude: finalLat, longitude: finalLong };
+    return { latitude: lat, longitude: long };
   };
   
+const startX = 12, startY = 9; 
+const endX = 7, endY = 15;
+const startLatLng = gridToLatLong(startX, startY) ;
+const endLatLng = gridToLatLong(endX, endY);
+
   //const grid = new PF.Grid(walkableGrid);
   //const grid = new PF.Grid(walkableGrid.map(row => [...row]));
   
@@ -153,6 +156,67 @@ const getPolygonBounds = (polygon) => {
       longitude: (Math.min(...longs) + Math.max(...longs)) / 2,
     };
   };
+
+  startLatLng.latitude += 0.00003;
+  startLatLng.longitude += 0.00009;
+  
+
+  const computeScaleFactor = () => {
+    const gridDistance = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+    const realDistance = Math.sqrt(
+      (endLatLng.latitude - startLatLng.latitude) ** 2 +
+      (endLatLng.longitude - startLatLng.longitude) ** 2
+    );
+  
+    return realDistance / gridDistance;
+  };
+
+
+  const computeRotationAngle = () => {
+    const gridAngle = Math.atan2(endY - startY, endX - startX);
+    const realAngle = Math.atan2(
+      endLatLng.latitude - startLatLng.latitude,
+      endLatLng.longitude - startLatLng.longitude
+    );
+  
+    return realAngle - gridAngle;
+  };
+  
+  const scaleFactor = computeScaleFactor() * 1.25;
+//   const rotationAngle = computeRotationAngle();
+  const rotationAngle = -0.8;
+
+  const transformPath = (path) => {
+    return path.map(([x, y]) => {
+      // Convert grid position to relative coordinates (centered at start)
+      const relativeX = x - startX;
+      const relativeY = y - startY;
+  
+      // ✅ Apply mirroring by swapping X and Y
+      const mirroredX = relativeY;
+      const mirroredY = relativeX;
+  
+      // Apply scaling
+      const scaledX = mirroredX * scaleFactor;
+      const scaledY = mirroredY * scaleFactor;
+  
+      // Apply rotation
+      const rotatedX = scaledX * Math.cos(rotationAngle) - scaledY * Math.sin(rotationAngle);
+      const rotatedY = scaledX * Math.sin(rotationAngle) + scaledY * Math.cos(rotationAngle);
+  
+      // Convert back to lat/lng
+      return {
+        latitude: startLatLng.latitude + rotatedY,
+        longitude: startLatLng.longitude + rotatedX,
+      };
+    });
+  };
+
+  
+
+  
+
+  
   
   // ✅ Compute the center of the polygon
   
@@ -172,4 +236,9 @@ const getPolygonBounds = (polygon) => {
     gridToLatLong,
     getPolygonBounds,
     getPolygonCenter,
+    transformPath,
+    startX,
+    startY,
+    endX,
+    endY,
   }

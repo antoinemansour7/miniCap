@@ -27,6 +27,11 @@ import {
     buildingCorners,
     overlayRotationAngle,
     getPolygonCenter,
+    transformPath,
+    startX,
+    startY,
+    endX,
+    endY,
 } from "../../utils/indoorUtils";
 
 
@@ -42,7 +47,6 @@ const floorPlans = {
 
 export default function DirectionsScreen() {
 
-  const { width, height } = Dimensions.get("window");
 
 
 const hallBuilding = SGWBuildings.find(b => b.id === 'H');
@@ -50,15 +54,14 @@ const hallBuilding = SGWBuildings.find(b => b.id === 'H');
 const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
 
 
-const startX = 10, startY = 9; 
-const endX = 7, endY = 15;
+
 
 const walkableGrid = convertGridForPathfinding(floorGrid);
 walkableGrid.setWalkableAt(endX, endY, true);
 
 const finder = new PF.AStarFinder();
 const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
-const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+//const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
 
 
   // // ✅ Convert GeoJSON coordinates to React Native Maps format
@@ -81,10 +84,14 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
    console.log("New Overlay Bounds:", newBounds);
 
    const polygonCenter = getPolygonCenter(buildingPolygon);
-   const rotationAngle = "-45deg"; // Adjust based on your building’s rotation
+   //const rotationAngle = "-45deg"; // Adjust based on your building’s rotation
+
+
+  const routeCoordinates = transformPath(path); 
 
 
 
+// ***************************************************************************************************** //
   
        // Retrieve the destination from the params that were passed from the Map page
        const params = useLocalSearchParams();
@@ -444,7 +451,7 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
                             />
                         )}
 
-                            {Array.from({ length: 20 }).map((_, x) =>
+                            {/* {Array.from({ length: 20 }).map((_, x) =>
                                 Array.from({ length: 20 }).map((_, y) => {
                                   const { latitude, longitude } = gridToLatLong(x, y);
                                   return (
@@ -455,7 +462,7 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
                                     />
                                   );
                                 })
-                              )}
+                              )} */}
                      
                      {/* <Polygon
                           coordinates={buildingPolygon}
