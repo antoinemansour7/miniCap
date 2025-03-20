@@ -1,18 +1,13 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import Chatbot from '../Chatbot';
 import { sendConversationToOpenAI } from '../../services/openai';
 import fetchGoogleCalendarEvents from '../../app/api/googleCalendar';
 
-// Mock the OpenAI service
-jest.mock('../../services/openai', () => ({
-  sendConversationToOpenAI: jest.fn(),
-}));
+// Use fake timers for popup timer testing
+jest.useFakeTimers();
 
-// Mock the Google Calendar API
-jest.mock('../../app/api/googleCalendar', () => jest.fn());
-
-// Create a mock for the Expo Router
+// Mock Expo Router
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -20,13 +15,21 @@ jest.mock('expo-router', () => ({
   }),
 }));
 
+// Mock OpenAI API call
+jest.mock('../../services/openai', () => ({
+  sendConversationToOpenAI: jest.fn(),
+}));
+
+// Mock Google Calendar API
+jest.mock('../../app/api/googleCalendar', () => jest.fn());
+
 describe('Chatbot Component', () => {
   const onCloseMock = jest.fn();
-
+  
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
+  
   // Basic rendering (covers parts of the component header, text input, etc.)
   it('renders correctly when visible', () => {
     const { getByText, getByPlaceholderText } = render(
@@ -70,30 +73,39 @@ describe('Chatbot Component', () => {
 
   // Covering the "next class" branch (lines ~71–73, and parts of the inline directions bubble)
   it('processes a "next class" query and shows inline directions bubble', async () => {
-    // Create a fake calendar event with a location that matches one in buildingCoordinatesMap
+    // Create a fake event with a future date and location
+    const futureDate = new Date(Date.now() + 3600000).toISOString(); // 1 hour ahead
     const fakeEvent = {
       summary: 'Calculus 101',
       location: 'JMSB Room 101',
-      start: { dateTime: new Date().toISOString() },
+      start: { dateTime: futureDate },
     };
     fetchGoogleCalendarEvents.mockResolvedValueOnce([fakeEvent]);
     const fakeBotResponse = 'Here are your next class details';
     sendConversationToOpenAI.mockResolvedValueOnce(fakeBotResponse);
-
-    const { getByPlaceholderText, getByText, findByText } = render(
+    
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
       <Chatbot isVisible={true} onClose={onCloseMock} />
     );
-
+    
     const input = getByPlaceholderText('Type your message...');
     fireEvent.changeText(input, 'What is my next class?');
     const sendButton = getByText('Send');
     fireEvent.press(sendButton);
-
-    // Wait for bot response to be rendered
-    await findByText(fakeBotResponse);
-    // Now wait for the inline directions bubble
-    const inlineButton = await findByText(/Get Directions to/, {}, { timeout: 3000 });
-    expect(inlineButton).toBeTruthy();
+    
+    // Wait for the bot response to render
+    await waitFor(() => expect(getByText(fakeBotResponse)).toBeTruthy(), { timeout: 5000 });
+    // Wait longer for the inline bubble to appear
+    const inlineBubble = await waitFor(() => getByText(/Get Directions to JMSB/), { timeout: 5000 });
+    expect(inlineBubble).toBeTruthy();
+    
+    // Optionally, advance timers to simulate popup dismissal
+    act(() => {
+      jest.advanceTimersByTime(10000);
+    });
+    await waitFor(() => {
+      expect(queryByText('Next Directions')).toBeNull();
+    });
   });
 
   // Covering the "schedule" branch (lines ~107–120 and 131)
