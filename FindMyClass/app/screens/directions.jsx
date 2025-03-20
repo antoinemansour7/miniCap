@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import MapView, { Marker, Polyline, Circle, Overlay } from "react-native-maps";
+import MapView, { Marker, Polyline, Circle, Overlay, Polygon } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
@@ -17,6 +17,17 @@ import {
             } from "../../utils/shuttleUtils";
 import  SGWBuildings  from "../../components/SGWBuildings";
 import PF from "pathfinding";
+import {
+    floorGrid,
+    getFloorPlanBounds,
+    convertGridForPathfinding,
+    gridToLatLong,
+    geojsonData,
+    getPolygonBounds,
+    buildingCorners,
+    overlayRotationAngle,
+    getPolygonCenter,
+} from "../../utils/indoorUtils";
 
 
 
@@ -27,76 +38,51 @@ const floorPlans = {
   9: require('../../floorPlans/Hall-9.png')
 };            
 
-const floorGrid = [
-  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0],
-  [0,0,1,1,2,0,2,0,2,0,2,0,2,0,2,2,1,1,2,0],
-  [0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0],
-  [0,0,0,1,0,0,2,0,2,0,0,0,1,3,3,3,1,0,0,0],
-  [0,0,2,1,4,0,0,0,0,0,0,0,1,4,0,0,1,2,0,0],
-  [0,0,0,1,2,2,0,0,0,0,0,0,1,5,0,0,1,0,0,0],
-  [0,0,2,1,1,1,2,0,0,0,0,0,1,0,0,3,1,2,0,0],
-  [0,0,0,1,0,0,0,4,4,4,4,0,1,0,0,0,1,0,0,0],
-  [0,0,2,1,2,0,1,1,1,1,1,1,1,0,0,0,1,2,0,0],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [0,0,0,1,2,2,2,0,0,0,0,0,0,0,0,0,1,0,0,0],
-  [0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,3,1,2,0,0],
-  [0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,4,1,0,0,0],
-  [0,0,2,1,2,0,0,0,0,0,0,0,0,0,0,0,1,2,0,0],
-  [0,0,0,1,4,0,0,2,0,0,0,0,0,0,0,0,1,2,0,0],
-  [0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0],
-  [0,0,2,1,2,0,2,0,2,0,2,0,2,0,2,0,2,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
- ];
+
 
 export default function DirectionsScreen() {
 
+  const { width, height } = Dimensions.get("window");
+
+
 const hallBuilding = SGWBuildings.find(b => b.id === 'H');
 
-const getFloorPlanBounds = () => {
-  if (!hallBuilding || !hallBuilding.boundary || hallBuilding.boundary.length === 0) {
-    return null;
-  }
-  
-  // Calculate bounds based on the polygon coordinates
-  const lats = hallBuilding.boundary.map(coord => coord.latitude);
-  const lngs = hallBuilding.boundary.map(coord => coord.longitude);
-  
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs);
-  const maxLng = Math.max(...lngs);
-  
-  return {
-    north: maxLat,
-    south: minLat,
-    east: maxLng,
-    west: minLng
-  };
-};
-
-const bounds = hallBuilding ? getFloorPlanBounds() : null;
+const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
 
 
-const gridToLatLong = (x, y) => {
-  const minLat = bounds.south, maxLat = bounds.north;
-  const minLong = bounds.west, maxLong = bounds.east;
-  
-  const gridSize = 20; 
+const startX = 10, startY = 9; 
+const endX = 7, endY = 15;
 
-  const lat = minLat + (maxLat - minLat) * (y / gridSize);
-  const long = minLong + (maxLong - minLong) * (x / gridSize);
+const walkableGrid = convertGridForPathfinding(floorGrid);
+walkableGrid.setWalkableAt(endX, endY, true);
 
-  return { latitude: lat, longitude: long };
-}
-
-const grid = new PF.Grid(floorGrid);
 const finder = new PF.AStarFinder();
-
-const path = finder.findPath(10, 9, 7, 15, grid);
-
+const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
 const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+
+
+  // // ✅ Convert GeoJSON coordinates to React Native Maps format
+  // const buildingPolygon = geojsonData.features[0].geometry.coordinates[0].map(coord => ({
+  //   latitude: coord[1], // GeoJSON format is [long, lat], so we swap them
+  //   longitude: coord[0]
+  // }));
+
+
+  const buildingPolygon = [
+    { latitude: 45.4977197, longitude: -73.5790184 },
+    { latitude: 45.4971663, longitude: -73.5795456 },
+    { latitude: 45.4968262, longitude: -73.5788258 },
+    { latitude: 45.4973655, longitude: -73.5782906 },
+    { latitude: 45.4977197, longitude: -73.5790184 },
+  ];
+
+   // ✅ Compute new bounds using the manually drawn GeoJSON polygon
+   const newBounds = getPolygonBounds(buildingPolygon);
+   console.log("New Overlay Bounds:", newBounds);
+
+   const polygonCenter = getPolygonCenter(buildingPolygon);
+   const rotationAngle = "-45deg"; // Adjust based on your building’s rotation
+
 
 
   
@@ -376,7 +362,7 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
 
 
                 <View style={styles.mapContainer}>
-                            <MapView
+                    <MapView
                         ref={mapRef}
                         style={{ flex: 1 }}
                         initialRegion={{
@@ -419,8 +405,8 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
                         style={{opacity: zoomLevel <= 13 ? 0.5 : 1 }}>
                           <Overlay 
                             bounds={[
-                              [bounds.south, bounds.west],
-                              [bounds.north, bounds.east]
+                              [newBounds.south, newBounds.west],
+                              [newBounds.north, newBounds.east]
                             ]}
                             image={floorPlans[8]}
                             zIndex={1}
@@ -458,7 +444,25 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
                             />
                         )}
 
+                            {/* {Array.from({ length: 20 }).map((_, x) =>
+                                Array.from({ length: 20 }).map((_, y) => {
+                                  const { latitude, longitude } = gridToLatLong(x, y);
+                                  return (
+                                    <Marker
+                                      key={`${x}-${y}`}
+                                      coordinate={{ latitude, longitude }}
+                                      pinColor="blue" // Color grid points differently
+                                    />
+                                  );
+                                })
+                              )} */}
                      
+                     {/* <Polygon
+                          coordinates={buildingPolygon}
+                          strokeColor="blue"
+                          fillColor="rgba(0, 0, 255, 0.2)" // Transparent blue fill
+                          strokeWidth={2}
+                        /> */}
                           <Polyline
                             coordinates={routeCoordinates}
                             strokeWidth={4}
