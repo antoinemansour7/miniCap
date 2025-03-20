@@ -169,6 +169,15 @@ export default function Layout() {
             }}
           />
               <Drawer.Screen
+            name="secrets"
+            options={{
+              drawerLabel: () => null,
+              title: 'secrets',
+              drawerItemStyle: { display: 'none' },
+            }}
+          />
+
+            <Drawer.Screen
             name="styles/authStyles"
             options={{
               drawerLabel: () => null,
