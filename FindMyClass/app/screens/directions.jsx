@@ -27,11 +27,22 @@ import {
     buildingCorners,
     overlayRotationAngle,
     getPolygonCenter,
-    transformPath,
     startX,
     startY,
     endX,
     endY,
+    transformPolyline,
+    rotatePolyline,
+    movePolyline,
+    normalizePath,
+    gridLines,
+    convertPathToLatLng,
+    gridMapping,
+    correctedGridMapping,
+    horizontallyFlippedGrid,
+    verticallyFlippedGrid,
+    rotatedGrid,
+
 } from "../../utils/indoorUtils";
 
 
@@ -61,16 +72,17 @@ walkableGrid.setWalkableAt(endX, endY, true);
 
 const finder = new PF.AStarFinder();
 const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
+
 //const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
 
 
-  // // ✅ Convert GeoJSON coordinates to React Native Maps format
-  // const buildingPolygon = geojsonData.features[0].geometry.coordinates[0].map(coord => ({
+// // ✅ Convert GeoJSON coordinates to React Native Maps format
+// const buildingPolygon = geojsonData.features[0].geometry.coordinates[0].map(coord => ({
   //   latitude: coord[1], // GeoJSON format is [long, lat], so we swap them
   //   longitude: coord[0]
   // }));
-
-
+  
+  
   const buildingPolygon = [
     { latitude: 45.4977197, longitude: -73.5790184 },
     { latitude: 45.4971663, longitude: -73.5795456 },
@@ -78,16 +90,36 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
     { latitude: 45.4973655, longitude: -73.5782906 },
     { latitude: 45.4977197, longitude: -73.5790184 },
   ];
+  
+  // ✅ Compute new bounds using the manually drawn GeoJSON polygon
+  const newBounds = getPolygonBounds(buildingPolygon);
+  console.log("New Overlay Bounds:", newBounds);
+  
+  const polygonCenter = getPolygonCenter(buildingPolygon);
+  //const rotationAngle = "-45deg"; // Adjust based on your building’s rotation
+  
+  
+  // gridMapping,
+  // correctedGridMapping,
+  // horizontallyFlippedGrid,
+  // verticallyFlippedGrid,
+  // rotatedGrid,
 
-   // ✅ Compute new bounds using the manually drawn GeoJSON polygon
-   const newBounds = getPolygonBounds(buildingPolygon);
-   console.log("New Overlay Bounds:", newBounds);
 
-   const polygonCenter = getPolygonCenter(buildingPolygon);
-   //const rotationAngle = "-45deg"; // Adjust based on your building’s rotation
+  //const pathCoordinates = transformPath(path, 'flipHorizontal');
+   const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
+  
+  // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+   const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+   
 
 
-  const routeCoordinates = transformPath(path); 
+  const referenceCenter = { latitude: 45.497, longitude: -73.579 }; // Pick a fixed point
+  const normalizedPath = normalizePath(routeCoordinates, referenceCenter);
+
+  const rotatedPath = rotatePolyline(normalizedPath, 54);
+  const movedRoute = movePolyline(rotatedPath, +0.00025, +0.0003); // Move up & left
+
 
 
 
@@ -451,18 +483,7 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                             />
                         )}
 
-                            {/* {Array.from({ length: 20 }).map((_, x) =>
-                                Array.from({ length: 20 }).map((_, y) => {
-                                  const { latitude, longitude } = gridToLatLong(x, y);
-                                  return (
-                                    <Marker
-                                      key={`${x}-${y}`}
-                                      coordinate={{ latitude, longitude }}
-                                      pinColor="blue" // Color grid points differently
-                                    />
-                                  );
-                                })
-                              )} */}
+                          
                      
                      {/* <Polygon
                           coordinates={buildingPolygon}
@@ -470,12 +491,22 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                           fillColor="rgba(0, 0, 255, 0.2)" // Transparent blue fill
                           strokeWidth={2}
                         /> */}
+
                           <Polyline
-                            coordinates={routeCoordinates}
+                            coordinates={pathCoordinates}
                             strokeWidth={4}
                             strokeColor="#912338"
                             //lineDashPattern={[0]}
                           />
+
+              {gridLines.map((line, index) => (
+                  <Polyline
+                    key={index}
+                    coordinates={line}
+                    strokeWidth={1}
+                    strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
+                  />
+                ))}
                         
 
 

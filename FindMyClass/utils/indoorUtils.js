@@ -92,27 +92,25 @@ const floorGrid = [
     { latitude: 45.49736555248697, longitude: -73.5782906512137 }  // Bottom-right
   ];
   
-  const overlayRotationAngle = 45; // Change this based on your map overlay angle
+  const overlayRotationAngle = 1; // Change this based on your map overlay angle
   
   const gridToLatLong = (x, y) => {
-    const gridSizeX = floorGrid[0].length - 1; // Width of the grid
-    const gridSizeY = floorGrid.length - 1;    // Height of the grid
+    const gridSizeX = floorGrid[0].length - 1; // Grid width
+    const gridSizeY = floorGrid.length - 1;    // Grid height
   
     // Normalize grid coordinates (0 to 1)
-    const normX = x / gridSizeX;
-    const normY = y / gridSizeY;
+    const normX = 1 - (x / gridSizeX); // 🔄 Flip only X-axis (Longitude stays flipped)
+    const normY = y / gridSizeY; // ✅ Keep Y-axis as is
   
-    // Compute lat/lng using a perspective transformation
-    const lat =
-      (1 - normX) * ((1 - normY) * buildingCorners[0].latitude + normY * buildingCorners[2].latitude) +
-      normX * ((1 - normY) * buildingCorners[1].latitude + normY * buildingCorners[3].latitude);
-  
-    const long =
-      (1 - normX) * ((1 - normY) * buildingCorners[0].longitude + normY * buildingCorners[2].longitude) +
-      normX * ((1 - normY) * buildingCorners[1].longitude + normY * buildingCorners[3].longitude);
+    // ✅ Map X and Y into lat/lng
+    const lat = buildingCorners[0].latitude + normY * (buildingCorners[2].latitude - buildingCorners[0].latitude);
+    const long = buildingCorners[0].longitude + normX * (buildingCorners[1].longitude - buildingCorners[0].longitude);
   
     return { latitude: lat, longitude: long };
   };
+  
+  
+
   
 const startX = 12, startY = 9; 
 const endX = 7, endY = 15;
@@ -134,6 +132,62 @@ const endLatLng = gridToLatLong(endX, endY);
 //   console.log("Bounds: ", bounds);
 //   console.log("width in longitute: ", bounds.east - bounds.west);
 //   console.log("height in latitude: ", bounds.north - bounds.south);
+
+
+
+const rotatePolyline = (path, angleDegrees) => {
+    if (path.length === 0) return [];
+  
+    // Convert degrees to radians
+    const angle = (angleDegrees * Math.PI) / 180;
+  
+    // Compute the center of the path
+    const centerLat = path.reduce((sum, p) => sum + p.latitude, 0) / path.length;
+    const centerLong = path.reduce((sum, p) => sum + p.longitude, 0) / path.length;
+  
+    // Convert lat/lng to meters using an approximate scale
+    const latToMeters = 111320; // Approximate meters per degree latitude
+    const longToMeters = Math.cos(centerLat * (Math.PI / 180)) * latToMeters; // Adjust for longitude compression
+  
+    return path.map(({ latitude, longitude }) => {
+      // Convert to relative meters
+      const relX = (longitude - centerLong) * longToMeters;
+      const relY = (latitude - centerLat) * latToMeters;
+  
+      // Apply Rotation (2D Rotation Formula)
+      const rotatedX = relX * Math.cos(angle) - relY * Math.sin(angle);
+      const rotatedY = relX * Math.sin(angle) + relY * Math.cos(angle);
+  
+      // Convert back to lat/lng
+      return {
+        latitude: centerLat + rotatedY / latToMeters,
+        longitude: centerLong + rotatedX / longToMeters,
+      };
+    });
+  };
+  
+
+  const movePolyline = (path, deltaLat, deltaLng) => {
+    return path.map(({ latitude, longitude }) => ({
+      latitude: latitude + deltaLat, // Move up/down
+      longitude: longitude + deltaLng, // Move left/right
+    }));
+  };
+  
+  const normalizePath = (path, fixedStart) => {
+    if (!path.length) return [];
+  
+    // Compute the current start point (where the path begins)
+    const currentStart = path[0];
+  
+    // Align the entire path to the fixed starting point
+    return path.map(({ latitude, longitude }) => ({
+      latitude: fixedStart.latitude + (latitude - currentStart.latitude),
+      longitude: fixedStart.longitude + (longitude - currentStart.longitude),
+    }));
+  };
+  
+  
   
 const getPolygonBounds = (polygon) => {
     const lats = polygon.map(point => point.latitude);
@@ -160,68 +214,166 @@ const getPolygonBounds = (polygon) => {
   startLatLng.latitude += 0.00003;
   startLatLng.longitude += 0.00009;
   
+const precomputeTransformedGrid = (floorGrid, buildingCorners) => {
+  const gridMapping = [];
+  const gridSizeX = floorGrid[0].length - 1;
+  const gridSizeY = floorGrid.length - 1;
 
-  const computeScaleFactor = () => {
-    const gridDistance = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
-    const realDistance = Math.sqrt(
-      (endLatLng.latitude - startLatLng.latitude) ** 2 +
-      (endLatLng.longitude - startLatLng.longitude) ** 2
-    );
+  for (let y = 0; y <= gridSizeY; y++) {
+    gridMapping[y] = [];
+    for (let x = 0; x <= gridSizeX; x++) {
+      // Calculate the position as a percentage of the grid
+      const normX = x / gridSizeX;
+      const normY = y / gridSizeY;
+
+      // Bilinear interpolation between the four corners
+      const topLat = (1 - normX) * buildingCorners[0].latitude + normX * buildingCorners[1].latitude;
+      const bottomLat = (1 - normX) * buildingCorners[3].latitude + normX * buildingCorners[2].latitude;
+      const latitude = (1 - normY) * topLat + normY * bottomLat;
+
+      const topLng = (1 - normX) * buildingCorners[0].longitude + normX * buildingCorners[1].longitude;
+      const bottomLng = (1 - normX) * buildingCorners[3].longitude + normX * buildingCorners[2].longitude;
+      const longitude = (1 - normY) * topLng + normY * bottomLng;
+
+      gridMapping[y][x] = { latitude, longitude };
+    }
+  }
+
+  return gridMapping;
+};
+
+// ✅ Generate the perfectly aligned grid
+const gridMapping = precomputeTransformedGrid(floorGrid, buildingCorners);
+
   
-    return realDistance / gridDistance;
+  
+  const drawDebugGrid = (gridMapping) => {
+    let gridLines = [];
+  
+    const gridHeight = gridMapping.length;
+    const gridWidth = gridMapping[0].length;
+  
+    // ✅ Draw horizontal grid lines
+    for (let y = 0; y < gridHeight; y++) {
+      gridLines.push(gridMapping[y]); // Row of lat/lng points
+    }
+  
+    // ✅ Draw vertical grid lines
+    for (let x = 0; x < gridWidth; x++) {
+      let column = [];
+      for (let y = 0; y < gridHeight; y++) {
+        column.push(gridMapping[y][x]); // Column of lat/lng points
+      }
+      gridLines.push(column);
+    }
+  
+    return gridLines;
   };
+  
+  // ✅ Generate the debug grid lines
+  const gridLines = drawDebugGrid(gridMapping);
+  
 
+const convertPathToLatLng = (pfPath, gridMapping) => {
+  if (!pfPath || pfPath.length === 0) return [];
+  
+  // Convert each point in the path to its corresponding lat/lng coordinates
+  return pfPath.map(([x, y]) => {
+    // Ensure we don't exceed grid boundaries
+    const boundedX = Math.min(Math.max(x, 0), gridMapping[0].length - 1);
+    const boundedY = Math.min(Math.max(y, 0), gridMapping.length - 1);
+    
+    // Get the transformed coordinates from our precomputed grid
+    return gridMapping[boundedY][boundedX];
+  });
+};
 
-  const computeRotationAngle = () => {
-    const gridAngle = Math.atan2(endY - startY, endX - startX);
-    const realAngle = Math.atan2(
-      endLatLng.latitude - startLatLng.latitude,
-      endLatLng.longitude - startLatLng.longitude
-    );
-  
-    return realAngle - gridAngle;
-  };
-  
-  const scaleFactor = computeScaleFactor() * 1.25;
-//   const rotationAngle = computeRotationAngle();
-  const rotationAngle = -0.8;
+const flipHorizontally = (gridMapping) => {
+  const gridHeight = gridMapping.length;
+  const gridWidth = gridMapping[0].length;
+  let flippedGrid = [];
 
-  const transformPath = (path) => {
-    return path.map(([x, y]) => {
-      // Convert grid position to relative coordinates (centered at start)
-      const relativeX = x - startX;
-      const relativeY = y - startY;
-  
-      // ✅ Apply mirroring by swapping X and Y
-      const mirroredX = relativeY;
-      const mirroredY = relativeX;
-  
-      // Apply scaling
-      const scaledX = mirroredX * scaleFactor;
-      const scaledY = mirroredY * scaleFactor;
-  
-      // Apply rotation
-      const rotatedX = scaledX * Math.cos(rotationAngle) - scaledY * Math.sin(rotationAngle);
-      const rotatedY = scaledX * Math.sin(rotationAngle) + scaledY * Math.cos(rotationAngle);
-  
-      // Convert back to lat/lng
-      return {
-        latitude: startLatLng.latitude + rotatedY,
-        longitude: startLatLng.longitude + rotatedX,
+  for (let y = 0; y < gridHeight; y++) {
+    flippedGrid[y] = [];
+    for (let x = 0; x < gridWidth; x++) {
+      // Flip horizontally by mirroring longitude values around the center
+      const originalPoint = gridMapping[y][gridWidth - 1 - x];
+      flippedGrid[y][x] = {
+        latitude: originalPoint.latitude,
+        longitude: originalPoint.longitude
       };
-    });
+    }
+  }
+  return flippedGrid;
+};
+
+const flipVertically = (gridMapping) => {
+  const gridHeight = gridMapping.length;
+  const gridWidth = gridMapping[0].length;
+  let flippedGrid = [];
+
+  for (let y = 0; y < gridHeight; y++) {
+    flippedGrid[y] = [];
+    for (let x = 0; x < gridWidth; x++) {
+      // Flip vertically by mirroring latitude values around the center
+      const originalPoint = gridMapping[gridHeight - 1 - y][x];
+      flippedGrid[y][x] = {
+        latitude: originalPoint.latitude,
+        longitude: originalPoint.longitude
+      };
+    }
+  }
+  return flippedGrid;
+};
+
+const rotate180 = (gridMapping) => {
+  const gridHeight = gridMapping.length;
+  const gridWidth = gridMapping[0].length;
+  let rotatedGrid = [];
+
+  for (let y = 0; y < gridHeight; y++) {
+    rotatedGrid[y] = [];
+    for (let x = 0; x < gridWidth; x++) {
+      // Rotate 180 by flipping both horizontally and vertically
+      const originalPoint = gridMapping[gridHeight - 1 - y][gridWidth - 1 - x];
+      rotatedGrid[y][x] = {
+        latitude: originalPoint.latitude,
+        longitude: originalPoint.longitude
+      };
+    }
+  }
+  return rotatedGrid;
+};
+
+const rotatedGrid = rotate180(gridMapping);
+const horizontallyFlippedGrid = flipHorizontally(gridMapping);
+const verticallyFlippedGrid = flipVertically(gridMapping);
+
+const flipGridMapping = (gridMapping) => {
+    const gridHeight = gridMapping.length;
+    const gridWidth = gridMapping[0].length;
+    let mirroredGrid = [];
+  
+    for (let y = 0; y < gridHeight; y++) {
+      mirroredGrid[y] = [];
+      for (let x = 0; x < gridWidth; x++) {
+        mirroredGrid[y][x] = gridMapping[gridWidth - 1 - x][gridHeight - 1 - y]; // ✅ Correct reflection
+      }
+    }
+  
+    return mirroredGrid;
   };
+  
+
+  const correctedGridMapping = flipGridMapping(gridMapping);
 
   
 
   
+  
+  
 
-  
-  
-  // ✅ Compute the center of the polygon
-  
-  // ✅ Define the rotation angle (manually adjust if needed)
-  
+
   
 
   export {
@@ -236,9 +388,19 @@ const getPolygonBounds = (polygon) => {
     gridToLatLong,
     getPolygonBounds,
     getPolygonCenter,
-    transformPath,
+    rotatePolyline,
     startX,
     startY,
     endX,
     endY,
+    movePolyline,
+    normalizePath,
+    gridLines,
+    convertPathToLatLng,
+    gridMapping,
+    correctedGridMapping,
+    horizontallyFlippedGrid,
+    verticallyFlippedGrid,
+    rotatedGrid,
+
   }
