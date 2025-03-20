@@ -444,7 +444,7 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
                             />
                         )}
 
-                            {/* {Array.from({ length: 20 }).map((_, x) =>
+                            {Array.from({ length: 20 }).map((_, x) =>
                                 Array.from({ length: 20 }).map((_, y) => {
                                   const { latitude, longitude } = gridToLatLong(x, y);
                                   return (
@@ -455,7 +455,7 @@ const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
                                     />
                                   );
                                 })
-                              )} */}
+                              )}
                      
                      {/* <Polygon
                           coordinates={buildingPolygon}

@@ -94,22 +94,26 @@ const floorGrid = [
   
   const overlayRotationAngle = 45; // Change this based on your map overlay angle
   
-  const gridToLatLong = (y, x) => {
-    const gridSizeX = floorGrid[0].length - 1; // Grid width
-    const gridSizeY = floorGrid.length - 1;    // Grid height
+  const gridToLatLong = (x, y) => {
+    const gridSizeX = floorGrid[0].length - 1; // Width of the grid
+    const gridSizeY = floorGrid.length - 1;    // Height of the grid
   
-    // Normalize (x, y) between 0 and 1
+    // Normalize grid coordinates to range (0 to 1)
     const normX = x / gridSizeX;
     const normY = y / gridSizeY;
   
-    // Perspective transformation using the 4 building corners
-    const lat = (1 - normY) * ((1 - normX) * buildingCorners[0].latitude + normX * buildingCorners[1].latitude) +
-                normY * ((1 - normX) * buildingCorners[2].latitude + normX * buildingCorners[3].latitude);
+    // Interpolate latitude and longitude between the four polygon corners
+    const topLat = buildingCorners[0].latitude * (1 - normX) + buildingCorners[1].latitude * normX;
+    const topLong = buildingCorners[0].longitude * (1 - normX) + buildingCorners[1].longitude * normX;
   
-    const long = (1 - normY) * ((1 - normX) * buildingCorners[0].longitude + normX * buildingCorners[1].longitude) +
-                normY * ((1 - normX) * buildingCorners[2].longitude + normX * buildingCorners[3].longitude);
+    const bottomLat = buildingCorners[2].latitude * (1 - normX) + buildingCorners[3].latitude * normX;
+    const bottomLong = buildingCorners[2].longitude * (1 - normX) + buildingCorners[3].longitude * normX;
   
-    return { latitude: lat, longitude: long };
+    // Final lat/lng by interpolating between top and bottom edges
+    const finalLat = topLat * (1 - normY) + bottomLat * normY;
+    const finalLong = topLong * (1 - normY) + bottomLong * normY;
+  
+    return { latitude: finalLat, longitude: finalLong };
   };
   
   //const grid = new PF.Grid(walkableGrid);
