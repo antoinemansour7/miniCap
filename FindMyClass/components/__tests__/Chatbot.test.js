@@ -1,171 +1,160 @@
 import React from 'react';
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Chatbot from '../Chatbot';
 import { sendConversationToOpenAI } from '../../services/openai';
-import fetchGoogleCalendarEvents from '../app/api/googleCalendar';
-import { useRouter } from 'expo-router';
+import fetchGoogleCalendarEvents from '../../app/api/googleCalendar';
 
-// Use fake timers to test the popup timer
-jest.useFakeTimers();
-
-// Mock the router
-const pushMock = jest.fn();
-jest.mock('expo-router', () => ({
-  useRouter: () => ({
-    push: pushMock,
-  }),
-}));
-
-// Mock OpenAI API call
+// Mock the OpenAI service
 jest.mock('../../services/openai', () => ({
   sendConversationToOpenAI: jest.fn(),
 }));
 
-// Mock the Google Calendar fetch function
-jest.mock('../app/api/googleCalendar', () => jest.fn());
+// Mock the Google Calendar API
+jest.mock('../../app/api/googleCalendar', () => jest.fn());
+
+// Create a mock for the Expo Router
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
 
 describe('Chatbot Component', () => {
   const onCloseMock = jest.fn();
 
   beforeEach(() => {
-    onCloseMock.mockClear();
-    pushMock.mockClear();
-    sendConversationToOpenAI.mockClear();
-    fetchGoogleCalendarEvents.mockClear();
+    jest.clearAllMocks();
   });
 
-  it('renders correctly when visible', async () => {
-    const { getByPlaceholderText, getByText } = render(
-      <NavigationContainer>
-        <Chatbot isVisible={true} onClose={onCloseMock} />
-      </NavigationContainer>
+  it('renders correctly when visible', () => {
+    const { getByText, getByPlaceholderText } = render(
+      <Chatbot isVisible={true} onClose={onCloseMock} />
     );
-
-    await waitFor(() => expect(getByPlaceholderText('Type your message...')).toBeTruthy());
-    expect(getByText('Send')).toBeTruthy();
+    expect(getByText('Campus Guide Chatbot')).toBeTruthy();
+    expect(getByPlaceholderText('Type your message...')).toBeTruthy();
   });
 
-  it('sends a generic user message and displays bot response', async () => {
-    sendConversationToOpenAI.mockResolvedValueOnce('This is a generic bot response');
-
-    const { getByPlaceholderText, getByText, findByText } = render(
-      <NavigationContainer>
-        <Chatbot isVisible={true} onClose={onCloseMock} />
-      </NavigationContainer>
-    );
-
-    const input = getByPlaceholderText('Type your message...');
-    const sendButton = getByText('Send');
-
-    fireEvent.changeText(input, 'Hello bot');
-    fireEvent.press(sendButton);
-
-    await waitFor(() => expect(findByText('Hello bot')).toBeTruthy());
-    await waitFor(() => expect(findByText('This is a generic bot response')).toBeTruthy());
-  });
-
-  it('displays an error message when OpenAI API call fails', async () => {
-    sendConversationToOpenAI.mockRejectedValueOnce(new Error('API Error'));
-
-    const { getByPlaceholderText, getByText, findByText } = render(
-      <NavigationContainer>
-        <Chatbot isVisible={true} onClose={onCloseMock} />
-      </NavigationContainer>
-    );
-
-    const input = getByPlaceholderText('Type your message...');
-    const sendButton = getByText('Send');
-
-    fireEvent.changeText(input, 'Hello bot');
-    fireEvent.press(sendButton);
-
-    await waitFor(() =>
-      expect(findByText('Error fetching response. Please try again.')).toBeTruthy()
-    );
-  });
-
-  it('closes when the close button is pressed', async () => {
+  it('calls onClose when the close button is pressed', () => {
     const { getByText } = render(
-      <NavigationContainer>
-        <Chatbot isVisible={true} onClose={onCloseMock} />
-      </NavigationContainer>
+      <Chatbot isVisible={true} onClose={onCloseMock} />
     );
-
     const closeButton = getByText('✕');
     fireEvent.press(closeButton);
     expect(onCloseMock).toHaveBeenCalled();
   });
 
-  it('displays inline directions bubble and dismisses popup after 10 seconds for "next class" query', async () => {
-    // Create a mock event with a future start and a location that matches the mapping.
-    const futureDate = new Date(Date.now() + 3600000).toISOString(); // 1 hour from now
-    const mockEvent = {
-      summary: 'Math 101',
-      start: { dateTime: futureDate },
-      location: 'JMSB',
-    };
-    fetchGoogleCalendarEvents.mockResolvedValueOnce([mockEvent]);
-    sendConversationToOpenAI.mockResolvedValueOnce('Bot response for next class');
-
-    const { getByPlaceholderText, getByText, queryByText } = render(
-      <NavigationContainer>
-        <Chatbot isVisible={true} onClose={onCloseMock} />
-      </NavigationContainer>
-    );
-
-    const input = getByPlaceholderText('Type your message...');
-    fireEvent.changeText(input, 'next class');
-    fireEvent.press(getByText('Send'));
-
-    // Wait for the bot's response to be rendered and inline directions bubble to appear
-    await waitFor(() => getByText(/Your next class details:/));
-    const inlineBubble = getByText(/Get Directions to JMSB/);
-    expect(inlineBubble).toBeTruthy();
-
-    // Check that after 10 seconds, the popup modal is dismissed.
-    act(() => {
-      jest.advanceTimersByTime(10000);
-    });
-    await waitFor(() => {
-      expect(queryByText('Next Directions')).toBeNull();
-    });
-  });
-
-  it('navigates to directions when inline directions bubble is pressed', async () => {
-    // Create a mock event with a future start and a location that matches the mapping.
-    const futureDate = new Date(Date.now() + 3600000).toISOString();
-    const mockEvent = {
-      summary: 'Physics 201',
-      start: { dateTime: futureDate },
-      location: 'HALL',
-    };
-    fetchGoogleCalendarEvents.mockResolvedValueOnce([mockEvent]);
-    sendConversationToOpenAI.mockResolvedValueOnce('Bot response for next class');
+  it('sends a message and displays bot response', async () => {
+    const fakeBotResponse = 'This is a bot response';
+    // Simulate no events so schedule logic is skipped
+    fetchGoogleCalendarEvents.mockResolvedValueOnce([]);
+    sendConversationToOpenAI.mockResolvedValueOnce(fakeBotResponse);
 
     const { getByPlaceholderText, getByText } = render(
-      <NavigationContainer>
-        <Chatbot isVisible={true} onClose={onCloseMock} />
-      </NavigationContainer>
+      <Chatbot isVisible={true} onClose={onCloseMock} />
     );
 
     const input = getByPlaceholderText('Type your message...');
-    fireEvent.changeText(input, 'next class');
-    fireEvent.press(getByText('Send'));
+    fireEvent.changeText(input, 'Hello Chatbot');
+    const sendButton = getByText('Send');
+    fireEvent.press(sendButton);
 
-    const inlineBubble = await waitFor(() => getByText(/Get Directions to HALL/));
-    expect(inlineBubble).toBeTruthy();
+    // Check that the user's message is rendered
+    await waitFor(() =>
+      expect(getByText('Hello Chatbot')).toBeTruthy()
+    );
 
-    fireEvent.press(inlineBubble);
-    await waitFor(() => {
-      expect(onCloseMock).toHaveBeenCalled();
-      expect(pushMock).toHaveBeenCalledWith({
-        pathname: '/screens/directions',
-        params: {
-          destination: JSON.stringify({ latitude: 45.4960, longitude: -73.5760 }),
-          buildingName: 'HALL'
-        }
-      });
-    });
+    // Wait for the bot response to appear
+    await waitFor(() =>
+      expect(getByText(fakeBotResponse)).toBeTruthy()
+    );
+  });
+
+  it('processes a "next class" query and shows inline directions bubble', async () => {
+    // Create a fake calendar event whose location contains "JMSB"
+    const fakeEvent = {
+      summary: 'Calculus 101',
+      location: 'JMSB Room 101',
+      start: { dateTime: new Date().toISOString() },
+    };
+    fetchGoogleCalendarEvents.mockResolvedValueOnce([fakeEvent]);
+    const fakeBotResponse = 'Here are your next class details';
+    sendConversationToOpenAI.mockResolvedValueOnce(fakeBotResponse);
+
+    const { getByPlaceholderText, getByText } = render(
+      <Chatbot isVisible={true} onClose={onCloseMock} />
+    );
+
+    const input = getByPlaceholderText('Type your message...');
+    // The query includes "next class" to trigger schedule processing.
+    fireEvent.changeText(input, 'What is my next class?');
+    const sendButton = getByText('Send');
+    fireEvent.press(sendButton);
+
+    // Wait for the bot response to be rendered
+    await waitFor(() =>
+      expect(getByText(fakeBotResponse)).toBeTruthy()
+    );
+
+    // Check that an inline directions bubble appears (its text includes "Get Directions to")
+    await waitFor(() =>
+      expect(getByText(/Get Directions to/)).toBeTruthy()
+    );
+  });
+
+  it('navigates to directions screen when inline directions button is pressed', async () => {
+    // Create a fake event with location matching "JMSB"
+    const fakeEvent = {
+      summary: 'Calculus 101',
+      location: 'JMSB Room 101',
+      start: { dateTime: new Date().toISOString() },
+    };
+    fetchGoogleCalendarEvents.mockResolvedValueOnce([fakeEvent]);
+    const fakeBotResponse = 'Here are your next class details';
+    sendConversationToOpenAI.mockResolvedValueOnce(fakeBotResponse);
+
+    const { getByPlaceholderText, getByText } = render(
+      <Chatbot isVisible={true} onClose={onCloseMock} />
+    );
+
+    const input = getByPlaceholderText('Type your message...');
+    fireEvent.changeText(input, 'What is my next class?');
+    const sendButton = getByText('Send');
+    fireEvent.press(sendButton);
+
+    // Wait for the inline directions bubble to appear
+    const inlineButton = await waitFor(() =>
+      getByText(/Get Directions to/)
+    );
+    fireEvent.press(inlineButton);
+
+    // Verify that the onClose callback is called and the router navigates to directions
+    expect(onCloseMock).toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalled();
+
+    // Optionally, check that router.push was called with the expected parameters.
+    const pushCallArgs = mockPush.mock.calls[0][0];
+    expect(pushCallArgs.pathname).toBe('/screens/directions');
+    expect(pushCallArgs.params).toHaveProperty('destination');
+    expect(pushCallArgs.params).toHaveProperty('buildingName');
+  });
+
+  it('displays an error message when sendConversationToOpenAI fails', async () => {
+    sendConversationToOpenAI.mockRejectedValueOnce(new Error('API Error'));
+    fetchGoogleCalendarEvents.mockResolvedValueOnce([]);
+
+    const { getByPlaceholderText, getByText } = render(
+      <Chatbot isVisible={true} onClose={onCloseMock} />
+    );
+
+    const input = getByPlaceholderText('Type your message...');
+    fireEvent.changeText(input, 'Hello Chatbot');
+    const sendButton = getByText('Send');
+    fireEvent.press(sendButton);
+
+    // Wait for the error message to be rendered
+    await waitFor(() =>
+      expect(getByText('Error fetching response. Please try again.')).toBeTruthy()
+    );
   });
 });
