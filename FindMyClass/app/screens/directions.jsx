@@ -47,8 +47,8 @@ export default function DirectionsScreen() {
   const [destination, setDestination] = useState(parsedDestination);
   const [userLocation, setUserLocation] = useState(null);
   const [startLocation, setStartLocation] = useState(null);
-  const [routeSegments, setRouteSegments] = useState([]); // each segment has its own coordinates and mode info
-  const [transferMarkers, setTransferMarkers] = useState([]); // white dot markers for mode changes
+  const [routeSegments, setRouteSegments] = useState([]); 
+  const [transferMarkers, setTransferMarkers] = useState([]); 
   const [routeInfo, setRouteInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,6 +66,12 @@ export default function DirectionsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchType, setSearchType] = useState("START");
   const [directions, setDirections] = useState([]);
+
+  // A ref to always hold the latest selected travel mode
+  const latestModeRef = useRef(travelMode);
+  useEffect(() => {
+    latestModeRef.current = travelMode;
+  }, [travelMode]);
 
   if (errorMessage) {
     return <Text>{errorMessage}</Text>;
@@ -87,7 +93,6 @@ export default function DirectionsScreen() {
     let color = "#912338"; // default
     let lineDashPattern = undefined;
     if (segment.travelMode === "WALKING") {
-      // Use same color as CAR/SHUTTLE and maintain dotted pattern
       color = "#912338";
       lineDashPattern = [1, 4];
     } else if (segment.travelMode === "TRANSIT" && segment.transit) {
@@ -95,13 +100,12 @@ export default function DirectionsScreen() {
       if (vehicleType === "BUS") {
         color = "purple";
       } else if (vehicleType === "METRO" || vehicleType === "SUBWAY") {
-        // Choose color based on line short name
         const lineName = segment.transit.line.name;
         if (lineName.includes("Verte")) color = "green";
         else if (lineName.includes("Jaune")) color = "yellow";
         else if (lineName.includes("Orange")) color = "orange";
         else if (lineName.includes("Bleue")) color = "darkblue";
-        else color = "grey"; // default metro color
+        else color = "grey"; // default metro color (just in case we sell the app and they add a new line :)
       } else if (vehicleType === "TRAIN") {
         color = "lightgrey";
       } else {
@@ -141,6 +145,8 @@ export default function DirectionsScreen() {
   
     try {
       const routeData = await fetchRouteData(start, end, "driving");
+      // Discard result if mode has changed since the request started
+      if (latestModeRef.current !== "SHUTTLE") return;
       if (!routeData) return;
       
       updateRouteInformation(routeData, start, end, { distance: "Shuttle departing at:", duration: `${nextTime}` });
@@ -149,11 +155,13 @@ export default function DirectionsScreen() {
     }
   };
 
-  // Function to handle other modes
+  // Function to handle other modes (WALKING, TRANSIT, DRIVING, etc.)
   const handleOtherModes = async (start, end, mode) => {
     try {
       setIsLoading(true);
       const routeData = await fetchRouteData(start, end, mode.toLowerCase());
+      // If the mode has changed while fetching, ignore the outdated response.
+      if (latestModeRef.current !== mode) return;
       if (!routeData) throw new Error("No route found");
   
       updateRouteInformation(routeData, start, end);
@@ -421,10 +429,7 @@ export default function DirectionsScreen() {
                 segment.transit &&
                 segment.transit.line.vehicle.type === "BUS"
               ) {
-                // Extract bus number from the transit line's short_name.
-                // (Here we simply use the short_name; adjust extraction if needed.)
                 const busNumber = segment.transit.line.short_name;
-                // Calculate midpoint of the segment coordinates.
                 const midIndex = Math.floor(segment.coordinates.length / 2);
                 const midCoord = segment.coordinates[midIndex];
                 return (
