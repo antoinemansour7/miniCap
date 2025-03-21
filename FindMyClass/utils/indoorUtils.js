@@ -17,8 +17,8 @@ const floorGrid = [
     [0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,4,1,0,0,0],
     [0,0,2,1,2,0,0,0,0,0,0,0,0,0,0,0,1,2,0,0],
     [0,0,0,1,4,0,0,2,0,0,0,0,0,0,0,0,1,2,0,0],
-    [0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0],
-    [0,0,2,1,2,0,2,0,2,0,2,0,2,0,2,0,2,0,0,0],
+    [0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,0,2,1,2,0,2,0,2,0,2,0,2,0,2,0,2,2,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
    ];
@@ -86,21 +86,12 @@ const floorGrid = [
   };
   
   const buildingCorners = [
-    // { latitude: 45.497719731999865, longitude: -73.5790184018779 }, // Top-left
-    // { latitude: 45.497166369044606, longitude: -73.57954564222209 }, // Top-right
-    // { latitude: 45.49682620347588, longitude: -73.57882583640877 }, // Bottom-left
-    // { latitude: 45.49736555248697, longitude: -73.5782906512137 }  // Bottom-right
-
-
     { latitude: 45.49768679480641, longitude: -73.5790354969782 }, // North
     { latitude: 45.49721791026846, longitude:  -73.57950555999666}, // West
     { latitude: 45.49685885190155, longitude: -73.57879845665272 }, // South
     { latitude: 45.49731647491001, longitude: -73.57833642889916 } // East
-
-
   ];
   
-  const overlayRotationAngle = 1; // Change this based on your map overlay angle
   
   const gridToLatLong = (x, y) => {
     const gridSizeX = floorGrid[0].length - 1; // Grid width
@@ -118,84 +109,15 @@ const floorGrid = [
   };
   
   
+const startX = 9, startY = 9; 
+const endX = 17, endY = 17;
 
-  
-const startX = 12, startY = 9; 
-const endX = 7, endY = 15;
+
 const startLatLng = gridToLatLong(startX, startY) ;
 const endLatLng = gridToLatLong(endX, endY);
 
-  //const grid = new PF.Grid(walkableGrid);
-  //const grid = new PF.Grid(walkableGrid.map(row => [...row]));
-  
-  //console.log("Walkable Grid:");
-  //walkableGrid.forEach((row, index) => console.log(`Row ${index}:`, row.join(" ")));
-  
-  
-//   console.log("Path:", path);
-//   //const routeCoordinates = path;
-  
-  
-//   //console.log("Route coordinates:", routeCoordinates);
-//   console.log("Bounds: ", bounds);
-//   console.log("width in longitute: ", bounds.east - bounds.west);
-//   console.log("height in latitude: ", bounds.north - bounds.south);
 
 
-
-const rotatePolyline = (path, angleDegrees) => {
-    if (path.length === 0) return [];
-  
-    // Convert degrees to radians
-    const angle = (angleDegrees * Math.PI) / 180;
-  
-    // Compute the center of the path
-    const centerLat = path.reduce((sum, p) => sum + p.latitude, 0) / path.length;
-    const centerLong = path.reduce((sum, p) => sum + p.longitude, 0) / path.length;
-  
-    // Convert lat/lng to meters using an approximate scale
-    const latToMeters = 111320; // Approximate meters per degree latitude
-    const longToMeters = Math.cos(centerLat * (Math.PI / 180)) * latToMeters; // Adjust for longitude compression
-  
-    return path.map(({ latitude, longitude }) => {
-      // Convert to relative meters
-      const relX = (longitude - centerLong) * longToMeters;
-      const relY = (latitude - centerLat) * latToMeters;
-  
-      // Apply Rotation (2D Rotation Formula)
-      const rotatedX = relX * Math.cos(angle) - relY * Math.sin(angle);
-      const rotatedY = relX * Math.sin(angle) + relY * Math.cos(angle);
-  
-      // Convert back to lat/lng
-      return {
-        latitude: centerLat + rotatedY / latToMeters,
-        longitude: centerLong + rotatedX / longToMeters,
-      };
-    });
-  };
-  
-
-  const movePolyline = (path, deltaLat, deltaLng) => {
-    return path.map(({ latitude, longitude }) => ({
-      latitude: latitude + deltaLat, // Move up/down
-      longitude: longitude + deltaLng, // Move left/right
-    }));
-  };
-  
-  const normalizePath = (path, fixedStart) => {
-    if (!path.length) return [];
-  
-    // Compute the current start point (where the path begins)
-    const currentStart = path[0];
-  
-    // Align the entire path to the fixed starting point
-    return path.map(({ latitude, longitude }) => ({
-      latitude: fixedStart.latitude + (latitude - currentStart.latitude),
-      longitude: fixedStart.longitude + (longitude - currentStart.longitude),
-    }));
-  };
-  
-  
   
 const getPolygonBounds = (polygon) => {
     const lats = polygon.map(point => point.latitude);
@@ -282,20 +204,6 @@ const gridMapping = precomputeTransformedGrid(floorGrid, buildingCorners);
   const gridLines = drawDebugGrid(gridMapping);
   
 
-const convertPathToLatLng = (pfPath, gridMapping) => {
-  if (!pfPath || pfPath.length === 0) return [];
-  
-  // Convert each point in the path to its corresponding lat/lng coordinates
-  return pfPath.map(([x, y]) => {
-    // Ensure we don't exceed grid boundaries
-    const boundedX = Math.min(Math.max(x, 0), gridMapping[0].length - 1);
-    const boundedY = Math.min(Math.max(y, 0), gridMapping.length - 1);
-    
-    // Get the transformed coordinates from our precomputed grid
-    return gridMapping[boundedY][boundedX];
-  });
-};
-
 const flipHorizontally = (gridMapping) => {
   const gridHeight = gridMapping.length;
   const gridWidth = gridMapping[0].length;
@@ -375,6 +283,15 @@ const flipGridMapping = (gridMapping) => {
 
   const correctedGridMapping = flipGridMapping(gridMapping);
 
+const getExactCoordinates = (x, y) => {
+  // Ensure we have valid grid coordinates
+  const boundedX = Math.min(Math.max(x, 0), gridWidth - 1);
+  const boundedY = Math.min(Math.max(y, 0), gridHeight - 1);
+
+  // Use the horizontally flipped grid to get the coordinates
+  return horizontallyFlippedGrid[boundedY][boundedX];
+};
+
   
 
   
@@ -386,29 +303,17 @@ const flipGridMapping = (gridMapping) => {
 
   export {
     floorGrid,
-    gridHeight,
-    gridWidth,
     getFloorPlanBounds,
     convertGridForPathfinding,
-    geojsonData,
-    buildingCorners,
-    overlayRotationAngle,
-    gridToLatLong,
     getPolygonBounds,
-    getPolygonCenter,
-    rotatePolyline,
     startX,
     startY,
     endX,
     endY,
-    movePolyline,
-    normalizePath,
     gridLines,
-    convertPathToLatLng,
-    gridMapping,
-    correctedGridMapping,
     horizontallyFlippedGrid,
     verticallyFlippedGrid,
     rotatedGrid,
-
+    gridMapping,
+    getExactCoordinates,
   }
