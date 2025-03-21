@@ -21,29 +21,19 @@ import {
     floorGrid,
     getFloorPlanBounds,
     convertGridForPathfinding,
-    gridToLatLong,
-    geojsonData,
     getPolygonBounds,
-    buildingCorners,
-    overlayRotationAngle,
-    getPolygonCenter,
     startX,
     startY,
     endX,
     endY,
-    transformPolyline,
-    rotatePolyline,
-    movePolyline,
-    normalizePath,
     gridLines,
-    convertPathToLatLng,
-    gridMapping,
-    correctedGridMapping,
     horizontallyFlippedGrid,
     verticallyFlippedGrid,
     rotatedGrid,
-
+    gridMapping,
+    getExactCoordinates,
 } from "../../utils/indoorUtils";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 
 
@@ -59,29 +49,15 @@ const floorPlans = {
 export default function DirectionsScreen() {
 
 
-
 const hallBuilding = SGWBuildings.find(b => b.id === 'H');
 
 const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
-
-
-
 
 const walkableGrid = convertGridForPathfinding(floorGrid);
 walkableGrid.setWalkableAt(endX, endY, true);
 
 const finder = new PF.AStarFinder();
 const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
-
-//const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-
-
-// // ✅ Convert GeoJSON coordinates to React Native Maps format
-// const buildingPolygon = geojsonData.features[0].geometry.coordinates[0].map(coord => ({
-  //   latitude: coord[1], // GeoJSON format is [long, lat], so we swap them
-  //   longitude: coord[0]
-  // }));
-  
   
   const buildingPolygon = [
     { latitude: 45.4977197, longitude: -73.5790184 },
@@ -93,10 +69,8 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
   
   // ✅ Compute new bounds using the manually drawn GeoJSON polygon
   const newBounds = getPolygonBounds(buildingPolygon);
-  console.log("New Overlay Bounds:", newBounds);
+
   
-  const polygonCenter = getPolygonCenter(buildingPolygon);
-  //const rotationAngle = "-45deg"; // Adjust based on your building’s rotation
   
   
   // gridMapping,
@@ -106,22 +80,10 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
   // rotatedGrid,
 
 
-  //const pathCoordinates = transformPath(path, 'flipHorizontal');
+
    const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
-  
   // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-   const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-   
-
-
-  const referenceCenter = { latitude: 45.497, longitude: -73.579 }; // Pick a fixed point
-  const normalizedPath = normalizePath(routeCoordinates, referenceCenter);
-
-  const rotatedPath = rotatePolyline(normalizedPath, 54);
-  const movedRoute = movePolyline(rotatedPath, +0.00025, +0.0003); // Move up & left
-
-
-
+  const classRoomCoordinates = getExactCoordinates(15, 7);
 
 // ***************************************************************************************************** //
   
@@ -483,20 +445,12 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                             />
                         )}
 
-                          
-                     
-                     {/* <Polygon
-                          coordinates={buildingPolygon}
-                          strokeColor="blue"
-                          fillColor="rgba(0, 0, 255, 0.2)" // Transparent blue fill
-                          strokeWidth={2}
-                        /> */}
-
+                        {/*  Indoor route */}
                           <Polyline
                             coordinates={pathCoordinates}
                             strokeWidth={4}
                             strokeColor="#912338"
-                            //lineDashPattern={[0]}
+                            //lineDashPattern={[7]}
                           />
 
               {gridLines.map((line, index) => (
@@ -507,7 +461,11 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                     strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
                   />
                 ))}
-                        
+                         {/* <Marker 
+                                coordinate={classRoomCoordinates}
+                                title="room"
+                                pinColor="purple"
+                            /> */}
 
 
                     </MapView>
