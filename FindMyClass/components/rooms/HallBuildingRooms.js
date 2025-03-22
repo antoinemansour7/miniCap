@@ -1,3 +1,9 @@
+// Building configuration
+const BUILDING_CONFIG = {
+  name: "Hall Building",
+  building: "H",
+};
+
 const hallBuildingFloors = {
   // 8th floor
   8: {
@@ -241,13 +247,56 @@ const hallBuildingFloors = {
       
     ],
     bathrooms: [
-        // add bathrooms here
+        {
+            id: "H-812",
+            name: "bathroom-male",
+            location: { x: 15, y: 12 },
+        },
+        {
+            id: "H-802",
+            name: "bathroom-female",
+            location: { x: 15, y: 4 },
+        },
+        {
+            id: "H-802",
+            name: "bathroom-neutral",
+            location: { x: 15, y: 7 },
+        }
+
     ],
     stairs: [
-        // add stairs here
+        {
+            id: "H-8-stairs-1",
+            name: "Stairs 1",
+            location: { x: 8, y: 8 },
+        },
+        {
+            id: "H-8-stairs-2",
+            name: "Stairs 2",
+            location: { x: 4, y: 5 },
+        },
+        {
+            id: "H-8-stairs-3",
+            name: "Stairs 3",
+            location: { x: 13, y: 5 },
+        },
+        {
+            id: "H-8-stairs-4",
+            name: "Stairs 4",
+            location: { x: 15, y: 13 },
+        },
+        {
+            id: "H-8-stairs-5",
+            name: "Stairs 5",
+            location: { x: 4, y: 15 },
+        },
     ],
     elevators: [
-        // add elevators here
+        {
+            id: "H-8-elevator-1",
+            name: "Elevator 1",
+            location: { x: 13, y: 17 },
+        },
     ],
     exits: [
         // add exits here
@@ -345,12 +394,21 @@ const getStartLocation = (floorNumber) => {
   return hallBuildingFloors[floorNumber]?.startLocation || null;
 };
 
-// Helper function to get all rooms across all floors
+// Modified getAllRooms function to automatically add building info
 const getAllRooms = () => {
-  return Object.values(hallBuildingFloors).flatMap(floor => floor.rooms);
+  return Object.values(hallBuildingFloors).flatMap(floor => {
+    const rooms = floor.rooms || [];
+    // Add building information to each room
+    return rooms.map(room => ({
+      ...room,
+      building: BUILDING_CONFIG.building,
+      buildingName: BUILDING_CONFIG.name
+    }));
+  });
 };
 
 export {
+  BUILDING_CONFIG,
   hallBuildingFloors,
   getRoomsByFloor,
   getStartLocation,
