@@ -51,23 +51,23 @@ const ModalSearchBars = ({
             setIsSearching(false);
         }
     };
-    const selectBuilding = (building) => {
-        if ( building.type === "room") {
-            selectBuilding(SGWBuildings.find(b => b.id === "H"));
-            setRoomNumber(building.id);
+    const selectBuilding = (location) => {
+        if ( location.building ) {
+            selectBuilding(SGWBuildings.find(b => b.id === location.building ));
+            setRoomNumber(location.id);
         }
         else {
             
-            setCustomDest(building.name);
+            setCustomDest(location.name);
             setSearchResults([]);
             setIsSearching(false);
             
             const newDestination = {
-                latitude: building.latitude,
-                longitude: building.longitude
+                latitude: location.latitude,
+                longitude: location.longitude
             };
             setDestination(newDestination);
-            setDestinationName(building.name);
+            setDestinationName(location.name);
             updateRoute(startLocation, newDestination);
             handleCloseModal();
 
