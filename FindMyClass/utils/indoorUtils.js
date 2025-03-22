@@ -109,7 +109,7 @@ const floorGrid = [
   };
   
   
-const startX = 9, startY = 9; 
+const startX = 10, startY = 9; 
 const endX = 17, endY = 17;
 
 

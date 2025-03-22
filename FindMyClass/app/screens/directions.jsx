@@ -83,7 +83,7 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
 
    const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
   // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-  const classRoomCoordinates = getExactCoordinates(15, 7);
+  const classRoomCoordinates = getExactCoordinates(2, 1);
 
 // ***************************************************************************************************** //
   
@@ -453,19 +453,19 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                             //lineDashPattern={[7]}
                           />
 
-              {gridLines.map((line, index) => (
+              {/* {gridLines.map((line, index) => (
                   <Polyline
                     key={index}
                     coordinates={line}
                     strokeWidth={1}
                     strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
                   />
-                ))}
-                         {/* <Marker 
+                ))} */}
+                         <Marker 
                                 coordinate={classRoomCoordinates}
                                 title="room"
                                 pinColor="purple"
-                            /> */}
+                            />
 
 
                     </MapView>
