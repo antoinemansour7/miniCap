@@ -1,6 +1,6 @@
 // Building configuration
 const BUILDING_CONFIG = {
-  name: "Hall Building",
+  buildingName: "Hall Building",
   building: "H",
 };
 
@@ -385,24 +385,24 @@ const hallBuildingFloors = {
 };
 
 // Helper function to get rooms by floor
-const getRoomsByFloor = (floorNumber) => {
+const getRoomsByFloorHall = (floorNumber) => {
   return hallBuildingFloors[floorNumber]?.rooms || [];
 };
 
 // Helper function to get start location for a floor
-const getStartLocation = (floorNumber) => {
+const getStartLocationHall = (floorNumber) => {
   return hallBuildingFloors[floorNumber]?.startLocation || null;
 };
 
 // Modified getAllRooms function to automatically add building info
-const getAllRooms = () => {
+const getAllRoomsHall = () => {
   return Object.values(hallBuildingFloors).flatMap(floor => {
     const rooms = floor.rooms || [];
     // Add building information to each room
     return rooms.map(room => ({
       ...room,
       building: BUILDING_CONFIG.building,
-      buildingName: BUILDING_CONFIG.name
+      buildingName: BUILDING_CONFIG.buildingName
     }));
   });
 };
@@ -410,7 +410,7 @@ const getAllRooms = () => {
 export {
   BUILDING_CONFIG,
   hallBuildingFloors,
-  getRoomsByFloor,
-  getStartLocation,
-  getAllRooms
+  getRoomsByFloorHall,
+  getStartLocationHall,
+  getAllRoomsHall
 };
