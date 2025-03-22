@@ -12,7 +12,7 @@ import {
   isNearCampus, 
   getNextShuttleTime, 
   LOYOLA_COORDS, 
-  SGW_COORDS,
+  SGW_COORDS 
 } from "../../utils/shuttleUtils";
 
 export default function DirectionsScreen() {
@@ -33,7 +33,11 @@ export default function DirectionsScreen() {
       errorMessage = "Error: Invalid destination format.";
     }
 
-    if (!parsedDestination || !parsedDestination.latitude || !parsedDestination.longitude) {
+    if (
+      !parsedDestination ||
+      !parsedDestination.latitude ||
+      !parsedDestination.longitude
+    ) {
       console.error("Invalid destination:", parsedDestination);
       errorMessage = "Error: Invalid destination coordinates.";
     }
@@ -47,8 +51,8 @@ export default function DirectionsScreen() {
   const [destination, setDestination] = useState(parsedDestination);
   const [userLocation, setUserLocation] = useState(null);
   const [startLocation, setStartLocation] = useState(null);
-  const [routeSegments, setRouteSegments] = useState([]); 
-  const [transferMarkers, setTransferMarkers] = useState([]); 
+  const [routeSegments, setRouteSegments] = useState([]);
+  const [transferMarkers, setTransferMarkers] = useState([]);
   const [routeInfo, setRouteInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -90,10 +94,12 @@ export default function DirectionsScreen() {
 
   // Helper: determine the polyline style based on travel mode and transit details
   const getPolylineStyle = (segment) => {
-    let color = "#912338"; // default
-    let lineDashPattern = undefined;
+    // Default color is #912338
+    let color = "#912338";
+    let lineDashPattern; // no need to initialize to undefined
+
     if (segment.travelMode === "WALKING") {
-      color = "#912338";
+      // color is already #912338 by default
       lineDashPattern = [1, 4];
     } else if (segment.travelMode === "TRANSIT" && segment.transit) {
       const vehicleType = segment.transit.line.vehicle.type;
@@ -105,15 +111,14 @@ export default function DirectionsScreen() {
         else if (lineName.includes("Jaune")) color = "yellow";
         else if (lineName.includes("Orange")) color = "orange";
         else if (lineName.includes("Bleue")) color = "darkblue";
-        else color = "grey"; // default metro color (just in case we sell the app and they add a new line :)
+        else color = "grey"; // default metro color
       } else if (vehicleType === "TRAIN") {
         color = "lightgrey";
-      } else {
-        color = "#912338";
       }
-    } else if (segment.travelMode === "DRIVING") {
-      color = "#912338";
+      // else, leave it at #912338
     }
+    // If driving, it's also #912338 by default
+
     return { color, lineDashPattern };
   };
 
@@ -123,7 +128,7 @@ export default function DirectionsScreen() {
     const isStartSGW = isNearCampus(start, SGW_COORDS);
     const isEndLoyola = isNearCampus(end, LOYOLA_COORDS);
     const isEndSGW = isNearCampus(end, SGW_COORDS);
-  
+
     if (!((isStartLoyola && isEndSGW) || (isStartSGW && isEndLoyola))) {
       return Alert.alert(
         "Shuttle Service",
@@ -131,7 +136,7 @@ export default function DirectionsScreen() {
         [{ text: "OK" }]
       );
     }
-  
+
     const fromCampus = isStartLoyola ? "loyola" : "sgw";
     const nextTime = getNextShuttleTime(fromCampus);
     setDirections([
@@ -142,14 +147,17 @@ export default function DirectionsScreen() {
         duration: `${nextTime} - 25 min ride`,
       },
     ]);
-  
+
     try {
       const routeData = await fetchRouteData(start, end, "driving");
       // Discard result if mode has changed since the request started
       if (latestModeRef.current !== "SHUTTLE") return;
       if (!routeData) return;
-      
-      updateRouteInformation(routeData, start, end, { distance: "Shuttle departing at:", duration: `${nextTime}` });
+
+      updateRouteInformation(routeData, start, end, {
+        distance: "Shuttle departing at:",
+        duration: `${nextTime}`,
+      });
     } catch (err) {
       handleError(err);
     }
@@ -163,7 +171,7 @@ export default function DirectionsScreen() {
       // If the mode has changed while fetching, ignore the outdated response.
       if (latestModeRef.current !== mode) return;
       if (!routeData) throw new Error("No route found");
-  
+
       updateRouteInformation(routeData, start, end);
     } catch (err) {
       handleError(err);
@@ -185,15 +193,17 @@ export default function DirectionsScreen() {
   const updateRouteInformation = (data, start, end, customRouteInfo = null) => {
     const leg = data.routes[0].legs[0];
     // Build segments from each step in the leg
-    const segments = leg.steps.map((step, index) => {
+    const segments = leg.steps.map((step) => {
       const decoded = polyline.decode(step.polyline.points).map(([lat, lng]) => ({
         latitude: lat,
         longitude: lng,
       }));
       return {
         coordinates: decoded,
-        travelMode: step.travel_mode, // e.g., "WALKING", "TRANSIT", "DRIVING"
+        travelMode: step.travel_mode,
         transit: step.transit_details || null,
+        // Store the raw polyline string so we can use it as a stable key
+        polylineStr: step.polyline.points,
       };
     });
     setRouteSegments(segments);
@@ -226,7 +236,9 @@ export default function DirectionsScreen() {
     setTransferMarkers(markers);
 
     // Update route summary info and directions list
-    setRouteInfo(customRouteInfo || { distance: `${leg.distance.text} -`, duration: leg.duration.text });
+    setRouteInfo(
+      customRouteInfo || { distance: `${leg.distance.text} -`, duration: leg.duration.text }
+    );
     setDirections(
       leg.steps.map((step, index) => ({
         id: index,
@@ -235,11 +247,11 @@ export default function DirectionsScreen() {
         duration: step.duration.text,
       }))
     );
-  
+
     if (mapRef.current) {
       // Fit the map to show start, end and all segment coordinates
       const allCoords = [start, end];
-      segments.forEach(segment => {
+      segments.forEach((segment) => {
         allCoords.push(...segment.coordinates);
       });
       setTimeout(() => {
@@ -259,7 +271,6 @@ export default function DirectionsScreen() {
 
   const updateRouteWithMode = async (start, end, mode) => {
     if (!start || !end) return;
-
     if (mode === "SHUTTLE") {
       return handleShuttleMode(start, end);
     }
@@ -282,7 +293,7 @@ export default function DirectionsScreen() {
           throw new Error("Location permission denied");
         }
 
-        // 1. First, get the last known location for a fast response.
+        // 1. Get the last known location for a fast response.
         const lastKnown = await Location.getLastKnownPositionAsync();
         if (lastKnown) {
           const quickLocation = {
@@ -339,6 +350,7 @@ export default function DirectionsScreen() {
 
     setupLocationAndRoute();
     return () => locationSubscription?.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [destination, selectedStart]);
 
   const handleCloseModal = () => {
@@ -403,12 +415,13 @@ export default function DirectionsScreen() {
               <Marker coordinate={startLocation} title="Start" pinColor="green" />
             )}
             {destination && <Marker coordinate={destination} title="Destination" />}
+
             {/* Render each route segment with its own style */}
-            {routeSegments.map((segment, index) => {
+            {routeSegments.map((segment) => {
               const style = getPolylineStyle(segment);
               return (
                 <Polyline
-                  key={`segment-${index}`}
+                  key={segment.polylineStr} // Use the raw polyline as a stable key
                   coordinates={segment.coordinates}
                   strokeWidth={2}
                   strokeColor={style.color}
@@ -416,14 +429,19 @@ export default function DirectionsScreen() {
                 />
               );
             })}
+
             {/* Render white circle markers at transfers */}
-            {transferMarkers.map((marker, index) => (
-              <Marker key={`transfer-${index}`} coordinate={marker}>
+            {transferMarkers.map((marker) => (
+              <Marker
+                key={`transfer-${marker.latitude}-${marker.longitude}`}
+                coordinate={marker}
+              >
                 <View style={stylesB.transferMarker} />
               </Marker>
             ))}
+
             {/* Render bus number markers at midpoint of bus transit segments */}
-            {routeSegments.map((segment, index) => {
+            {routeSegments.map((segment) => {
               if (
                 segment.travelMode === "TRANSIT" &&
                 segment.transit &&
@@ -432,9 +450,10 @@ export default function DirectionsScreen() {
                 const busNumber = segment.transit.line.short_name;
                 const midIndex = Math.floor(segment.coordinates.length / 2);
                 const midCoord = segment.coordinates[midIndex];
+
                 return (
                   <Marker
-                    key={`bus-${index}`}
+                    key={`bus-${segment.polylineStr}`} // Another stable key
                     coordinate={midCoord}
                     anchor={{ x: 0.5, y: 0.5 }}
                   >
@@ -479,8 +498,13 @@ export default function DirectionsScreen() {
         setCustomDest={setCustomDest}
         setDestinationName={setDestinationName}
       />
+
       {routeInfo && directions.length > 0 && (
-        <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
+        <SwipeUpModal
+          distance={routeInfo.distance}
+          duration={routeInfo.duration}
+          directions={directions}
+        />
       )}
     </View>
   );
