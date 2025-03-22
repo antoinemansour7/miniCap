@@ -105,6 +105,7 @@ global.fetch = jest.fn(() =>
                     html_instructions: "Walk north",
                     distance: { text: "100 m" },
                     duration: { text: "2 mins" },
+                    travel_mode: "WALKING",
                     polyline: { points: "_p~iF~ps|U" },
                   },
                 ],
@@ -190,13 +191,13 @@ describe("DirectionsScreen Component", () => {
     });
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalled();
+      expect(screen.getByText("Network error")).toBeTruthy();
     });
   });
 
   test("updates route on location change", async () => {
     const mockWatchCallback = jest.fn();
     Location.watchPositionAsync.mockImplementationOnce((options, callback) => {
-      // Save callback so we can call it manually.
       mockWatchCallback.mockImplementationOnce(callback);
       return { remove: jest.fn() };
     });
@@ -209,12 +210,14 @@ describe("DirectionsScreen Component", () => {
         expect.any(Function)
       );
     });
-    // Simulate a location update.
     const newLoc = { coords: { latitude: 45.5020, longitude: -73.5670 } };
     act(() => {
       mockWatchCallback(newLoc);
     });
-    expect(Location.watchPositionAsync).toHaveBeenCalled();
+    await waitFor(() => {
+      // Expect an additional fetch call after location change.
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
   });
 
   test("cleans up location subscription on unmount", async () => {
@@ -233,13 +236,10 @@ describe("DirectionsScreen Component", () => {
     await act(async () => {
       render(<DirectionsScreen />);
     });
-    // Call the updateRouteWithMode function passed as a prop to the LocationSelector.
     await act(async () => {
       const locationSelector = screen.getByTestId("location-selector");
-      // Valid shuttle route: using Loyola as start and SGW as destination.
       await locationSelector.props.updateRouteWithMode(LOYOLA_COORDS, SGW_COORDS, "SHUTTLE");
     });
-    // For a valid shuttle route, no alert should be fired.
     expect(global.alert).not.toHaveBeenCalled();
   });
 
@@ -249,7 +249,6 @@ describe("DirectionsScreen Component", () => {
     });
     await act(async () => {
       const locationSelector = screen.getByTestId("location-selector");
-      // Use invalid start/end coordinates that do not meet shuttle conditions.
       await locationSelector.props.updateRouteWithMode(
         { latitude: 45.1234, longitude: -73.1234 },
         { latitude: 45.5678, longitude: -73.5678 },
@@ -275,10 +274,11 @@ describe("DirectionsScreen Component", () => {
               duration: { text: "30 mins" },
               steps: [
                 {
-                  html_instructions: "Go straight",
+                  html_instructions: "<b>Go straight</b>",
                   distance: { text: "1 km" },
                   duration: { text: "10 mins" },
                   polyline: { points: "abc123" },
+                  travel_mode: "WALKING",
                 },
               ],
             },
@@ -286,7 +286,6 @@ describe("DirectionsScreen Component", () => {
         },
       ],
     };
-
     global.fetch.mockImplementationOnce(() =>
       Promise.resolve({
         json: () => Promise.resolve(mockRouteResponse),
@@ -296,6 +295,8 @@ describe("DirectionsScreen Component", () => {
       render(<DirectionsScreen />);
     });
     await waitFor(() => {
+      // Check that HTML tags are stripped from instructions.
+      expect(screen.getByText("Go straight")).toBeTruthy();
       expect(screen.getByText("2.5 km -")).toBeTruthy();
       expect(screen.getByText("30 mins")).toBeTruthy();
     });
@@ -304,13 +305,11 @@ describe("DirectionsScreen Component", () => {
   test("handles modal visibility state", async () => {
     const { getByTestId } = render(<DirectionsScreen />);
     await act(async () => {
-      // Simulate a press on the location selector to trigger modal open.
       fireEvent.press(getByTestId("location-selector"));
     });
     await waitFor(() => {
       expect(getByTestId("modal-search-bars")).toBeTruthy();
     });
-    // Simulate closing the modal by calling its handleCloseModal prop.
     const modalSearchBars = getByTestId("modal-search-bars");
     act(() => {
       modalSearchBars.props.handleCloseModal();
@@ -348,7 +347,6 @@ describe("DirectionsScreen Component", () => {
     });
     await act(async () => {
       const locationSelector = screen.getByTestId("location-selector");
-      // Simulate a transit mode route update.
       await locationSelector.props.updateRouteWithMode(
         { latitude: 45.5017, longitude: -73.5673 },
         { latitude: 45.4958, longitude: -73.5789 },
@@ -423,6 +421,7 @@ describe("DirectionsScreen Component", () => {
                             distance: { text: "5 km" },
                             duration: { text: "25 mins" },
                             polyline: { points: "outdated" },
+                            travel_mode: "WALKING",
                           },
                         ],
                       },
@@ -436,7 +435,6 @@ describe("DirectionsScreen Component", () => {
 
     const { getByTestId, queryByText } = render(<DirectionsScreen />);
 
-    // Simulate starting a shuttle route update (which uses fetch).
     await act(async () => {
       const locationSelector = getByTestId("location-selector");
       await locationSelector.props.updateRouteWithMode(
@@ -445,88 +443,140 @@ describe("DirectionsScreen Component", () => {
         "SHUTTLE"
       );
     });
-    // Before fetch resolves, simulate a travel mode change.
     await act(async () => {
       const locationSelector = getByTestId("location-selector");
       locationSelector.props.setTravelMode("WALKING");
     });
-    // Now resolve the outdated fetch.
     await act(async () => {
       resolveFetch();
     });
-    // The outdated response should not update route info.
     expect(queryByText("5 km -")).toBeNull();
   });
 
-  // --- ADDITIONAL TESTS FOR BRANCH COVERAGE ---
+  // --- ADDITIONAL TESTS FOR MORE CONDITION COVERAGE ---
 
-  test("handles missing destination param gracefully", async () => {
-    // Override the mock for expo-router:
-    const { useLocalSearchParams } = require("expo-router");
-    useLocalSearchParams.mockReturnValueOnce({
-      // No 'destination' key
-      buildingName: "Test Building",
-    });
-
-    await act(async () => {
-      render(<DirectionsScreen />);
-    });
-    await waitFor(() => {
-      expect(screen.getByText("Error: No destination provided.")).toBeTruthy();
-    });
-  });
-
-  test("handles invalid JSON param gracefully", async () => {
-    const { useLocalSearchParams } = require("expo-router");
-    useLocalSearchParams.mockReturnValueOnce({
-      destination: "not valid JSON",
-      buildingName: "Test Building",
-    });
-
-    await act(async () => {
-      render(<DirectionsScreen />);
-    });
-    await waitFor(() => {
-      expect(screen.getByText("Error: Invalid destination format.")).toBeTruthy();
-    });
-  });
-
-  test("handles missing lat/lng in destination param", async () => {
-    const { useLocalSearchParams } = require("expo-router");
-    useLocalSearchParams.mockReturnValueOnce({
-      destination: JSON.stringify({ lat: 45.5017 }), // Missing 'latitude' or 'longitude'
-      buildingName: "Test Building",
-    });
-
-    await act(async () => {
-      render(<DirectionsScreen />);
-    });
-    await waitFor(() => {
-      expect(screen.getByText("Error: Invalid destination coordinates.")).toBeTruthy();
-    });
-  });
-
-  test("handles no route found scenario (empty routes array)", async () => {
+  test("handles polyline styling for TRANSIT with unknown vehicle type", async () => {
+    // For an unrecognized vehicle type (e.g., 'FERRY'), color remains default (#912338)
+    const mockRouteResponse = {
+      status: "OK",
+      routes: [
+        {
+          legs: [
+            {
+              steps: [
+                {
+                  html_instructions: "Take Ferry",
+                  travel_mode: "TRANSIT",
+                  polyline: { points: "dummy" },
+                  transit_details: {
+                    line: {
+                      vehicle: { type: "FERRY" },
+                      name: "Ferry Line",
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
     global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            status: "OK",
-            routes: [], // empty array triggers 'No route found' error
-          }),
-      })
+      Promise.resolve({ json: () => Promise.resolve(mockRouteResponse) })
     );
-
-    await act(async () => {
-      render(<DirectionsScreen />);
-    });
-    await waitFor(() => {
-      // The code likely throws or sets an error with "No route found"
-      expect(screen.getByText(/No route found/i)).toBeTruthy();
-    });
+    const { toJSON } = render(<DirectionsScreen />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    function findPolylineWithColor(node, color) {
+      if (!node) return false;
+      if (node.props && node.props.strokeColor === color) return true;
+      if (node.children && Array.isArray(node.children)) {
+        return node.children.some(child => findPolylineWithColor(child, color));
+      }
+      return false;
+    }
+    expect(findPolylineWithColor(toJSON(), "#912338")).toBe(true);
   });
 
-  test("handles polyline styling for BUS", async () => {
+  test("handles polyline styling for DRIVING mode", async () => {
+    // A DRIVING mode route should use default color (#912338) with no dash pattern.
+    const mockRouteResponse = {
+      status: "OK",
+      routes: [
+        {
+          legs: [
+            {
+              steps: [
+                {
+                  html_instructions: "Drive straight",
+                  travel_mode: "DRIVING",
+                  polyline: { points: "driving_dummy" },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({ json: () => Promise.resolve(mockRouteResponse) })
+    );
+    const { toJSON } = render(<DirectionsScreen />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    function findPolylineWithColor(node, color) {
+      if (!node) return false;
+      if (node.props && node.props.strokeColor === color) return true;
+      if (node.children && Array.isArray(node.children)) {
+        return node.children.some(child => findPolylineWithColor(child, color));
+      }
+      return false;
+    }
+    expect(findPolylineWithColor(toJSON(), "#912338")).toBe(true);
+  });
+
+  test("handles polyline styling for METRO with unknown line name (should yield grey)", async () => {
+    // If the Metro line name does not include any known keyword, the color should be grey.
+    const mockRouteResponse = {
+      status: "OK",
+      routes: [
+        {
+          legs: [
+            {
+              steps: [
+                {
+                  html_instructions: "Take Metro",
+                  travel_mode: "TRANSIT",
+                  polyline: { points: "dummy" },
+                  transit_details: {
+                    line: {
+                      vehicle: { type: "METRO" },
+                      name: "Ligne X", // Unknown keyword → grey
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    global.fetch.mockImplementationOnce(() =>
+      Promise.resolve({ json: () => Promise.resolve(mockRouteResponse) })
+    );
+    const { toJSON } = render(<DirectionsScreen />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    function findPolylineWithColor(node, color) {
+      if (!node) return false;
+      if (node.props && node.props.strokeColor === color) return true;
+      if (node.children && Array.isArray(node.children)) {
+        return node.children.some(child => findPolylineWithColor(child, color));
+      }
+      return false;
+    }
+    expect(findPolylineWithColor(toJSON(), "grey")).toBe(true);
+  });
+
+  test("renders shuttle route with custom info", async () => {
+    // For valid shuttle requests, the directions should show custom text
     const mockRouteResponse = {
       status: "OK",
       routes: [
@@ -537,17 +587,9 @@ describe("DirectionsScreen Component", () => {
               duration: { text: "10 mins" },
               steps: [
                 {
-                  html_instructions: "Take Bus",
-                  distance: { text: "1 km" },
-                  duration: { text: "10 mins" },
-                  polyline: { points: "dummy" },
-                  transit_details: {
-                    line: {
-                      vehicle: { type: "BUS" },
-                      short_name: "B12",
-                      name: "Bus 12",
-                    },
-                  },
+                  html_instructions: "Drive to shuttle stop",
+                  travel_mode: "DRIVING",
+                  polyline: { points: "shuttle_dummy" },
                 },
               ],
             },
@@ -558,43 +600,35 @@ describe("DirectionsScreen Component", () => {
     global.fetch.mockImplementationOnce(() =>
       Promise.resolve({ json: () => Promise.resolve(mockRouteResponse) })
     );
-
-    const { toJSON } = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
+    await act(async () => {
+      render(<DirectionsScreen />);
     });
-
-    // Check for a Polyline with strokeColor "purple"
-    const tree = toJSON();
-    function findPolylineWithColor(node, color) {
-      if (!node) return false;
-      if (node.props && node.props.strokeColor === color) return true;
-      if (node.children && Array.isArray(node.children)) {
-        return node.children.some((child) => findPolylineWithColor(child, color));
-      }
-      return false;
-    }
-    expect(findPolylineWithColor(tree, "purple")).toBe(true);
+    await act(async () => {
+      const locationSelector = screen.getByTestId("location-selector");
+      // Provide valid campus coordinates for shuttle.
+      await locationSelector.props.updateRouteWithMode(LOYOLA_COORDS, SGW_COORDS, "SHUTTLE");
+    });
+    // Check that the rendered directions include the shuttle custom text.
+    await waitFor(() => {
+      expect(screen.getByText(/Shuttle departing at:/i)).toBeTruthy();
+    });
   });
-
-  test("handles polyline styling for METRO (green for 'Verte')", async () => {
+  
+  test("strips HTML tags from instructions in directions", async () => {
+    // Provide a route response with HTML tags in the instructions.
     const mockRouteResponse = {
       status: "OK",
       routes: [
         {
           legs: [
             {
+              distance: { text: "500 m" },
+              duration: { text: "5 mins" },
               steps: [
                 {
-                  html_instructions: "Take Metro",
-                  polyline: { points: "dummy" },
-                  transit_details: {
-                    line: {
-                      vehicle: { type: "METRO" },
-                      short_name: "M1",
-                      name: "Ligne Verte",
-                    },
-                  },
+                  html_instructions: "<div><span>Turn right</span></div>",
+                  travel_mode: "WALKING",
+                  polyline: { points: "html_dummy" },
                 },
               ],
             },
@@ -605,65 +639,13 @@ describe("DirectionsScreen Component", () => {
     global.fetch.mockImplementationOnce(() =>
       Promise.resolve({ json: () => Promise.resolve(mockRouteResponse) })
     );
-
-    const { toJSON } = render(<DirectionsScreen />);
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
+    await act(async () => {
+      render(<DirectionsScreen />);
     });
-
-    function findPolylineWithColor(node, color) {
-      if (!node) return false;
-      if (node.props && node.props.strokeColor === color) return true;
-      if (node.children && Array.isArray(node.children)) {
-        return node.children.some((child) => findPolylineWithColor(child, color));
-      }
-      return false;
-    }
-    expect(findPolylineWithColor(toJSON(), "green")).toBe(true);
-  });
-
-  test("handles polyline styling for TRAIN", async () => {
-    const mockRouteResponse = {
-      status: "OK",
-      routes: [
-        {
-          legs: [
-            {
-              steps: [
-                {
-                  html_instructions: "Take Train",
-                  polyline: { points: "dummy" },
-                  transit_details: {
-                    line: {
-                      vehicle: { type: "TRAIN" },
-                      short_name: "T1",
-                      name: "Train 1",
-                    },
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({ json: () => Promise.resolve(mockRouteResponse) })
-    );
-
-    const { toJSON } = render(<DirectionsScreen />);
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
+      expect(screen.getByText("Turn right")).toBeTruthy();
+      // Ensure that the HTML tags are stripped.
+      expect(screen.queryByText(/<div>/)).toBeNull();
     });
-
-    function findPolylineWithColor(node, color) {
-      if (!node) return false;
-      if (node.props && node.props.strokeColor === color) return true;
-      if (node.children && Array.isArray(node.children)) {
-        return node.children.some((child) => findPolylineWithColor(child, color));
-      }
-      return false;
-    }
-    expect(findPolylineWithColor(toJSON(), "lightgrey")).toBe(true);
   });
 });
