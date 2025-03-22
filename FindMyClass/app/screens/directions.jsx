@@ -62,7 +62,10 @@ const [floorStartLocation, setFloorStartLocation] = useState({
 const [floorEndLocation, setFloorEndLocation] = useState({
   xcoord: 0,
   ycoord: 0
-})
+});
+
+
+
 
 
 
@@ -314,9 +317,12 @@ const path = finder.findPath(
 
       if ( room ) {
         // find the floor number of the room
-        setFloorNumber(getFloorNumber(room.id));
-        const floorStartLocationItem =  getStartLocationHall(floorNumber);
-        console.log("floorStartLocationItem", floorStartLocationItem);
+        const floor = getFloorNumber(room.id);
+        setFloorNumber(floor);
+        const floorStartLocationItem =  getStartLocationHall(floor);
+        console.log("floorStartLocationItem:", floorStartLocationItem);
+        console.log("floorNumber: ", floorNumber);
+        console.log("room.id: ", room.id);
         setFloorStartLocation({
           xcoord: floorStartLocationItem.location.x,
           ycoord: floorStartLocationItem.location.y
@@ -325,11 +331,16 @@ const path = finder.findPath(
           xcoord: room.location.x,
           ycoord: room.location.y
         });
-        setDestinationName(room.name);
 
       }  
       updateRouteWithMode(start, end, travelMode);
     };
+    useEffect(() => {
+      console.log("room changed:", room);
+    }, [room]);
+    
+
+
 
     useEffect(() => {
         let locationSubscription;
@@ -446,6 +457,7 @@ const path = finder.findPath(
                     updateRouteWithMode={updateRouteWithMode}
                     updateRoute={updateRoute}
                     style={styles.locationSelector}
+                    setRoom={setRoom}
                 />
                     <View 
                         style={{opacity: zoomLevel <= 13 ? 0.5 : 1 }}>
@@ -491,12 +503,15 @@ const path = finder.findPath(
                         )}
 
                         {/*  Indoor route */}
-                          <Polyline
+                        
+                         { room != null &&
+                          (<Polyline
                             coordinates={pathCoordinates}
                             strokeWidth={4}
                             strokeColor="#912338"
                             //lineDashPattern={[7]}
-                          />
+                          />)
+                          }
 
               {/* {gridLines.map((line, index) => (
                   <Polyline

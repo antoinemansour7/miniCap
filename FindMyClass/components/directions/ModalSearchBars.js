@@ -56,9 +56,11 @@ const ModalSearchBars = ({
         if ( location.building ) {
             selectBuilding(SGWBuildings.find(b => b.id === location.building ));
             setRoom(location);
-        }
+            setCustomDest(location.name);
+            setDestinationName(location.name);
+    }
         else {
-            
+            setRoom(null);
             setCustomDest(location.name);
             setSearchResults([]);
             setIsSearching(false);

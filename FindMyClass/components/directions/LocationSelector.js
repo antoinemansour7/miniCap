@@ -29,6 +29,7 @@ const LocationSelector = ({
     updateRouteWithMode,
     updateRoute,
     style, 
+    setRoom,
 }) => {
 
     const router = useRouter();
@@ -103,6 +104,7 @@ const LocationSelector = ({
                     setIsModalVisible(true);
                 } else {
                     if (item.value !== 'custom') {
+                        setRoom(null);
                         let newDestination;
                         let newDestinationName;
                         switch(item.value) {
