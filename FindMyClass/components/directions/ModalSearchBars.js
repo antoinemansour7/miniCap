@@ -5,7 +5,7 @@ import { styles } from "../../styles/directionsStyles";
 import GoogleSearchBar from "../GoogleSearchBar";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
-import {getAllRooms} from "../rooms/HallBuildingRooms";
+import {getAllRoomsHall} from "../rooms/HallBuildingRooms";
 
 
 const ModalSearchBars = ({ 
@@ -27,12 +27,13 @@ const ModalSearchBars = ({
     customDest,
     setCustomDest,
     setDestinationName, 
-    setRoomNumber,
+
+    setRoom,
     
 
 }) => {
     const isStartSearch = searchType === 'START'; // The modal will display a specific searh bar based on the searchType
-    const hallBuildingRooms = getAllRooms();
+    const hallBuildingRooms = getAllRoomsHall();
     const allBuildings = [...SGWBuildings, ...LoyolaBuildings,...hallBuildingRooms];
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -54,7 +55,7 @@ const ModalSearchBars = ({
     const selectBuilding = (location) => {
         if ( location.building ) {
             selectBuilding(SGWBuildings.find(b => b.id === location.building ));
-            setRoomNumber(location.id);
+            setRoom(location);
         }
         else {
             

@@ -297,7 +297,11 @@ const getExactCoordinates = (x, y) => {
   
   
   
-
+const getFloorNumber = (roomNumber) => {
+    const floor = parseInt(roomNumber.match(/\d/)?.[0]);
+    return floor;
+  };
+  
 
   
 
@@ -316,4 +320,5 @@ const getExactCoordinates = (x, y) => {
     rotatedGrid,
     gridMapping,
     getExactCoordinates,
+    getFloorNumber,
   }

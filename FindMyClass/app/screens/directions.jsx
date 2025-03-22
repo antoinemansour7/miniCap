@@ -16,22 +16,27 @@ import {
     SGW_COORDS,
             } from "../../utils/shuttleUtils";
 import  SGWBuildings  from "../../components/SGWBuildings";
+import {
+  hallBuildingFloors,
+  getStartLocationHall
+} from "../../components/rooms/HallBuildingRooms";
 import PF from "pathfinding";
 import {
     floorGrid,
     getFloorPlanBounds,
     convertGridForPathfinding,
     getPolygonBounds,
-    startX,
-    startY,
-    endX,
-    endY,
+    // startX,
+    // startY,
+    // endX,
+    // endY,
     gridLines,
     horizontallyFlippedGrid,
     verticallyFlippedGrid,
     rotatedGrid,
     gridMapping,
     getExactCoordinates,
+    getFloorNumber
 } from "../../utils/indoorUtils";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
@@ -48,16 +53,39 @@ const floorPlans = {
 
 export default function DirectionsScreen() {
 
+const [room, setRoom] = useState(null);
+const [floorNumber, setFloorNumber] = useState(0);
+const [floorStartLocation, setFloorStartLocation] = useState({
+  xcoord: 0, 
+  ycoord: 0
+});
+const [floorEndLocation, setFloorEndLocation] = useState({
+  xcoord: 0,
+  ycoord: 0
+})
+
+
+
+
+const startX = 10, startY = 9; 
+const endX = 17, endY = 17;
 
 const hallBuilding = SGWBuildings.find(b => b.id === 'H');
 
 const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
 
 const walkableGrid = convertGridForPathfinding(floorGrid);
-walkableGrid.setWalkableAt(endX, endY, true);
+walkableGrid.setWalkableAt(
+  floorEndLocation.xcoord, 
+  floorEndLocation.ycoord, 
+  true);
 
 const finder = new PF.AStarFinder();
-const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
+const path = finder.findPath( 
+  floorStartLocation.xcoord,
+  floorStartLocation.ycoord,
+  floorEndLocation.xcoord, 
+  floorEndLocation.ycoord, walkableGrid);
   
   const buildingPolygon = [
     { latitude: 45.4977197, longitude: -73.5790184 },
@@ -83,7 +111,8 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
 
    const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
   // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-  const classRoomCoordinates = getExactCoordinates(2, 1);
+  const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
+    floorEndLocation.ycoord,);
 
 // ***************************************************************************************************** //
   
@@ -138,7 +167,6 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
        const [isSwipeModalVisible, setIsSwipeModalVisible] = useState(false);
        const [directions, setDirections] = useState([]);
        const [isShuttleService, setIsShuttleService] = useState(false);
-       const [roomNumber, setRoomNumber] = useState('');
    
        // If there is an error, show the error message inside JSX
        if (errorMessage) {
@@ -283,7 +311,24 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
     };
 
     const updateRoute = (start, end) => {
-        updateRouteWithMode(start, end, travelMode);
+
+      if ( room ) {
+        // find the floor number of the room
+        setFloorNumber(getFloorNumber(room.id));
+        const floorStartLocationItem =  getStartLocationHall(floorNumber);
+        console.log("floorStartLocationItem", floorStartLocationItem);
+        setFloorStartLocation({
+          xcoord: floorStartLocationItem.location.x,
+          ycoord: floorStartLocationItem.location.y
+        });
+        setFloorEndLocation({
+          xcoord: room.location.x,
+          ycoord: room.location.y
+        });
+        setDestinationName(room.name);
+
+      }  
+      updateRouteWithMode(start, end, travelMode);
     };
 
     useEffect(() => {
@@ -319,10 +364,10 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                         timeInterval: 5000, 
                         distanceInterval: 10 
                     },
-                    (location) => {
+                    (_location) => {
                         const updatedLocation = {
-                            latitude: location.coords.latitude,
-                            longitude: location.coords.longitude,
+                            latitude: _location.coords.latitude,
+                            longitude: _location.coords.longitude,
                         };
                         setTimeout(() => {
                             setUserLocation(updatedLocation);
@@ -435,7 +480,7 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                                 pinColor="green"
                             />
                         )}
-                        {destination && <Marker coordinate={destination} title="Destination" />}
+                        {(destination && !room )&& <Marker coordinate={destination} title="Destination" />}
                         {coordinates.length > 0 && (
                             <Polyline 
                                 coordinates={coordinates}
@@ -461,12 +506,13 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
                     strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
                   />
                 ))} */}
-                         <Marker 
+                         { room != null &&
+                          (<Marker 
                                 coordinate={classRoomCoordinates}
-                                title="room"
-                                pinColor="purple"
-                            />
-
+                                title={room.name}
+                                pinColor="#912338"
+                            />)
+                            }
 
                     </MapView>
                 </View>
@@ -513,7 +559,9 @@ const path = finder.findPath( startX, startY, endX, endY, walkableGrid);
             customDest={customDest}
             setCustomDest={setCustomDest}
             setDestinationName={setDestinationName}
-            setRoomNumber={setRoomNumber}
+
+            setRoom={setRoom}
+
             
             />
             {routeInfo && directions.length > 0 && (
