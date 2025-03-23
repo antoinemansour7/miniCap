@@ -165,7 +165,7 @@ const Chatbot = ({ isVisible, onClose }) => {
     console.log("Get Directions pressed");
     if (nextClassEvent && nextClassEvent.destinationCoordinates) {
       setShowDirectionsPopup(false);
-      // Close the Chatbot modal before navigating
+      // Close the Chatbot modal before navigating, necessary
       onClose();
       router.push({
         pathname: '/screens/directions',
