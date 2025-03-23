@@ -160,7 +160,7 @@ const Chatbot = ({ isVisible, onClose }) => {
     }
   };
 
-  // Handler for the "Get Directions" button
+  // Handler for "Get Directions" button
   const handleGetDirections = () => {
     console.log("Get Directions pressed");
     if (nextClassEvent && nextClassEvent.destinationCoordinates) {
