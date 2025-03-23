@@ -58,4 +58,15 @@ export const styles = StyleSheet.create({
         color: '#666',
         marginLeft: 8,
     },
+
+    clearButton: {
+        position: 'absolute',
+        right: 0,
+        top: '40%', // Center vertically
+        transform: [{ translateY: -10 }], // Adjust based on icon size to perfectly center
+        padding: 5,
+        zIndex: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
   });
