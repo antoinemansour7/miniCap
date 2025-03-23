@@ -3,6 +3,8 @@ import { View, TextInput, StyleSheet, FlatList, TouchableOpacity, Text } from 'r
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles/searchBarStyles';
 
+
+
 const SearchBar = ({ value, onChangeText, data = [], placeholder, onSelectItem }) => {
   const [filteredResults, setFilteredResults] = useState([]);
 
@@ -25,6 +27,11 @@ const SearchBar = ({ value, onChangeText, data = [], placeholder, onSelectItem }
     if (onSelectItem) onSelectItem(item);
   };
 
+  const handleClearSearch = () => {
+    onChangeText(""); // Clear the search input
+    setFilteredResults([]);
+};
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -37,6 +44,14 @@ const SearchBar = ({ value, onChangeText, data = [], placeholder, onSelectItem }
           onChangeText={handleChangeText}
           testID="search-input"
         />
+       { value.length > 0 &&
+        (<TouchableOpacity
+          style={styles.clearButton}
+          onPress={handleClearSearch} 
+          testID="clear-button"
+        > 
+          <Ionicons name="close-circle" size={20} color="#D3D3D3" />
+        </TouchableOpacity>)}
       </View>
       {filteredResults.length > 0 && (
         <View style={styles.suggestionsContainer}>
