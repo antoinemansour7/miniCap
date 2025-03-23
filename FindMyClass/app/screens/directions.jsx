@@ -358,8 +358,9 @@ export default function DirectionsScreen() {
   };
 
   return (
-    <View style={stylesB.mainContainer}>
-      <View style={stylesB.container}>
+    <View style={stylesB.mainContainer} onLayout={() => setLayoutReady(true)} >
+
+      <View style={stylesB.floatingContainer}> 
         {/* Place the LocationSelector ABOVE the MapView */}
         <LocationSelector
           startLocation={startLocation}
@@ -379,11 +380,14 @@ export default function DirectionsScreen() {
           setDestinationName={setDestinationName}
           travelMode={travelMode}
           setTravelMode={setTravelMode}
-          setIsModalVisible={setIsModalVisible}
+          setIsModalVisible={(val) => layoutReady && setIsModalVisible(val)}
           setSearchType={setSearchType}
           updateRouteWithMode={updateRouteWithMode}
           updateRoute={updateRoute}
         />
+
+      </View>
+      <View style={stylesB.container}>
 
         {/* Now the map is below the selector */}
         <View style={stylesB.mapContainer}>
@@ -480,6 +484,10 @@ export default function DirectionsScreen() {
         )}
       </View>
 
+      {routeInfo && directions.length > 0 && (
+        <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
+      )}
+      <View>
       <ModalSearchBars
         searchType={searchType}
         isModalVisible={isModalVisible}
@@ -498,13 +506,8 @@ export default function DirectionsScreen() {
         setCustomDest={setCustomDest}
         setDestinationName={setDestinationName}
       />
-
       {routeInfo && directions.length > 0 && (
-        <SwipeUpModal
-          distance={routeInfo.distance}
-          duration={routeInfo.duration}
-          directions={directions}
-        />
+        <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
       )}
     </View>
   );
@@ -519,6 +522,13 @@ const stylesB = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+  },
+  floatingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
   },
   loadingCard: {
     position: "absolute",

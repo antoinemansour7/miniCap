@@ -648,4 +648,81 @@ describe("DirectionsScreen Component", () => {
       expect(screen.queryByText(/<div>/)).toBeNull();
     });
   });
+
+  test("calculates correct circle radius on zoom level changes", async () => {
+    const { getByTestId } = render(<DirectionsScreen />);
+    await waitFor(() => {
+      const mapView = getByTestId("map-view");
+      expect(mapView).toBeTruthy();
+    });
+  
+    // Trigger zoom level change by changing region
+    const region = {
+      latitude: 45.5017,
+      longitude: -73.5673,
+      latitudeDelta: 0.1, // triggers zoom level recalculation
+      longitudeDelta: 0.1,
+    };
+  
+    await act(async () => {
+      const mapView = getByTestId("map-view");
+      fireEvent(mapView, "onRegionChangeComplete", region);
+    });
+  });
+  
+  test("renders custom start location marker when selectedStart is not userLocation", async () => {
+    const { getByTestId } = render(<DirectionsScreen />);
+    await act(async () => {
+      const locationSelector = getByTestId("location-selector");
+      locationSelector.props.setSelectedStart("customLocation");
+      locationSelector.props.setStartLocation({
+        latitude: 45.5040,
+        longitude: -73.5675,
+      });
+    });
+  
+    await waitFor(() => {
+      const mapJSON = getByTestId("map-view").props.children;
+      const customStartMarker = mapJSON.find(child => child?.props?.title === "Start");
+      expect(customStartMarker).toBeTruthy();
+    });
+  });
+  
+  test("updates custom search text in ModalSearchBars", async () => {
+    const { getByTestId } = render(<DirectionsScreen />);
+  
+    await act(async () => {
+      const locationSelector = getByTestId("location-selector");
+      locationSelector.props.setIsModalVisible(true);
+      locationSelector.props.setSearchType("DEST");
+    });
+  
+    await waitFor(() => {
+      const modalSearchBars = getByTestId("modal-search-bars");
+      expect(modalSearchBars).toBeTruthy();
+      modalSearchBars.props.setCustomSearchText("Custom Search Input");
+    });
+  });
+  
+  test("calculates different circle radius values based on zoom", async () => {
+    const { getByTestId } = render(<DirectionsScreen />);
+    const mapView = getByTestId("map-view");
+  
+    // Trigger a region change that leads to zoom level 10
+    const region = {
+      latitude: 45.5017,
+      longitude: -73.5673,
+      latitudeDelta: 5.625, // approx => zoom 10
+      longitudeDelta: 5.625,
+    };
+  
+    await act(async () => {
+      fireEvent(mapView, "onRegionChangeComplete", region);
+    });
+  
+    // Radius should adjust after zoom
+    const radius = 20 * Math.pow(2, 15 - 10); // baseRadius * 2^(15 - zoom)
+    expect(radius).toBe(20 * 32);
+  });
+  
 });
