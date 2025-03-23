@@ -58,44 +58,4 @@ const SearchBar = ({ value, onChangeText, data = [], placeholder, onSelectItem }
 };
 
 
-// const styles = StyleSheet.create({
-//   container: {
-//     margin: 10,
-//   },
-//   searchContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     backgroundColor: '#FFF',
-//     borderRadius: 8,
-//     paddingHorizontal: 10,
-//     borderWidth: 1,
-//     borderColor: '#ccc',
-//   },
-//   searchIcon: { 
-//     marginRight: 8 
-//   },
-//   searchInput: { 
-//     flex: 1, 
-//     fontSize: 16, 
-//     paddingVertical: 5 
-//   },
-//   suggestionsContainer: {
-//     backgroundColor: '#FFF',
-//     borderColor: '#ccc',
-//     borderWidth: 1,
-//     borderTopWidth: 0,
-//     borderBottomLeftRadius: 8,
-//     borderBottomRightRadius: 8,
-//     maxHeight: 200,
-//   },
-//   suggestionItem: {
-//     padding: 10,
-//     borderBottomColor: '#eee',
-//     borderBottomWidth: 1,
-//   },
-//   suggestionText: {
-//     fontSize: 16,
-//   },
-// });
-
 export default SearchBar;
