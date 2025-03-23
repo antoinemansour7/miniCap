@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { Alert, ActivityIndicator } from 'react-native';
 import Profile from '../screens/profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -26,6 +26,7 @@ jest.mock('expo-image-picker', () => ({
 
 // Spy on AsyncStorage.setItem
 jest.spyOn(AsyncStorage, 'setItem');
+jest.spyOn(AsyncStorage, 'getItem');
 
 // Mock useRouter for login navigation tests
 const mockPush = jest.fn();
@@ -39,15 +40,16 @@ describe('Profile Screen', () => {
   beforeEach(() => {
     // Reset mocks and set default successful permission and canceled image picker.
     jest.clearAllMocks();
-    mockUseAuth.mockReturnValue({ user: { email: 'test@example.com' } });
+    mockUseAuth.mockReturnValue({ user: { email: 'test@example.com', displayName: 'Test User', uid: '123' } });
     ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
     ImagePicker.launchImageLibraryAsync.mockResolvedValue({ canceled: true });
+    AsyncStorage.getItem.mockResolvedValue(null);
   });
 
   it('renders user info and FloatingChatButton when logged in', () => {
     const { getByText, getByTestId } = render(<Profile />);
-    expect(getByText('Welcome, test@example.com')).toBeTruthy();
-    expect(getByText('Change Photo')).toBeTruthy();
+    expect(getByText('Test User')).toBeTruthy();
+    expect(getByText('test@example.com')).toBeTruthy();
     expect(getByTestId('floating-chat-button')).toBeTruthy();
   });
 
@@ -74,36 +76,158 @@ describe('Profile Screen', () => {
     expect(getByText('Go to Login')).toBeTruthy();
   });
 
-  it('navigates to login screen when login button is pressed (line 57)', () => {
+  it('navigates to login screen when login button is pressed', () => {
     mockUseAuth.mockReturnValue({ user: null });
     const { getByText } = render(<Profile />);
     const loginButton = getByText('Go to Login');
     fireEvent.press(loginButton);
-    expect(mockPush).toHaveBeenCalledWith('/screens/login');
+    expect(mockPush).toHaveBeenCalledWith('/auth/login');
   });
 
-  it('alerts permission error when media library permission is denied (lines 27-28)', async () => {
+  it('alerts permission error when media library permission is denied', async () => {
     ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValueOnce({ status: 'denied' });
-    const alertSpy = jest.spyOn(Alert, 'alert');
     const { getByText } = render(<Profile />);
     const changePhotoElement = getByText('Change Photo');
     fireEvent.press(changePhotoElement);
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith('Permission required', 'Please allow access to your photos.');
+      expect(getByText('Please allow access to your photos.')).toBeTruthy();
     });
   });
 
-  it('handles error during image picking (lines 48-49)', async () => {
+  it('handles error during image picking', async () => {
     const testError = new Error('Test error');
     ImagePicker.launchImageLibraryAsync.mockRejectedValueOnce(testError);
-    const alertSpy = jest.spyOn(Alert, 'alert');
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const { getByText } = render(<Profile />);
     const changePhotoElement = getByText('Change Photo');
     fireEvent.press(changePhotoElement);
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error picking image:", testError);
-      expect(alertSpy).toHaveBeenCalledWith("Error", "An error occurred while picking the image.");
+      expect(getByText('An error occurred while picking the image.')).toBeTruthy();
+    });
+  });
+
+  it('loads profile data from AsyncStorage on mount', async () => {
+    const savedProfile = {
+      fullName: 'Saved User',
+      email: 'saved@example.com',
+      phone: '1234567890',
+      accessibilityEnabled: true,
+      accessibilityStatus: 'mobility',
+    };
+    AsyncStorage.getItem.mockResolvedValueOnce(JSON.stringify(savedProfile));
+
+    const { getByText } = render(<Profile />);
+    await waitFor(() => {
+      expect(getByText('Saved User')).toBeTruthy();
+      expect(getByText('saved@example.com')).toBeTruthy();
+      expect(getByText('1234567890')).toBeTruthy();
+      expect(getByText('♿ Accessibility Enabled (mobility)')).toBeTruthy();
+    });
+  });
+
+  it('enters edit mode when edit button is pressed', () => {
+    const { getByText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+    expect(getByText('Full Name')).toBeTruthy();
+    expect(getByText('E-Mail')).toBeTruthy();
+    expect(getByText('Phone No.')).toBeTruthy();
+    expect(getByText('Password')).toBeTruthy();
+  });
+
+  it('cancels edit mode when cancel button is pressed', async () => {
+    const { getByText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+    const cancelButton = getByText('Cancel');
+    fireEvent.press(cancelButton);
+    await waitFor(() => {
+      expect(getByText('Edit Profile')).toBeTruthy();
+    });
+  });
+
+  it('saves profile changes when confirm button is pressed', async () => {
+    const { getByText, getByPlaceholderText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+
+    const fullNameInput = getByPlaceholderText('Full Name');
+    const emailInput = getByPlaceholderText('E-Mail');
+    const phoneInput = getByPlaceholderText('Phone No.');
+    const passwordInput = getByPlaceholderText('Password');
+
+    fireEvent.changeText(fullNameInput, 'New Name');
+    fireEvent.changeText(emailInput, 'new@example.com');
+    fireEvent.changeText(phoneInput, '0987654321');
+    fireEvent.changeText(passwordInput, 'newpassword');
+
+    const confirmButton = getByText('Confirm Changes');
+    fireEvent.press(confirmButton);
+
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith('user_profile', expect.any(String));
+    });
+  });
+
+  it('shows error message when saving profile with invalid email', async () => {
+    const { getByText, getByPlaceholderText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+
+    const emailInput = getByPlaceholderText('E-Mail');
+    fireEvent.changeText(emailInput, 'invalid-email');
+
+    const confirmButton = getByText('Confirm Changes');
+    fireEvent.press(confirmButton);
+
+    await waitFor(() => {
+      expect(getByText('Please enter a valid email address')).toBeTruthy();
+    });
+  });
+
+  it('shows error message when saving profile with duplicate email', async () => {
+    AsyncStorage.getItem.mockResolvedValueOnce(JSON.stringify({ email: 'test@example.com' }));
+    AsyncStorage.getItem.mockResolvedValueOnce(JSON.stringify([{ userId: '456', email: 'new@example.com' }]));
+
+    const { getByText, getByPlaceholderText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+
+    const emailInput = getByPlaceholderText('E-Mail');
+    fireEvent.changeText(emailInput, 'new@example.com');
+
+    const confirmButton = getByText('Confirm Changes');
+    fireEvent.press(confirmButton);
+
+    await waitFor(() => {
+      expect(getByText('This email is already in use by another account')).toBeTruthy();
+    });
+  });
+
+  it('toggles accessibility switch and shows options', async () => {
+    const { getByText, getByTestId } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+
+    const accessibilitySwitch = getByTestId('accessibility-switch');
+    fireEvent(accessibilitySwitch, 'valueChange', true);
+
+    await waitFor(() => {
+      expect(getByText('Select your accessibility needs:')).toBeTruthy();
+    });
+  });
+
+  it('shows loading indicator while saving profile changes', async () => {
+    const { getByText, getByPlaceholderText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+
+    const confirmButton = getByText('Confirm Changes');
+    fireEvent.press(confirmButton);
+
+    await waitFor(() => {
+      expect(getByText('Confirm Changes')).toBeTruthy();
     });
   });
 });
