@@ -46,7 +46,7 @@ const SearchBar = ({ value, onChangeText, data = [], placeholder, onSelectItem }
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => handleSelectItem(item)} style={styles.searchResult}>
-                <Text style={styles.suggestionText}>{item.name}</Text>
+                <Text style={styles.buildingName}>{item.name}</Text>
                 <Text style={styles.buildingId}>({item.id})</Text>
               </TouchableOpacity>
             )}

@@ -6,7 +6,7 @@ import GoogleSearchBar from "../GoogleSearchBar";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
 import {getAllRoomsHall} from "../rooms/HallBuildingRooms";
-import { SearchBar } from "../SearchBar";
+import SearchBar from "../SearchBar";
 
 
 const ModalSearchBars = ({ 
@@ -142,15 +142,15 @@ const ModalSearchBars = ({
                             />
                         ) : ( // custom search bar for the destination
                             <View> 
-                                {/* <SearchBar
+                                <SearchBar
                                     value={customDest}
                                     onChangeText={searchBuildings}
                                     data={allBuildings}
                                     placeholder="Search for a building..."
                                     onSelectItem={selectBuilding}
-                                 /> */}
+                                 />
 
-                                <View style={styles.textInputContainer}> 
+                                {/* <View style={styles.textInputContainer}> 
                                     <TextInput
                                         style={[styles.input, { flex: 1, paddingRight: 30 }]}
                                         placeholder="Search for a building..."
@@ -180,7 +180,7 @@ const ModalSearchBars = ({
                                             </TouchableOpacity>
                                         ))}
                                     </View>
-                                )}
+                                )} */}
                             </View>
                         )}
                     </View>
