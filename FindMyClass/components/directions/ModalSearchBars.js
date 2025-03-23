@@ -149,38 +149,6 @@ const ModalSearchBars = ({
                                     placeholder="Search for a building..."
                                     onSelectItem={selectBuilding}
                                  />
-
-                                {/* <View style={styles.textInputContainer}> 
-                                    <TextInput
-                                        style={[styles.input, { flex: 1, paddingRight: 30 }]}
-                                        placeholder="Search for a building..."
-                                        value={customDest}
-                                        onChangeText={searchBuildings}
-                                    />
-                                    {customDest.length > 0 && (
-                                        <TouchableOpacity 
-                                            style={styles.clearButton}
-                                            onPress={handleClearSearch}
-                                            testID="clear-button"
-                                        >
-                                            <Ionicons name="close-circle" size={20} color="#D3D3D3" />
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
-                                {isSearching && searchResults.length > 0 && (
-                                    <View style={styles.searchResults}>
-                                        {searchResults.map((building) => (
-                                            <TouchableOpacity
-                                                key={building.id}
-                                                style={styles.searchResult}
-                                                onPress={() => selectBuilding(building)}
-                                            >
-                                                <Text style={styles.buildingName}>{building.name}</Text>
-                                                <Text style={styles.buildingId}>({building.id})</Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                )} */}
                             </View>
                         )}
                     </View>
