@@ -1,6 +1,8 @@
 import React from 'react';
 import BuildingMap from './BuildingMap';
 import SGWBuildings from './SGWBuildings';
+import { getAllRoomsHall } from './rooms/HallBuildingRooms';
+
 
 // Compute centroid for SGW buildings (no additional adjustment)
 const getSGWMarkerPosition = (building) => {
@@ -34,9 +36,12 @@ const recenterDeltaUser = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
 const recenterDeltaBuildings = { latitudeDelta: 0.002, longitudeDelta: 0.002 };
 
 const SGWMap = () => {
+
+  const hallBuildingRooms = getAllRoomsHall();
+  const allBuildingsAndRooms = [...SGWBuildings,...hallBuildingRooms];
   return (
     <BuildingMap
-      buildings={SGWBuildings}
+      buildings={allBuildingsAndRooms}
       initialRegion={initialRegion}
       buildingsRegion={buildingsRegion}
       searchCoordinates={getSGWSearchCoordinates}
