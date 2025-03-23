@@ -65,6 +65,7 @@ export default function DirectionsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchType, setSearchType] = useState("START");
   const [directions, setDirections] = useState([]);
+  const [layoutReady, setLayoutReady] = useState(false);
 
   if (errorMessage) {
     return <Text>{errorMessage}</Text>;
@@ -188,7 +189,10 @@ const handleError = (err) => {
   const updateRoute = (start, end) => {
     updateRouteWithMode(start, end, travelMode);
   };
-
+  useEffect(() => {
+    console.log('Modal visibility changed:', isModalVisible);
+  }, [isModalVisible]);
+  
   useEffect(() => {
     let locationSubscription;
 
@@ -252,8 +256,9 @@ const handleError = (err) => {
 
 
   return (
-    <View style={stylesB.mainContainer}>
-      <View style={stylesB.container}>
+    <View style={stylesB.mainContainer} onLayout={() => setLayoutReady(true)} >
+
+      <View style={stylesB.floatingContainer}> 
         {/* Place the LocationSelector ABOVE the MapView */}
         <LocationSelector
           startLocation={startLocation}
@@ -273,12 +278,15 @@ const handleError = (err) => {
           setDestinationName={setDestinationName}
           travelMode={travelMode}
           setTravelMode={setTravelMode}
-          setIsModalVisible={setIsModalVisible}
+          setIsModalVisible={(val) => layoutReady && setIsModalVisible(val)}
           setSearchType={setSearchType}
           updateRouteWithMode={updateRouteWithMode}
           updateRoute={updateRoute}
           // style={stylesB.locationSelector} // No absolute positioning
         />
+
+      </View>
+      <View style={stylesB.container}>
 
         {/* Now the map is below the selector */}
         <View style={stylesB.mapContainer}>
@@ -328,6 +336,10 @@ const handleError = (err) => {
         )}
       </View>
 
+      {routeInfo && directions.length > 0 && (
+        <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
+      )}
+      <View>
       <ModalSearchBars
         searchType={searchType}
         isModalVisible={isModalVisible}
@@ -346,9 +358,7 @@ const handleError = (err) => {
         setCustomDest={setCustomDest}
         setDestinationName={setDestinationName}
       />
-      {routeInfo && directions.length > 0 && (
-        <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
-      )}
+      </View>
     </View>
   );
 }
@@ -365,6 +375,13 @@ const stylesB = StyleSheet.create({
   mapContainer: {
     flex: 1,
     // marginTop: 10, // or some margin if you want to separate from the LocationSelector
+  },
+  floatingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
   },
   loadingCard: {
     position: "absolute",
