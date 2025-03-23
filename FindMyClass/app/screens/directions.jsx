@@ -189,10 +189,7 @@ const handleError = (err) => {
   const updateRoute = (start, end) => {
     updateRouteWithMode(start, end, travelMode);
   };
-  useEffect(() => {
-    console.log('Modal visibility changed:', isModalVisible);
-  }, [isModalVisible]);
-  
+
   useEffect(() => {
     let locationSubscription;
 
