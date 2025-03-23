@@ -61,68 +61,73 @@ const Chatbot = ({ isVisible, onClose }) => {
 
     // 2) Process schedule-related queries
     let finalUserInput = inputText;
-    const lowerInput = inputText.toLowerCase();
+    try {
+      const lowerInput = inputText.toLowerCase();
+      if (lowerInput.includes('next class') || lowerInput.includes('schedule')) {
+        const events = await fetchGoogleCalendarEvents();
+        if (events.length > 0) {
+          // Sort events by start time so that the soonest event is first
+          events.sort((a, b) => {
+            const aStart = new Date(a.start?.dateTime || a.start?.date);
+            const bStart = new Date(b.start?.dateTime || b.start?.date);
+            return aStart - bStart;
+          });
+          if (lowerInput.includes('next class')) {
+            // For "next class", pick only the earliest event
+            let nextEvent = events[0];
+            // If destinationCoordinates is not provided, try to determine it by matching the event location
+            if (!nextEvent.destinationCoordinates && nextEvent.location) {
+              const rawLocation = nextEvent.location.trim().toUpperCase();
+              let foundCoordinates = null;
+              Object.keys(buildingCoordinatesMap).forEach((key) => {
+                if (rawLocation.includes(key)) {
+                  foundCoordinates = buildingCoordinatesMap[key];
+                }
+              });
+              nextEvent = {
+                ...nextEvent,
+                destinationCoordinates: foundCoordinates,
+              };
+            }
+            setNextClassEvent(nextEvent);
 
-    if (lowerInput.includes('next class') || lowerInput.includes('schedule')) {
-      const events = await fetchGoogleCalendarEvents();
-      if (events.length > 0) {
-        // Sort events by start time so that the soonest event is first
-        events.sort((a, b) => {
-          const aStart = new Date(a.start?.dateTime || a.start?.date);
-          const bStart = new Date(b.start?.dateTime || b.start?.date);
-          return aStart - bStart;
-        });
-        if (lowerInput.includes('next class')) {
-          // For "next class", pick only the earliest event
-          let nextEvent = events[0];
-          // If destinationCoordinates is not provided, try to determine it by matching the event location
-          if (!nextEvent.destinationCoordinates && nextEvent.location) {
-            const rawLocation = nextEvent.location.trim().toUpperCase();
-            let foundCoordinates = null;
-            Object.keys(buildingCoordinatesMap).forEach((key) => {
-              if (rawLocation.includes(key)) {
-                foundCoordinates = buildingCoordinatesMap[key];
-              }
-            });
-            nextEvent = {
-              ...nextEvent,
-              destinationCoordinates: foundCoordinates,
-            };
+            // Format the start time
+            const startStr = nextEvent.start?.dateTime || nextEvent.start?.date;
+            let formattedTime = '';
+            if (startStr) {
+              const eventDate = new Date(startStr);
+              formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            const location = nextEvent.location || 'No location provided';
+            const directionsContext = `Note: EV, Hall, and JMSB are on the SGW campus. "S2" indicates the second floor in the basement. The shuttle operates only between the two campuses.`;
+            const eventsText = `Title: ${nextEvent.summary}, Time: ${formattedTime}, Location: ${location}\n${directionsContext}`;
+            finalUserInput = `Your next class details:\n${eventsText}\n\nUser question: ${inputText}`;
+          } else {
+            // For a generic "schedule" query, show the full schedule overview
+            setNextClassEvent(null);
+            const eventsText = events
+              .map(event => {
+                const startStr = event.start?.dateTime || event.start?.date;
+                let formattedTime = '';
+                if (startStr) {
+                  const eventDate = new Date(startStr);
+                  formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+                const location = event.location || 'No location provided';
+                return `Title: ${event.summary}, Time: ${formattedTime}, Location: ${location}`;
+              })
+              .join('\n');
+            finalUserInput = `Your full schedule:\n${eventsText}\n\nUser question: ${inputText}`;
           }
-          setNextClassEvent(nextEvent);
-
-          // Format the start time
-          const startStr = nextEvent.start?.dateTime || nextEvent.start?.date;
-          let formattedTime = '';
-          if (startStr) {
-            const eventDate = new Date(startStr);
-            formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          }
-          const location = nextEvent.location || 'No location provided';
-          const directionsContext = `Note: EV, Hall, and JMSB are on the SGW campus. "S2" indicates the second floor in the basement. The shuttle operates only between the two campuses.`;
-          const eventsText = `Title: ${nextEvent.summary}, Time: ${formattedTime}, Location: ${location}\n${directionsContext}`;
-          finalUserInput = `Your next class details:\n${eventsText}\n\nUser question: ${inputText}`;
         } else {
-          // For a generic "schedule" query, show the full schedule overview
+          finalUserInput = `No upcoming events found.\n\nUser question: ${inputText}`;
           setNextClassEvent(null);
-          const eventsText = events
-            .map(event => {
-              const startStr = event.start?.dateTime || event.start?.date;
-              let formattedTime = '';
-              if (startStr) {
-                const eventDate = new Date(startStr);
-                formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-              }
-              const location = event.location || 'No location provided';
-              return `Title: ${event.summary}, Time: ${formattedTime}, Location: ${location}`;
-            })
-            .join('\n');
-          finalUserInput = `Your full schedule:\n${eventsText}\n\nUser question: ${inputText}`;
         }
-      } else {
-        finalUserInput = `No upcoming events found.\n\nUser question: ${inputText}`;
-        setNextClassEvent(null);
       }
+    } catch (error) {
+      console.error("Error processing schedule queries:", error);
+      // Optionally fallback to original input
+      finalUserInput = inputText;
     }
 
     // 3) Build the conversation for OpenAI
