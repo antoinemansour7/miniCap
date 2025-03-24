@@ -83,11 +83,15 @@ const BuildingMap = ({
   // Search for a building and move the map to it
   useEffect(() => {
     if (searchText) {
-      const building = buildings.find((b) =>
+      
+      const building =  buildings.find((b) =>
         b.name.toLowerCase().includes(searchText.toLowerCase())
       );
       if (building && mapRef.current) {
-        const coords = searchCoordinates(building);
+
+        const coords = building.building ? 
+        searchCoordinates( buildings.find((b) => b.id === building.building)) 
+        : searchCoordinates( building );
         mapRef.current.animateToRegion({
           latitude: coords.latitude,
           longitude: coords.longitude,
