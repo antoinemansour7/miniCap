@@ -513,22 +513,22 @@ const path = finder.findPath(
                           />)
                           }
 
-              {/* {gridLines.map((line, index) => (
-                  <Polyline
-                    key={index}
-                    coordinates={line}
-                    strokeWidth={1}
-                    strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
-                  />
-                ))} */}
                          { room != null &&
                           (<Marker 
-                                coordinate={classRoomCoordinates}
-                                title={room.name}
-                                pinColor="#912338"
+                            coordinate={classRoomCoordinates}
+                            title={room.name}
+                            pinColor="#912338"
                             />)
-                            }
+                          }
 
+                          {/* {gridLines.map((line, index) => (
+                              <Polyline
+                                key={index}
+                                coordinates={line}
+                                strokeWidth={1}
+                                strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
+                              />
+                            ))} */}
                     </MapView>
                 </View>
 

@@ -8,6 +8,7 @@ import SearchBar from './SearchBar';
 import mapStyles from './mapStyles';
 import useLocationHandler from '../hooks/useLocationHandler';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { getExactCoordinates, getFloorNumber } from '../utils/indoorUtils';
 
 
 
@@ -47,6 +48,12 @@ const BuildingMap = ({
   const websterLibrary = buildings.find(b => b.id === 'WL');
   const [showPolygons, setShowPolygons] = useState(false);
   const [forceKey, setForceKey] = useState(0);
+  const [classroomLocation, setClassroomLocation] = useState({
+    xcoord: 0,
+    ycoord: 0
+  });
+  const [clasroomCoordinates, setClassroomCoordinates] = useState(null); 
+  const [room, setRoom] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() =>{ 
@@ -88,18 +95,24 @@ const BuildingMap = ({
       const building =  buildings.find((b) =>
         b.name.toLowerCase().includes(searchText.toLowerCase())
       );
-      if (building && mapRef.current) {
+      if (building){ 
+        if (building.building) {
+          console.log("Room searched: ",building);
+          setClassroomLocation({
+            xcoord: building.location.x,
+            ycoord: building.location.y
+          });
+          setClassroomCoordinates(getExactCoordinates(building.location.x, building.location.y));
+          console.log("Classroom coordinates: ", getExactCoordinates(building.location.x, building.location.y));
+          setSelectedFloor(getFloorNumber(building.id));
+          console.log("Selected floor: ", getFloorNumber(building.id));
+          setRoom(building);
+        }
+        else {
+          setRoom(null);
+          focusOnBuilding(building);
 
-        const coords = building.building ? 
-        searchCoordinates( buildings.find((b) => b.id === building.building)) 
-        : searchCoordinates( building );
-        mapRef.current.animateToRegion({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-          latitudeDelta: recenterDeltaUser.latitudeDelta,
-          longitudeDelta: recenterDeltaUser.longitudeDelta,
-        });
-      }
+      }}
     }
   }, [searchText]);
 
@@ -246,6 +259,14 @@ const BuildingMap = ({
             </View>
           </Marker>
         )}
+
+        { room != null &&
+            (<Marker 
+              coordinate={clasroomCoordinates}
+              title={room.name}
+              pinColor="#912338"
+              />)
+                          }
       </MapView>
       
       {/* Floor Selector - Only visible when zoomed in on Hall Building */}
