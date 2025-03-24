@@ -217,21 +217,7 @@ const BuildingMap = ({
         )}
 
         {buildings.map((building) => {
-          if (building.id === 'H') {
-            return zoomLevel   ? (
-              <Polygon
-                //key={`${building.id}-${forceKey}`}
-                key={building.id}
-                coordinates={building.boundary}
-                fillColor="rgba(155, 27, 48, 0.3)"
-                strokeColor="rgba(155, 27, 48, 0.8)"
-                strokeWidth={2}
-                tappable={true}
-                onPress={() => focusOnBuilding(building)}
-                zIndex={999}  
-              />
-            ) : null;
-          } else {
+   
             return (
               <BuildingMarker
                 key={building.id}
@@ -244,7 +230,7 @@ const BuildingMap = ({
                 focusOnBuilding={focusOnBuilding}
               />
             );
-          }
+          
         })}
 
         {userLocation && (
