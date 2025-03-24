@@ -22,6 +22,7 @@ const buildingCoordinatesMap = {
   "JMSB": { latitude: 45.4945, longitude: -73.5780 },
   "EV": { latitude: 45.4950, longitude: -73.5770 },
   "HALL": { latitude: 45.4960, longitude: -73.5760 },
+  //We need to add the coordinates for the other buildings
   // Add other building mappings as needed.
 };
 
