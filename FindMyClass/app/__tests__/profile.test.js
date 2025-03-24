@@ -58,6 +58,98 @@ describe('Profile Screen', () => {
     expect(getByText('Change Photo')).toBeTruthy();
   });
 
+  it('shows error when loading profile data fails', async () => {
+    AsyncStorage.getItem.mockRejectedValueOnce(new Error('Load error'));
+    const { getByText } = render(<Profile />);
+    
+    await waitFor(() => {
+      expect(getByText('Failed to load profile data')).toBeTruthy();
+    });
+  });
+  
+  it('initializes with default values when no profile exists', async () => {
+    AsyncStorage.getItem.mockResolvedValueOnce(null);
+    mockUseAuth.mockReturnValue({ 
+      user: { 
+        email: 'new@example.com', 
+        displayName: 'New User', 
+        uid: '123' 
+      } 
+    });
+  
+    const { getByText } = render(<Profile />);
+    await waitFor(() => {
+      expect(getByText('New User')).toBeTruthy();
+    });
+  });
+  
+  it('handles accessibility status changes correctly', () => {
+    const { getByText, getByTestId } = render(<Profile />);
+    fireEvent.press(getByText('Edit Profile'));
+    
+    const switchElement = getByTestId('accessibility-switch');
+    fireEvent(switchElement, 'valueChange', true);
+    
+    const visualButton = getByText('Visual');
+    fireEvent.press(visualButton);
+    
+    expect(visualButton.props.style).toContainEqual(
+      expect.objectContaining({ backgroundColor: '#f0e6e6' })
+    );
+  });
+  
+  it('shows confirmation when canceling edit with changes', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    const { getByText, getByPlaceholderText } = render(<Profile />);
+    
+    fireEvent.press(getByText('Edit Profile'));
+    fireEvent.changeText(getByPlaceholderText('Full Name'), 'Changed Name');
+    fireEvent.press(getByText('Cancel'));
+    
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Discard Changes',
+        'Are you sure you want to discard your changes?',
+        expect.any(Array)
+      );
+    });
+  });
+  
+  it('shows error when saving changes fails', async () => {
+    AsyncStorage.setItem.mockRejectedValueOnce(new Error('Save failed'));
+    const { getByText } = render(<Profile />);
+    
+    fireEvent.press(getByText('Edit Profile'));
+    fireEvent.press(getByText('Confirm Changes'));
+    
+    await waitFor(() => {
+      expect(getByText('Failed to save changes. Please try again.')).toBeTruthy();
+    });
+  });
+  
+  it('renders all accessibility options correctly', () => {
+    const { getByText, getByTestId } = render(<Profile />);
+    fireEvent.press(getByText('Edit Profile'));
+    
+    const switchElement = getByTestId('accessibility-switch');
+    fireEvent(switchElement, 'valueChange', true);
+    
+    expect(getByText('Mobility')).toBeTruthy();
+    expect(getByText('Visual')).toBeTruthy();
+    expect(getByText('Hearing')).toBeTruthy();
+  });
+  
+  it('shows loading indicator during save operation', async () => {
+    AsyncStorage.setItem.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    const { getByText, queryByTestId } = render(<Profile />);
+    
+    fireEvent.press(getByText('Edit Profile'));
+    fireEvent.press(getByText('Confirm Changes'));
+    
+    await waitFor(() => {
+      expect(queryByTestId('activity-indicator')).toBeTruthy();
+    });
+  });
 
   it('loads profile data from AsyncStorage on mount', async () => {
     const savedProfile = {
@@ -321,6 +413,94 @@ describe('Profile Screen', () => {
 
     await waitFor(() => {
       expect(getByText('Please enter a valid email address')).toBeTruthy();
+    });
+  });
+
+  it('handles error when loading profile data fails', async () => {
+    AsyncStorage.getItem.mockRejectedValueOnce(new Error('Failed to load data'));
+    const { getByText } = render(<Profile />);
+  
+    await waitFor(() => {
+      expect(getByText('Failed to load profile data')).toBeTruthy();
+    });
+  });
+
+  it('initializes profile data when no data is found in AsyncStorage', async () => {
+    AsyncStorage.getItem.mockResolvedValueOnce(null);
+    mockUseAuth.mockReturnValue({ user: { email: 'test@example.com', displayName: 'Test User', uid: '123' } });
+  
+    const { getByText } = render(<Profile />);
+    await waitFor(() => {
+      expect(getByText('Test User')).toBeTruthy();
+      expect(getByText('test@example.com')).toBeTruthy();
+    });
+  });
+
+  it('updates accessibility status correctly', () => {
+    const { getByText, getByTestId } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+  
+    const accessibilitySwitch = getByTestId('accessibility-switch');
+    fireEvent(accessibilitySwitch, 'valueChange', true);
+  
+    const mobilityButton = getByText('Mobility');
+    fireEvent.press(mobilityButton);
+  
+    expect(mobilityButton.props.style).toContainEqual(expect.objectContaining({ backgroundColor: '#f0e6e6' }));
+  });
+
+  it('shows confirmation dialog when canceling edit mode', async () => {
+    const { getByText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+  
+    const cancelButton = getByText('Cancel');
+    fireEvent.press(cancelButton);
+  
+    await waitFor(() => {
+      expect(getByText('Discard Changes')).toBeTruthy();
+    });
+  });
+
+  it('shows error message when saving profile changes fails', async () => {
+    AsyncStorage.setItem.mockRejectedValueOnce(new Error('Failed to save data'));
+    const { getByText } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+  
+    const confirmButton = getByText('Confirm Changes');
+    fireEvent.press(confirmButton);
+  
+    await waitFor(() => {
+      expect(getByText('Failed to save changes. Please try again.')).toBeTruthy();
+    });
+  });
+
+  it('renders accessibility options when accessibility is enabled', () => {
+    const { getByText, getByTestId } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+  
+    const accessibilitySwitch = getByTestId('accessibility-switch');
+    fireEvent(accessibilitySwitch, 'valueChange', true);
+  
+    expect(getByText('Select your accessibility needs:')).toBeTruthy();
+  });
+
+  it('saves profile changes with accessibility enabled', async () => {
+    const { getByText, getByTestId } = render(<Profile />);
+    const editButton = getByText('Edit Profile');
+    fireEvent.press(editButton);
+  
+    const accessibilitySwitch = getByTestId('accessibility-switch');
+    fireEvent(accessibilitySwitch, 'valueChange', true);
+  
+    const confirmButton = getByText('Confirm Changes');
+    fireEvent.press(confirmButton);
+  
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith('user_profile', expect.any(String));
     });
   });
 
