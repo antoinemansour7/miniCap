@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import fetchGoogleCalendars from '../api/fetchGoogleCalendars';
-import fetchGoogleCalendarEvents from '../api/googleCalendar';
+import fetchGoogleCalendars from './fetchGoogleCalendars';
+import fetchGoogleCalendarEvents from './googleCalendar';
 
 const CalendarSelection = () => {
   const [calendars, setCalendars] = useState([]);
