@@ -7,6 +7,7 @@ import BuildingMarker from './BuildingMarker';
 import SearchBar from './SearchBar';
 import mapStyles from './mapStyles';
 import useLocationHandler from '../hooks/useLocationHandler';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 
 
@@ -150,14 +151,15 @@ const BuildingMap = ({
     }
   };
   
-  // Focus directly on Hall Building with appropriate zoom level
-  const focusOnHallBuilding = () => {
-    if (mapRef.current && hallBuilding) {
+  
+  const focusOnBuilding = (building) => {
+    if (mapRef.current && building) {
+      const coord = getMarkerPosition(building);
       mapRef.current.animateToRegion({
-        latitude: hallBuilding.latitude,
-        longitude: hallBuilding.longitude,
-        latitudeDelta: 0.0005, // Zoomed in enough to show floor plan
-        longitudeDelta: 0.0005,
+        latitude: coord.latitude,
+        longitude: coord.longitude,
+        latitudeDelta: 0.001,
+        longitudeDelta: 0.001,
       });
     }
   };
@@ -216,7 +218,7 @@ const BuildingMap = ({
 
         {buildings.map((building) => {
           if (building.id === 'H') {
-            return zoomLevel <= 18  ? (
+            return zoomLevel   ? (
               <Polygon
                 //key={`${building.id}-${forceKey}`}
                 key={building.id}
@@ -225,7 +227,7 @@ const BuildingMap = ({
                 strokeColor="rgba(155, 27, 48, 0.8)"
                 strokeWidth={2}
                 tappable={true}
-                onPress={focusOnHallBuilding}
+                onPress={() => focusOnBuilding(building)}
                 zIndex={999}  
               />
             ) : null;
@@ -238,6 +240,8 @@ const BuildingMap = ({
                 position={getMarkerPosition(building)}
                 nearestBuilding={nearestBuilding}
                 zIndex={3}  
+                zoomLevel={zoomLevel}
+                focusOnBuilding={focusOnBuilding}
               />
             );
           }
