@@ -358,7 +358,7 @@ export default function DirectionsScreen() {
   };
 
   return (
-    <View style={stylesB.mainContainer} onLayout={() => setLayoutReady(true)} >
+    <View style={stylesB.mainContainer}  >
 
       <View style={stylesB.floatingContainer}> 
         {/* Place the LocationSelector ABOVE the MapView */}
@@ -380,7 +380,7 @@ export default function DirectionsScreen() {
           setDestinationName={setDestinationName}
           travelMode={travelMode}
           setTravelMode={setTravelMode}
-          setIsModalVisible={(val) => layoutReady && setIsModalVisible(val)}
+          setIsModalVisible={setIsModalVisible}
           setSearchType={setSearchType}
           updateRouteWithMode={updateRouteWithMode}
           updateRoute={updateRoute}
