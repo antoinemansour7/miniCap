@@ -130,7 +130,7 @@ const Chatbot = ({ isVisible, onClose }) => {
       finalUserInput = inputText;
     }
 
-    // 3) Build the conversation for OpenAI
+    // 3) Build the conversation for OpenAI, keeping track of conversation
     const conversation = [
       systemPrompt,
       ...messages.map(msg => ({
