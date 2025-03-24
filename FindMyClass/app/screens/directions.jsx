@@ -510,6 +510,7 @@ export default function DirectionsScreen() {
         <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
       )}
     </View>
+    </View>
   );
 }
 
