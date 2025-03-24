@@ -131,7 +131,6 @@ const path = finder.findPath(
        } else {
            try {
                parsedDestination = JSON.parse(params.destination);
-               console.log("Parsed destination:", parsedDestination);
            } catch (error) {
                console.error("Error parsing destination:", error);
                errorMessage = "Error: Invalid destination format.";
