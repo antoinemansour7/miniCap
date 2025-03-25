@@ -1,5 +1,20 @@
 import 'react-native-gesture-handler/jestSetup';
 
+// Firebase mocks
+jest.mock('firebase/app', () => ({
+  initializeApp: jest.fn(() => ({})),
+}));
+
+jest.mock('firebase/auth', () => ({
+  getAuth: jest.fn(() => ({})),
+  GoogleAuthProvider: {
+    credential: jest.fn(),
+  },
+  signInWithCredential: jest.fn(() =>
+    Promise.resolve({ user: { email: 'test@test.com', displayName: 'Test User' } })
+  ),
+}));
+
 // Mock `expo-font`
 jest.mock('expo-font', () => ({
   useFonts: () => [true, false], // Mock fonts as loaded
@@ -29,6 +44,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
+// Mocks for secrets
 jest.mock('../../app/secrets', () => ({
   googleAPIKey: 'test-google-api-key',
 }));

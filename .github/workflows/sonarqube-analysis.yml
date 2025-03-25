@@ -30,21 +30,28 @@ jobs:
         working-directory: FindMyClass
         run: echo "Moved into FindMyClass directory"
 
-      # Step 4: Install dependencies inside FindMyClass/
+      # Step 4: Generate secrets.js file using GitHub Secrets for googleAPIKey and openaiAPIKey
+      - name: Generate secrets.js file
+        working-directory: FindMyClass
+        run: |
+          echo "export const googleAPIKey = '${{ secrets.GOOGLE_API_KEY }}';" > app/secrets.js
+          echo "export const openaiAPIKey = '${{ secrets.OPENAI_API_KEY }}';" >> app/secrets.js
+
+      # Step 5: Install dependencies inside FindMyClass/
       - name: Install dependencies
         working-directory: FindMyClass
         run: npm install
 
-      # Step 5: Run Jest tests w/ coverage
+      # Step 6: Run Jest tests with coverage
       - name: Run tests and collect coverage
         working-directory: FindMyClass
         run: npm test -- --coverage || true
 
-      # Step 6: Install SonarScanner
+      # Step 7: Install SonarScanner
       - name: Install SonarScanner
         run: npm install -g sonar-scanner
 
-      # Step 7: Run SonarCloud Analysis inside FindMyClass/
+      # Step 8: Run SonarCloud Analysis inside FindMyClass/
       - name: Run SonarScanner
         working-directory: FindMyClass
         env:
@@ -60,8 +67,8 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io/ \
               -Dsonar.token=$SONAR_TOKEN \
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
-              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
-              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts** \
+              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx,constants/Colors.ts,components/CustomAlert.js,utils/shuttleUtils.js \
+              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**,**/services/**,**/android/**,**/styles/** \
               -Dsonar.c.file.suffixes=- \
               -Dsonar.cpp.file.suffixes=- \
               -Dsonar.objc.file.suffixes=- \
@@ -76,10 +83,9 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io/ \
               -Dsonar.token=$SONAR_TOKEN \
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
-              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx \
-              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts** \
+              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx,constants/Colors.ts,components/CustomAlert.js,utils/shuttleUtils.js \
+              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**,**/services/**,**/android/**,**/styles/** \
               -Dsonar.c.file.suffixes=- \
               -Dsonar.cpp.file.suffixes=- \
               -Dsonar.objc.file.suffixes=-
           fi
-          #

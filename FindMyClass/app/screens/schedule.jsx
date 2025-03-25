@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,66 +10,197 @@ import {
   Dimensions,
   Animated,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getAuth } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import fetchGoogleCalendarEvents from '../api/googleCalendar';
+import { useAuth } from '../../contexts/AuthContext';
+import CustomModal from '../../components/CustomModal';
 
 const { width } = Dimensions.get('window');
-const TOTAL_COLUMNS = 6; // 1 time column + 5 day columns
-const CELL_WIDTH = (width - 32) / TOTAL_COLUMNS; // Accounting for container padding
-const TIME_COLUMN_WIDTH = CELL_WIDTH;
+
+// We have 1 column for Time + 5 columns for Mon-Fri = 6 total
+const TOTAL_COLUMNS = 6;
+const CELL_WIDTH = (width - 32) / TOTAL_COLUMNS; // 32 = horizontal padding/margins if desired
+const TIME_COLUMN_WIDTH = CELL_WIDTH; 
 const BORDER_RADIUS = 12;
+const CELL_HEIGHT = 50;
 
 export default function Schedule() {
+  const { user } = useAuth();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isEditMode, setIsEditMode] = useState(false);
+
+  const [events, setEvents] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSynced, setLastSynced] = useState(null);
+ 
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventModalVisible, setEventModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    type: 'error',
+    message: 'Please sign in with Google to sync your schedule.',
+    title: 'Google Login Required'
+  });
 
   // Animation values
   const addButtonAnim = useRef(new Animated.Value(0)).current;
   const deleteButtonAnim = useRef(new Animated.Value(0)).current;
-  const editButtonRotation = useRef(new Animated.Value(0)).current;
 
-  // Time slots with half-hour intervals from 8:00 to 22:00
-  const timeSlots = Array.from({ length: 29 }, (_, i) => {
-    const hour = Math.floor(i / 2) + 8;
-    const minute = i % 2 === 0 ? '00' : '30';
-    return `${hour.toString().padStart(2, '0')}:${minute}`;
+
+  // One-hour intervals from 8:00 to 22:00
+  const timeSlots = Array.from({ length: 15 }, (_, i) => {   // 15 slots from 8:00 to 22:00
+    const hour = i + 8;
+    return `${hour.toString().padStart(2, '0')}:00`;
   });
 
-  // Days of the week
+  // Monday–Friday
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
-  const toggleEditMode = () => {
-    const toValue = isEditMode ? 0 : 1;
-
-    // Animate the buttons
-    Animated.parallel([
-      Animated.spring(addButtonAnim, {
-        toValue,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-      Animated.spring(deleteButtonAnim, {
-        toValue,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-      Animated.spring(editButtonRotation, {
-        toValue,
-        friction: 6,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setIsEditMode(!isEditMode);
-  };
-
+  // Close search modal
   const closeSearch = () => {
     setIsSearchOpen(false);
     setSearchQuery('');
   };
 
-  // Transform animations
+  // Handle calendar sync
+  const handleSync = async () => {
+    const auth = getAuth();
+    if (!auth.currentUser) {
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        title: 'Authentication Required',
+        message: 'Please sign in to sync your calendar.'
+      });
+      await AsyncStorage.removeItem("googleAccessToken");
+      return;
+    }
+    const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
+    if (!googleAccessToken) {
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        title: 'Google Login Required',
+        message: 'Please sign in with Google to sync your schedule.'
+      });
+      return;
+    }
+    setIsSyncing(true);
+    try {
+      const fetchedEvents = await fetchGoogleCalendarEvents();
+      setEvents(fetchedEvents || []);
+      setLastSynced(new Date());
+      setModalConfig({
+        visible: true,
+        type: 'success',
+        title: 'Sync Complete',
+        message: 'Your calendar has been successfully synchronized.'
+      });
+    } catch (error) {
+      console.error("Sync failed:", error);
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        title: 'Sync Failed',
+        message: error.message || 'Failed to sync calendar. Please try again.'
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Clear events if user logs out
+  useEffect(() => {
+    if (!user) {
+      setEvents([]);
+      setLastSynced(null);
+      AsyncStorage.removeItem("googleAccessToken");
+    }
+  }, [user]);
+
+  // Header row for days
+  const renderHeader = () => (
+    <View style={styles.headerRow}>
+      {/* Leftmost cell: "Time" label */}
+      <View style={[styles.timeColumn, styles.headerCell]}>
+        <Text style={styles.headerText}>Time</Text>
+      </View>
+      {/* Monday–Friday */}
+      {days.map((day, index) => (
+        <View key={day} style={[styles.dayColumn, styles.headerCell]}>
+          <Text style={styles.headerText}>{day}</Text>
+        </View>
+      ))}
+    </View>
+  );
+
+  // Render each time row
+  const renderRow = ({ item: time, index: timeIndex }) => (
+    <View style={styles.row}>
+      {/* Leftmost cell: time label */}
+      <View style={styles.timeColumn}>
+        <Text style={styles.timeText}>{time}</Text>
+      </View>
+      {/* Cells for Mon–Fri */}
+      {days.map((day, dayIndex) => (
+        <View key={`${day}-${time}`} style={styles.cell} />
+      ))}
+    </View>
+  );
+
+  // New handler to open event details modal
+  const handleEventPress = (event) => {
+    setSelectedEvent(event);
+    setEventModalVisible(true);
+  };
+
+  // Render event boxes on top of the grid
+  const renderEventsOverlay = () => (
+    <View style={styles.eventsOverlay}>
+      {events.map((event) => {
+        const startDate = new Date(event.start.dateTime || event.start.date);
+        const endDate = new Date(event.end.dateTime || event.end.date);
+
+        // Calculate event duration in hours and then height using CELL_HEIGHT
+        const durationHours = (endDate - startDate) / (1000 * 60 * 60);
+        const eventHeight = Math.max(durationHours * CELL_HEIGHT, CELL_HEIGHT); // minimum one cell
+
+        // Calculate top offset: time from 8:00 multiplied by CELL_HEIGHT
+        const timeFrom8 = startDate.getHours() + startDate.getMinutes() / 60 - 8;
+        // New fixed offset (adjust as desired)
+        const EVENT_OFFSET = 36;
+        const topPosition = timeFrom8 * CELL_HEIGHT + EVENT_OFFSET;
+
+        // Calculate horizontal offset (Monday = index 0)
+        const dayIndex = startDate.getDay() - 1;
+        if (dayIndex < 0 || dayIndex >= days.length) return null;
+        const leftPosition = TIME_COLUMN_WIDTH + dayIndex * CELL_WIDTH;
+
+        return (
+          <TouchableOpacity 
+            key={event.id || `${event.summary}-${event.start.dateTime || event.start.date}`} 
+            onPress={() => handleEventPress(event)}>
+            <View
+              style={[
+                styles.eventBox,
+                { top: topPosition, left: leftPosition, width: CELL_WIDTH, height: eventHeight },
+              ]}
+            >
+              <Text style={styles.eventBoxText} numberOfLines={2}>
+                {event.summary}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+
+  // Animations for floating buttons
   const addButtonTransform = {
     transform: [
       {
@@ -94,78 +225,55 @@ export default function Schedule() {
     opacity: deleteButtonAnim,
   };
 
-  const editButtonSpin = editButtonRotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '45deg'],
-  });
-
-  // Render the header row
-  const renderHeader = () => (
-    <View style={[styles.header, styles.roundedTop]}>
-      <View style={[styles.timeColumn, styles.roundedTopLeft]}>
-        <Text style={styles.headerText}>Time</Text>
-      </View>
-      {days.map((day, index) => (
-        <View
-          key={day}
-          style={[
-            styles.dayColumn,
-            index === days.length - 1 && styles.roundedTopRight,
-          ]}
-        >
-          <Text style={styles.dayText}>{day}</Text>
-        </View>
-      ))}
-    </View>
-  );
-
-  // Render each row in the grid
-  const renderRow = ({ item: time, index: timeIndex }) => (
-    <View
-      style={[
-        styles.row,
-        timeIndex === timeSlots.length - 1 && styles.lastRow,
-      ]}
-    >
-      <View
-        style={[
-          styles.timeColumn,
-          timeIndex === timeSlots.length - 1 && styles.roundedBottomLeft,
-        ]}
-      >
-        <Text style={styles.timeText}>{time}</Text>
-      </View>
-      {days.map((day, dayIndex) => (
-        <TouchableOpacity
-          key={`${day}-${time}`}
-          testID={`schedule-cell-${day}-${time}`} // ✅ Added testID for testing
-          style={[
-            styles.cell,
-            dayIndex === days.length - 1 && styles.lastColumnCell,
-            timeIndex === timeSlots.length - 1 &&
-              dayIndex === days.length - 1 &&
-              styles.roundedBottomRight,
-          ]}
-          onPress={() => setIsSearchOpen(true)}
-        />
-      ))}
-    </View>
-  );
-
   return (
     <View style={styles.container}>
-      {/* Schedule Grid */}
-      <FlatList
-        data={timeSlots}
-        renderItem={renderRow}
-        keyExtractor={(item) => item}
-        ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.gridWrapper}
+      {/* Replace the old Modal with CustomModal */}
+      <CustomModal
+        visible={modalConfig.visible}
+        onClose={() => setModalConfig(prev => ({ ...prev, visible: false }))}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        message={modalConfig.message}
       />
 
-      {/* Action Buttons */}
+      {/* Sync Header */}
+      <View style={styles.syncHeader}>
+        <TouchableOpacity
+          style={styles.syncButton}
+          onPress={handleSync}
+          disabled={isSyncing}
+        >
+          {isSyncing ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.syncButtonText}>Sync Calendar</Text>
+          )}
+        </TouchableOpacity>
+        {lastSynced && (
+          <Text style={styles.lastSyncedText}>
+            Last synced: {lastSynced.toLocaleTimeString()}
+          </Text>
+        )}
+      </View>
+
+      {/* Grid + events overlay */}
+      <View style={{ flex: 1 }}>
+        {/* Absolute events overlay on top of the FlatList */}
+        {renderEventsOverlay()}
+        <FlatList
+          data={timeSlots}
+          renderItem={renderRow}
+          keyExtractor={(item) => item}
+          ListHeaderComponent={renderHeader}
+          // Make the header row “sticky” at the top if desired:
+          stickyHeaderIndices={[0]}
+          contentContainerStyle={styles.gridContent}
+        />
+      </View>
+
+      {/* Floating action buttons */}
       <Animated.View style={[styles.floatingButton, styles.addButton, addButtonTransform]}>
-        <TouchableOpacity testID="add-button" onPress={() => setIsSearchOpen(true)}> {/* ✅ Added testID */}
+        <TouchableOpacity testID="add-button" onPress={() => setIsSearchOpen(true)}>
           <MaterialIcons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
@@ -175,16 +283,6 @@ export default function Schedule() {
           <MaterialIcons name="delete" size={24} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
-
-      <TouchableOpacity
-        testID="edit-button" // ✅ Added testID
-        style={styles.editButton}
-        onPress={toggleEditMode}
-      >
-        <Animated.View style={{ transform: [{ rotate: editButtonSpin }] }}>
-          <MaterialIcons name="edit" size={24} color="#912338" />
-        </Animated.View>
-      </TouchableOpacity>
 
       {/* Search Modal */}
       <Modal
@@ -199,14 +297,14 @@ export default function Schedule() {
               <View style={styles.searchContainer}>
                 <View style={styles.searchHeader}>
                   <Text style={styles.searchTitle}>Add Class</Text>
-                  <TouchableOpacity testID="close-search-modal" onPress={closeSearch}> {/* ✅ Added testID */}
+                  <TouchableOpacity testID="close-search-modal" onPress={closeSearch}>
                     <MaterialIcons name="close" size={24} color="#666" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.searchInputContainer}>
                   <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
                   <TextInput
-                    testID="search-input" // ✅ Added testID
+                    testID="search-input"
                     style={styles.searchInput}
                     placeholder="Search for a class..."
                     value={searchQuery}
@@ -215,8 +313,47 @@ export default function Schedule() {
                   />
                 </View>
                 <View style={styles.searchResults}>
-                  {/* Search results will go here */}
+                  {/* Search results here */}
                 </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* New Modal for event details */}
+      <Modal
+        visible={eventModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setEventModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setEventModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContainer}>
+                {selectedEvent && (
+                  <>
+                    <Text style={styles.modalTitle}>{selectedEvent.summary}</Text>
+                    <Text style={styles.modalMessage}>
+                      Start: {new Date(selectedEvent.start.dateTime || selectedEvent.start.date).toLocaleString()}
+                    </Text>
+                    <Text style={styles.modalMessage}>
+                      End: {new Date(selectedEvent.end.dateTime || selectedEvent.end.date).toLocaleString()}
+                    </Text>
+                    {selectedEvent.location && (
+                      <Text style={styles.modalMessage}>
+                        Location: {selectedEvent.location}
+                      </Text>
+                    )}
+                  </>
+                )}
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setEventModalVisible(false)}
+                >
+                  <Text style={styles.modalButtonText}>Close</Text>
+                </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -230,154 +367,174 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    width: '100%',
   },
-  gridWrapper: {
-    width: width - 32,
-    borderRadius: BORDER_RADIUS,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#fff',
-    marginBottom: 100,
-  },
-  header: {
+  syncHeader: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  syncButton: {
+    backgroundColor: '#912338',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  syncButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  lastSyncedText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  gridContent: {
+    paddingBottom: 100, // Extra space if you have floating buttons
+  },
+  headerRow: {
+    flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    backgroundColor: '#f8f8f8',
+    borderColor: '#ccc',
   },
-  roundedTop: {
-    borderTopLeftRadius: BORDER_RADIUS,
-    borderTopRightRadius: BORDER_RADIUS,
-  },
-  roundedTopLeft: {
-    borderTopLeftRadius: BORDER_RADIUS,
-  },
-  roundedTopRight: {
-    borderTopRightRadius: BORDER_RADIUS,
-  },
-  roundedBottomLeft: {
-    borderBottomLeftRadius: BORDER_RADIUS,
-  },
-  roundedBottomRight: {
-    borderBottomRightRadius: BORDER_RADIUS,
-  },
-  timeColumn: {
-    width: TIME_COLUMN_WIDTH,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRightWidth: 1,
-    borderRightColor: '#e0e0e0',
-  },
-  dayColumn: {
-    width: CELL_WIDTH,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRightWidth: 1,
-    borderRightColor: '#e0e0e0',
-  },
-  headerText: {
-    fontWeight: '600',
-    color: '#333',
-    fontSize: 14,
-  },
-  dayText: {
-    fontWeight: '600',
-    color: '#333',
-    fontSize: 14,
+  headerCell: {
+    paddingVertical: 10,
   },
   row: {
     flexDirection: 'row',
-    height: 60,
-    width: '100%',
+    minHeight: 50,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
   },
-  lastRow: {
-    borderBottomWidth: 0,
+  timeColumn: {
+    width: TIME_COLUMN_WIDTH,
+    borderRightWidth: 1,
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5,
+  },
+  dayColumn: {
+    width: CELL_WIDTH,
+    borderRightWidth: 1,
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cell: {
     width: CELL_WIDTH,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
     borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#fff',
-  },
-  lastColumnCell: {
-    borderRightWidth: 0,
+    borderColor: '#eee',
   },
   timeText: {
     fontSize: 12,
     color: '#666',
-    textAlign: 'center',
   },
+  headerText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
+  // Events overlay
+  eventsOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999, // Added zIndex to ensure overlay is on top
+  },
+  eventBox: {
+    position: 'absolute',
+    backgroundColor: '#912338',
+    borderRadius: 6,
+    padding: 4,
+    overflow: 'hidden',
+  },
+  eventBoxText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+
+  // Floating buttons
   floatingButton: {
     position: 'absolute',
+    bottom: 20,
     right: 20,
+    backgroundColor: '#912338',
     width: 50,
     height: 50,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    zIndex: 10,
   },
   addButton: {
-    backgroundColor: '#4CAF50',
-    bottom: 20,
+    // will animate upward
   },
   deleteButton: {
-    backgroundColor: '#F44336',
-    bottom: 20,
+    // will animate upward
   },
-  editButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    backgroundColor: '#fff',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+
+  // Modals
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
+  modalContainer: {
+    backgroundColor: '#fff',
+    width: '80%',
+    padding: 20,
+    borderRadius: 8,
+    alignItems: 'center', // Center content horizontally
+    justifyContent: 'center', // Center content vertically
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center', // Center title text
+  },
+  modalMessage: {
+    fontSize: 16,
+    marginBottom: 5,
+    textAlign: 'center', // Center message text
+  },
+  modalButton: {
+    backgroundColor: '#912338',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    marginTop: 15,
+    alignSelf: 'center', // Center button horizontally
+  },
+  modalButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center', // Added to center the pop-up
+    padding: 20,
   },
   searchContainer: {
-    width: '90%',
-    maxHeight: '70%',
     backgroundColor: '#fff',
-    borderRadius: BORDER_RADIUS,
-    padding: 20,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    borderRadius: 8,
+    padding: 16,
   },
   searchHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
   },
   searchTitle: {
     fontSize: 18,
@@ -386,20 +543,20 @@ const styles = StyleSheet.create({
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f2f2f2',
     borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
+    marginTop: 10,
+    paddingHorizontal: 8,
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: 5,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    color: '#333',
+    paddingVertical: 8,
   },
   searchResults: {
-    flex: 1,
+    marginTop: 16,
   },
+ 
 });
