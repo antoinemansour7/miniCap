@@ -1,7 +1,11 @@
+import  SGWBuildings  from "../../components/SGWBuildings";
+
+const hallBuilding = SGWBuildings.find(building => building.id === "H");
 // Building configuration
 const BUILDING_CONFIG = {
   buildingName: "Hall Building",
   building: "H",
+  object: hallBuilding,
 };
 
 const hallBuildingFloors = {
@@ -444,8 +448,8 @@ const hallBuildingFloors = {
             location: { x: 4, y: 0 },
         },
         {
-            id: "H-961.30",
-            name: "H-961.30",
+            id: "H-961.28",
+            name: "H-961.28",
             location: { x: 4, y: 2 },
         },
         {
@@ -936,7 +940,8 @@ const getAllRoomsHall = () => {
     return rooms.map(room => ({
       ...room,
       building: BUILDING_CONFIG.building,
-      buildingName: BUILDING_CONFIG.buildingName
+      buildingName: BUILDING_CONFIG.buildingName,
+      object: BUILDING_CONFIG.object,
     }));
   });
 };

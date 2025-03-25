@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, FlatList, Modal, StyleSheet, StyleSheet, Image } from 'react-native';
-import MapView, { Marker, Polygon, Polygon, Overlay } from 'react-native-maps';
+import { View, Text, TouchableOpacity, ScrollView, FlatList, Modal, StyleSheet, Image } from 'react-native';
+import MapView, { Marker, Polygon, Overlay } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import mapStyles from './mapStyles';
@@ -116,15 +116,17 @@ export default function BuildingMap({
       if (building){ 
         if (building.building) {
           console.log("Room searched: ",building);
+          setRoom(building);
           setClassroomLocation({
             xcoord: building.location.x,
             ycoord: building.location.y
           });
-          setClassroomCoordinates(getExactCoordinates(building.location.x, building.location.y));
-          console.log("Classroom coordinates: ", getExactCoordinates(building.location.x, building.location.y));
+          const coordinates = getExactCoordinates(building.location.x, building.location.y);
+          setClassroomCoordinates(coordinates);
+          console.log("Classroom coordinates: ", coordinates);
           setSelectedFloor(getFloorNumber(building.id));
           console.log("Selected floor: ", getFloorNumber(building.id));
-          setRoom(building);
+          focusOnBuilding(building.object);
         }
         else {
           setRoom(null);
@@ -133,6 +135,14 @@ export default function BuildingMap({
       }}
     }
   }, [searchText]);
+
+  // useEffect to track focus on the building containing the searched room
+  // useEffect(() => {
+  //   if (room != null && clasroomCoordinates != null) {
+  //     zoomToPlace(clasroomCoordinates);
+  //   }
+
+  // }, [clasroomCoordinates]);
 
   // Request location and heading permissions
   useEffect(() => {
@@ -286,23 +296,23 @@ export default function BuildingMap({
     </TouchableOpacity>
   );
 
-  useEffect(() => {
-    if (!searchText) return;
+  // useEffect(() => {
+  //   if (!searchText) return;
 
-    const building = buildings.find((b) =>
-      b.name.toLowerCase().includes(searchText.toLowerCase())
-    );
+  //   const building = buildings.find((b) =>
+  //     b.name.toLowerCase().includes(searchText.toLowerCase())
+  //   );
 
-    if (building && mapRef.current) {
-      const coords = searchCoordinates(building);
-      mapRef.current.animateToRegion({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        latitudeDelta: recenterDeltaUser.latitudeDelta,
-        longitudeDelta: recenterDeltaUser.longitudeDelta,
-      });
-    }
-  }, [searchText]);
+  //   if (building && mapRef.current) {
+  //     const coords = searchCoordinates(building);
+  //     mapRef.current.animateToRegion({
+  //       latitude: coords.latitude,
+  //       longitude: coords.longitude,
+  //       latitudeDelta: recenterDeltaUser.latitudeDelta,
+  //       longitudeDelta: recenterDeltaUser.longitudeDelta,
+  //     });
+  //   }
+  // }, [searchText]);
 
   const getPlaceIcon = (types) => {
     if (types.includes('restaurant')) return '🍽️';
@@ -396,7 +406,7 @@ export default function BuildingMap({
         {/* Floor Plan Overlay - Should be rendered first with lowest zIndex */}
         {hallBuilding && bounds &&   (
           <View 
-            style={{opacity: zoomLevel <= 18 ? 0.5 : 1 }}
+            style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
           >
 
             <Overlay 
@@ -468,6 +478,7 @@ export default function BuildingMap({
             router={router}
             position={getMarkerPosition(building)}
             nearestBuilding={nearestBuilding}
+            focusOnBuilding={focusOnBuilding}
           />
         ))}
 
@@ -496,7 +507,7 @@ export default function BuildingMap({
           </Marker>
         ))}
 
-{ room != null &&
+            { room != null &&
             (<Marker 
               coordinate={clasroomCoordinates}
               title={room.name}
