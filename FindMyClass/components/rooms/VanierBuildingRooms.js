@@ -399,18 +399,18 @@ const vanierLibraryFloors = {
 };
 
 // Helper function to get rooms by floor
-const getRoomsByFloorHall = (floorNumber) => {
-  return hallBuildingFloors[floorNumber]?.rooms || [];
+const getRoomsByFloorVanier = (floorNumber) => {
+  return vanierLibraryFloors[floorNumber]?.rooms || [];
 };
 
 // Helper function to get start location for a floor
-const getStartLocationHall = (floorNumber) => {
-  return hallBuildingFloors[floorNumber]?.startLocation || null;
+const getStartLocationVanier = (floorNumber) => {
+  return vanierLibraryFloors[floorNumber]?.startLocation || null;
 };
 
 // Modified getAllRooms function to automatically add building info
-const getAllRoomsHall = () => {
-  return Object.values(hallBuildingFloors).flatMap(floor => {
+const getAllRoomsVanier = () => {
+  return Object.values(vanierLibraryFloors).flatMap(floor => {
     const rooms = floor.rooms || [];
     // Add building information to each room
     return rooms.map(room => ({
@@ -424,8 +424,8 @@ const getAllRoomsHall = () => {
 
 export {
   BUILDING_CONFIG,
-  hallBuildingFloors,
-  getRoomsByFloorHall,
-  getStartLocationHall,
-  getAllRoomsHall
+  vanierLibraryFloors,
+  getRoomsByFloorVanier,
+  getStartLocationVanier,
+  getAllRoomsVanier
 };
