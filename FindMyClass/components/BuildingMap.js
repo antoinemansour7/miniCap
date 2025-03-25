@@ -17,7 +17,7 @@ import { getExactCoordinates, getFloorNumber } from '../utils/indoorUtils';
 const floorPlans = {
   1: require('../floorPlans/hall-1-rotated.png'),
   2: require('../floorPlans/Hall-2.png'),
-  8: require('../floorPlans//Hall-8.png'),
+  8: require('../floorPlans/Hall-8.png'),
   9: require('../floorPlans/Hall-9.png')
 };
 import { googleAPIKey } from '../app/secrets';
@@ -136,13 +136,6 @@ export default function BuildingMap({
     }
   }, [searchText]);
 
-  // useEffect to track focus on the building containing the searched room
-  // useEffect(() => {
-  //   if (room != null && clasroomCoordinates != null) {
-  //     zoomToPlace(clasroomCoordinates);
-  //   }
-
-  // }, [clasroomCoordinates]);
 
   // Request location and heading permissions
   useEffect(() => {
@@ -403,8 +396,8 @@ export default function BuildingMap({
         }}
         onRegionChange={onRegionChange}
       >
-        {/* Floor Plan Overlay - Should be rendered first with lowest zIndex */}
-        {hallBuilding && bounds &&   (
+        {/* Update the Floor Plan Overlay rendering */}
+          {hallBuilding && bounds && (
           <View 
             style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
           >
@@ -417,8 +410,7 @@ export default function BuildingMap({
               image={floorPlans[selectedFloor]}
               zIndex={1}
             />
-          </View>
-        )}
+          </View> )}
 
         {buildings.map((building) => {
    
@@ -513,7 +505,7 @@ export default function BuildingMap({
               title={room.name}
               pinColor="#912338"
               />)
-                          }
+                }
       </MapView>
       
       {/* Floor Selector - Only visible when zoomed in on Hall Building */}
