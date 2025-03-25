@@ -406,4 +406,38 @@ const jmsbBuildingFloors = {
 
     }
 
+
 }
+
+// Helper function to get rooms by floor
+const getRoomsByFloorJSMB = (floorNumber) => {
+    return JSMBBuildingFloors[floorNumber]?.rooms || [];
+  };
+  
+  // Helper function to get start location for a floor
+    const getStartLocationJSMB = (floorNumber) => {
+    return JSMBBuildingFloors[floorNumber]?.startLocation || null;
+  };
+  
+  // Modified getAllRooms function to automatically add building info
+  const getAllRoomsJSMB = () => {
+    return Object.values(JSMBBuildingFloors).flatMap(floor => {
+      const rooms = floor.rooms || [];
+      // Add building information to each room
+      return rooms.map(room => ({
+        ...room,
+        building: BUILDING_CONFIG.building,
+        buildingName: BUILDING_CONFIG.buildingName,
+        object: BUILDING_CONFIG.object,
+      }));
+    });
+  };
+  
+  export {
+    BUILDING_CONFIG,
+    JSMBBuildingFloors,
+    getRoomsByFloorJSMB,
+    getStartLocationJSMB,
+    getAllRoomsJSMB
+  };
+    
