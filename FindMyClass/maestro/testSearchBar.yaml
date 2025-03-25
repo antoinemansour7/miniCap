@@ -1,0 +1,22 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+# Tap the menu button to open navigation
+
+- tapOn: "SGW Campus"
+
+- tapOn: "📍"
+
+- tapOn:
+    id: "search-input"
+
+- inputText: "H"
+
+- tapOn: "Hall Building"
+
+- assertVisible: "Hall Building"

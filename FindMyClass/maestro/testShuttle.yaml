@@ -1,0 +1,39 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+- tapOn: "Loyola Campus"
+
+- tapOn: "Richard J Renaud Science Complex"
+
+- tapOn: "Directions"
+
+
+
+
+
+- extendedWaitUntil:
+    notVisible: "Loading route..." # or any other selector
+    timeout: 15000      # Timeout in milliseconds
+
+- tapOn: "Shuttle"
+
+- waitForAnimationToEnd
+
+- assertVisible: "Shuttle service is only available between Loyola and SGW campuses."
+
+- tapOn: "OK"
+
+- tapOn:
+    point: "93%,11%"
+
+- tapOn:
+    point: "25%,50%"
+
+
+
+- assertNotVisible: "Start"
