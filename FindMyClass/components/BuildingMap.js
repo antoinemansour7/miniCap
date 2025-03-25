@@ -15,7 +15,7 @@ import { getExactCoordinates, getFloorNumber } from '../utils/indoorUtils';
 
 // Define paths to floor plan images/SVGs
 const floorPlans = {
-  1: require('../floorPlans/hall-1-rotated.png'),
+  1: require('../floorPlans/Hall-1.png'),
   2: require('../floorPlans/Hall-2.png'),
   8: require('../floorPlans/Hall-8.png'),
   9: require('../floorPlans/Hall-9.png')
