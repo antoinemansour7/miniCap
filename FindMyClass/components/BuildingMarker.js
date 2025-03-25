@@ -78,7 +78,7 @@ const BuildingMarker = ({ building, router, position, nearestBuilding, focusOnBu
         coordinate={position}
         title={building.name}
         pinColor={isUserInside ? highlightPinColor : undefined}
-                onPress={() => focusOnBuilding(building)}
+        onPress={() => focusOnBuilding(building)}
       >
         <Callout>
           <CalloutContent
@@ -98,7 +98,7 @@ const BuildingMarker = ({ building, router, position, nearestBuilding, focusOnBu
           strokeColor={isUserInside ? highlightStrokeColor : defaultStrokeColor}
           fillColor={isUserInside ? highlightFillColor : defaultFillColor}
           strokeWidth={2}
-                    onPress={() => focusOnBuilding(building)}
+          onPress={() => focusOnBuilding(building)}
         />
       )}
     </>
