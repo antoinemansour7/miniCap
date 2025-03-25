@@ -165,6 +165,11 @@ const hallBuildingFloors = {
         {
             id: "H-845",
             name: "H-845",
+            location: { x: 2, y: 5 },
+        },
+        {
+            id: "H-847",
+            name: "H-847",
             location: { x: 2, y: 3 },
         },
         {
