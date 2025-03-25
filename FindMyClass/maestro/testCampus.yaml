@@ -1,0 +1,39 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+- tapOn: "Loyola Campus"
+
+- tapOn: "Richard J Renaud Science Complex"
+
+- assertVisible: "Richard J Renaud Science Complex"
+
+- tapOn: "Centre for Structural and Functional Genomics"
+
+- assertVisible: "Centre for Structural and Functional Genomics"
+
+- tapOn: "Psychology Building"
+
+- assertVisible: "Psychology Building"
+
+- tapOn: "F.C. Smith Building"
+
+- assertVisible: "Directions"
+
+- tapOn: "SGW Campus"
+
+- tapOn: "Hall Building"
+
+- assertVisible: "Hall Building"
+
+- tapOn: "Webster Library, Concordia University"
+
+- assertVisible: "Webster Library, Concordia University"
+
+- tapOn: "EV - Engineering, Computer Science and Visual Arts Integrated Complex"
+
+- assertVisible: "Directions"

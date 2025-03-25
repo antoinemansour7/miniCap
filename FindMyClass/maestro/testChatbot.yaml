@@ -1,0 +1,25 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+- tapOn:
+    id: "menu-button"
+
+- tapOn: "Map"
+
+- tapOn:
+    id: "chat-button"
+
+- tapOn: "Type your message..."
+
+- inputText: "Hi"
+
+- tapOn: "Send"
+
+- waitForAnimationToEnd
+
+- assertVisible: "Hello! How can I assist you today?"

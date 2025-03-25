@@ -52,11 +52,14 @@ const LocationSelector = ({
         LoyolaCampus: { latitude: 45.458424, longitude: -73.640259 }
     };
 
+    const showModal = () => setTimeout(() => setIsModalVisible(true), 1);
+
+
     const handleStartLocationChange =  async (item) => {
             setSelectedStart(item.value);
             if (item.value === 'custom') {  
                 setSearchType("START");
-                setIsModalVisible(true);
+                showModal();
             } else {
                 let newStartLocation;
                 switch(item.value) {
@@ -101,7 +104,7 @@ const LocationSelector = ({
                 setSelectedDest(item.value);
                 if (item.value === 'custom') {
                     setSearchType("DESTINATION");
-                    setIsModalVisible(true);
+                    showModal();
                 } else {
                     if (item.value !== 'custom') {
                         setRoom(null);
