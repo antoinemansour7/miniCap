@@ -77,17 +77,27 @@ export default function Profile() {
         </View>
       )}
       <View style={styles.profileCard}>
-        <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
-          {profilePicture ? (
-            <Image source={{ uri: profilePicture }} style={styles.profileImage} />
-          ) : (
-            <View style={styles.placeholder}>
-              <Text style={styles.placeholderText}>Add Photo</Text>
-            </View>
-          )}
-          <Text style={styles.changeText}>Change Photo</Text>
-        </TouchableOpacity>
-        <Text style={styles.userText}>Welcome, {user.email}</Text>
+        {/* Render Google photo if available, otherwise allow image picking */}
+        {user.photoURL ? (
+          <>
+            <Image source={{ uri: user.photoURL }} style={styles.profileImage} />
+            <Text style={styles.changeText}>Google Account Photo</Text>
+          </>
+        ) : (
+          <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
+            {profilePicture ? (
+              <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+            ) : (
+              <View style={styles.placeholder}>
+                <Text style={styles.placeholderText}>Add Photo</Text>
+              </View>
+            )}
+            <Text style={styles.changeText}>Change Photo</Text>
+          </TouchableOpacity>
+        )}
+        <Text style={styles.userText}>
+          Welcome, {user.displayName ? user.displayName : user.email}
+        </Text>
         {/* New button for viewing schedule */}
         <TouchableOpacity style={styles.scheduleButton} onPress={() => router.push('/screens/schedule')}>
           <Text style={styles.scheduleButtonText}>View My Schedule</Text>
