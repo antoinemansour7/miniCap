@@ -22,13 +22,13 @@ const jmsbBuildingFloors = {
       
         rooms: [
   
-          {
-              id: "MB1.115",
-              name: "MB1.115",
-              location: { x: 13, y: 16 },
-          },
+        {
+            id: "MB1.115",
+            name: "MB1.115",
+            location: { x: 13, y: 16 },
+        },
 
-          {
+        {
             id: "MB1.204",
             name: "MB1.204",
             location: { x: 8, y: 0 },
@@ -99,8 +99,6 @@ const jmsbBuildingFloors = {
             name: "MB1.494",
             location: { x: 15, y: 15 },
         },
-
-
 
 
         ],
