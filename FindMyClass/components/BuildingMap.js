@@ -161,6 +161,7 @@ export default function BuildingMap({
           setClassroomCoordinates(coordinates);
           console.log("Classroom coordinates: ", coordinates);
           setSelectedFloor(getFloorNumber(building.id));
+          setJMSBSelectedFloor(getFloorNumber(building.id));
           console.log("Selected floor: ", getFloorNumber(building.id));
           focusOnBuilding(building.object);
         }
@@ -415,7 +416,7 @@ export default function BuildingMap({
         onRegionChange={onRegionChange}
       >
         {/* Update the Floor Plan Overlay rendering */}
-          {hallBuilding && bounds && floorPlans[selectedFloor] && (
+          {hallBuilding && bounds && floorPlans[selectedFloor] && hallBuildingFocused && (
           <View 
             style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
           >
@@ -430,7 +431,7 @@ export default function BuildingMap({
             />
           </View> )}
 
-          {jmsbBuilding && jmsbBounds && jmsbFloorPlans[jmsbSelectedFloor] && (
+          {jmsbBuilding && jmsbBounds && jmsbFloorPlans[jmsbSelectedFloor] && jmsbBuildingFocused && (
           <View 
             style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
           >
