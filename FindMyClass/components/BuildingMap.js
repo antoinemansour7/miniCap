@@ -155,8 +155,8 @@ export default function BuildingMap({
           const coordinates = building.object.id === 'H' ? 
             getExactCoordinates(building.location.x, building.location.y):
             getClassCoordinates(jmsbFlippedGrid, 
-              (20 - 1 - building.location.x ), 
-              (20 - 1 - building.location.y));
+              ( building.location.x ), 
+              ( building.location.y));
 
           setClassroomCoordinates(coordinates);
           console.log("Classroom coordinates: ", coordinates);

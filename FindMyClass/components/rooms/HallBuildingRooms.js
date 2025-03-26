@@ -776,7 +776,7 @@ const hallBuildingFloors = {
             location: { x: 18, y: 2 },
         },
         {
-            id: "H-030-1",
+            id: "H1-030-1",
             name: "H-030-1",
             location: { x: 6, y: 4 },
         },
