@@ -736,7 +736,7 @@ const hallBuildingFloors = {
     },
     rooms: [
         {
-            id: "H-0023",
+            id: "H-1.0023",
             name: "H-0023",
             location: { x: 6, y: 2 },
         },

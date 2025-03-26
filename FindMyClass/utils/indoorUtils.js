@@ -292,13 +292,21 @@ const getExactCoordinates = (x, y) => {
   return horizontallyFlippedGrid[boundedY][boundedX];
 };
 
+const getClassCoordinates = ( grid, x, y ) => {
+    // Ensure we have valid grid coordinates
+    const boundedX = Math.min(Math.max(x, 0), gridWidth - 1);
+    const boundedY = Math.min(Math.max(y, 0), gridHeight - 1);
+  
+    // Use the horizontally flipped grid to get the coordinates
+    return grid[boundedY][boundedX];
+}
   
 
   
   
   
 const getFloorNumber = (roomNumber) => {
-    const floor = parseInt(roomNumber.match(/\d/)?.[0]);
+    const floor = parseInt(roomNumber.match(/[1-9]/)?.[0]);
     return floor;
   };
   
@@ -321,4 +329,7 @@ const getFloorNumber = (roomNumber) => {
     gridMapping,
     getExactCoordinates,
     getFloorNumber,
+    precomputeTransformedGrid,
+    flipHorizontally,
+    getClassCoordinates
   }

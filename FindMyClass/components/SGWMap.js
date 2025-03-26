@@ -2,6 +2,7 @@ import React from 'react';
 import BuildingMap from './BuildingMap';
 import SGWBuildings from './SGWBuildings';
 import { getAllRoomsHall } from './rooms/HallBuildingRooms';
+import { getAllRoomsJSMB } from './rooms/JMSBBuildingRooms';
 
 
 // Compute centroid for SGW buildings (no additional adjustment)
@@ -38,7 +39,8 @@ const recenterDeltaBuildings = { latitudeDelta: 0.002, longitudeDelta: 0.002 };
 const SGWMap = () => {
 
   const hallBuildingRooms = getAllRoomsHall();
-  const allBuildingsAndRooms = [...SGWBuildings,...hallBuildingRooms];
+  const jmsbBuildingRooms = getAllRoomsJSMB();
+  const allBuildingsAndRooms = [...SGWBuildings,...hallBuildingRooms,...jmsbBuildingRooms];
   return (
     <BuildingMap
       buildings={allBuildingsAndRooms}

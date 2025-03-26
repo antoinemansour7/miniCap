@@ -8,7 +8,9 @@ import SearchBar from './SearchBar';
 import BuildingMarker from './BuildingMarker';
 import useLocationHandler from '../hooks/useLocationHandler';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-import { getExactCoordinates, getFloorNumber } from '../utils/indoorUtils';
+import { getExactCoordinates, getFloorNumber, getPolygonBounds, getClassCoordinates } from '../utils/indoorUtils';
+import {jmsbBounds, jmsbFlippedGrid } from "./rooms/JMSBBuildingRooms";
+
 
 
 
@@ -20,6 +22,14 @@ const floorPlans = {
   8: require('../floorPlans/Hall-8.png'),
   9: require('../floorPlans/Hall-9.png')
 };
+
+const jmsbFloorPlans = {
+  1: require('../floorPlans/MB-1.png'),
+  2: require('../floorPlans/MB-S2-1.png'),
+}
+
+
+
 import { googleAPIKey } from '../app/secrets';
 
 const categories = [
@@ -59,11 +69,13 @@ export default function BuildingMap({
   
   // Floor plan state variables
   const [selectedFloor, setSelectedFloor] = useState(1);
+  const [jmsbSelectedFloor, setJMSBSelectedFloor] = useState(1);
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
+  const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
   
   // Get the Hall Building reference
   const hallBuilding = buildings.find(b => b.id === 'H');
-  const websterLibrary = buildings.find(b => b.id === 'WL');
+  const jmsbBuilding = buildings.find(b => b.id === 'MB');
   const [showPolygons, setShowPolygons] = useState(false);
   const [forceKey, setForceKey] = useState(0);
   const [classroomLocation, setClassroomLocation] = useState({
@@ -88,7 +100,7 @@ export default function BuildingMap({
     setZoomLevel(calculatedZoom);
     
     // Check if we're zoomed in on the Hall Building
-    if (hallBuilding) {
+    if (hallBuilding ) {
       const hallLatLng = {
         latitude: hallBuilding.latitude,
         longitude: hallBuilding.longitude,
@@ -104,6 +116,23 @@ export default function BuildingMap({
       const isHallFocused = distance < 0.0005 && calculatedZoom > 18;
       setHallBuildingFocused(isHallFocused);
     }
+    if (jmsbBuilding) {
+      const jmsbLatLng = {
+        latitude: jmsbBuilding.latitude,
+        longitude: jmsbBuilding.longitude,
+      };
+      
+      // Calculate distance between map center and Hall Building
+      const distance = Math.sqrt(
+        Math.pow(region.latitude - jmsbLatLng.latitude, 2) +
+        Math.pow(region.longitude - jmsbLatLng.longitude, 2)
+      );
+      
+      // Determine if we're focused on Hall Building (centered and zoomed in)
+      const isJMSBFocused = distance < 0.0005 && calculatedZoom > 18;
+      setJMSBBuildingFocused(isJMSBFocused);
+    }
+
   };
 
   // Search for a building and move the map to it
@@ -111,8 +140,9 @@ export default function BuildingMap({
     if (searchText) {
       
       const building =  buildings.find((b) =>
-        b.name.toLowerCase().includes(searchText.toLowerCase())
+        b.name?.toLowerCase().includes(searchText.toLowerCase())
       );
+      console.log("Building searched: ",building);
       if (building){ 
         if (building.building) {
           console.log("Room searched: ",building);
@@ -121,7 +151,13 @@ export default function BuildingMap({
             xcoord: building.location.x,
             ycoord: building.location.y
           });
-          const coordinates = getExactCoordinates(building.location.x, building.location.y);
+
+          const coordinates = building.object.id === 'H' ? 
+            getExactCoordinates(building.location.x, building.location.y):
+            getClassCoordinates(jmsbFlippedGrid, 
+              (20 - 1 - building.location.x ), 
+              (20 - 1 - building.location.y));
+
           setClassroomCoordinates(coordinates);
           console.log("Classroom coordinates: ", coordinates);
           setSelectedFloor(getFloorNumber(building.id));
@@ -289,24 +325,6 @@ export default function BuildingMap({
     </TouchableOpacity>
   );
 
-  // useEffect(() => {
-  //   if (!searchText) return;
-
-  //   const building = buildings.find((b) =>
-  //     b.name.toLowerCase().includes(searchText.toLowerCase())
-  //   );
-
-  //   if (building && mapRef.current) {
-  //     const coords = searchCoordinates(building);
-  //     mapRef.current.animateToRegion({
-  //       latitude: coords.latitude,
-  //       longitude: coords.longitude,
-  //       latitudeDelta: recenterDeltaUser.latitudeDelta,
-  //       longitudeDelta: recenterDeltaUser.longitudeDelta,
-  //     });
-  //   }
-  // }, [searchText]);
-
   const getPlaceIcon = (types) => {
     if (types.includes('restaurant')) return '🍽️';
     if (types.includes('cafe')) return '☕';
@@ -397,7 +415,7 @@ export default function BuildingMap({
         onRegionChange={onRegionChange}
       >
         {/* Update the Floor Plan Overlay rendering */}
-          {hallBuilding && bounds && (
+          {hallBuilding && bounds && floorPlans[selectedFloor] && (
           <View 
             style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
           >
@@ -411,6 +429,23 @@ export default function BuildingMap({
               zIndex={1}
             />
           </View> )}
+
+          {jmsbBuilding && jmsbBounds && jmsbFloorPlans[jmsbSelectedFloor] && (
+          <View 
+            style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+          >
+
+            <Overlay 
+              bounds={[
+                [jmsbBounds.south, jmsbBounds.west],
+                [jmsbBounds.north, jmsbBounds.east]
+              ]}
+              image={jmsbFloorPlans[jmsbSelectedFloor]}
+              zIndex={1}
+            />
+          </View> )}
+
+          
 
         {buildings.map((building) => {
    
@@ -524,6 +559,30 @@ export default function BuildingMap({
                 style={[
                   styles.floorButtonText,
                   selectedFloor === floor && styles.selectedFloorButtonText
+                ]}
+              >
+                {floor}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+{jmsbBuildingFocused && (
+        <View style={styles.floorSelectorContainer}>
+          {[1, 2].map((floor) => (
+            <TouchableOpacity
+              key={floor}
+              style={[
+                styles.floorButton,
+                jmsbSelectedFloor === floor && styles.selectedFloorButton,
+              ]}
+              onPress={() => setJMSBSelectedFloor(floor)}
+            >
+              <Text 
+                style={[
+                  styles.floorButtonText,
+                  jmsbSelectedFloor === floor && styles.selectedFloorButtonText
                 ]}
               >
                 {floor}
