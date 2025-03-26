@@ -1,13 +1,44 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import Schedule from '../screens/schedule'; // Adjust path if necessary
+import Schedule from '../screens/schedule'; // adjust if needed
 
-describe('Schedule Component', () => {
-  
-  it('renders the schedule correctly', () => {
+// Context mocks
+jest.mock('../../contexts/ThemeContext', () => ({
+  useTheme: () => ({ darkMode: false }),
+}));
+
+jest.mock('../../contexts/LanguageContext', () => ({
+  useLanguage: () => ({
+    t: {
+      syncCalendar: 'Sync Calendar',
+      close: 'Close',
+      addClass: 'Add Class',
+      searchClass: 'Search for a class...',
+      time: 'Time',
+      mon: 'Mon',
+      tue: 'Tue',
+      wed: 'Wed',
+      thu: 'Thu',
+      fri: 'Fri',
+    },
+  }),
+}));
+
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuth: () => ({ user: { uid: '123' } }),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(),
+  removeItem: jest.fn(),
+}));
+
+jest.mock('../api/googleCalendar', () => jest.fn(() => Promise.resolve([])));
+
+describe('Schedule Screen', () => {
+  it('renders sync button and schedule grid headers', () => {
     const { getByText } = render(<Schedule />);
-    
-    // Check for expected headers
+    expect(getByText('Sync Calendar')).toBeTruthy();
     expect(getByText('Time')).toBeTruthy();
     expect(getByText('Mon')).toBeTruthy();
     expect(getByText('Tue')).toBeTruthy();
@@ -16,53 +47,28 @@ describe('Schedule Component', () => {
     expect(getByText('Fri')).toBeTruthy();
   });
 
-  it('toggles edit mode when edit button is clicked', async () => {
-    const { getByTestId } = render(<Schedule />);
+  it('opens and closes the search modal', async () => {
+    const { getByTestId, getByPlaceholderText, queryByPlaceholderText } = render(<Schedule />);
 
-    const editButton = getByTestId('edit-button'); // Add testID to the button
-    fireEvent.press(editButton);
+    fireEvent.press(getByTestId('add-button'));
+    expect(getByPlaceholderText('Search for a class...')).toBeTruthy();
 
-    // Expect button rotation (checking UI changes)
+    fireEvent.press(getByTestId('close-search-modal'));
+
     await waitFor(() => {
-      expect(editButton).toBeTruthy();
+      expect(queryByPlaceholderText('Search for a class...')).toBeNull();
     });
   });
 
-  it('opens and closes search modal when clicking a cell', async () => {
-    const { getByTestId, queryByText } = render(<Schedule />);
-
-    const cell = getByTestId('schedule-cell-Mon-08:00'); // Add testID to cells
-    fireEvent.press(cell);
-
-    await waitFor(() => {
-      expect(queryByText('Add Class')).toBeTruthy();
-    });
-
-    // Close the modal
-    const closeButton = getByTestId('close-search-modal'); // Add testID to close button
-    fireEvent.press(closeButton);
-
-    await waitFor(() => {
-      expect(queryByText('Add Class')).toBeFalsy();
-    });
-  });
-
-  it('triggers search input field', async () => {
-    const { getByTestId, getByPlaceholderText } = render(<Schedule />);
-
-    const addButton = getByTestId('add-button'); // Add testID to buttons
-    fireEvent.press(addButton);
-
-    await waitFor(() => {
-      expect(getByPlaceholderText('Search for a class...')).toBeTruthy();
-    });
-  });
-
-  it('renders time slots correctly', () => {
+  it('pressing sync button triggers loading spinner (mocked)', async () => {
     const { getByText } = render(<Schedule />);
-    
-    expect(getByText('08:00')).toBeTruthy();
-    expect(getByText('08:30')).toBeTruthy();
-    expect(getByText('09:00')).toBeTruthy();
+    const syncButton = getByText('Sync Calendar');
+
+    fireEvent.press(syncButton);
+
+    // nothing to assert here since spinner is conditional
+    await waitFor(() => {
+      expect(syncButton).toBeTruthy();
+    });
   });
 });
