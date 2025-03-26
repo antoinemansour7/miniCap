@@ -1,20 +1,41 @@
-// Card.js
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '../contexts/ThemeContext'; // ✅ import dark mode context
 
 const Card = ({ iconName, title, onPress }) => {
+  const { darkMode } = useTheme();
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Icon name={iconName} size={40} color="#9B1B30" style={styles.icon} />
-      <Text style={styles.title}>{title}</Text> 
+    <TouchableOpacity
+      style={[
+        styles.card,
+        {
+          backgroundColor: darkMode ? '#1A1A1A' : '#F5F5F5',
+          borderColor: darkMode ? '#444' : '#ddd',
+        },
+      ]}
+      onPress={onPress}
+    >
+      <Icon
+        name={iconName}
+        size={40}
+        color={darkMode ? '#FFCDD2' : '#9B1B30'}
+        style={styles.icon}
+      />
+      {typeof title === 'string' ? (
+        <Text style={[styles.title, { color: darkMode ? '#fff' : '#333' }]}>
+          {title}
+        </Text>
+      ) : (
+        title
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#F5F5F5', // Grayscale background for the cards
     width: 150,
     height: 150,
     margin: 10,
@@ -25,7 +46,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation: 5, // Adds shadow for Android
+    elevation: 5,
+    borderWidth: 1,
   },
   icon: {
     marginBottom: 10,
@@ -33,7 +55,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
   },
 });
 

@@ -3,51 +3,63 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext'; // ✅ bring in dark mode
 
 export default function Index() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
+  const { darkMode } = useTheme(); // ✅ get dark mode state
+
+  const textColor = darkMode ? '#fff' : '#333';
+  const bgColor = darkMode ? '#000' : '#fff';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: bgColor }]}>
+      {/* Page Title */}
       <View style={styles.titleContainer}>
         <Ionicons name="location" size={30} color="#9B1B30" style={styles.icon} />
-        <Text style={styles.title}>Campus Map</Text>
+        <Text style={[styles.title, { color: textColor }]}>{t?.map || 'Map'}</Text>
       </View>
 
+      {/* Map Cards */}
       <View style={styles.row}>
-        <Card 
-          iconName="map" 
-          title="SGW Map" 
+        <Card
+          iconName="map"
+          title={<Text style={{ color: textColor }}>{t?.sgwMap || 'SGW Map'}</Text>}
           onPress={() => navigation.navigate('index', { campus: 'SGW' })}
         />
-        <Card 
-          iconName="map" 
-          title="LOY Map" 
+        <Card
+          iconName="map"
+          title={<Text style={{ color: textColor }}>{t?.loyMap || 'LOY Map'}</Text>}
           onPress={() => navigation.navigate('index', { campus: 'Loyola' })}
         />
       </View>
-      
+
+      {/* Profile & Settings */}
       <View style={styles.row}>
-        <Card 
-          iconName="person" 
-          title="Profile" 
+        <Card
+          iconName="person"
+          title={<Text style={{ color: textColor }}>{t?.profile || 'Profile'}</Text>}
           onPress={() => navigation.navigate('screens/profile')}
         />
-        <Card 
-          iconName="settings" 
-          title="Settings" 
+        <Card
+          iconName="settings"
+          title={<Text style={{ color: textColor }}>{t?.settings || 'Settings'}</Text>}
+          onPress={() => navigation.navigate('screens/settings')}
         />
       </View>
 
+      {/* Schedule & Security */}
       <View style={styles.row}>
-        <Card 
-          iconName="calendar" 
-          title="My Schedule" 
+        <Card
+          iconName="calendar"
+          title={<Text style={{ color: textColor }}>{t?.mySchedule || 'My Schedule'}</Text>}
           onPress={() => navigation.navigate('screens/schedule')}
         />
-        <Card 
-          iconName="lock-closed" 
-          title="Security" 
+        <Card
+          iconName="lock-closed"
+          title={<Text style={{ color: textColor }}>{t?.security || 'Security'}</Text>}
         />
       </View>
     </View>
@@ -72,7 +84,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#333',
   },
   row: {
     flexDirection: 'row',
