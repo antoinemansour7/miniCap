@@ -1,23 +1,67 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
+import { Text } from 'react-native';
 import Card from '../Card';
-import Icon from 'react-native-vector-icons/Ionicons';
 
+// Mock Ionicons to avoid native/font loading issues
 jest.mock('react-native-vector-icons/Ionicons', () => 'Icon');
 
-describe('Card Component', () => {
-  it('renders correctly with given props', () => {
-    const { getByText, getByTestId } = render(<Card iconName="home" title="Home" />);
+// Mock the ThemeContext
+jest.mock('../../contexts/ThemeContext', () => ({
+  useTheme: jest.fn(),
+}));
 
-    // Check if the title is displayed
-    expect(getByText('Home')).toBeTruthy();
+import { useTheme } from '../../contexts/ThemeContext';
 
-    // Check if the icon is rendered
-    expect(getByTestId('card-icon')).toBeTruthy();
+describe('Card component', () => {
+  const mockPress = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('matches snapshot', () => {
-    const tree = render(<Card iconName="home" title="Home" />).toJSON();
-    expect(tree).toMatchSnapshot();
+  it('renders correctly in light mode', () => {
+    useTheme.mockReturnValue({ darkMode: false });
+
+    const { getByText } = render(
+      <Card iconName="home" title="Home" onPress={mockPress} />
+    );
+
+    expect(getByText('Home')).toBeTruthy();
+  });
+
+  it('renders correctly in dark mode', () => {
+    useTheme.mockReturnValue({ darkMode: true });
+
+    const { getByText } = render(
+      <Card iconName="moon" title="Dark Mode" onPress={mockPress} />
+    );
+
+    expect(getByText('Dark Mode')).toBeTruthy();
+  });
+
+  it('calls onPress when pressed', () => {
+    useTheme.mockReturnValue({ darkMode: false });
+
+    const { getByText } = render(
+      <Card iconName="touch" title="Press Me" onPress={mockPress} />
+    );
+
+    // 🔥 simulate press by pressing the text (since it's inside TouchableOpacity)
+    fireEvent.press(getByText('Press Me'));
+
+    expect(mockPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders JSX title properly', () => {
+    useTheme.mockReturnValue({ darkMode: false });
+
+    const customTitle = <Text testID="custom-title">Custom</Text>;
+
+    const { getByTestId } = render(
+      <Card iconName="settings" title={customTitle} onPress={mockPress} />
+    );
+
+    expect(getByTestId('custom-title')).toBeTruthy();
   });
 });
