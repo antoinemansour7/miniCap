@@ -1,109 +1,130 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 import Profile from '../screens/profile';
+import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 
-const mockUseAuth = jest.fn();
 jest.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => mockUseAuth(),
+  useAuth: jest.fn(),
 }));
 
-jest.mock('../../components/FloatingChatButton', () => {
-  const React = require('react');
-  const { View } = require('react-native');
-  return () => React.createElement(View, { testID: 'floating-chat-button' });
-});
-
-// Mock expo-image-picker functions
-jest.mock('expo-image-picker', () => ({
-  requestMediaLibraryPermissionsAsync: jest.fn(),
-  launchImageLibraryAsync: jest.fn(),
-  MediaType: { Images: 'Images' },
-  MediaTypeOptions: { Images: 'Images' },
-}));
-
-// Spy on AsyncStorage.setItem
-jest.spyOn(AsyncStorage, 'setItem');
-
-// Mock useRouter for login navigation tests
-const mockPush = jest.fn();
-jest.mock('expo-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
+jest.mock('../../contexts/LanguageContext', () => ({
+  useLanguage: () => ({
+    t: {
+      pleaseLogin: 'Please log in to continue',
+      login: 'Login',
+      addPhoto: 'Add Photo',
+      changePhoto: 'Change Photo',
+      welcome: 'Welcome',
+      viewSchedule: 'View Schedule',
+      permissionError: 'Permission denied',
+      photoAccessError: 'Photo access error',
+      imageError: 'Image error occurred',
+    },
   }),
 }));
 
+jest.mock('../../contexts/ThemeContext', () => ({
+  useTheme: () => ({ darkMode: false }),
+}));
+
+jest.mock('expo-router', () => ({
+  useRouter: jest.fn(),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+}));
+
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn(),
+  launchImageLibraryAsync: jest.fn(),
+  MediaTypeOptions: {
+    Images: 'Images',
+  },
+}));
+
+jest.mock('../../components/FloatingChatButton', () => () => <></>);
+
 describe('Profile Screen', () => {
+  const mockPush = jest.fn();
+  const { useAuth } = require('../../contexts/AuthContext');
+
   beforeEach(() => {
-    // Reset mocks and set default successful permission and canceled image picker.
     jest.clearAllMocks();
-    mockUseAuth.mockReturnValue({ user: { email: 'test@example.com' } });
+    useRouter.mockReturnValue({ push: mockPush });
+  });
+  it('renders login screen if user is not authenticated', async () => {
+    useAuth.mockReturnValue({ user: null });
     ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
-    ImagePicker.launchImageLibraryAsync.mockResolvedValue({ canceled: true });
+    const { getByText } = render(<Profile />);
+  
+    expect(getByText('Please log in to continue')).toBeTruthy();
+    fireEvent.press(getByText('Login'));
+    expect(mockPush).toHaveBeenCalledWith('/auth/login');
+  });
+  
+
+  it('renders user profile with no photoURL and placeholder image', async () => {
+    useAuth.mockReturnValue({ user: { displayName: 'Baraa', email: 'baraa@example.com' } });
+    AsyncStorage.getItem.mockResolvedValueOnce(null);
+    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
+
+    const { getByText } = render(<Profile />);
+    await waitFor(() => {
+      expect(getByText('Add Photo')).toBeTruthy();
+      expect(getByText('Change Photo')).toBeTruthy();
+      expect(getByText('Welcome, Baraa')).toBeTruthy();
+    });
   });
 
-  it('renders user info and FloatingChatButton when logged in', () => {
-    const { getByText, getByTestId } = render(<Profile />);
-    expect(getByText('Welcome, test@example.com')).toBeTruthy();
-    expect(getByText('Change Photo')).toBeTruthy();
-    expect(getByTestId('floating-chat-button')).toBeTruthy();
+  it('navigates to schedule screen on button press', async () => {
+    useAuth.mockReturnValue({ user: { displayName: 'Test User' } });
+    AsyncStorage.getItem.mockResolvedValue(null);
+    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
+
+    const { getByText } = render(<Profile />);
+    await waitFor(() => fireEvent.press(getByText('View Schedule')));
+    expect(mockPush).toHaveBeenCalledWith('/screens/schedule');
   });
 
-  it('triggers image picker and updates profile on press', async () => {
-    const dummyUri = 'dummy://image.png';
-    ImagePicker.launchImageLibraryAsync.mockResolvedValueOnce({
+  it('shows error message if permission denied on mount', async () => {
+    useAuth.mockReturnValue({ user: { displayName: 'Test User' } });
+    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'denied' });
+    AsyncStorage.getItem.mockResolvedValue(null);
+
+    const { getByText } = render(<Profile />);
+    await waitFor(() => {
+      expect(getByText('Permission denied')).toBeTruthy();
+    });
+  });
+
+  it('sets and saves new image when picked successfully', async () => {
+    useAuth.mockReturnValue({ user: { displayName: 'Test User' } });
+    AsyncStorage.getItem.mockResolvedValue(null);
+    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    ImagePicker.launchImageLibraryAsync.mockResolvedValue({
       canceled: false,
-      assets: [{ uri: dummyUri }],
+      assets: [{ uri: 'mock-uri' }],
     });
 
     const { getByText } = render(<Profile />);
-    const changePhotoElement = getByText('Change Photo');
-    fireEvent.press(changePhotoElement);
+    await waitFor(() => fireEvent.press(getByText('Change Photo')));
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith('profile_picture', 'mock-uri');
+  });
 
+  it('shows image error on picker exception', async () => {
+    useAuth.mockReturnValue({ user: { displayName: 'Test User' } });
+    AsyncStorage.getItem.mockResolvedValue(null);
+    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    ImagePicker.launchImageLibraryAsync.mockRejectedValue(new Error('error'));
+
+    const { getByText } = render(<Profile />);
+    await waitFor(() => fireEvent.press(getByText('Change Photo')));
     await waitFor(() => {
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith('profile_picture', dummyUri);
-    });
-  });
-
-  it('renders warning message and login button when not logged in', () => {
-    mockUseAuth.mockReturnValue({ user: null });
-    const { getByText } = render(<Profile />);
-    expect(getByText('Please log in to access your profile.')).toBeTruthy();
-    expect(getByText('Go to Login')).toBeTruthy();
-  });
-
-  it('navigates to login screen when login button is pressed (line 57)', () => {
-    mockUseAuth.mockReturnValue({ user: null });
-    const { getByText } = render(<Profile />);
-    const loginButton = getByText('Go to Login');
-    fireEvent.press(loginButton);
-    expect(mockPush).toHaveBeenCalledWith('/screens/login');
-  });
-
-  it('alerts permission error when media library permission is denied (lines 27-28)', async () => {
-    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValueOnce({ status: 'denied' });
-    const alertSpy = jest.spyOn(Alert, 'alert');
-    const { getByText } = render(<Profile />);
-    const changePhotoElement = getByText('Change Photo');
-    fireEvent.press(changePhotoElement);
-    await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith('Permission required', 'Please allow access to your photos.');
-    });
-  });
-
-  it('handles error during image picking (lines 48-49)', async () => {
-    const testError = new Error('Test error');
-    ImagePicker.launchImageLibraryAsync.mockRejectedValueOnce(testError);
-    const alertSpy = jest.spyOn(Alert, 'alert');
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const { getByText } = render(<Profile />);
-    const changePhotoElement = getByText('Change Photo');
-    fireEvent.press(changePhotoElement);
-    await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error picking image:", testError);
-      expect(alertSpy).toHaveBeenCalledWith("Error", "An error occurred while picking the image.");
+      expect(getByText('Image error occurred')).toBeTruthy();
     });
   });
 });
