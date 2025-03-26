@@ -1,4 +1,40 @@
-import  SGWBuildings  from "../../components/SGWBuildings";
+import  SGWBuildings  from "../SGWBuildings";
+import { precomputeTransformedGrid, flipHorizontally,getPolygonBounds } from "../../utils/indoorUtils";
+
+ 
+const floorGrid_2 = [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,2,0,0,4,1,1,1,2,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,1,1,2,2,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,4,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,2,0,0,0],
+    [0,0,0,0,0,0,0,0,1,1,1,1,5,5,5,2,0,1,0,0],
+    [0,0,0,0,0,0,0,0,4,4,1,1,1,1,1,1,1,1,0,0],
+    [0,0,0,0,0,0,0,0,0,2,2,1,5,5,5,2,4,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,2,2,2,1,3,0,3,2,2,1,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,0],
+    [0,0,0,0,0,0,0,0,0,0,2,1,0,2,0,2,4,1,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,2,0],
+    [0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+] 
+
+const jmsbBuildingCorners = [
+    { latitude: 45.495807318051305, longitude: -73.57892282292742 }, // North
+    { latitude: 45.49527378467022, longitude:  -73.57956335068152}, // West
+    { latitude: 45.494828663409834, longitude: -73.57879946797377 }, // South
+    { latitude: 45.495373239317985, longitude: -73.57816656746238 } // East
+  ];
+
+const gridMapping = precomputeTransformedGrid(floorGrid_2, jmsbBuildingCorners);
+const jmsbFlippedGrid = flipHorizontally(gridMapping);  
+const jmsbBounds = getPolygonBounds(jmsbBuildingCorners);
 
 const jmsbBuilding = SGWBuildings.find(building => building.id === "MB");
 // Building configuration
@@ -80,18 +116,6 @@ const jmsbBuildingFloors = {
             id: "MB1.132",
             name: "MB1.132",
             location: { x: 11, y: 14 },
-        },
-
-        {
-            id: "MB1.115",
-            name: "MB1.115",
-            location: { x: 13, y: 16 },
-        },
-
-        {
-            id: "MB1.115",
-            name: "MB1.115",
-            location: { x: 15, y: 13 },
         },
 
         {
@@ -281,12 +305,6 @@ const jmsbBuildingFloors = {
                 name: "S2.105",
                 location: { x: 11, y: 18 },
             },
-
-            {
-                id: "S2.401",
-                name: "S2.401",
-                location: { x: 13, y: 16 },
-            },
     
             {
                 id: "S2.428",
@@ -318,26 +336,18 @@ const jmsbBuildingFloors = {
                 location: { x: 13, y: 16 },
             },
 
-            {
-                id: "S2.465",
-                name: "S2.465",
-                location: { x: 10, y: 16 },
-            },
-            
-            
-    
             ],
     
             bathrooms: [
     
                 {
-                    id: "S2-Bathroom",
+                    id: "S2-Bathroom-male",
                     name: "S2-bathroom-male",
                     location: { x: 14, y: 14 },
                 },
 
                 {
-                    id: "S2-Bathroom",
+                    id: "S2-Bathroom-female",
                     name: "S2-bathroom-female",
                     location: { x: 12, y: 14 },
                 },
@@ -371,8 +381,8 @@ const jmsbBuildingFloors = {
                 },
 
                 {
-                    id: "S2-stairs-1",
-                    name: "S2-Stairs 1",
+                    id: "S2-stairs-5",
+                    name: "S2-Stairs 5",
                     location: { x: 16, y: 16 },
                 },
     
@@ -402,17 +412,17 @@ const jmsbBuildingFloors = {
 
 // Helper function to get rooms by floor
 const getRoomsByFloorJSMB = (floorNumber) => {
-    return JSMBBuildingFloors[floorNumber]?.rooms || [];
+    return jmsbBuildingFloors[floorNumber]?.rooms || [];
   };
   
   // Helper function to get start location for a floor
     const getStartLocationJSMB = (floorNumber) => {
-    return JSMBBuildingFloors[floorNumber]?.startLocation || null;
+    return jmsbBuildingFloors[floorNumber]?.startLocation || null;
   };
   
   // Modified getAllRooms function to automatically add building info
   const getAllRoomsJSMB = () => {
-    return Object.values(JSMBBuildingFloors).flatMap(floor => {
+    return Object.values(jmsbBuildingFloors).flatMap(floor => {
       const rooms = floor.rooms || [];
       // Add building information to each room
       return rooms.map(room => ({
@@ -426,9 +436,11 @@ const getRoomsByFloorJSMB = (floorNumber) => {
   
   export {
     BUILDING_CONFIG,
-    JSMBBuildingFloors,
+    jmsbFlippedGrid,
     getRoomsByFloorJSMB,
     getStartLocationJSMB,
-    getAllRoomsJSMB
+    getAllRoomsJSMB,
+    jmsbBuildingCorners,
+    jmsbBounds,
   };
     

@@ -10,10 +10,11 @@ const SearchBar = ({ value, onChangeText, data = [], placeholder, onSelectItem }
 
   const handleChangeText = (text) => {
     onChangeText(text); // Update parent's state
+    console.log("text: ", text);
     if (text.trim().length > 0) {
       const filtered = data.filter(item =>
-        item.name.toLowerCase().includes(text.toLowerCase())
-        || item.id.toLowerCase().includes(text.toLowerCase())
+        item.name?.toLowerCase().includes(text.toLowerCase())
+        || item.id?.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredResults(filtered);
     } else {
