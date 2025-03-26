@@ -1,58 +1,62 @@
 import React, { createContext, useContext, useState } from 'react';
 
+// Base Translations for common keys (English)
+const baseTranslations = {
+  settings: 'Settings',
+  account: 'Account',
+  changeEmail: 'Change Email',
+  changePassword: 'Change Password',
+  deleteAccount: 'Delete Account',
+  appearance: 'Appearance',
+  changeMode: 'Change Mode',
+  language: 'Language',
+  appLanguage: 'App Language',
+  about: 'About',
+  version: 'Version 1.0.0',
+  privacy: 'Privacy Policy',
+  terms: 'Terms of Service',
+  profile: 'Profile',
+  schedule: 'Schedule',
+  map: 'Map',
+  home: 'Home',
+
+  // Card Titles
+  sgwMap: 'SGW Map',
+  loyMap: 'LOY Map',
+  mySchedule: 'My Schedule',
+  security: 'Security',
+
+  // Profile Screen
+  welcome: 'Welcome',
+  addPhoto: 'Add Photo',
+  changePhoto: 'Change Photo',
+  viewSchedule: 'View My Schedule',
+  pleaseLogin: 'Please log in to access your profile.',
+  login: 'Go to Login',
+  permissionError: 'Camera roll permission is required.',
+  photoAccessError: 'Please allow access to your photos.',
+  imageError: 'An error occurred while picking the image.',
+
+  // Schedule Screen
+  syncCalendar: 'Sync Calendar',
+  syncInProgress: 'Syncing calendar...',
+  lastSynced: 'Last synced: ',
+  syncComplete: 'Sync Complete',
+  syncFailed: 'Sync Failed',
+  noEvents: 'No events found.',
+
+  // About
+  aboutText: 'This app was created for the SOEN 390 MiniCapstone project during Winter 2025 at Concordia University.',
+  team: 'Team Members:',
+};
+
 // Translations for English and French
 const translations = {
   English: {
-    // General App Sections
-    settings: 'Settings',
-    account: 'Account',
-    changeEmail: 'Change Email',
-    changePassword: 'Change Password',
-    deleteAccount: 'Delete Account',
-    appearance: 'Appearance',
-    changeMode: 'Change Mode',
-    language: 'Language',
-    appLanguage: 'App Language',
-    about: 'About',
-    version: 'Version 1.0.0',
-    privacy: 'Privacy Policy',
-    terms: 'Terms of Service',
-    profile: 'Profile',
-    schedule: 'Schedule',
-    map: 'Map',
-    home: 'Home',
-
-    // Card Titles
-    sgwMap: 'SGW Map',
-    loyMap: 'LOY Map',
-    mySchedule: 'My Schedule',
-    security: 'Security',
-
-    // Profile Screen
-    welcome: 'Welcome',
-    addPhoto: 'Add Photo',
-    changePhoto: 'Change Photo',
-    viewSchedule: 'View My Schedule',
-    pleaseLogin: 'Please log in to access your profile.',
-    login: 'Go to Login',
-    permissionError: 'Camera roll permission is required.',
-    photoAccessError: 'Please allow access to your photos.',
-    imageError: 'An error occurred while picking the image.',
-
-    // Schedule Screen
-    syncCalendar: 'Sync Calendar',
-    syncInProgress: 'Syncing calendar...',
-    lastSynced: 'Last synced: ',
-    syncComplete: 'Sync Complete',
-    syncFailed: 'Sync Failed',
-    noEvents: 'No events found.',
-    
-    // About
-    aboutText: 'This app was created for the SOEN 390 MiniCapstone project during Winter 2025 at Concordia University.',
-    team: 'Team Members:',
+    ...baseTranslations,
   },
-
   French: {
+    ...baseTranslations,
     settings: 'Paramètres',
     account: 'Compte',
     changeEmail: "Changer l'email",

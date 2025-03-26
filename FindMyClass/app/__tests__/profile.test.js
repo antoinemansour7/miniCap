@@ -56,16 +56,16 @@ describe('Profile Screen', () => {
     jest.clearAllMocks();
     useRouter.mockReturnValue({ push: mockPush });
   });
+
   it('renders login screen if user is not authenticated', async () => {
     useAuth.mockReturnValue({ user: null });
     ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
     const { getByText } = render(<Profile />);
-  
+
     expect(getByText('Please log in to continue')).toBeTruthy();
     fireEvent.press(getByText('Login'));
     expect(mockPush).toHaveBeenCalledWith('/auth/login');
   });
-  
 
   it('renders user profile with no photoURL and placeholder image', async () => {
     useAuth.mockReturnValue({ user: { displayName: 'Baraa', email: 'baraa@example.com' } });
@@ -77,6 +77,16 @@ describe('Profile Screen', () => {
       expect(getByText('Add Photo')).toBeTruthy();
       expect(getByText('Change Photo')).toBeTruthy();
       expect(getByText('Welcome, Baraa')).toBeTruthy();
+    });
+  });
+
+  it('displays the user email when display name is absent', async () => {
+    useAuth.mockReturnValue({ user: { email: 'baraa@example.com' } });
+    AsyncStorage.getItem.mockResolvedValueOnce(null);
+
+    const { getByText } = render(<Profile />);
+    await waitFor(() => {
+      expect(getByText('Welcome, baraa@example.com')).toBeTruthy();
     });
   });
 
@@ -125,6 +135,18 @@ describe('Profile Screen', () => {
     await waitFor(() => fireEvent.press(getByText('Change Photo')));
     await waitFor(() => {
       expect(getByText('Image error occurred')).toBeTruthy();
+    });
+  });
+
+  it('loads and displays saved profile image from AsyncStorage', async () => {
+    useAuth.mockReturnValue({ user: { displayName: 'Test User' } });
+    AsyncStorage.getItem.mockResolvedValueOnce('mock-uri');
+    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'granted' });
+
+    const { getByText } = render(<Profile />);
+    await waitFor(() => {
+      expect(getByText('Change Photo')).toBeTruthy();
+      expect(getByText('Welcome, Test User')).toBeTruthy();
     });
   });
 });

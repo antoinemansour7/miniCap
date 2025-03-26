@@ -15,24 +15,26 @@ export default function Index() {
   const bgColor = darkMode ? '#000' : '#fff';
 
   return (
-    <View style={[styles.container, { backgroundColor: bgColor }]}>
+    <View style={[styles.container, { backgroundColor: bgColor }]} testID="index-container">
       {/* Page Title */}
       <View style={styles.titleContainer}>
         <Ionicons name="location" size={30} color="#9B1B30" style={styles.icon} />
-        <Text style={[styles.title, { color: textColor }]}>{t?.map || 'Map'}</Text>
+        <Text style={[styles.title, { color: textColor }]} testID="map-title">{t?.map || 'Map'}</Text>
       </View>
 
       {/* Map Cards */}
       <View style={styles.row}>
         <Card
           iconName="map"
-          title={<Text style={{ color: textColor }}>{t?.sgwMap || 'SGW Map'}</Text>}
+          title={<Text style={{ color: textColor }} testID="sgw-map">{t?.sgwMap || 'SGW Map'}</Text>}
           onPress={() => navigation.navigate('index', { campus: 'SGW' })}
+          testID="sgw-map-card"
         />
         <Card
           iconName="map"
-          title={<Text style={{ color: textColor }}>{t?.loyMap || 'LOY Map'}</Text>}
+          title={<Text style={{ color: textColor }} testID="loy-map">{t?.loyMap || 'LOY Map'}</Text>}
           onPress={() => navigation.navigate('index', { campus: 'Loyola' })}
+          testID="loy-map-card"
         />
       </View>
 
@@ -40,13 +42,15 @@ export default function Index() {
       <View style={styles.row}>
         <Card
           iconName="person"
-          title={<Text style={{ color: textColor }}>{t?.profile || 'Profile'}</Text>}
+          title={<Text style={{ color: textColor }} testID="profile">{t?.profile || 'Profile'}</Text>}
           onPress={() => navigation.navigate('screens/profile')}
+          testID="profile-card"
         />
         <Card
           iconName="settings"
-          title={<Text style={{ color: textColor }}>{t?.settings || 'Settings'}</Text>}
+          title={<Text style={{ color: textColor }} testID="settings">{t?.settings || 'Settings'}</Text>}
           onPress={() => navigation.navigate('screens/settings')}
+          testID="settings-card"
         />
       </View>
 
@@ -54,12 +58,14 @@ export default function Index() {
       <View style={styles.row}>
         <Card
           iconName="calendar"
-          title={<Text style={{ color: textColor }}>{t?.mySchedule || 'My Schedule'}</Text>}
+          title={<Text style={{ color: textColor }} testID="schedule">{t?.mySchedule || 'My Schedule'}</Text>}
           onPress={() => navigation.navigate('screens/schedule')}
+          testID="schedule-card"
         />
         <Card
           iconName="lock-closed"
-          title={<Text style={{ color: textColor }}>{t?.security || 'Security'}</Text>}
+          title={<Text style={{ color: textColor }} testID="security">{t?.security || 'Security'}</Text>}
+          testID="security-card"
         />
       </View>
     </View>
