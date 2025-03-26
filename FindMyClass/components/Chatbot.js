@@ -22,6 +22,7 @@ const buildingCoordinatesMap = {
   "JMSB": { latitude: 45.4945, longitude: -73.5780 },
   "EV": { latitude: 45.4950, longitude: -73.5770 },
   "HALL": { latitude: 45.4960, longitude: -73.5760 },
+  "LEARNING SQUARE" : { latitude: 45.496267, longitude: -73.579308},
   //We need to add the coordinates for the other buildings
   // Add other building mappings as needed.
 };
@@ -376,7 +377,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   // Popup modal bubble styles
-  
+  popupOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  popupBubble: {
+    backgroundColor: '#912338',
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+  },
+  popupText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
 });
 
 export default Chatbot;
