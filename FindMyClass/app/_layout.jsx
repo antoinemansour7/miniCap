@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,6 +11,9 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 import { LanguageProvider, useLanguage } from '../contexts/LanguageContext';
 import ProfileButton from '../components/ProfileButton';
+import RNUxcam from 'react-native-ux-cam';
+import { uxCamKey } from './secrets'; 
+import Constants from 'expo-constants';
 
 const getTitleForRoute = (routeName, t) => {
   switch (routeName) {
@@ -31,6 +34,53 @@ const getTitleForRoute = (routeName, t) => {
 
 function AppDrawerLayout() {
   const pathname = usePathname();
+  useEffect(() => {
+
+    if (Constants.appOwnership === 'expo') {
+      console.warn('Skipping UXCam, Running in Expo Go');
+      return;
+    }
+    // Initialize UXCam only once when the app starts
+    const configuration = {
+      userAppKey: uxCamKey,
+      enableAutomaticScreenNameTagging: false,
+      enableAdvancedGestureRecognition: true,
+      enableImprovedScreenCapture: true,
+    };
+
+    RNUxcam.startWithConfiguration(configuration);
+  }, []);
+
+  useEffect(() => {
+    // Tag the current screen name whenever route changes
+    RNUxcam.tagScreenName(pathname);
+  }, [pathname]);
+
+  // Detect UI Freeze
+  useEffect(() => {
+    let lastFrameTime = Date.now();
+
+    const detectFreeze = () => {
+      const now = Date.now();
+      const timeSinceLastFrame = now - lastFrameTime;
+
+      if (timeSinceLastFrame > 3000) { // If no frame update for 3+ seconds
+        RNUxcam.logEvent('AppFreezeDetected', {
+          screen: pathname,
+          freezeDuration: timeSinceLastFrame + 'ms',
+          timestamp: new Date().toISOString(),
+        });
+        console.warn(' App freeze detected:', timeSinceLastFrame, 'ms');
+      }
+
+      lastFrameTime = now;
+      requestAnimationFrame(detectFreeze);
+    };
+
+    requestAnimationFrame(detectFreeze);
+  }, []);
+
+
   const { t } = useLanguage();
   const { darkMode } = useTheme();
 
