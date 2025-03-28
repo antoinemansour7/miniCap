@@ -135,16 +135,6 @@ export default function Profile() {
     }
   };
 
-  const loadProfileData = async () => {
-    try {
-      const userData = await AsyncStorage.getItem('user_profile');
-      if (userData) {
-        setUserProfile(JSON.parse(userData));
-      }
-    } catch (error) {
-      console.error("Error reloading profile data:", error);
-    }
-  };
 
   const saveProfileChanges = async () => {
     // Validate inputs
