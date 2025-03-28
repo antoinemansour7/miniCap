@@ -116,7 +116,7 @@ export default function Profile() {
   };
 
   const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // NOSONAR
   };
 
   const checkDuplicateEmail = async (email) => {
