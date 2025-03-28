@@ -34,6 +34,7 @@ export default function Profile() {
     })();
   }, []);
 
+  
   useEffect(() => {
     async function loadProfileData() {
       try {
@@ -109,11 +110,17 @@ export default function Profile() {
   };
 
   const handleInputChange = (field, value) => {
+    if (field === "password" && value.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
+    }
+  
     setUserProfile(prev => ({
       ...prev,
       [field]: value
     }));
   };
+  
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // NOSONAR
