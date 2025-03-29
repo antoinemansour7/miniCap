@@ -103,3 +103,13 @@ jest.mock('axios', () => ({
     }),
   })),
 }));
+
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  launchImageLibraryAsync: jest.fn(() => Promise.resolve({ canceled: false, assets: [{ uri: 'mock-uri' }] })),
+  MediaTypeOptions: {
+    Images: 'Images'
+  }
+}));
+
+
