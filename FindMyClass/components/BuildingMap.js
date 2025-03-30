@@ -10,6 +10,7 @@ import useLocationHandler from '../hooks/useLocationHandler';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { getExactCoordinates, getFloorNumber, getPolygonBounds, getClassCoordinates } from '../utils/indoorUtils';
 import {jmsbBounds, jmsbFlippedGrid } from "./rooms/JMSBBuildingRooms";
+import {vanierBounds, vanierFlippedGrid } from "./rooms/VanierBuildingRooms";
 
 
 
@@ -27,6 +28,8 @@ const jmsbFloorPlans = {
   1: require('../floorPlans/MB-1.png'),
   2: require('../floorPlans/MB-S2-1.png'),
 }
+
+const vanierFloorPlan = require('../floorPlans/VL-1.png');
 
 
 
@@ -76,6 +79,8 @@ export default function BuildingMap({
   // Get the Hall Building reference
   const hallBuilding = buildings.find(b => b.id === 'H');
   const jmsbBuilding = buildings.find(b => b.id === 'MB');
+  const vanierBuilding = buildings.find(b => b.id === 'VL');
+
   const [showPolygons, setShowPolygons] = useState(false);
   const [forceKey, setForceKey] = useState(0);
   const [classroomLocation, setClassroomLocation] = useState({
@@ -445,6 +450,17 @@ export default function BuildingMap({
               zIndex={1}
             />
           </View> )}
+
+          {vanierBounds && (
+            <Overlay
+              bounds={[
+                [vanierBounds.south, vanierBounds.west],
+                [vanierBounds.north, vanierBounds.east]
+              ]}
+              image={vanierFloorPlan}
+              zIndex={1}
+            />
+          )}
 
           
 

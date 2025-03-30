@@ -1,12 +1,47 @@
 import  SGWBuildings  from "../../components/SGWBuildings";
+import { precomputeTransformedGrid, flipHorizontally, getPolygonBounds } from "../../utils/indoorUtils";
 
-const vanierLibrary = SGWBuildings.find(building => building.id === "VL");
+const vanierBuilding = SGWBuildings.find(building => building.id === "VL");
 // Building configuration
 const BUILDING_CONFIG = {
   buildingName: "Vanier Library",
   building: "VL",
-  object: vanierLibrary,
+  object: vanierBuilding,
 };
+
+const floorGrid = [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [4,4,1,0,0,2,1,1,1,1,1,1,2,0,2,0,0,0,0,0],
+    [0,0,1,0,0,0,1,2,0,0,0,0,0,1,1,4,0,0,0,0],
+    [0,2,1,0,3,3,1,2,0,0,0,0,0,2,1,1,0,0,0,0],
+    [0,0,1,0,3,3,1,2,2,2,0,0,0,1,1,1,0,0,0,0],
+    [0,2,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,0,4,4,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,2,1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,2,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,2,1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,2,1,1,1,2,0,1,2,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,1,2,0,0,0,0,4,4,5,1,1,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,4,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,0,0,0],
+]
+
+const vanierBuildingCorners = [
+    { latitude: 45.45946362707318, longitude: -73.63865674781006 }, // North
+    { latitude: 45.45888476384681, longitude:  -73.63913682555628}, // West
+    { latitude: 45.45855604385656, longitude: -73.63830469079636 }, // South
+    { latitude: 45.45913009995638, longitude: -73.63784061564175 } // East
+]
+
+const gridMapping = precomputeTransformedGrid(floorGrid, vanierBuildingCorners);
+const vanierFlippedGrid = flipHorizontally(gridMapping);  
+const vanierBounds = getPolygonBounds(vanierBuildingCorners);
 
 const vanierLibraryFloors = {
   // VL1 Floor
@@ -357,5 +392,7 @@ export {
   vanierLibraryFloors,
   getRoomsByFloorVanier,
   getStartLocationVanier,
-  getAllRoomsVanier
+  getAllRoomsVanier,
+  vanierBounds,
+  vanierFlippedGrid,
 };
