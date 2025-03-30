@@ -29,7 +29,12 @@ const jmsbFloorPlans = {
   2: require('../floorPlans/MB-S2-1.png'),
 }
 
-const vanierFloorPlan = require('../floorPlans/VL-1.png');
+const vanierFloorPlans = {
+  1: require('../floorPlans/VL-1.png'),
+  2: require('../floorPlans/VL-2-1.png')
+}
+ 
+
 
 
 
@@ -73,8 +78,12 @@ export default function BuildingMap({
   // Floor plan state variables
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [jmsbSelectedFloor, setJMSBSelectedFloor] = useState(1);
+  const [vanierSelectedFloor, setVanierSelectedFloor] = useState(1);
+
+  // are the buildings focused?
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
   const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
+  const [vanierBuildingFocused, setVanierBuildingFocused] = useState(false);
   
   // Get the Hall Building reference
   const hallBuilding = buildings.find(b => b.id === 'H');
@@ -136,6 +145,23 @@ export default function BuildingMap({
       // Determine if we're focused on Hall Building (centered and zoomed in)
       const isJMSBFocused = distance < 0.0005 && calculatedZoom > 18;
       setJMSBBuildingFocused(isJMSBFocused);
+    }
+
+    if (vanierBuilding) {
+      const vanierLatLng = {
+        latitude: vanierBuilding.latitude,
+        longitude: vanierBuilding.longitude,
+      };
+      
+      // Calculate distance between map center and Hall Building
+      const distance = Math.sqrt(
+        Math.pow(region.latitude - vanierLatLng.latitude, 2) +
+        Math.pow(region.longitude - vanierLatLng.longitude, 2)
+      );
+      
+      // Determine if we're focused on Hall Building (centered and zoomed in)
+      const isVanierFocused = distance < 0.0005 && calculatedZoom > 18;
+      setVanierBuildingFocused(isVanierFocused);
     }
 
   };
@@ -451,15 +477,20 @@ export default function BuildingMap({
             />
           </View> )}
 
-          {vanierBounds && (
-            <Overlay
-              bounds={[
-                [vanierBounds.south, vanierBounds.west],
-                [vanierBounds.north, vanierBounds.east]
-              ]}
-              image={vanierFloorPlan}
-              zIndex={1}
-            />
+          {vanierBuilding &&  vanierBounds && vanierFloorPlans[vanierSelectedFloor] && vanierBuildingFocused && (
+            <View
+              style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+            >
+
+              <Overlay
+                bounds={[
+                  [vanierBounds.south, vanierBounds.west],
+                  [vanierBounds.north, vanierBounds.east]
+                ]}
+                image={vanierFloorPlans[vanierSelectedFloor]}
+                zIndex={1}
+              />
+            </View>
           )}
 
           
@@ -600,6 +631,30 @@ export default function BuildingMap({
                 style={[
                   styles.floorButtonText,
                   jmsbSelectedFloor === floor && styles.selectedFloorButtonText
+                ]}
+              >
+                {floor}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      { vanierBuildingFocused && (
+        <View style={styles.floorSelectorContainer}>
+          {[1, 2].map((floor) => (
+            <TouchableOpacity
+              key={floor}
+              style={[
+                styles.floorButton,
+                vanierSelectedFloor === floor && styles.selectedFloorButton,
+              ]}
+              onPress={() => setVanierSelectedFloor(floor)}
+            >
+              <Text 
+                style={[
+                  styles.floorButtonText,
+                  vanierSelectedFloor === floor && styles.selectedFloorButtonText
                 ]}
               >
                 {floor}
