@@ -386,9 +386,6 @@ const path = finder.findPath(
         const floor = getFloorNumber(room.id);
         setFloorNumber(floor);
         const floorStartLocationItem =  getStartLocationHall(floor);
-        console.log("floorStartLocationItem:", floorStartLocationItem);
-        console.log("floorNumber: ", floorNumber);
-        console.log("room.id: ", room.id);
         setFloorStartLocation({
           xcoord: floorStartLocationItem.location.x,
           ycoord: floorStartLocationItem.location.y
