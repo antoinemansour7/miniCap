@@ -618,10 +618,79 @@ describe('BuildingMap Extended Tests - Additions', () => {
       });
     });
   });
-  
-  
-  
-  
-  
+});
+
+describe('onRegionChange', () => {
+  let onRegionChangeMock;
+
+  beforeEach(() => {
+    jest.resetModules(); // reset module registry to re-import with mocks
+    jest.clearAllMocks();
+
+    jest.mock('react-native-maps', () => {
+      const React = require('react');
+      const { View } = require('react-native');
+
+      return {
+        __esModule: true,
+        default: React.forwardRef((props, ref) => {
+          onRegionChangeMock = props.onRegionChange;
+
+          React.useImperativeHandle(ref, () => ({
+            getCamera: () => Promise.resolve({ center: { latitude: 45, longitude: -73 } }),
+            animateToRegion: jest.fn(),
+          }));
+
+          return <View {...props}>{props.children}</View>;
+        }),
+        Marker: (props) => <View {...props} />,
+        Polygon: (props) => <View {...props} />,
+        Overlay: (props) => <View {...props} />,
+      };
+    });
+
+    jest.doMock('../../hooks/useLocationHandler', () => ({
+      __esModule: true,
+      default: () => ({
+        userLocation: { latitude: 45, longitude: -73 },
+        nearestBuilding: { id: 'H' },
+      }),
+    }));
+  });
+
+  it('triggers all building focus updates in onRegionChange', async () => {
+    const React = require('react');
+    const { render, act } = require('@testing-library/react-native');
+    const BuildingMap = require('../BuildingMap').default;
+
+    const buildings = [
+      { id: 'H', latitude: 45.0005, longitude: -73.0005, boundary: [] },
+      { id: 'MB', latitude: 45.001, longitude: -73.001, boundary: [] },
+      { id: 'VL', latitude: 45.002, longitude: -73.002, boundary: [] },
+      { id: 'CC', latitude: 45.003, longitude: -73.003, boundary: [] },
+    ];
+
+    const defaultProps = {
+      buildings,
+      initialRegion: { latitude: 45, longitude: -73, latitudeDelta: 0.05, longitudeDelta: 0.05 },
+      buildingsRegion: { latitude: 45, longitude: -73 },
+      searchCoordinates: jest.fn(() => ({ latitude: 45.5, longitude: -73.5 })),
+      recenterDeltaUser: { latitudeDelta: 0.05, longitudeDelta: 0.05 },
+      recenterDeltaBuildings: { latitudeDelta: 0.1, longitudeDelta: 0.1 },
+      getMarkerPosition: jest.fn((b) => ({ latitude: b.latitude, longitude: b.longitude })),
+    };
+
+    render(<BuildingMap {...defaultProps} />);
+
+    // Zoomed in region
+    await act(async () => {
+      onRegionChangeMock({
+        latitude: 45.0005,
+        longitude: -73.0005,
+        latitudeDelta: 0.0004,
+        longitudeDelta: 0.0004,
+      });
+    });
+  });
 });
 
