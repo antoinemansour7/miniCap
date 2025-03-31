@@ -221,6 +221,13 @@ export default function BuildingMap({
             setVanierSelectedFloor(getFloorNumber(building.id));
             console.log("Selected floor: ", getFloorNumber(building.id));
           }
+          else if ( building.object.id === 'CC') {
+            coordinates = getClassCoordinates(ccFlippedGrid, ( building.location.x ), ( building.location.y));
+            setClassroomCoordinates(coordinates);
+            console.log("Classroom coordinates: ", coordinates);
+            setSelectedFloor(getFloorNumber(building.id));
+            console.log("Selected floor: ", getFloorNumber(building.id));
+          }
 
           focusOnBuilding(building.object);
         }
