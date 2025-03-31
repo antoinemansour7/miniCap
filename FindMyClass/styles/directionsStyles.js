@@ -116,23 +116,6 @@ export const styles = StyleSheet.create({
         overflow: 'scroll',
         zIndex: 4,
     },
-    searchResult: {
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    buildingName: {
-        fontSize: 14,
-        flex: 1,
-    },
-    buildingId: {
-        fontSize: 12,
-        color: '#666',
-        marginLeft: 8,
-    },
     selectedTravelMode: {
         borderColor: '#912338',
         backgroundColor: '#fff',
@@ -231,16 +214,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 8, // Add this to maintain consistent spacing
     },
-    clearButton: {
-        position: 'absolute',
-        right: 0,
-        top: '40%', // Center vertically
-        transform: [{ translateY: -10 }], // Adjust based on icon size to perfectly center
-        padding: 5,
-        zIndex: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+ 
     leftArrow: {
         marginBottom: 8, 
     },

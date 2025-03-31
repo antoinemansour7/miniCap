@@ -5,6 +5,8 @@ import { styles } from "../../styles/directionsStyles";
 import GoogleSearchBar from "../GoogleSearchBar";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
+import {getAllRoomsHall} from "../rooms/HallBuildingRooms";
+import SearchBar from "../SearchBar";
 
 
 const ModalSearchBars = ({ 
@@ -26,11 +28,14 @@ const ModalSearchBars = ({
     customDest,
     setCustomDest,
     setDestinationName, 
+
+    setRoom,
     
 
 }) => {
     const isStartSearch = searchType === 'START'; // The modal will display a specific searh bar based on the searchType
-    const allBuildings = [...SGWBuildings, ...LoyolaBuildings];
+    const hallBuildingRooms = getAllRoomsHall();
+    const allBuildings = [...SGWBuildings, ...LoyolaBuildings,...hallBuildingRooms];
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -48,19 +53,29 @@ const ModalSearchBars = ({
             setIsSearching(false);
         }
     };
-    const selectBuilding = (building) => {
-        setCustomDest(building.name);
-        setSearchResults([]);
-        setIsSearching(false);
-        
-        const newDestination = {
-            latitude: building.latitude,
-            longitude: building.longitude
-        };
-        setDestination(newDestination);
-        setDestinationName(building.name);
-        updateRoute(startLocation, newDestination);
-        handleCloseModal();
+    const selectBuilding = (location) => {
+        if ( location.building ) {
+            selectBuilding(SGWBuildings.find(b => b.id === location.building ));
+            setRoom(location);
+            setCustomDest(location.name);
+            setDestinationName(location.name);
+    }
+        else {
+            setRoom(null);
+            setCustomDest(location.name);
+            setSearchResults([]);
+            setIsSearching(false);
+            
+            const newDestination = {
+                latitude: location.latitude,
+                longitude: location.longitude
+            };
+            setDestination(newDestination);
+            setDestinationName(location.name);
+            updateRoute(startLocation, newDestination);
+            handleCloseModal();
+
+        }
     };
 
     const parseStreetName = (description) => {
@@ -126,39 +141,15 @@ const ModalSearchBars = ({
                                 key={`search-${customLocationDetails.name || customSearchText}`}
                             />
                         ) : ( // custom search bar for the destination
-                            <> 
-                                <View style={styles.textInputContainer}> 
-                                    <TextInput
-                                        style={[styles.input, { flex: 1, paddingRight: 30 }]}
-                                        placeholder="Search for a building..."
-                                        value={customDest}
-                                        onChangeText={searchBuildings}
-                                    />
-                                    {customDest.length > 0 && (
-                                        <TouchableOpacity 
-                                            style={styles.clearButton}
-                                            onPress={handleClearSearch}
-                                            testID="clear-button"
-                                        >
-                                            <Ionicons name="close-circle" size={20} color="#D3D3D3" />
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
-                                {isSearching && searchResults.length > 0 && (
-                                    <View style={styles.searchResults}>
-                                        {searchResults.map((building) => (
-                                            <TouchableOpacity
-                                                key={building.id}
-                                                style={styles.searchResult}
-                                                onPress={() => selectBuilding(building)}
-                                            >
-                                                <Text style={styles.buildingName}>{building.name}</Text>
-                                                <Text style={styles.buildingId}>({building.id})</Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                )}
-                            </>
+                            <View> 
+                                <SearchBar
+                                    value={customDest}
+                                    onChangeText={searchBuildings}
+                                    data={allBuildings}
+                                    placeholder="Search for a building..."
+                                    onSelectItem={selectBuilding}
+                                 />
+                            </View>
                         )}
                     </View>
                 </View>

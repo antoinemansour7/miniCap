@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Switch, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import FloatingChatButton from '../../components/FloatingChatButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 
@@ -429,7 +428,7 @@ export default function Profile() {
           <Text style={styles.scheduleButtonText}>Course Schedule</Text>
         </TouchableOpacity>
       </View>
-      <FloatingChatButton />
+      {/* <FloatingChatButton /> */}
     </View>
   );
 }
