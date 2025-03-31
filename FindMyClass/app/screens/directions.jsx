@@ -398,10 +398,6 @@ const path = finder.findPath(
       }  
       updateRouteWithMode(start, end, travelMode);
     };
-    useEffect(() => {
-      console.log("room changed:", room);
-    }, [room]);
-    
 
 
 
