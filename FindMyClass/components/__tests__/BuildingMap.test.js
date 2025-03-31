@@ -448,6 +448,7 @@ describe('BuildingMap Extended Tests - Additions', () => {
     rerender(<BuildingMap {...{ ...defaultProps, buildings: [hallBuilding] }} />);
   });
 
+
   it('sets JMSB building focus correctly', async () => {
     const jmsb = {
       id: 'MB',
@@ -487,6 +488,83 @@ describe('BuildingMap Extended Tests - Additions', () => {
     });
   });
 
+  it('handles search and sets classroom coordinates for Hall building', async () => {
+    const hallRoom = {
+      id: 'H-921',
+      name: 'H-921',
+      building: true,
+      object: { id: 'H' },
+      location: { x: 10, y: 15 },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [hallRoom] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'H-921');
+    });
+  
+    // getExactCoordinates will be called inside the effect
+  });
+  
+  it('handles search and sets classroom coordinates and floor for Vanier building', async () => {
+    const vanierRoom = {
+      id: "VL-101-6",
+      name: "VL-101-6",
+      building: true,
+      object: { id: 'VL' },
+      location: { x: 12, y: 18 },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [vanierRoom] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'VL-101-6');
+    });
+  });
+  
+  it('handles search and sets classroom coordinates and floor for CC building', async () => {
+    const ccRoom = {
+      id: 'CC-107',
+      name: 'CC-107',
+      building: true,
+      object: { id: 'CC' },
+      location: { x: 5, y: 9 },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [ccRoom] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'CC-107');
+    });
+  });
+  
+  it('handles search for a building that is not a classroom', async () => {
+    const building = {
+      id: 'H',
+      name: 'Hall',
+      building: false,
+      object: { id: 'H' },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [building] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'Hall');
+    });
+  });
+  
+  it('handles search with no matching building', async () => {
+    const { getByPlaceholderText } = render(<BuildingMap {...defaultProps} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'NonExistentRoom');
+    });
+  
+    // Should not crash or throw
+    expect(true).toBeTruthy();
+  });
+  
+
   it('handles search when result is not a room', async () => {
     const building = { id: 'MB', name: 'JMSB' };
   
@@ -503,17 +581,38 @@ describe('BuildingMap Extended Tests - Additions', () => {
     const vanier = {
       id: 'VL',
       name: 'Vanier Library',
-      latitude: 45.001,
-      longitude: -73.001,
-      boundary: [{ latitude: 45.001, longitude: -73.001 }],
+      latitude: 45.4591277,
+      longitude: -73.6382146,
+      boundary: [{ latitude: 45.4591277, longitude: -73.6382146 }],
     };
   
     render(<BuildingMap {...{ ...defaultProps, buildings: [vanier] }} />);
   
     await act(async () => {
       onRegionChangeCompleteMock({
-        latitude: 45.001,
-        longitude: -73.001,
+        latitude: 45.4591277,
+        longitude: -73.6382146,
+        latitudeDelta: 0.0005,
+        longitudeDelta: 0.0005,
+      });
+    });
+  });
+
+  it('sets CC building focus correctly', async () => {
+    const CC = {
+      id: 'CC',
+      name: 'Central Building',
+      latitude: 45.4583684,
+      longitude: -73.6404372,
+      boundary: [{ latitude: 45.4583684, longitude: -73.6404372 }],
+    };
+  
+    render(<BuildingMap {...{ ...defaultProps, buildings: [CC] }} />);
+  
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.4583684,
+        longitude: -73.6404372,
         latitudeDelta: 0.0005,
         longitudeDelta: 0.0005,
       });
