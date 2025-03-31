@@ -331,5 +331,6 @@ const getFloorNumber = (roomNumber) => {
     getFloorNumber,
     precomputeTransformedGrid,
     flipHorizontally,
-    getClassCoordinates
+    getClassCoordinates,
+    drawDebugGrid,
   }

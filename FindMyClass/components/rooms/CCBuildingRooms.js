@@ -1,6 +1,44 @@
 import  loyolaBuildings  from "../../components/loyolaBuildings";
+import { precomputeTransformedGrid, flipHorizontally, getPolygonBounds, drawDebugGrid } from "../../utils/indoorUtils";
+
 
 const ccBuilding = loyolaBuildings.find(building => building.id === "CC");
+
+const ccBuildingCorners = [
+  { latitude: 45.45856705947929, longitude: -73.64079466144375 }, // North
+  { latitude: 45.45830788625432, longitude:  -73.64100794688723}, // West
+  { latitude: 45.45788087046398, longitude: -73.63992974408042 }, // South
+  { latitude: 45.45813615699811, longitude: -73.63971922216355 } // East
+];
+
+const floorGrid = [
+  [0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,3,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,2,1,1,2,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,2,1,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,1,4,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,2,1,1,2,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,2,1,1,2,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,2,1,1,1,4,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,2,1,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,2,1,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,3,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,4,1,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
+]
+
+const gridMapping = precomputeTransformedGrid(floorGrid, ccBuildingCorners);
+const gridCC = drawDebugGrid(gridMapping);
+const ccFlippedGrid = flipHorizontally(gridMapping);  
+const ccBounds = getPolygonBounds(ccBuildingCorners);
+
 // Building configuration
 const BUILDING_CONFIG = {
   buildingName: "CC Building",
@@ -14,7 +52,7 @@ const ccBuildingFloors = {
     startLocation: {
       id: "CC-start",
       name: "1st Floor Entrance",
-      location: { x: 19, y: 5 },
+      location: { x: 9, y: 18 },
       type: "start"
     },
     rooms: [
@@ -22,65 +60,70 @@ const ccBuildingFloors = {
         {
             id: "CC-101",
             name: "CC-101",
-            location: { x: 15, y: 6 },
+            location: { x: 8, y: 15 },
         },
         {
             id: "CC-107",
             name: "CC-107",
-            location: { x: 13, y: 6 },
+            location: { x: 8 , y: 13 },
         },
+        {
+          id: "CC-109",
+          name: "CC-109",
+          location: { x: 8, y: 12 },
+      },
         {
             id: "CC-111",
             name: "CC-111",
-            location: { x: 12, y: 6 },
+            location: { x: 8, y: 10 },
         },
         {
             id: "CC-112",
             name: "CC-112",
-            location: { x: 12, y: 4 },
+            location: { x: 11, y: 10 },
         },
         {
             id: "CC-106",
             name: "CC-106",
-            location: { x: 9, y: 4 },
+            location: { x: 11, y: 14 },
         },
         {
             id: "CC-116",
             name: "CC-116",
-            location: { x: 9, y: 4 },
+            location: { x: 11, y: 8 },
         },
         {
             id: "CC-115",
             name: "CC-115",
-            location: { x: 9, y: 6 },
+            location: { x: 8, y: 8 },
         },
         {
             id: "CC-120",
             name: "CC-120", 
-            location:{ x: 5, y: 4 },
+            location:{ x: 11, y: 5 },
         },
         {
             id: "CC-122",
             name: "CC-122",  
-            location: { x: 4, y: 4 },
+            location: { x: 11, y: 4 },
         },
         {
             id: "CC-119",
             name: "CC-119",
-            location: { x: 4, y: 6 },
+            location: { x: 8, y: 5 },
         },
       
     ],
     bathrooms: [
         {
             id: "CC-124",
-            name: "bathroom-neutral",
-            location: { x: 3, y: 4 },
+            name: "bathroom-neutral-124",
+            location: { x: 11, y: 3 },
         },
         {
             id: "CC-104",
-            name: "bathroom-neutral",
-            location: { x: 16, y: 4 },
+            name: "bathroom-neutral-104",
+            location: { x: 11, y: 16 },
         },
 
     ],
@@ -88,32 +131,35 @@ const ccBuildingFloors = {
         {
             id: "CC-1-stairs-1",
             name: "Stairs 1",
-            location: { x: 1, y: 5 },
+            location: { x: 9, y: 2 },
         },
         {
             id: "CC-1-stairs-2",
             name: "Stairs 2",
-            location: { x: 6, y: 4 },
+            location: { x: 12, y: 7 },
         },
         {
             id: "CC-1-stairs-3",
             name: "Stairs 3",
-            location: { x: 17, y: 6 },
+            location: { x: 12, y: 12 },
         },
+        {
+          id: "CC-1-stairs-4",
+          name: "Stairs 4",
+          location: { x: 8, y: 17 },
+      },
     ],
 
     exits: [
         {
             id: "CC1-exit",
             name: "CC Exit",
-            location: { x: 19, y: 5 },
+            location: { x: 9, y: 18 },
         },
     ]
 
 
-  },
-
-  
+  }, 
 
   }
 
@@ -147,5 +193,9 @@ export {
   ccBuildingFloors,
   getRoomsByFloorCC,
   getStartLocationCC,
-  getAllRoomsCC
+  getAllRoomsCC,
+  ccFlippedGrid,
+  ccBounds,
+  gridCC,
+
 };
