@@ -33,6 +33,7 @@ const jmsbBuildingCorners = [
   ];
 
 const gridMapping = precomputeTransformedGrid(floorGrid_2, jmsbBuildingCorners);
+
 const jmsbFlippedGrid = flipHorizontally(gridMapping);  
 const jmsbBounds = getPolygonBounds(jmsbBuildingCorners);
 

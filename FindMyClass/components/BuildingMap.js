@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, FlatList, Modal, StyleSheet, Image } from 'react-native';
-import MapView, { Marker, Polygon, Overlay } from 'react-native-maps';
+import MapView, { Marker, Polygon, Overlay,Polyline } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import mapStyles from './mapStyles';
@@ -10,7 +10,8 @@ import useLocationHandler from '../hooks/useLocationHandler';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { getExactCoordinates, getFloorNumber, getPolygonBounds, getClassCoordinates } from '../utils/indoorUtils';
 import {jmsbBounds, jmsbFlippedGrid } from "./rooms/JMSBBuildingRooms";
-import {vanierBounds, vanierFlippedGrid } from "./rooms/VanierBuildingRooms";
+import {vanierBounds, vanierFlippedGrid, gridVanier } from "./rooms/VanierBuildingRooms";
+import {ccBounds, ccFlippedGrid, gridCC } from "./rooms/CCBuildingRooms";
 
 
 
@@ -143,7 +144,7 @@ export default function BuildingMap({
       );
       
       // Determine if we're focused on Hall Building (centered and zoomed in)
-      const isJMSBFocused = distance < 0.0005 && calculatedZoom > 18;
+      const isJMSBFocused = distance < 0.0006 && calculatedZoom > 18;
       setJMSBBuildingFocused(isJMSBFocused);
     }
 
@@ -160,7 +161,7 @@ export default function BuildingMap({
       );
       
       // Determine if we're focused on Hall Building (centered and zoomed in)
-      const isVanierFocused = distance < 0.0005 && calculatedZoom > 18;
+      const isVanierFocused = distance < 0.001 && calculatedZoom > 18;
       setVanierBuildingFocused(isVanierFocused);
     }
 
@@ -183,17 +184,28 @@ export default function BuildingMap({
             ycoord: building.location.y
           });
 
-          const coordinates = building.object.id === 'H' ? 
-            getExactCoordinates(building.location.x, building.location.y):
-            getClassCoordinates(jmsbFlippedGrid, 
-              ( building.location.x ), 
-              ( building.location.y));
+          let coordinates;
+          if (building.object.id === 'H') {
 
-          setClassroomCoordinates(coordinates);
-          console.log("Classroom coordinates: ", coordinates);
-          setSelectedFloor(getFloorNumber(building.id));
-          setJMSBSelectedFloor(getFloorNumber(building.id));
-          console.log("Selected floor: ", getFloorNumber(building.id));
+            coordinates = getExactCoordinates(building.location.x, building.location.y);
+          }
+          else if ( building.object.id === 'MB') {
+             coordinates = getClassCoordinates(jmsbFlippedGrid, ( building.location.x ), ( building.location.y));
+                setClassroomCoordinates(coordinates);
+                console.log("Classroom coordinates: ", coordinates);
+                setSelectedFloor(getFloorNumber(building.id));
+                setJMSBSelectedFloor(getFloorNumber(building.id));
+                console.log("Selected floor: ", getFloorNumber(building.id));
+          }
+          else if ( building.object.id === 'VL') {
+            coordinates = getClassCoordinates(vanierFlippedGrid, ( building.location.x ), ( building.location.y));
+            setClassroomCoordinates(coordinates);
+            console.log("Classroom coordinates: ", coordinates);
+            setSelectedFloor(getFloorNumber(building.id));
+            setVanierSelectedFloor(getFloorNumber(building.id));
+            console.log("Selected floor: ", getFloorNumber(building.id));
+          }
+
           focusOnBuilding(building.object);
         }
         else {
@@ -589,6 +601,15 @@ export default function BuildingMap({
               pinColor="#912338"
               />)
                 }
+
+                {gridCC.map((line, index) => (
+                              <Polyline
+                                key={index}
+                                coordinates={line}
+                                strokeWidth={1}
+                                strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
+                              />
+                            ))}
       </MapView>
       
       {/* Floor Selector - Only visible when zoomed in on Hall Building */}
