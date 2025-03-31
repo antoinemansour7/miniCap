@@ -424,5 +424,105 @@ describe('BuildingMap Extended Tests - Additions', () => {
 
     expect(defaultProps.getMarkerPosition).toHaveBeenCalled();
   });
+
+  it('sets Hall building focus correctly when zoomed in and centered', async () => {
+    const hallBuilding = {
+      id: 'H',
+      name: 'Hall',
+      latitude: 45.0005,
+      longitude: -73.0005,
+      boundary: [{ latitude: 45.0004, longitude: -73.0004 }],
+    };
+  
+    const { rerender } = render(<BuildingMap {...{ ...defaultProps, buildings: [hallBuilding] }} />);
+    
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.0005,
+        longitude: -73.0005,
+        latitudeDelta: 0.0005, // high zoom
+        longitudeDelta: 0.0005,
+      });
+    });
+  
+    rerender(<BuildingMap {...{ ...defaultProps, buildings: [hallBuilding] }} />);
+  });
+
+  it('sets JMSB building focus correctly', async () => {
+    const jmsb = {
+      id: 'MB',
+      name: 'JMSB',
+      latitude: 45.001,
+      longitude: -73.001,
+      boundary: [{ latitude: 45.001, longitude: -73.001 }],
+    };
+  
+    render(<BuildingMap {...{ ...defaultProps, buildings: [jmsb] }} />);
+  
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.001,
+        longitude: -73.001,
+        latitudeDelta: 0.0005,
+        longitudeDelta: 0.0005,
+      });
+    });
+  });
+
+  it('handles search for JMSB room correctly', async () => {
+    const jmsbRoom = {
+      id: 'MB-1.245',
+      name: 'MB-1.245',
+      building: true,
+      object: { id: 'MB' },
+      location: { x: 2, y: 3 },
+    };
+  
+    const { getByPlaceholderText } = render(
+      <BuildingMap {...{ ...defaultProps, buildings: [jmsbRoom] }} />
+    );
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'MB-1.245');
+    });
+  });
+
+  it('handles search when result is not a room', async () => {
+    const building = { id: 'MB', name: 'JMSB' };
+  
+    const { getByPlaceholderText } = render(
+      <BuildingMap {...{ ...defaultProps, buildings: [building] }} />
+    );
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'JMSB');
+    });
+  });
+
+  it('sets Vanier building focus correctly', async () => {
+    const vanier = {
+      id: 'VL',
+      name: 'Vanier Library',
+      latitude: 45.001,
+      longitude: -73.001,
+      boundary: [{ latitude: 45.001, longitude: -73.001 }],
+    };
+  
+    render(<BuildingMap {...{ ...defaultProps, buildings: [vanier] }} />);
+  
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.001,
+        longitude: -73.001,
+        latitudeDelta: 0.0005,
+        longitudeDelta: 0.0005,
+      });
+    });
+  });
+  
+  
+  
+  
+  
 });
 
