@@ -90,22 +90,9 @@ export default function BuildingMap({
   const vanierBuilding = buildings.find(b => b.id === 'VL');
   const ccBuilding = buildings.find(b => b.id === 'CC');
 
-  const [showPolygons, setShowPolygons] = useState(false);
-  const [forceKey, setForceKey] = useState(0);
-  const [classroomLocation, setClassroomLocation] = useState({
-    xcoord: 0,
-    ycoord: 0
-  });
   const [clasroomCoordinates, setClassroomCoordinates] = useState(null); 
   const [room, setRoom] = useState(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() =>{ 
-      //setShowPolygons(true);
-      setForceKey((prev) => prev + 1);
-    }, 239);
-    return () => clearTimeout(timer);
-  }, [])
   
   // Handle region change (zoom/pan)
   const onRegionChange = (region) => {
@@ -195,11 +182,6 @@ export default function BuildingMap({
         if (building.building) {
           console.log("Room searched: ",building);
           setRoom(building);
-          setClassroomLocation({
-            xcoord: building.location.x,
-            ycoord: building.location.y
-          });
-
           let coordinates;
           if (building.object.id === 'H') {
 
