@@ -43,7 +43,7 @@ const CalloutContent = memo(
   (prevProps, nextProps) => prevProps.building.id === nextProps.building.id
 );
 
-const BuildingMarker = ({ building, router, position, nearestBuilding }) => {
+const BuildingMarker = ({ building, router, position, nearestBuilding, focusOnBuilding }) => {
   const markerRef = useRef(null);
 
   const openAlert = useCallback(() => {
@@ -78,6 +78,7 @@ const BuildingMarker = ({ building, router, position, nearestBuilding }) => {
         coordinate={position}
         title={building.name}
         pinColor={isUserInside ? highlightPinColor : undefined}
+        onPress={() => focusOnBuilding(building)}
       >
         <Callout>
           <CalloutContent
@@ -97,6 +98,7 @@ const BuildingMarker = ({ building, router, position, nearestBuilding }) => {
           strokeColor={isUserInside ? highlightStrokeColor : defaultStrokeColor}
           fillColor={isUserInside ? highlightFillColor : defaultFillColor}
           strokeWidth={2}
+          onPress={() => focusOnBuilding(building)}
         />
       )}
     </>

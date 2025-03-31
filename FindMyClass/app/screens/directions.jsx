@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import MapView, { Marker, Polyline, Circle } from "react-native-maps";
+import MapView, { Marker, Polyline, Circle, Overlay, Polygon } from "react-native-maps";
 import * as Location from "expo-location";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
@@ -9,15 +9,116 @@ import LocationSelector from "../../components/directions/LocationSelector";
 import ModalSearchBars from "../../components/directions/ModalSearchBars";
 import SwipeUpModal from "../../components/directions/SwipeUpModal";
 import { 
-  isNearCampus, 
-  getNextShuttleTime, 
-  LOYOLA_COORDS, 
-  SGW_COORDS 
-} from "../../utils/shuttleUtils";
+    isNearCampus, 
+    getNextShuttleTime, 
+    LOYOLA_COORDS, 
+    SGW_COORDS,
+            } from "../../utils/shuttleUtils";
+import  SGWBuildings  from "../../components/SGWBuildings";
+import {
+  hallBuildingFloors,
+  getStartLocationHall
+} from "../../components/rooms/HallBuildingRooms";
+import PF from "pathfinding";
+import {
+    floorGrid,
+    getFloorPlanBounds,
+    convertGridForPathfinding,
+    getPolygonBounds,
+    // startX,
+    // startY,
+    // endX,
+    // endY,
+    gridLines,
+    horizontallyFlippedGrid,
+    verticallyFlippedGrid,
+    rotatedGrid,
+    gridMapping,
+    getExactCoordinates,
+    getFloorNumber
+} from "../../utils/indoorUtils";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+
+
+
+const floorPlans = {
+  1: require('../../floorPlans/hall-1-rotated.png'),
+  2: require('../../floorPlans/Hall-2.png'),
+  8: require('../../floorPlans//Hall-8.png'),
+  9: require('../../floorPlans/Hall-9.png')
+};            
+
 
 export default function DirectionsScreen() {
-  // Retrieve the destination from the params
-  const params = useLocalSearchParams();
+
+const [room, setRoom] = useState(null);
+const [floorNumber, setFloorNumber] = useState(0);
+const [floorStartLocation, setFloorStartLocation] = useState({
+  xcoord: 0, 
+  ycoord: 0
+});
+const [floorEndLocation, setFloorEndLocation] = useState({
+  xcoord: 0,
+  ycoord: 0
+});
+
+
+
+
+
+
+
+const startX = 10, startY = 9; 
+const endX = 17, endY = 17;
+
+const hallBuilding = SGWBuildings.find(b => b.id === 'H');
+
+const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
+
+const walkableGrid = convertGridForPathfinding(floorGrid);
+walkableGrid.setWalkableAt(
+  floorEndLocation.xcoord, 
+  floorEndLocation.ycoord, 
+  true);
+
+const finder = new PF.AStarFinder();
+const path = finder.findPath( 
+  floorStartLocation.xcoord,
+  floorStartLocation.ycoord,
+  floorEndLocation.xcoord, 
+  floorEndLocation.ycoord, walkableGrid);
+  
+  const buildingPolygon = [
+    { latitude: 45.4977197, longitude: -73.5790184 },
+    { latitude: 45.4971663, longitude: -73.5795456 },
+    { latitude: 45.4968262, longitude: -73.5788258 },
+    { latitude: 45.4973655, longitude: -73.5782906 },
+    { latitude: 45.4977197, longitude: -73.5790184 },
+  ];
+  
+  // ✅ Compute new bounds using the manually drawn GeoJSON polygon
+  const newBounds = getPolygonBounds(buildingPolygon);
+
+  
+  
+  
+  // gridMapping,
+  // correctedGridMapping,
+  // horizontallyFlippedGrid,
+  // verticallyFlippedGrid,
+  // rotatedGrid,
+
+
+
+   const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
+  // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+  const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
+    floorEndLocation.ycoord,);
+
+// ***************************************************************************************************** //
+  
+       // Retrieve the destination from the params that were passed from the Map page
+       const params = useLocalSearchParams();
 
   let parsedDestination = null;
   let errorMessage = null;
@@ -278,9 +379,27 @@ export default function DirectionsScreen() {
     return handleOtherModes(start, end, mode);
   };
 
-  const updateRoute = (start, end) => {
-    updateRouteWithMode(start, end, travelMode);
-  };
+    const updateRoute = (start, end) => {
+
+      if ( room ) {
+        // find the floor number of the room
+        const floor = getFloorNumber(room.id);
+        setFloorNumber(floor);
+        const floorStartLocationItem =  getStartLocationHall(floor);
+        setFloorStartLocation({
+          xcoord: floorStartLocationItem.location.x,
+          ycoord: floorStartLocationItem.location.y
+        });
+        setFloorEndLocation({
+          xcoord: room.location.x,
+          ycoord: room.location.y
+        });
+
+      }  
+      updateRouteWithMode(start, end, travelMode);
+    };
+
+
 
   useEffect(() => {
     let locationSubscription;
@@ -384,6 +503,7 @@ export default function DirectionsScreen() {
           setSearchType={setSearchType}
           updateRouteWithMode={updateRouteWithMode}
           updateRoute={updateRoute}
+          setRoom={setRoom}
         />
 
       </View>
@@ -469,7 +589,49 @@ export default function DirectionsScreen() {
               }
               return null;
             })}
+
+                    <View 
+                        style={{opacity: zoomLevel <= 13 ? 0.5 : 1 }}>
+                          <Overlay 
+                            bounds={[
+                              [newBounds.south, newBounds.west],
+                              [newBounds.north, newBounds.east]
+                            ]}
+                            image={floorPlans[8]}
+                            zIndex={1}
+                          />
+                    </View>
+                    {(destination && !room )&& <Marker coordinate={destination} title="Destination" />}
+                    {/*  Indoor route */}
+                        
+                    { room != null &&
+                          (<Polyline
+                            coordinates={pathCoordinates}
+                            strokeWidth={4}
+                            strokeColor="#912338"
+                            //lineDashPattern={[7]}
+                          />)
+                          }
+
+                         { room != null &&
+                          (<Marker 
+                            coordinate={classRoomCoordinates}
+                            title={room.name}
+                            pinColor="#912338"
+                            />)
+                          }
+
+                          {/* {gridLines.map((line, index) => (
+                              <Polyline
+                                key={index}
+                                coordinates={line}
+                                strokeWidth={1}
+                                strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
+                              />
+                            ))} */}
+
           </MapView>
+          
         </View>
 
         {isLoading && (
@@ -505,6 +667,9 @@ export default function DirectionsScreen() {
         customDest={customDest}
         setCustomDest={setCustomDest}
         setDestinationName={setDestinationName}
+
+            setRoom={setRoom}
+
       />
       {routeInfo && directions.length > 0 && (
         <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />

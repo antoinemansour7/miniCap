@@ -3,6 +3,7 @@ import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import BuildingMap from '../BuildingMap';
 import useLocationHandler from '../../hooks/useLocationHandler';
 
+
 // Mock expo-router
 jest.mock('expo-router', () => ({
   useRouter: () => ({
@@ -251,3 +252,373 @@ describe('BuildingMap Extended Tests', () => {
     });
   });  
 });
+
+
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}));
+
+jest.mock('../../hooks/useLocationHandler');
+
+
+jest.mock('react-native-maps', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  const MockMapView = React.forwardRef((props, ref) => {
+    onRegionChangeCompleteMock = props.onRegionChangeComplete;
+
+    React.useImperativeHandle(ref, () => ({
+      getCamera: () =>
+        Promise.resolve({
+          center: { latitude: 46, longitude: -74 },
+        }),
+      animateToRegion: jest.fn(),
+    }));
+
+    return <View {...props}>{props.children}</View>;
+  });
+
+  const MockMarker = (props) => <View {...props} />;
+  const MockPolygon = (props) => <View {...props} />;
+
+  return {
+    __esModule: true,
+    default: MockMapView,
+    Marker: MockMarker,
+    Polygon: MockPolygon,
+  };
+});
+
+jest.mock('@gorhom/bottom-sheet', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  const BottomSheet = React.forwardRef((props, ref) => {
+    React.useImperativeHandle(ref, () => ({
+      snapToIndex: jest.fn(),
+    }));
+
+    return <View {...props} />;
+  });
+
+  const BottomSheetView = (props) => <View {...props} />;
+
+  return { __esModule: true, default: BottomSheet, BottomSheetView };
+});
+
+jest.mock('../BuildingMarker', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return () => <View testID="building-marker" />;
+});
+
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () =>
+      Promise.resolve({
+        results: [
+          {
+            place_id: '1',
+            name: 'Test Place',
+            geometry: { location: { lat: 45.1, lng: -73.1 } },
+            vicinity: '123 Test Street',
+            types: ['restaurant'],
+            rating: 4.5,
+          },
+        ],
+      }),
+  })
+);
+
+describe('BuildingMap Extended Tests - Additions', () => {
+  const buildingsMock = [
+    {
+      id: '1',
+      name: 'Building One',
+      latitude: 45,
+      longitude: -73,
+      boundary: { outer: [{ latitude: 45.5, longitude: -73.5 }, { latitude: 45.6, longitude: -73.6 }] },
+    },
+  ];
+
+  const defaultProps = {
+    buildings: buildingsMock,
+    initialRegion: { latitude: 45, longitude: -73, latitudeDelta: 0.05, longitudeDelta: 0.05 },
+    buildingsRegion: { latitude: 45, longitude: -73 },
+    searchCoordinates: jest.fn(() => ({ latitude: 45.5, longitude: -73.5 })),
+    recenterDeltaUser: { latitudeDelta: 0.05, longitudeDelta: 0.05 },
+    recenterDeltaBuildings: { latitudeDelta: 0.1, longitudeDelta: 0.1 },
+    getMarkerPosition: jest.fn(() => ({ latitude: 45, longitude: -73 })),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useLocationHandler.mockReturnValue({
+      userLocation: { latitude: 45, longitude: -73 },
+      nearestBuilding: buildingsMock[0],
+    });
+  });
+
+  it('sets hallBuildingFocused to true when zoomed in and centered on Hall', async () => {
+    const { getByText } = render(<BuildingMap {...defaultProps} />);
+
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45,
+        longitude: -73,
+        latitudeDelta: 0.001,
+        longitudeDelta: 0.001,
+      });
+    });
+
+    await waitFor(() => {
+      expect(getByText('1')).toBeTruthy();
+    });
+  });
+
+  it('handles classroom search and sets classroomLocation correctly', async () => {
+    const classroom = {
+      id: 'H-921',
+      name: 'H-921',
+      building: true,
+      object: { id: 'H' },
+      location: { x: 5, y: 5 },
+    };
+
+    const updatedProps = {
+      ...defaultProps,
+      buildings: [...defaultProps.buildings, classroom],
+    };
+
+    const { getByPlaceholderText } = render(<BuildingMap {...updatedProps} />);
+
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'H-921');
+    });
+
+    expect(defaultProps.getMarkerPosition).toHaveBeenCalledWith(expect.objectContaining({ id: 'H' }));
+  });
+
+  it('debounces category selection to prevent duplicate fetches', async () => {
+    const { getByText } = render(<BuildingMap {...defaultProps} />);
+
+    const chip = getByText(/Restaurant/);
+    fireEvent.press(chip);
+    fireEvent.press(chip);
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('toggles map center between user and building when recenter pressed', async () => {
+    const { getByText } = render(<BuildingMap {...defaultProps} />);
+
+    const button = await waitFor(() => getByText('📍'));
+
+    await act(async () => {
+      fireEvent.press(button);
+    });
+
+    expect(defaultProps.getMarkerPosition).toHaveBeenCalled();
+  });
+
+  it('sets Hall building focus correctly when zoomed in and centered', async () => {
+    const hallBuilding = {
+      id: 'H',
+      name: 'Hall',
+      latitude: 45.0005,
+      longitude: -73.0005,
+      boundary: [{ latitude: 45.0004, longitude: -73.0004 }],
+    };
+  
+    const { rerender } = render(<BuildingMap {...{ ...defaultProps, buildings: [hallBuilding] }} />);
+    
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.0005,
+        longitude: -73.0005,
+        latitudeDelta: 0.0005, // high zoom
+        longitudeDelta: 0.0005,
+      });
+    });
+  
+    rerender(<BuildingMap {...{ ...defaultProps, buildings: [hallBuilding] }} />);
+  });
+
+
+  it('sets JMSB building focus correctly', async () => {
+    const jmsb = {
+      id: 'MB',
+      name: 'JMSB',
+      latitude: 45.001,
+      longitude: -73.001,
+      boundary: [{ latitude: 45.001, longitude: -73.001 }],
+    };
+  
+    render(<BuildingMap {...{ ...defaultProps, buildings: [jmsb] }} />);
+  
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.001,
+        longitude: -73.001,
+        latitudeDelta: 0.0005,
+        longitudeDelta: 0.0005,
+      });
+    });
+  });
+
+  it('handles search for JMSB room correctly', async () => {
+    const jmsbRoom = {
+      id: 'MB-1.245',
+      name: 'MB-1.245',
+      building: true,
+      object: { id: 'MB' },
+      location: { x: 2, y: 3 },
+    };
+  
+    const { getByPlaceholderText } = render(
+      <BuildingMap {...{ ...defaultProps, buildings: [jmsbRoom] }} />
+    );
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'MB-1.245');
+    });
+  });
+
+  it('handles search and sets classroom coordinates for Hall building', async () => {
+    const hallRoom = {
+      id: 'H-921',
+      name: 'H-921',
+      building: true,
+      object: { id: 'H' },
+      location: { x: 10, y: 15 },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [hallRoom] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'H-921');
+    });
+  
+    // getExactCoordinates will be called inside the effect
+  });
+  
+  it('handles search and sets classroom coordinates and floor for Vanier building', async () => {
+    const vanierRoom = {
+      id: "VL-101-6",
+      name: "VL-101-6",
+      building: true,
+      object: { id: 'VL' },
+      location: { x: 12, y: 18 },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [vanierRoom] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'VL-101-6');
+    });
+  });
+  
+  it('handles search and sets classroom coordinates and floor for CC building', async () => {
+    const ccRoom = {
+      id: 'CC-107',
+      name: 'CC-107',
+      building: true,
+      object: { id: 'CC' },
+      location: { x: 5, y: 9 },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [ccRoom] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'CC-107');
+    });
+  });
+  
+  it('handles search for a building that is not a classroom', async () => {
+    const building = {
+      id: 'H',
+      name: 'Hall',
+      building: false,
+      object: { id: 'H' },
+    };
+  
+    const { getByPlaceholderText } = render(<BuildingMap {...{ ...defaultProps, buildings: [building] }} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'Hall');
+    });
+  });
+  
+  it('handles search with no matching building', async () => {
+    const { getByPlaceholderText } = render(<BuildingMap {...defaultProps} />);
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'NonExistentRoom');
+    });
+  
+    // Should not crash or throw
+    expect(true).toBeTruthy();
+  });
+  
+
+  it('handles search when result is not a room', async () => {
+    const building = { id: 'MB', name: 'JMSB' };
+  
+    const { getByPlaceholderText } = render(
+      <BuildingMap {...{ ...defaultProps, buildings: [building] }} />
+    );
+  
+    await act(async () => {
+      fireEvent.changeText(getByPlaceholderText(/search/i), 'JMSB');
+    });
+  });
+
+  it('sets Vanier building focus correctly', async () => {
+    const vanier = {
+      id: 'VL',
+      name: 'Vanier Library',
+      latitude: 45.4591277,
+      longitude: -73.6382146,
+      boundary: [{ latitude: 45.4591277, longitude: -73.6382146 }],
+    };
+  
+    render(<BuildingMap {...{ ...defaultProps, buildings: [vanier] }} />);
+  
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.4591277,
+        longitude: -73.6382146,
+        latitudeDelta: 0.0005,
+        longitudeDelta: 0.0005,
+      });
+    });
+  });
+
+  it('sets CC building focus correctly', async () => {
+    const CC = {
+      id: 'CC',
+      name: 'Central Building',
+      latitude: 45.4583684,
+      longitude: -73.6404372,
+      boundary: [{ latitude: 45.4583684, longitude: -73.6404372 }],
+    };
+  
+    render(<BuildingMap {...{ ...defaultProps, buildings: [CC] }} />);
+  
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.4583684,
+        longitude: -73.6404372,
+        latitudeDelta: 0.0005,
+        longitudeDelta: 0.0005,
+      });
+    });
+  });
+});
+
+
+

@@ -22,6 +22,8 @@ module.exports = {
   coverageReporters: ['json', 'lcov', 'text', 'clover'],
   collectCoverageFrom: [
     'app/**/*.{js,jsx}',
+    'utils/**/*.{js,jsx}',
+    '!**/utils/shuttleUtils.js',
     'components/**/*.{js,jsx}',
     '**/__tests__/**/*.{js,jsx}',
     'contexts/**/*.{js,jsx}',
