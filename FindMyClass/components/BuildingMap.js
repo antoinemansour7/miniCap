@@ -12,7 +12,7 @@ import { getExactCoordinates, getFloorNumber, getPolygonBounds, getClassCoordina
 import {jmsbBounds, jmsbFlippedGrid } from "./rooms/JMSBBuildingRooms";
 import {vanierBounds, vanierFlippedGrid, gridVanier } from "./rooms/VanierBuildingRooms";
 import {ccBounds, ccFlippedGrid, gridCC } from "./rooms/CCBuildingRooms";
-
+import { googleAPIKey } from '../app/secrets';
 
 
 
@@ -34,12 +34,9 @@ const vanierFloorPlans = {
   1: require('../floorPlans/VL-1.png'),
   2: require('../floorPlans/VL-2-1.png')
 }
+
+const ccFloorPlan = require('../floorPlans/CC.png');
  
-
-
-
-
-import { googleAPIKey } from '../app/secrets';
 
 const categories = [
   { label: 'Restaurant', icon: '🍽️' },
@@ -85,11 +82,13 @@ export default function BuildingMap({
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
   const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
   const [vanierBuildingFocused, setVanierBuildingFocused] = useState(false);
+  const [ccBuildingFocused, setCCBuildingFocused] = useState(false);
   
   // Get the Hall Building reference
   const hallBuilding = buildings.find(b => b.id === 'H');
   const jmsbBuilding = buildings.find(b => b.id === 'MB');
   const vanierBuilding = buildings.find(b => b.id === 'VL');
+  const ccBuilding = buildings.find(b => b.id === 'CC');
 
   const [showPolygons, setShowPolygons] = useState(false);
   const [forceKey, setForceKey] = useState(0);
@@ -163,6 +162,23 @@ export default function BuildingMap({
       // Determine if we're focused on Hall Building (centered and zoomed in)
       const isVanierFocused = distance < 0.001 && calculatedZoom > 18;
       setVanierBuildingFocused(isVanierFocused);
+    }
+
+    if (ccBuilding) {
+      const ccLatLng = {
+        latitude: ccBuilding.latitude,
+        longitude: ccBuilding.longitude,
+      };
+      
+      // Calculate distance between map center and Hall Building
+      const distance = Math.sqrt(
+        Math.pow(region.latitude - ccLatLng.latitude, 2) +
+        Math.pow(region.longitude - ccLatLng.longitude, 2)
+      );
+      
+      // Determine if we're focused on Hall Building (centered and zoomed in)
+      const isCCFocused = distance < 0.0005 && calculatedZoom > 18;
+      setCCBuildingFocused(isCCFocused);
     }
 
   };
@@ -503,6 +519,21 @@ export default function BuildingMap({
                 zIndex={1}
               />
             </View>
+          )}
+
+          {ccBuilding && ccBounds && ccFloorPlan && ccBuildingFocused && (
+            <View
+              style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+                >
+              <Overlay
+                bounds={[
+                  [ccBounds.south, ccBounds.west],
+                  [ccBounds.north, ccBounds.east]
+                ]}
+                image={ccFloorPlan}
+                zIndex={1} 
+                />
+                </View>
           )}
 
           
