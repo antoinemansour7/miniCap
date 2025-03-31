@@ -251,3 +251,179 @@ describe('BuildingMap Extended Tests', () => {
     });
   });  
 });
+
+describe('BuildingMap Region Change and Building Focus Tests', () => {
+  const mockBuildings = [
+    {
+      id: 'H',
+      name: 'Hall Building',
+      latitude: 45.497163,
+      longitude: -73.578535,
+      boundary: [
+        { latitude: 45.497163, longitude: -73.578535 },
+        { latitude: 45.497263, longitude: -73.578635 }
+      ]
+    },
+    {
+      id: 'MB',
+      name: 'JMSB Building',
+      latitude: 45.495244,
+      longitude: -73.579321,
+      boundary: [
+        { latitude: 45.495244, longitude: -73.579321 },
+        { latitude: 45.495344, longitude: -73.579421 }
+      ]
+    },
+    {
+      id: 'VL',
+      name: 'Vanier Library',
+      latitude: 45.459120,
+      longitude: -73.638264,
+      boundary: [
+        { latitude: 45.459120, longitude: -73.638264 },
+        { latitude: 45.459220, longitude: -73.638364 }
+      ]
+    }
+  ];
+
+  const setupProps = {
+    ...defaultProps,
+    buildings: mockBuildings
+  };
+
+  it('handles region change and updates zoom level correctly', async () => {
+    const { getByTestId } = render(<BuildingMap {...setupProps} />);
+    
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.497163,
+        longitude: -73.578535,
+        latitudeDelta: 0.001, // High zoom level
+        longitudeDelta: 0.001
+      });
+    });
+
+    // Test high zoom level focus
+    expect(zoomLevel).toBeGreaterThan(18);
+  });
+
+  it('detects Hall Building focus correctly', async () => {
+    const { getByTestId } = render(<BuildingMap {...setupProps} />);
+    
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.497163,
+        longitude: -73.578535,
+        latitudeDelta: 0.0001,
+        longitudeDelta: 0.0001
+      });
+    });
+
+    const floorSelector = getByTestId('hall-floor-selector');
+    expect(floorSelector).toBeTruthy();
+  });
+
+  it('detects JMSB Building focus correctly', async () => {
+    const { getByTestId } = render(<BuildingMap {...setupProps} />);
+    
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.495244,  // JMSB coordinates
+        longitude: -73.579321,
+        latitudeDelta: 0.0001,
+        longitudeDelta: 0.0001
+      });
+    });
+
+    const jmsbFloorSelector = getByTestId('jmsb-floor-selector');
+    expect(jmsbFloorSelector).toBeTruthy();
+  });
+
+  it('updates selected floor correctly', async () => {
+    const { getByTestId } = render(<BuildingMap {...setupProps} />);
+    
+    // Focus on Hall Building first
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.497163,
+        longitude: -73.578535,
+        latitudeDelta: 0.0001,
+        longitudeDelta: 0.0001
+      });
+    });
+
+    // Change floor using testID
+    await act(async () => {
+      fireEvent.press(getByTestId('hall-floor-2-button'));
+    });
+
+    // Check if correct floor plan is displayed
+    const overlay = getByTestId('hall-building-overlay');
+    expect(overlay).toBeTruthy();
+  });
+
+  it('handles search functionality correctly', async () => {
+    const { getByPlaceholderText } = render(<BuildingMap {...setupProps} />);
+    
+    const searchBar = getByPlaceholderText(/search/i);
+    
+    await act(async () => {
+      fireEvent.changeText(searchBar, 'H-920');
+    });
+
+    // Verify that the map focuses on the correct location
+    expect(mapRef.current.animateToRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitude: expect.any(Number),
+        longitude: expect.any(Number),
+        latitudeDelta: 0.001,
+        longitudeDelta: 0.001
+      })
+    );
+  });
+
+  it('handles invalid room searches gracefully', async () => {
+    const { getByPlaceholderText } = render(<BuildingMap {...setupProps} />);
+    
+    const searchBar = getByPlaceholderText(/search/i);
+    
+    await act(async () => {
+      fireEvent.changeText(searchBar, 'INVALID-ROOM');
+    });
+
+    // Verify that no focus change occurred
+    expect(mapRef.current.animateToRegion).not.toHaveBeenCalled();
+  });
+
+  it('calculates building distances correctly', async () => {
+    const { getByTestId } = render(<BuildingMap {...setupProps} />);
+    
+    const mockUserLocation = {
+      latitude: 45.497163,
+      longitude: -73.578535
+    };
+
+    await act(async () => {
+      useLocationHandler.mockReturnValue({
+        userLocation: mockUserLocation,
+        nearestBuilding: mockBuildings[0]
+      });
+    });
+
+    // Trigger region change
+    await act(async () => {
+      onRegionChangeCompleteMock({
+        latitude: 45.497163,
+        longitude: -73.578535,
+        latitudeDelta: 0.001,
+        longitudeDelta: 0.001
+      });
+    });
+
+    // Verify that the nearest building is calculated correctly
+    expect(useLocationHandler).toHaveBeenCalledWith(
+      mockBuildings,
+      expect.any(Function)
+    );
+  });
+});
