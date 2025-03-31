@@ -1,6 +1,44 @@
 import  loyolaBuildings  from "../../components/loyolaBuildings";
+import { precomputeTransformedGrid, flipHorizontally, getPolygonBounds, drawDebugGrid } from "../../utils/indoorUtils";
+
 
 const ccBuilding = loyolaBuildings.find(building => building.id === "CC");
+
+const ccBuildingCorners = [
+  { latitude: 45.45856705947929, longitude: -73.64079466144375 }, // North
+  { latitude: 45.45830788625432, longitude:  -73.64100794688723}, // West
+  { latitude: 45.45788087046398, longitude: -73.63992974408042 }, // South
+  { latitude: 45.45813615699811, longitude: -73.63971922216355 } // East
+];
+
+const floorGrid = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [4,4,0,3,2,2,4,0,0,2,0,0,2,0,0,0,3,0,0,0],
+  [4,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [4,0,0,0,2,0,0,0,0,2,0,0,2,2,0,2,0,4,0,0],
+  [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+]
+
+const gridMapping = precomputeTransformedGrid(floorGrid, ccBuildingCorners);
+const gridCC = drawDebugGrid(gridMapping);
+const ccFlippedGrid = flipHorizontally(gridMapping);  
+const ccBounds = getPolygonBounds(ccBuildingCorners);
+
 // Building configuration
 const BUILDING_CONFIG = {
   buildingName: "CC Building",
@@ -111,9 +149,7 @@ const ccBuildingFloors = {
     ]
 
 
-  },
-
-  
+  }, 
 
   }
 
@@ -147,5 +183,9 @@ export {
   ccBuildingFloors,
   getRoomsByFloorCC,
   getStartLocationCC,
-  getAllRoomsCC
+  getAllRoomsCC,
+  ccFlippedGrid,
+  ccBounds,
+  gridCC,
+
 };
