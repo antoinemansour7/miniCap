@@ -204,6 +204,10 @@ export default function BuildingMap({
           if (building.object.id === 'H') {
 
             coordinates = getExactCoordinates(building.location.x, building.location.y);
+            setClassroomCoordinates(coordinates);
+            console.log("Classroom coordinates: ", coordinates);
+            setSelectedFloor(getFloorNumber(building.id));
+            console.log("Selected floor: ", getFloorNumber(building.id));
           }
           else if ( building.object.id === 'MB') {
              coordinates = getClassCoordinates(jmsbFlippedGrid, ( building.location.x ), ( building.location.y));
