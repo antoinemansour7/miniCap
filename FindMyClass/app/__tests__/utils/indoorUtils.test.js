@@ -3,7 +3,7 @@ import {
   getExactCoordinates,
   getPolygonBounds,
   getClassCoordinates 
-} from '../indoorUtils';
+} from '../../utils/indoorUtils';
 
 describe('indoorUtils', () => {
   describe('getFloorNumber', () => {
