@@ -8,59 +8,59 @@ import { DrawerActions } from '@react-navigation/native';
 import { AuthProvider } from '../contexts/AuthContext';
 import ProfileButton from '../components/ProfileButton';
 import { usePathname } from 'expo-router';
-import RNUxcam from 'react-native-ux-cam';
-import { uxCamKey } from './secrets'; 
+// import RNUxcam from 'react-native-ux-cam';
+// import { uxCamKey } from './secrets'; 
 import Constants from 'expo-constants';
 
 export default function Layout() {
 
   const pathname = usePathname();
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (Constants.appOwnership === 'expo') {
-      console.warn('Skipping UXCam, Running in Expo Go');
-      return;
-    }
-    // Initialize UXCam only once when the app starts
-    const configuration = {
-      userAppKey: uxCamKey,
-      enableAutomaticScreenNameTagging: false,
-      enableAdvancedGestureRecognition: true,
-      enableImprovedScreenCapture: true,
-    };
+  //   if (Constants.appOwnership === 'expo') {
+  //     console.warn('Skipping UXCam, Running in Expo Go');
+  //     return;
+  //   }
+  //   // Initialize UXCam only once when the app starts
+  //   const configuration = {
+  //     userAppKey: uxCamKey,
+  //     enableAutomaticScreenNameTagging: false,
+  //     enableAdvancedGestureRecognition: true,
+  //     enableImprovedScreenCapture: true,
+  //   };
 
-    RNUxcam.startWithConfiguration(configuration);
-  }, []);
+  //   RNUxcam.startWithConfiguration(configuration);
+  // }, []);
 
-  useEffect(() => {
-    // Tag the current screen name whenever route changes
-    RNUxcam.tagScreenName(pathname);
-  }, [pathname]);
+  // useEffect(() => {
+  //   // Tag the current screen name whenever route changes
+  //   RNUxcam.tagScreenName(pathname);
+  // }, [pathname]);
 
-  // Detect UI Freeze
-  useEffect(() => {
-    let lastFrameTime = Date.now();
+  // // Detect UI Freeze
+  // useEffect(() => {
+  //   let lastFrameTime = Date.now();
 
-    const detectFreeze = () => {
-      const now = Date.now();
-      const timeSinceLastFrame = now - lastFrameTime;
+  //   const detectFreeze = () => {
+  //     const now = Date.now();
+  //     const timeSinceLastFrame = now - lastFrameTime;
 
-      if (timeSinceLastFrame > 3000) { // If no frame update for 3+ seconds
-        RNUxcam.logEvent('AppFreezeDetected', {
-          screen: pathname,
-          freezeDuration: timeSinceLastFrame + 'ms',
-          timestamp: new Date().toISOString(),
-        });
-        console.warn(' App freeze detected:', timeSinceLastFrame, 'ms');
-      }
+  //     if (timeSinceLastFrame > 3000) { // If no frame update for 3+ seconds
+  //       RNUxcam.logEvent('AppFreezeDetected', {
+  //         screen: pathname,
+  //         freezeDuration: timeSinceLastFrame + 'ms',
+  //         timestamp: new Date().toISOString(),
+  //       });
+  //       console.warn(' App freeze detected:', timeSinceLastFrame, 'ms');
+  //     }
 
-      lastFrameTime = now;
-      requestAnimationFrame(detectFreeze);
-    };
+  //     lastFrameTime = now;
+  //     requestAnimationFrame(detectFreeze);
+  //   };
 
-    requestAnimationFrame(detectFreeze);
-  }, []);
+  //   requestAnimationFrame(detectFreeze);
+  // }, []);
 
 
   // Removed searchText state since search bar is no longer needed for maps
@@ -169,15 +169,6 @@ export default function Layout() {
             }}
           />
               <Drawer.Screen
-            name="secrets"
-            options={{
-              drawerLabel: () => null,
-              title: 'secrets',
-              drawerItemStyle: { display: 'none' },
-            }}
-          />
-
-            <Drawer.Screen
             name="styles/authStyles"
             options={{
               drawerLabel: () => null,

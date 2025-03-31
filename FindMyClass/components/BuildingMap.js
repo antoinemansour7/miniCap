@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, FlatList, Modal, StyleSheet, Image } from 'react-native';
-import MapView, { Marker, Polygon, Overlay } from 'react-native-maps';
+import MapView, { Marker, Polygon, Overlay,Polyline } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import mapStyles from './mapStyles';
@@ -10,7 +10,9 @@ import useLocationHandler from '../hooks/useLocationHandler';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { getExactCoordinates, getFloorNumber, getPolygonBounds, getClassCoordinates } from '../utils/indoorUtils';
 import {jmsbBounds, jmsbFlippedGrid } from "./rooms/JMSBBuildingRooms";
-
+import {vanierBounds, vanierFlippedGrid, gridVanier } from "./rooms/VanierBuildingRooms";
+import {ccBounds, ccFlippedGrid, gridCC } from "./rooms/CCBuildingRooms";
+import { googleAPIKey } from '../app/secrets';
 
 
 
@@ -28,9 +30,13 @@ const jmsbFloorPlans = {
   2: require('../floorPlans/MB-S2-1.png'),
 }
 
+const vanierFloorPlans = {
+  1: require('../floorPlans/VL-1.png'),
+  2: require('../floorPlans/VL-2-1.png')
+}
 
-
-import { googleAPIKey } from '../app/secrets';
+const ccFloorPlan = require('../floorPlans/CC.png');
+ 
 
 const categories = [
   { label: 'Restaurant', icon: '🍽️' },
@@ -70,12 +76,20 @@ export default function BuildingMap({
   // Floor plan state variables
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [jmsbSelectedFloor, setJMSBSelectedFloor] = useState(1);
+  const [vanierSelectedFloor, setVanierSelectedFloor] = useState(1);
+
+  // are the buildings focused?
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
   const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
+  const [vanierBuildingFocused, setVanierBuildingFocused] = useState(false);
+  const [ccBuildingFocused, setCCBuildingFocused] = useState(false);
   
   // Get the Hall Building reference
   const hallBuilding = buildings.find(b => b.id === 'H');
   const jmsbBuilding = buildings.find(b => b.id === 'MB');
+  const vanierBuilding = buildings.find(b => b.id === 'VL');
+  const ccBuilding = buildings.find(b => b.id === 'CC');
+
   const [showPolygons, setShowPolygons] = useState(false);
   const [forceKey, setForceKey] = useState(0);
   const [classroomLocation, setClassroomLocation] = useState({
@@ -129,8 +143,42 @@ export default function BuildingMap({
       );
       
       // Determine if we're focused on Hall Building (centered and zoomed in)
-      const isJMSBFocused = distance < 0.0005 && calculatedZoom > 18;
+      const isJMSBFocused = distance < 0.0006 && calculatedZoom > 18;
       setJMSBBuildingFocused(isJMSBFocused);
+    }
+
+    if (vanierBuilding) {
+      const vanierLatLng = {
+        latitude: vanierBuilding.latitude,
+        longitude: vanierBuilding.longitude,
+      };
+      
+      // Calculate distance between map center and Hall Building
+      const distance = Math.sqrt(
+        Math.pow(region.latitude - vanierLatLng.latitude, 2) +
+        Math.pow(region.longitude - vanierLatLng.longitude, 2)
+      );
+      
+      // Determine if we're focused on Hall Building (centered and zoomed in)
+      const isVanierFocused = distance < 0.001 && calculatedZoom > 18;
+      setVanierBuildingFocused(isVanierFocused);
+    }
+
+    if (ccBuilding) {
+      const ccLatLng = {
+        latitude: ccBuilding.latitude,
+        longitude: ccBuilding.longitude,
+      };
+      
+      // Calculate distance between map center and Hall Building
+      const distance = Math.sqrt(
+        Math.pow(region.latitude - ccLatLng.latitude, 2) +
+        Math.pow(region.longitude - ccLatLng.longitude, 2)
+      );
+      
+      // Determine if we're focused on Hall Building (centered and zoomed in)
+      const isCCFocused = distance < 0.0005 && calculatedZoom > 18;
+      setCCBuildingFocused(isCCFocused);
     }
 
   };
@@ -152,17 +200,35 @@ export default function BuildingMap({
             ycoord: building.location.y
           });
 
-          const coordinates = building.object.id === 'H' ? 
-            getExactCoordinates(building.location.x, building.location.y):
-            getClassCoordinates(jmsbFlippedGrid, 
-              ( building.location.x ), 
-              ( building.location.y));
+          let coordinates;
+          if (building.object.id === 'H') {
 
-          setClassroomCoordinates(coordinates);
-          console.log("Classroom coordinates: ", coordinates);
-          setSelectedFloor(getFloorNumber(building.id));
-          setJMSBSelectedFloor(getFloorNumber(building.id));
-          console.log("Selected floor: ", getFloorNumber(building.id));
+            coordinates = getExactCoordinates(building.location.x, building.location.y);
+          }
+          else if ( building.object.id === 'MB') {
+             coordinates = getClassCoordinates(jmsbFlippedGrid, ( building.location.x ), ( building.location.y));
+                setClassroomCoordinates(coordinates);
+                console.log("Classroom coordinates: ", coordinates);
+                setSelectedFloor(getFloorNumber(building.id));
+                setJMSBSelectedFloor(getFloorNumber(building.id));
+                console.log("Selected floor: ", getFloorNumber(building.id));
+          }
+          else if ( building.object.id === 'VL') {
+            coordinates = getClassCoordinates(vanierFlippedGrid, ( building.location.x ), ( building.location.y));
+            setClassroomCoordinates(coordinates);
+            console.log("Classroom coordinates: ", coordinates);
+            setSelectedFloor(getFloorNumber(building.id));
+            setVanierSelectedFloor(getFloorNumber(building.id));
+            console.log("Selected floor: ", getFloorNumber(building.id));
+          }
+          else if ( building.object.id === 'CC') {
+            coordinates = getClassCoordinates(ccFlippedGrid, ( building.location.x ), ( building.location.y));
+            setClassroomCoordinates(coordinates);
+            console.log("Classroom coordinates: ", coordinates);
+            setSelectedFloor(getFloorNumber(building.id));
+            console.log("Selected floor: ", getFloorNumber(building.id));
+          }
+
           focusOnBuilding(building.object);
         }
         else {
@@ -446,6 +512,37 @@ export default function BuildingMap({
             />
           </View> )}
 
+          {vanierBuilding &&  vanierBounds && vanierFloorPlans[vanierSelectedFloor] && vanierBuildingFocused && (
+            <View
+              style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+            >
+
+              <Overlay
+                bounds={[
+                  [vanierBounds.south, vanierBounds.west],
+                  [vanierBounds.north, vanierBounds.east]
+                ]}
+                image={vanierFloorPlans[vanierSelectedFloor]}
+                zIndex={1}
+              />
+            </View>
+          )}
+
+          {ccBuilding && ccBounds && ccFloorPlan && ccBuildingFocused && (
+            <View
+              style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+                >
+              <Overlay
+                bounds={[
+                  [ccBounds.south, ccBounds.west],
+                  [ccBounds.north, ccBounds.east]
+                ]}
+                image={ccFloorPlan}
+                zIndex={1} 
+                />
+                </View>
+          )}
+
           
 
         {buildings.map((building) => {
@@ -542,6 +639,8 @@ export default function BuildingMap({
               pinColor="#912338"
               />)
                 }
+
+             
       </MapView>
       
       {/* Floor Selector - Only visible when zoomed in on Hall Building */}
@@ -584,6 +683,30 @@ export default function BuildingMap({
                 style={[
                   styles.floorButtonText,
                   jmsbSelectedFloor === floor && styles.selectedFloorButtonText
+                ]}
+              >
+                {floor}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      { vanierBuildingFocused && (
+        <View style={styles.floorSelectorContainer}>
+          {[1, 2].map((floor) => (
+            <TouchableOpacity
+              key={floor}
+              style={[
+                styles.floorButton,
+                vanierSelectedFloor === floor && styles.selectedFloorButton,
+              ]}
+              onPress={() => setVanierSelectedFloor(floor)}
+            >
+              <Text 
+                style={[
+                  styles.floorButtonText,
+                  vanierSelectedFloor === floor && styles.selectedFloorButtonText
                 ]}
               >
                 {floor}

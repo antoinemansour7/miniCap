@@ -1,6 +1,9 @@
 import React from 'react';
 import BuildingMap from './BuildingMap';
 import LoyolaBuildings from './loyolaBuildings';
+import { getAllRoomsVanier } from './rooms/VanierBuildingRooms';
+import { getAllRoomsCC } from './rooms/CCBuildingRooms';
+
 
 // Compute centroid for Loyola buildings with an adjustment for building 'SP'
 const getLoyolaMarkerPosition = (building) => {
@@ -45,9 +48,14 @@ const recenterDeltaUser = { latitudeDelta: 0.001, longitudeDelta: 0.001 };
 const recenterDeltaBuildings = { latitudeDelta: 0.005, longitudeDelta: 0.005 };
 
 const LoyolaMap = () => {
+
+  const vanierBuildingRooms = getAllRoomsVanier();
+  const ccBuildingRooms = getAllRoomsCC();
+  const allBuildingsAndRooms = [...LoyolaBuildings,...vanierBuildingRooms,...ccBuildingRooms];
+
   return (
     <BuildingMap
-      buildings={LoyolaBuildings}
+      buildings={allBuildingsAndRooms}
       initialRegion={initialRegion}
       buildingsRegion={buildingsRegion}
       searchCoordinates={getLoyolaSearchCoordinates}
