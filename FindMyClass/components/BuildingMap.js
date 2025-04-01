@@ -13,6 +13,7 @@ import {jmsbBounds, jmsbFlippedGrid } from "./rooms/JMSBBuildingRooms";
 import {vanierBounds, vanierFlippedGrid, gridVanier } from "./rooms/VanierBuildingRooms";
 import {ccBounds, ccFlippedGrid, gridCC } from "./rooms/CCBuildingRooms";
 import { googleAPIKey } from '../app/secrets';
+import RoomMarker from './RoomMarker';
 
 
 
@@ -618,13 +619,19 @@ export default function BuildingMap({
           </Marker>
         ))}
 
-            { room != null &&
+            {/* { room != null &&
             (<Marker 
               coordinate={clasroomCoordinates}
               title={room.name}
               pinColor="#912338"
               />)
-                }
+                } */}
+                <RoomMarker
+                classroomCoordinates={clasroomCoordinates}
+                room={room}
+                router={router}
+                
+                />
 
              
       </MapView>
