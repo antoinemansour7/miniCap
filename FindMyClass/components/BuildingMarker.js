@@ -151,3 +151,4 @@ const styles = StyleSheet.create({
 });
 
 export default BuildingMarker;
+export  {styles};
