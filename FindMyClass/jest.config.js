@@ -31,6 +31,7 @@ module.exports = {
     '!**/coverage/**',
     '!**/jest.setup.js',
     '!**/maestro/**',
+    '!**/chatbot.js/**',
     '!**/CustomAlert.js',
     '!**/*.config.js',
     '!**/_layout.jsx',  // Exclude _layout.jsx
