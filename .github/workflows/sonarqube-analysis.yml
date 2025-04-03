@@ -51,7 +51,7 @@ jobs:
       - name: Install SonarScanner
         run: npm install -g sonar-scanner
 
-      # Step 8: Run SonarCloud Analysis inside FindMyClass/
+      # Step 8: Run SonarCloud Analysis inside FindMyClass/, remove unused files
       - name: Run SonarScanner
         working-directory: FindMyClass
         env:
