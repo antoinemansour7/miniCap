@@ -168,6 +168,16 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
             }}
           />
+
+            <Drawer.Screen
+            name="api/googleCalendars"
+            options={{
+              drawerLabel: () => null,
+              title: 'api/googleCalendars',
+              drawerItemStyle: { display: 'none' },
+            }}
+          />
+
               <Drawer.Screen
             name="secrets"
             options={{
