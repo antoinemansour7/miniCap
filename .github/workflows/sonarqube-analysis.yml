@@ -52,6 +52,7 @@ jobs:
         run: npm install -g sonar-scanner
 
       # Step 8: Run SonarCloud Analysis inside FindMyClass/, remove unused files
+      # This step runs the SonarScanner to analyze the code and send the results to SonarCloud.
       - name: Run SonarScanner
         working-directory: FindMyClass
         env:
@@ -68,7 +69,7 @@ jobs:
               -Dsonar.token=$SONAR_TOKEN \
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
               -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx,constants/Colors.ts,components/CustomAlert.js,utils/shuttleUtils.js,**/Chatbot.js \
-              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**,**/services/**,**/android/**,**/styles/** \
+              -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**,**/services/**,**/android/**,**/styles/** \ 
               -Dsonar.c.file.suffixes=- \
               -Dsonar.cpp.file.suffixes=- \
               -Dsonar.objc.file.suffixes=- \
