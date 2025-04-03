@@ -48,11 +48,13 @@ jobs:
         run: npm test -- --coverage || true
 
       # Step 7: Install SonarScanner
+      # This step installs the SonarScanner globally using npm.
       - name: Install SonarScanner
         run: npm install -g sonar-scanner
 
       # Step 8: Run SonarCloud Analysis inside FindMyClass/, remove unused files
       # This step runs the SonarScanner to analyze the code and send the results to SonarCloud.
+      # The analysis is configured to exclude certain files and directories from the analysis.
       - name: Run SonarScanner
         working-directory: FindMyClass
         env:

@@ -2,6 +2,8 @@ import { getAuth } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { googleCalendarConfig } from '../secrets';
 
+//This file is only called from Chatbot, since the schedule is using a refined version, this is hardcoded into schedule.js
+
 const fetchGoogleCalendarEvents = async () => {
   try {
     const auth = getAuth();
