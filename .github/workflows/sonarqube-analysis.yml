@@ -83,7 +83,7 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io/ \
               -Dsonar.token=$SONAR_TOKEN \
               -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info \
-              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx,constants/Colors.ts,components/CustomAlert.js,utils/shuttleUtils.js,**/Chatbot.js \
+              -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/jest.config.js,**/__tests__/**,**/babel.config.js,**/metro.config.js,**/jest.setup.js,**/_layout.jsx,**/hooks/**,**/App.jsx,constants/Colors.ts,components/CustomAlert.js,utils/shuttleUtils.js, **/Chatbot.js \
               -Dsonar.exclusions=**/node_modules/**,**/.git/**,**/.github/**,**/coverage/**,**/dist/**,**/build/**,**/__mocks__/**,**/__tests__/**,**scripts**,**/services/**,**/android/**,**/styles/** \
               -Dsonar.c.file.suffixes=- \
               -Dsonar.cpp.file.suffixes=- \
