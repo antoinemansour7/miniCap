@@ -13,21 +13,90 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { getAuth } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import fetchGoogleCalendarEvents from '../api/googleCalendar';
-import fetchGoogleCalendars from '../api/googleCalendars';
+import { getAuth } from 'firebase/auth';
+import { googleCalendarConfig } from '../secrets';
 import { useAuth } from '../../contexts/AuthContext';
 import CustomModal from '../../components/CustomModal';
 
 const { width } = Dimensions.get('window');
 
-// We have 1 column for Time + 5 columns for Mon-Fri = 6 total
+// Constants for grid layout
 const TOTAL_COLUMNS = 6;
 const CELL_WIDTH = (width - 32) / TOTAL_COLUMNS; // 32 = horizontal padding/margins if desired
 const TIME_COLUMN_WIDTH = CELL_WIDTH;
 const BORDER_RADIUS = 12;
 const CELL_HEIGHT = 50;
+
+// --- FETCH CALENDARS FUNCTION ---
+// This function fetches the user's calendars.
+const fetchGoogleCalendars = async () => {
+  try {
+    const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
+    if (!googleAccessToken) {
+      console.error("No Google access token found. Please sign in with Google.");
+      return [];
+    }
+    const url = "https://www.googleapis.com/calendar/v3/users/me/calendarList";
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${googleAccessToken}`,
+        Accept: "application/json",
+      },
+    });
+    const data = await response.json();
+    if (data.error) {
+      console.error("Google Calendar API Error:", data.error);
+      return [];
+    }
+    console.log("Retrieved Calendars:", data.items);
+    return data.items || [];
+  } catch (error) {
+    console.error("Error fetching Google Calendars:", error);
+    return [];
+  }
+};
+
+// --- DYNAMIC FETCH EVENTS FUNCTION ---
+// This function builds the URL dynamically using the provided calendarId.
+const fetchEventsForCalendar = async (calendarId) => {
+  try {
+    const googleAccessToken = await AsyncStorage.getItem("googleAccessToken");
+    if (!googleAccessToken) {
+      console.error("No Google OAuth access token found. Please sign in again.");
+      return [];
+    }
+    // Build URL using the calendarId instead of a static link.
+    // Here we define our parameters inline; you could also use values from googleCalendarConfig.
+    const params = new URLSearchParams({
+      maxResults: 20,
+      orderBy: 'startTime',
+      singleEvents: true,
+      timeMin: new Date().toISOString(),
+    });
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${googleAccessToken}`,
+        Accept: "application/json",
+      },
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      console.error(`Google Calendar API Error for calendar ${calendarId}:`, data.error);
+      return [];
+    }
+    console.log(`Events for calendar "${calendarId}":`, data.items);
+    return data.items || [];
+  } catch (error) {
+    console.error("Error fetching calendar events:", error);
+    return [];
+  }
+};
 
 export default function Schedule() {
   const { user } = useAuth();
@@ -62,7 +131,7 @@ export default function Schedule() {
     return `${hour.toString().padStart(2, '0')}:00`;
   });
 
-  // Monday–Friday
+  // Monday–Friday labels
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
   // Close search modal
@@ -71,7 +140,7 @@ export default function Schedule() {
     setSearchQuery('');
   };
 
-  // Load available calendars on initial render (or when user is logged in)
+  // Load available calendars when the user is logged in.
   useEffect(() => {
     const loadCalendars = async () => {
       const fetchedCalendars = await fetchGoogleCalendars();
@@ -94,17 +163,6 @@ export default function Schedule() {
 
   // Function to sync events using the selected calendar's ID
   const syncEvents = async () => {
-    const auth = getAuth();
-    if (!auth.currentUser) {
-      setModalConfig({
-        visible: true,
-        type: 'error',
-        title: 'Authentication Required',
-        message: 'Please sign in to sync your calendar.',
-      });
-      await AsyncStorage.removeItem('googleAccessToken');
-      return;
-    }
     const googleAccessToken = await AsyncStorage.getItem('googleAccessToken');
     if (!googleAccessToken) {
       setModalConfig({
@@ -117,7 +175,8 @@ export default function Schedule() {
     }
     setIsSyncing(true);
     try {
-      const fetchedEvents = await fetchGoogleCalendarEvents(selectedCalendar.id);
+      console.log("Fetching events for calendar ID:", selectedCalendar.id);
+      const fetchedEvents = await fetchEventsForCalendar(selectedCalendar.id);
       setEvents(fetchedEvents || []);
       setLastSynced(new Date());
       setModalConfig({
@@ -149,8 +208,17 @@ export default function Schedule() {
     }
   }, [user]);
 
-  // When pressing the sync button, clear previous selection and show the calendar modal
+  // When pressing the sync button, check login status.
   const handleSync = () => {
+    if (!user) {
+      setModalConfig({
+        visible: true,
+        type: 'error',
+        title: 'Authentication Required',
+        message: 'Please sign in with Google to sync your calendar.',
+      });
+      return;
+    }
     // Clear previous selection so the user can choose a calendar every time
     setSelectedCalendar(null);
     setCalendarModalVisible(true);
@@ -175,6 +243,7 @@ export default function Schedule() {
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() => {
+                      console.log("Selected calendar:", item);
                       setSelectedCalendar(item);
                       setCalendarModalVisible(false);
                     }}
@@ -197,7 +266,7 @@ export default function Schedule() {
     </Modal>
   );
 
-  // Header row for days
+  // Render header for the schedule grid (Time and Days)
   const renderHeader = () => (
     <View style={styles.headerRow}>
       <View style={[styles.timeColumn, styles.headerCell]}>
@@ -211,7 +280,7 @@ export default function Schedule() {
     </View>
   );
 
-  // Render each time row
+  // Render each time row for the grid
   const renderRow = ({ item: time }) => (
     <View style={styles.row}>
       <View style={styles.timeColumn}>
@@ -228,7 +297,7 @@ export default function Schedule() {
     setEventModalVisible(true);
   };
 
-  // Render events overlay on top of the grid
+  // Render the events overlay on the grid
   const renderEventsOverlay = () => (
     <View style={styles.eventsOverlay}>
       {events.map((event) => {
@@ -263,7 +332,7 @@ export default function Schedule() {
     </View>
   );
 
-  // Animations for floating buttons
+  // Floating button animations
   const addButtonTransform = {
     transform: [
       {
@@ -417,10 +486,7 @@ export default function Schedule() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
   syncHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -433,18 +499,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
   },
-  syncButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  lastSyncedText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  gridContent: {
-    paddingBottom: 100,
-  },
+  syncButtonText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  lastSyncedText: { fontSize: 12, color: '#666' },
+  gridContent: { paddingBottom: 100 },
   headerRow: {
     flexDirection: 'row',
     backgroundColor: '#f2f2f2',
@@ -452,15 +509,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ccc',
   },
-  headerCell: {
-    paddingVertical: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    minHeight: 50,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
+  headerCell: { paddingVertical: 10 },
+  row: { flexDirection: 'row', minHeight: 50, borderBottomWidth: 1, borderColor: '#eee' },
   timeColumn: {
     width: TIME_COLUMN_WIDTH,
     borderRightWidth: 1,
@@ -476,40 +526,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cell: {
-    width: CELL_WIDTH,
-    borderRightWidth: 1,
-    borderColor: '#eee',
-  },
-  timeText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  headerText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  eventsOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 9999,
-  },
-  eventBox: {
-    position: 'absolute',
-    backgroundColor: '#912338',
-    borderRadius: 6,
-    padding: 4,
-    overflow: 'hidden',
-  },
-  eventBoxText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '600',
-  },
+  cell: { width: CELL_WIDTH, borderRightWidth: 1, borderColor: '#eee' },
+  timeText: { fontSize: 12, color: '#666' },
+  headerText: { fontSize: 12, fontWeight: 'bold', color: '#333' },
+  eventsOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 },
+  eventBox: { position: 'absolute', backgroundColor: '#912338', borderRadius: 6, padding: 4, overflow: 'hidden' },
+  eventBoxText: { color: '#fff', fontSize: 10, fontWeight: '600' },
   floatingButton: {
     position: 'absolute',
     bottom: 20,
@@ -524,12 +546,7 @@ const styles = StyleSheet.create({
   },
   addButton: {},
   deleteButton: {},
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  modalBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContainer: {
     backgroundColor: '#fff',
     width: '80%',
@@ -538,75 +555,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  modalMessage: {
-    fontSize: 16,
-    marginBottom: 5,
-    textAlign: 'center',
-  },
-  modalButton: {
-    backgroundColor: '#912338',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-    marginTop: 15,
-    alignSelf: 'center',
-  },
-  modalButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  searchContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-  },
-  searchHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  searchTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
-    marginTop: 10,
-    paddingHorizontal: 8,
-  },
-  searchIcon: {
-    marginRight: 5,
-  },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 8,
-  },
-  searchResults: {
-    marginTop: 16,
-  },
-  calendarItem: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
-  calendarItemText: {
-    fontSize: 16,
-    color: '#333',
-  },
+  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
+  modalMessage: { fontSize: 16, marginBottom: 5, textAlign: 'center' },
+  modalButton: { backgroundColor: '#912338', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 4, marginTop: 15, alignSelf: 'center' },
+  modalButtonText: { color: '#fff', textAlign: 'center' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  searchContainer: { backgroundColor: '#fff', borderRadius: 8, padding: 16 },
+  searchHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  searchTitle: { fontSize: 18, fontWeight: '600' },
+  searchInputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f2', borderRadius: 8, marginTop: 10, paddingHorizontal: 8 },
+  searchIcon: { marginRight: 5 },
+  searchInput: { flex: 1, paddingVertical: 8 },
+  searchResults: { marginTop: 16 },
+  calendarItem: { padding: 12, borderBottomWidth: 1, borderColor: '#eee' },
+  calendarItemText: { fontSize: 16, color: '#333' },
 });
