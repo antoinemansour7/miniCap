@@ -63,10 +63,14 @@ export default function DirectionsScreen() {
   } else {
     try {
       parsedDestination = JSON.parse(params.destination);
-      console.log("Params :", params);
+      //console.log("Params :", params);
     } catch (error) {
       console.error("Error parsing destination:", error);
       errorMessage = "Error: Invalid destination format.";
+    }
+
+    if ( params.room) {
+      console.log("Room coord:", params.roomCoordinates);
     }
 
     if (
