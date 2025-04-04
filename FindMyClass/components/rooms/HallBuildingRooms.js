@@ -1,6 +1,19 @@
 import  SGWBuildings  from "../../components/SGWBuildings";
+import { precomputeTransformedGrid, flipHorizontally,getPolygonBounds } from "../../utils/indoorUtils";
+
 
 const hallBuilding = SGWBuildings.find(building => building.id === "H");
+
+const hallCorners = [
+    { latitude: 45.4977197, longitude: -73.5790184 },
+    { latitude: 45.4971663, longitude: -73.5795456 },
+    { latitude: 45.4968262, longitude: -73.5788258 },
+    { latitude: 45.4973655, longitude: -73.5782906 },
+    { latitude: 45.4977197, longitude: -73.5790184 },
+  ];
+
+  const hallBounds = getPolygonBounds(hallCorners);
+
 // Building configuration
 const BUILDING_CONFIG = {
   buildingName: "Hall Building",
@@ -953,4 +966,5 @@ export {
   getStartLocationHall,
   getAllRoomsHall,
   hallBuilding,
+  hallBounds,
 };
