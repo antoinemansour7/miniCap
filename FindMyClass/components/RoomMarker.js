@@ -15,8 +15,9 @@ const CalloutContent = memo(
             router.push({
               pathname: '/screens/directions',
               params: {
-                destination: JSON.stringify(classroomCoordinates),
+                destination: JSON.stringify({latitude: room.object.latitude, longitude: room.object.longitude}),
                 buildingName: room.name,
+                roomCoordinates: JSON.stringify(classroomCoordinates),
               },
             });
           }}
