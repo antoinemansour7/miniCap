@@ -147,17 +147,14 @@ export default function DirectionsScreen() {
   const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
   const [vanierBuildingFocused, setVanierBuildingFocused] = useState(false);
   const [ccBuildingFocused, setCCBuildingFocused] = useState(false);
-
-// Floor plan state variables
-  const [hallSelectedFloor, setHallSelectedFloor] = useState(1);
-  const [jmsbSelectedFloor, setJMSBSelectedFloor] = useState(1);
-  const [vanierSelectedFloor, setVanierSelectedFloor] = useState(1);
   
 
   useEffect(() => {
     if (room) {
       const floor = getFloorNumber(room.id);
-
+      setFloorNumber({ ...floorNumber,
+         [room.object.id]: floor });
+         
       const floorStartLocationItem =  getStartLocationHall(floor);
       setFloorStartLocation({
         xcoord: floorStartLocationItem.location.x,
@@ -694,16 +691,7 @@ export default function DirectionsScreen() {
             })}
 
                  <FloorPlans
-                    hallBuildingFocused={hallBuildingFocused}
-                    hallSelectedFloor={hallSelectedFloor}
-                    jmsbBuildingFocused={jmsbBuildingFocused}
-                    jmsbSelectedFloor={jmsbSelectedFloor}
-                    vanierBuildingFocused={vanierBuildingFocused}
-                    vanierSelectedFloor={vanierSelectedFloor}
-                    ccBuildingFocused={ccBuildingFocused}
-                    zoomLevel={zoomLevel}
                     floorNumber={floorNumber}
-
                  />
                     {(destination && !room )&& <Marker coordinate={destination} title="Destination" />}
                     {/*  Indoor route */}
