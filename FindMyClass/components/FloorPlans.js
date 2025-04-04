@@ -52,6 +52,8 @@ const FloorPlans = ({
 
     ccBuildingFocused,
 
+    floorNumber,
+
     zoomLevel,
  }) => {
 
@@ -60,7 +62,7 @@ const FloorPlans = ({
 
     return (
         <>
-             {hallBuilding && hallBounds && hallFloorPlans[hallSelectedFloor] &&   (
+             {hallBuilding && hallBounds && hallFloorPlans[floorNumber['H']] &&   (
                       <View 
                         //style={{opacity: zoomLevel <= 18 ? 0.5 : 1 }}
                       >
@@ -70,12 +72,12 @@ const FloorPlans = ({
                             [hallBounds.south, hallBounds.west],
                             [hallBounds.north, hallBounds.east]
                           ]}
-                          image={hallFloorPlans[hallSelectedFloor]}
+                          image={hallFloorPlans[floorNumber['H']]}
                           zIndex={1}
                         />
                       </View> )}
             
-                      {jmsbBuilding && jmsbBounds && jmsbFloorPlans[jmsbSelectedFloor] &&  (
+                      {jmsbBuilding && jmsbBounds && jmsbFloorPlans[floorNumber['MB']] &&  (
                       <View 
                         //style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
                       >
@@ -85,12 +87,12 @@ const FloorPlans = ({
                             [jmsbBounds.south, jmsbBounds.west],
                             [jmsbBounds.north, jmsbBounds.east]
                           ]}
-                          image={jmsbFloorPlans[jmsbSelectedFloor]}
+                          image={jmsbFloorPlans[floorNumber['MB']]}
                           zIndex={1}
                         />
                       </View> )}
             
-                      {vanierBuilding &&  vanierBounds && vanierFloorPlans[vanierSelectedFloor] &&  (
+                      {vanierBuilding &&  vanierBounds && vanierFloorPlans[floorNumber['VL']] &&  (
                         <View
                          // style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
                         >
@@ -100,7 +102,7 @@ const FloorPlans = ({
                               [vanierBounds.south, vanierBounds.west],
                               [vanierBounds.north, vanierBounds.east]
                             ]}
-                            image={vanierFloorPlans[vanierSelectedFloor]}
+                            image={vanierFloorPlans[floorNumber['VL']]}
                             zIndex={1}
                           />
                         </View>
