@@ -419,5 +419,6 @@ const getRoomsByFloorJSMB = (floorNumber) => {
     getAllRoomsJSMB,
     jmsbBuildingCorners,
     jmsbBounds,
+    jmsbBuilding,
   };
     
