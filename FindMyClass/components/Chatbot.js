@@ -164,7 +164,7 @@ const Chatbot = ({ isVisible, onClose }) => {
 
   // Handler for "Get Directions" button
   const handleGetDirections = () => {
-    console.log("Get Directions pressed");
+    
     if (nextClassEvent && nextClassEvent.destinationCoordinates) {
       setShowDirectionsPopup(false);
       // Close the Chatbot modal before navigating, necessary
