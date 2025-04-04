@@ -777,6 +777,20 @@ export default function DirectionsScreen() {
         <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
       )}
     </View>
+    <FloorSelector 
+        hallBuildingFocused={hallBuildingFocused}
+        hallSelectedFloor={hallSelectedFloor}
+        setHallSelectedFloor={setHallSelectedFloor}
+
+        jmsbBuildingFocused={jmsbBuildingFocused}
+        jmsbSelectedFloor={jmsbSelectedFloor}
+        setJMSBSelectedFloor={setJMSBSelectedFloor}
+
+        vanierBuildingFocused={vanierBuildingFocused}
+        vanierSelectedFloor={vanierSelectedFloor}
+        setVanierSelectedFloor={setVanierSelectedFloor}
+        
+      />
     </View>
   );
 }
