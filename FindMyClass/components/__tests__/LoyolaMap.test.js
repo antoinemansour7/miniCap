@@ -1,5 +1,14 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
+
+// ADD: Mock @gorhom/bottom-sheet with a dummy "out" property to prevent errors.
+jest.mock('@gorhom/bottom-sheet', () => ({
+  __esModule: true,
+  default: (props) => <> {props.children} </>,
+  BottomSheetView: (props) => <> {props.children} </>,
+  out: {},
+}));
+
 import LoyolaMap from '../LoyolaMap';
 import LoyolaBuildings from '../loyolaBuildings';
 import useLocationHandler from '../../hooks/useLocationHandler';
