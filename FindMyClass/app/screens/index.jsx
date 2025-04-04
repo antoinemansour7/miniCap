@@ -48,7 +48,7 @@ export default function Index() {
         <Card 
           iconName="navigate" 
           title="Next Class" 
-          onPress={() => navigation.navigate('screens/nextClass')}
+          //onPress={() => navigation.navigate('screens/nextClass')}
         />
       </View>
     </View>
