@@ -41,20 +41,8 @@ const hallFloorPlans = {
 
 const FloorPlans = ({ 
 
-    hallSelectedFloor,
-    hallBuildingFocused,
-
-    jmsbSelectedFloor,
-    jmsbBuildingFocused,
-
-    vanierSelectedFloor,
-    vanierBuildingFocused,
-
-    ccBuildingFocused,
-
     floorNumber,
 
-    zoomLevel,
  }) => {
 
    
