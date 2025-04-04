@@ -46,8 +46,9 @@ export default function Index() {
           onPress={() => navigation.navigate('screens/schedule')}
         />
         <Card 
-          iconName="lock-closed" 
-          title="Security" 
+          iconName="navigate" 
+          title="Next Class" 
+          onPress={() => navigation.navigate('screens/nextClass')}
         />
       </View>
     </View>
