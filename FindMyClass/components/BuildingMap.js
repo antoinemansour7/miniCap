@@ -661,29 +661,29 @@ export default function BuildingMap({
         </View>
       )}
 
-{jmsbBuildingFocused && (
-        <View style={styles.floorSelectorContainer}>
-          {[1, 2].map((floor) => (
-            <TouchableOpacity
-              key={floor}
-              style={[
-                styles.floorButton,
-                jmsbSelectedFloor === floor && styles.selectedFloorButton,
-              ]}
-              onPress={() => setJMSBSelectedFloor(floor)}
-            >
-              <Text 
-                style={[
-                  styles.floorButtonText,
-                  jmsbSelectedFloor === floor && styles.selectedFloorButtonText
-                ]}
-              >
-                {floor}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+      {jmsbBuildingFocused && (
+              <View style={styles.floorSelectorContainer}>
+                {[1, 2].map((floor) => (
+                  <TouchableOpacity
+                    key={floor}
+                    style={[
+                      styles.floorButton,
+                      jmsbSelectedFloor === floor && styles.selectedFloorButton,
+                    ]}
+                    onPress={() => setJMSBSelectedFloor(floor)}
+                  >
+                    <Text 
+                      style={[
+                        styles.floorButtonText,
+                        jmsbSelectedFloor === floor && styles.selectedFloorButtonText
+                      ]}
+                    >
+                      {floor}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
       { vanierBuildingFocused && (
         <View style={styles.floorSelectorContainer}>
@@ -843,7 +843,7 @@ const customMarkerStyles = StyleSheet.create({
     maxWidth: 100,
   },
 });
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   floorSelectorContainer: {
     position: 'absolute',
     right: 20,
