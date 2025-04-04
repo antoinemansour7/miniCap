@@ -63,11 +63,6 @@ const [floorEndLocation, setFloorEndLocation] = useState({
 });
 
 
-
-
-
-
-
 const startX = 10, startY = 9; 
 const endX = 17, endY = 17;
 
@@ -129,6 +124,7 @@ const path = finder.findPath(
   } else {
     try {
       parsedDestination = JSON.parse(params.destination);
+      console.log("Params :", params);
     } catch (error) {
       console.error("Error parsing destination:", error);
       errorMessage = "Error: Invalid destination format.";
