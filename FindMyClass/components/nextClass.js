@@ -43,6 +43,7 @@ export const getNextClassEvent = async () => {
         destinationCoordinates: foundCoordinates,
       };
     }
+    console.log("Next class event:", nextEvent);
     return nextEvent;
   } catch (error) {
     console.error("Error fetching or processing next class event:", error);
