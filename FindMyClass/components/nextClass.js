@@ -1,6 +1,7 @@
 // nextClass.js
 
 import fetchGoogleCalendarEvents from '../app/api/googleCalendar';
+import { router } from 'expo-router';
 
 // Define your mapping of building names to coordinates.
 const buildingCoordinatesMap = {
@@ -53,9 +54,9 @@ export const getNextClassEvent = async () => {
 
 /**
  * Navigates to the directions screen using the next class event's details.
- * @param {object} router - A router instance (from useRouter) to navigate.
+ * This function uses the global router from expo-router.
  */
-export const navigateToNextClass = async (router) => {
+export const navigateToNextClass = async () => {
   const nextEvent = await getNextClassEvent();
   if (!nextEvent || !nextEvent.destinationCoordinates) {
     alert("Directions unavailable – no valid coordinates found for the next class.");
@@ -69,3 +70,6 @@ export const navigateToNextClass = async (router) => {
     },
   });
 };
+
+// Global export for easier import in other parts of the app.
+export default { getNextClassEvent, navigateToNextClass };
