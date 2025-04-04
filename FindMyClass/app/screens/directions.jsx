@@ -38,6 +38,11 @@ import {
     getFloorNumber
 } from "../../utils/indoorUtils";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import {jmsbBuilding,jmsbBounds, jmsbFlippedGrid } from "../../components/rooms/JMSBBuildingRooms";
+import {vanierBuilding ,vanierBounds, vanierFlippedGrid, gridVanier } from "../../components/rooms/VanierBuildingRooms";
+import { ccBuilding, ccBounds, ccFlippedGrid, gridCC } from "../../components/rooms/CCBuildingRooms";
+import { hallBuilding } from "../../components/rooms/HallBuildingRooms";
+import FloorPlans from "../../components/FloorPlans";
 
 
 
@@ -113,6 +118,8 @@ export default function DirectionsScreen() {
   const [searchType, setSearchType] = useState("START");
   const [directions, setDirections] = useState([]);
   
+  // ***************************************************************************************************** //
+  // Indoor routing variables
 
   const [room, setRoom] = useState(null);
   const [floorNumber, setFloorNumber] = useState(0);
@@ -124,12 +131,23 @@ export default function DirectionsScreen() {
     xcoord: 0,
     ycoord: 0
   });
+
+// are the buildings focused?
+  const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
+  const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
+  const [vanierBuildingFocused, setVanierBuildingFocused] = useState(false);
+  const [ccBuildingFocused, setCCBuildingFocused] = useState(false);
+
+// Floor plan state variables
+  const [hallSelectedFloor, setHallSelectedFloor] = useState(1);
+  const [jmsbSelectedFloor, setJMSBSelectedFloor] = useState(1);
+  const [vanierSelectedFloor, setVanierSelectedFloor] = useState(1);
   
   
   const startX = 10, startY = 9; 
   const endX = 17, endY = 17;
   
-  const hallBuilding = SGWBuildings.find(b => b.id === 'H');
+ // const hallBuilding = SGWBuildings.find(b => b.id === 'H');
   
   const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
   
@@ -172,6 +190,83 @@ export default function DirectionsScreen() {
     // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
     const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
       floorEndLocation.ycoord,);
+
+      const onRegionChange = (region) => {
+        // Calculate zoom level based on latitudeDelta
+        const calculatedZoom = calculateZoomLevel(region);
+        setZoomLevel( calculatedZoom );
+        // Check if we're zoomed in on the Hall Building
+        if (hallBuilding ) {
+          const hallLatLng = {
+            latitude: hallBuilding.latitude,
+            longitude: hallBuilding.longitude,
+          };
+          
+          // Calculate distance between map center and Hall Building
+          const distance = Math.sqrt(
+            Math.pow(region.latitude - hallLatLng.latitude, 2) +
+            Math.pow(region.longitude - hallLatLng.longitude, 2)
+          );
+          
+          // Determine if we're focused on Hall Building (centered and zoomed in)
+          const isHallFocused = distance < 0.0005 && calculatedZoom > 18;
+          setHallBuildingFocused(isHallFocused);
+        }
+        if (jmsbBuilding) {
+          const jmsbLatLng = {
+            latitude: jmsbBuilding.latitude,
+            longitude: jmsbBuilding.longitude,
+          };
+          
+          // Calculate distance between map center and Hall Building
+          const distance = Math.sqrt(
+            Math.pow(region.latitude - jmsbLatLng.latitude, 2) +
+            Math.pow(region.longitude - jmsbLatLng.longitude, 2)
+          );
+          
+          // Determine if we're focused on Hall Building (centered and zoomed in)
+          const isJMSBFocused = distance < 0.0006 && calculatedZoom > 18;
+          setJMSBBuildingFocused(isJMSBFocused);
+        }
+    
+        if (vanierBuilding) {
+          const vanierLatLng = {
+            latitude: vanierBuilding.latitude,
+            longitude: vanierBuilding.longitude,
+          };
+          
+          // Calculate distance between map center and Hall Building
+          const distance = Math.sqrt(
+            Math.pow(region.latitude - vanierLatLng.latitude, 2) +
+            Math.pow(region.longitude - vanierLatLng.longitude, 2)
+          );
+          
+          // Determine if we're focused on Hall Building (centered and zoomed in)
+          const isVanierFocused = distance < 0.001 && calculatedZoom > 18;
+          setVanierBuildingFocused(isVanierFocused);
+        }
+    
+        if (ccBuilding) {
+          const ccLatLng = {
+            latitude: ccBuilding.latitude,
+            longitude: ccBuilding.longitude,
+          };
+          
+          // Calculate distance between map center and Hall Building
+          const distance = Math.sqrt(
+            Math.pow(region.latitude - ccLatLng.latitude, 2) +
+            Math.pow(region.longitude - ccLatLng.longitude, 2)
+          );
+          
+          // Determine if we're focused on Hall Building (centered and zoomed in)
+          const isCCFocused = distance < 0.0005 && calculatedZoom > 18;
+          setCCBuildingFocused(isCCFocused);
+        }
+    
+      };
+
+      // End of indoor
+      // ***************************************************************************************************** //
 
   // A ref to always hold the latest selected travel mode
   const latestModeRef = useRef(travelMode);
@@ -521,10 +616,11 @@ export default function DirectionsScreen() {
               latitudeDelta: 0.05,
               longitudeDelta: 0.05,
             }}
-            onRegionChangeComplete={(region) => {
-              const newZoomLevel = calculateZoomLevel(region);
-              setZoomLevel(newZoomLevel);
-            }}
+            // onRegionChangeComplete={(region) => {
+            //   const newZoomLevel = calculateZoomLevel(region);
+            //   setZoomLevel(newZoomLevel);
+            // }}
+            onRegionChange={onRegionChange}
             testID="map-view"
           >
             {userLocation && (
@@ -591,17 +687,17 @@ export default function DirectionsScreen() {
               return null;
             })}
 
-                    <View 
-                        style={{opacity: zoomLevel <= 13 ? 0.5 : 1 }}>
-                          <Overlay 
-                            bounds={[
-                              [newBounds.south, newBounds.west],
-                              [newBounds.north, newBounds.east]
-                            ]}
-                            image={floorPlans[8]}
-                            zIndex={1}
-                          />
-                    </View>
+                 <FloorPlans
+                    hallBuildingFocused={hallBuildingFocused}
+                    hallSelectedFloor={hallSelectedFloor}
+                    jmsbBuildingFocused={jmsbBuildingFocused}
+                    jmsbSelectedFloor={jmsbSelectedFloor}
+                    vanierBuildingFocused={vanierBuildingFocused}
+                    vanierSelectedFloor={vanierSelectedFloor}
+                    ccBuildingFocused={ccBuildingFocused}
+                    zoomLevel={zoomLevel}
+
+                 />
                     {(destination && !room )&& <Marker coordinate={destination} title="Destination" />}
                     {/*  Indoor route */}
                         
