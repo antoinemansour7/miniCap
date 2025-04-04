@@ -19,20 +19,15 @@ import { styles } from './BuildingMap';
 
 const FloorSelector = ({
     hallBuildingFocused,
-    hallSelectedFloor,
-    setHallSelectedFloor,
-
     jmsbBuildingFocused,
-    jmsbSelectedFloor,
-    setJMSBSelectedFloor,
-
     vanierBuildingFocused,
-    vanierSelectedFloor,
-    setVanierSelectedFloor,
+
+    setFloorNumber,
+    floorNumber,
 
 }) => {
 
-
+    
     return (
         <> 
               {hallBuildingFocused && (
@@ -42,14 +37,15 @@ const FloorSelector = ({
                       key={floor}
                       style={[
                         styles.floorButton,
-                        hallSelectedFloor === floor && styles.selectedFloorButton,
+                        floorNumber['H'] === floor && styles.selectedFloorButton,
                       ]}
-                      onPress={() => setHallSelectedFloor(floor)}
+                      onPress={() => setFloorNumber({ ...floorNumber, ['H']: floor })}
+
                     >
                       <Text 
                         style={[
                           styles.floorButtonText,
-                          hallSelectedFloor === floor && styles.selectedFloorButtonText
+                          floorNumber['H'] === floor && styles.selectedFloorButtonText
                         ]}
                       >
                         {floor}
@@ -66,14 +62,14 @@ const FloorSelector = ({
                             key={floor}
                             style={[
                               styles.floorButton,
-                              jmsbSelectedFloor === floor && styles.selectedFloorButton,
+                              floorNumber['MB'] === floor && styles.selectedFloorButton,
                             ]}
-                            onPress={() => setJMSBSelectedFloor(floor)}
+                         onPress={() => setFloorNumber({ ...floorNumber, ['MB']: floor })}
                           >
                             <Text 
                               style={[
                                 styles.floorButtonText,
-                                jmsbSelectedFloor === floor && styles.selectedFloorButtonText
+                                floorNumber['MB'] === floor && styles.selectedFloorButtonText
                               ]}
                             >
                               {floor}
@@ -90,14 +86,15 @@ const FloorSelector = ({
                       key={floor}
                       style={[
                         styles.floorButton,
-                        vanierSelectedFloor === floor && styles.selectedFloorButton,
+                        floorNumber['VL'] === floor && styles.selectedFloorButton,
                       ]}
-                      onPress={() => setVanierSelectedFloor(floor)}
+                      onPress={() => setFloorNumber({ ...floorNumber, ['VL']: floor })}
+
                     >
                       <Text 
                         style={[
                           styles.floorButtonText,
-                          vanierSelectedFloor === floor && styles.selectedFloorButtonText
+                          floorNumber['VL'] === floor && styles.selectedFloorButtonText
                         ]}
                       >
                         {floor}

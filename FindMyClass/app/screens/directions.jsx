@@ -92,6 +92,9 @@ export default function DirectionsScreen() {
   
 
   const buildingName = params?.buildingName || "No Destination set";
+  const roomParams = params?.room || null ;
+  const roomLocation = params?.roomCoordinates || null;
+
 
   // State management
   const [destinationName, setDestinationName] = useState(buildingName);
@@ -122,8 +125,13 @@ export default function DirectionsScreen() {
   // ***************************************************************************************************** //
   // Indoor routing variables
 
-  const [room, setRoom] = useState(null);
-  const [floorNumber, setFloorNumber] = useState(0);
+  const [room, setRoom] = useState(roomParams);
+  const [floorNumber, setFloorNumber] = useState({
+    H:1, 
+    MB:1, 
+    VL:1 
+  });
+
   const [floorStartLocation, setFloorStartLocation] = useState({
     xcoord: 0, 
     ycoord: 0
@@ -132,6 +140,7 @@ export default function DirectionsScreen() {
     xcoord: 0,
     ycoord: 0
   });
+  const [roomCoordinates, setRoomCoordinates] = useState(roomLocation);
 
 // are the buildings focused?
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
@@ -144,14 +153,23 @@ export default function DirectionsScreen() {
   const [jmsbSelectedFloor, setJMSBSelectedFloor] = useState(1);
   const [vanierSelectedFloor, setVanierSelectedFloor] = useState(1);
   
-  
-  const startX = 10, startY = 9; 
-  const endX = 17, endY = 17;
-  
- // const hallBuilding = SGWBuildings.find(b => b.id === 'H');
-  
-  const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
-  
+
+  useEffect(() => {
+    if (room) {
+      const floor = getFloorNumber(room.id);
+
+      const floorStartLocationItem =  getStartLocationHall(floor);
+      setFloorStartLocation({
+        xcoord: floorStartLocationItem.location.x,
+        ycoord: floorStartLocationItem.location.y
+      });
+      setFloorEndLocation({
+        xcoord: room.location.x,
+        ycoord: room.location.y
+      });
+    }
+  },[room])
+
   const walkableGrid = convertGridForPathfinding(floorGrid);
   walkableGrid.setWalkableAt(
     floorEndLocation.xcoord, 
@@ -164,19 +182,7 @@ export default function DirectionsScreen() {
     floorStartLocation.ycoord,
     floorEndLocation.xcoord, 
     floorEndLocation.ycoord, walkableGrid);
-    
-    const buildingPolygon = [
-      { latitude: 45.4977197, longitude: -73.5790184 },
-      { latitude: 45.4971663, longitude: -73.5795456 },
-      { latitude: 45.4968262, longitude: -73.5788258 },
-      { latitude: 45.4973655, longitude: -73.5782906 },
-      { latitude: 45.4977197, longitude: -73.5790184 },
-    ];
-    
-    // ✅ Compute new bounds using the manually drawn GeoJSON polygon
-    const newBounds = getPolygonBounds(buildingPolygon);
-  
-    
+   
     
     
     // gridMapping,
@@ -184,8 +190,6 @@ export default function DirectionsScreen() {
     // horizontallyFlippedGrid,
     // verticallyFlippedGrid,
     // rotatedGrid,
-  
-  
   
      const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
     // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
@@ -698,6 +702,7 @@ export default function DirectionsScreen() {
                     vanierSelectedFloor={vanierSelectedFloor}
                     ccBuildingFocused={ccBuildingFocused}
                     zoomLevel={zoomLevel}
+                    floorNumber={floorNumber}
 
                  />
                     {(destination && !room )&& <Marker coordinate={destination} title="Destination" />}
@@ -779,16 +784,12 @@ export default function DirectionsScreen() {
     </View>
     <FloorSelector 
         hallBuildingFocused={hallBuildingFocused}
-        hallSelectedFloor={hallSelectedFloor}
-        setHallSelectedFloor={setHallSelectedFloor}
-
         jmsbBuildingFocused={jmsbBuildingFocused}
-        jmsbSelectedFloor={jmsbSelectedFloor}
-        setJMSBSelectedFloor={setJMSBSelectedFloor}
-
         vanierBuildingFocused={vanierBuildingFocused}
-        vanierSelectedFloor={vanierSelectedFloor}
-        setVanierSelectedFloor={setVanierSelectedFloor}
+   
+        setFloorNumber={setFloorNumber}
+        floorNumber={floorNumber}
+
         
       />
     </View>
