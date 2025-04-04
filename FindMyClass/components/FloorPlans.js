@@ -60,9 +60,9 @@ const FloorPlans = ({
 
     return (
         <>
-             {hallBuilding && hallBounds && hallFloorPlans[hallSelectedFloor] && hallBuildingFocused && (
+             {hallBuilding && hallBounds && hallFloorPlans[hallSelectedFloor] &&   (
                       <View 
-                        style={{opacity: zoomLevel <= 18 ? 0.5 : 1 }}
+                        //style={{opacity: zoomLevel <= 18 ? 0.5 : 1 }}
                       >
             
                         <Overlay 
@@ -75,9 +75,9 @@ const FloorPlans = ({
                         />
                       </View> )}
             
-                      {jmsbBuilding && jmsbBounds && jmsbFloorPlans[jmsbSelectedFloor] && jmsbBuildingFocused && (
+                      {jmsbBuilding && jmsbBounds && jmsbFloorPlans[jmsbSelectedFloor] &&  (
                       <View 
-                        style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+                        //style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
                       >
             
                         <Overlay 
@@ -90,9 +90,9 @@ const FloorPlans = ({
                         />
                       </View> )}
             
-                      {vanierBuilding &&  vanierBounds && vanierFloorPlans[vanierSelectedFloor] && vanierBuildingFocused && (
+                      {vanierBuilding &&  vanierBounds && vanierFloorPlans[vanierSelectedFloor] &&  (
                         <View
-                          style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+                         // style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
                         >
             
                           <Overlay
@@ -106,9 +106,9 @@ const FloorPlans = ({
                         </View>
                       )}
             
-                      {ccBuilding && ccBounds && ccFloorPlan && ccBuildingFocused && (
+                      {ccBuilding && ccBounds && ccFloorPlan &&  (
                         <View
-                          style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+                          //style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
                             >
                           <Overlay
                             bounds={[
