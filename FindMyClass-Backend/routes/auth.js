@@ -1,7 +1,7 @@
 import express from "express";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/config.js"; // Ensure Firebase is initialized
-import { registerUser } from "../firebase/auth.js"; // Adjust path as needed
+import { registerUser } from "../firebase/auth.js";
 
 const router = express.Router();
 
