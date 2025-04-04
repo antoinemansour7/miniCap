@@ -1,12 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
+// Import the globally exported function from nextClass.js
+import { navigateToNextClass } from '../../path/to/nextClass';
 
 export default function Index() {
-  const navigation = useNavigation();
-
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -48,7 +47,7 @@ export default function Index() {
         <Card 
           iconName="navigate" 
           title="Next Class" 
-          //onPress={() => navigation.navigate('screens/nextClass')}
+          onPress={navigateToNextClass}
         />
       </View>
     </View>
