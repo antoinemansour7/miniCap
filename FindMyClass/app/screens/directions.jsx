@@ -43,6 +43,7 @@ import {vanierBuilding ,vanierBounds, vanierFlippedGrid, gridVanier } from "../.
 import { ccBuilding, ccBounds, ccFlippedGrid, gridCC } from "../../components/rooms/CCBuildingRooms";
 import { hallBuilding } from "../../components/rooms/HallBuildingRooms";
 import FloorPlans from "../../components/FloorPlans";
+import FloorSelector from "../../components/FloorSelector";
 
 
 
@@ -195,6 +196,7 @@ export default function DirectionsScreen() {
         // Calculate zoom level based on latitudeDelta
         const calculatedZoom = calculateZoomLevel(region);
         setZoomLevel( calculatedZoom );
+        const minimumZoom = 17;
         // Check if we're zoomed in on the Hall Building
         if (hallBuilding ) {
           const hallLatLng = {
@@ -209,7 +211,7 @@ export default function DirectionsScreen() {
           );
           
           // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isHallFocused = distance < 0.0005 && calculatedZoom > 18;
+          const isHallFocused = distance < 0.0005 && calculatedZoom > minimumZoom;
           setHallBuildingFocused(isHallFocused);
         }
         if (jmsbBuilding) {
@@ -225,7 +227,7 @@ export default function DirectionsScreen() {
           );
           
           // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isJMSBFocused = distance < 0.0006 && calculatedZoom > 18;
+          const isJMSBFocused = distance < 0.0006 && calculatedZoom > minimumZoom;
           setJMSBBuildingFocused(isJMSBFocused);
         }
     
@@ -242,7 +244,7 @@ export default function DirectionsScreen() {
           );
           
           // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isVanierFocused = distance < 0.001 && calculatedZoom > 18;
+          const isVanierFocused = distance < 0.001 && calculatedZoom > minimumZoom;
           setVanierBuildingFocused(isVanierFocused);
         }
     
@@ -259,7 +261,7 @@ export default function DirectionsScreen() {
           );
           
           // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isCCFocused = distance < 0.0005 && calculatedZoom > 18;
+          const isCCFocused = distance < 0.0005 && calculatedZoom > minimumZoom;
           setCCBuildingFocused(isCCFocused);
         }
     
@@ -731,6 +733,8 @@ export default function DirectionsScreen() {
           
         </View>
 
+
+
         {isLoading && (
           <View style={stylesB.loadingCard}>
             <Text style={stylesB.loadingText}>Loading route...</Text>
@@ -747,6 +751,7 @@ export default function DirectionsScreen() {
         <SwipeUpModal distance={routeInfo.distance} duration={routeInfo.duration} directions={directions} />
       )}
       <View>
+   
       <ModalSearchBars
         searchType={searchType}
         isModalVisible={isModalVisible}
