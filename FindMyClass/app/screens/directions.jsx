@@ -50,70 +50,9 @@ const floorPlans = {
 
 
 export default function DirectionsScreen() {
-
-const [room, setRoom] = useState(null);
-const [floorNumber, setFloorNumber] = useState(0);
-const [floorStartLocation, setFloorStartLocation] = useState({
-  xcoord: 0, 
-  ycoord: 0
-});
-const [floorEndLocation, setFloorEndLocation] = useState({
-  xcoord: 0,
-  ycoord: 0
-});
-
-
-const startX = 10, startY = 9; 
-const endX = 17, endY = 17;
-
-const hallBuilding = SGWBuildings.find(b => b.id === 'H');
-
-const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
-
-const walkableGrid = convertGridForPathfinding(floorGrid);
-walkableGrid.setWalkableAt(
-  floorEndLocation.xcoord, 
-  floorEndLocation.ycoord, 
-  true);
-
-const finder = new PF.AStarFinder();
-const path = finder.findPath( 
-  floorStartLocation.xcoord,
-  floorStartLocation.ycoord,
-  floorEndLocation.xcoord, 
-  floorEndLocation.ycoord, walkableGrid);
   
-  const buildingPolygon = [
-    { latitude: 45.4977197, longitude: -73.5790184 },
-    { latitude: 45.4971663, longitude: -73.5795456 },
-    { latitude: 45.4968262, longitude: -73.5788258 },
-    { latitude: 45.4973655, longitude: -73.5782906 },
-    { latitude: 45.4977197, longitude: -73.5790184 },
-  ];
-  
-  // ✅ Compute new bounds using the manually drawn GeoJSON polygon
-  const newBounds = getPolygonBounds(buildingPolygon);
-
-  
-  
-  
-  // gridMapping,
-  // correctedGridMapping,
-  // horizontallyFlippedGrid,
-  // verticallyFlippedGrid,
-  // rotatedGrid,
-
-
-
-   const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
-  // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-  const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
-    floorEndLocation.ycoord,);
-
-// ***************************************************************************************************** //
-  
-       // Retrieve the destination from the params that were passed from the Map page
-       const params = useLocalSearchParams();
+// Retrieve the destination from the params that were passed from the Map page
+  const params = useLocalSearchParams();
 
   let parsedDestination = null;
   let errorMessage = null;
@@ -139,6 +78,8 @@ const path = finder.findPath(
       errorMessage = "Error: Invalid destination coordinates.";
     }
   }
+
+  
 
   const buildingName = params?.buildingName || "No Destination set";
 
@@ -167,6 +108,66 @@ const path = finder.findPath(
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchType, setSearchType] = useState("START");
   const [directions, setDirections] = useState([]);
+  
+
+  const [room, setRoom] = useState(null);
+  const [floorNumber, setFloorNumber] = useState(0);
+  const [floorStartLocation, setFloorStartLocation] = useState({
+    xcoord: 0, 
+    ycoord: 0
+  });
+  const [floorEndLocation, setFloorEndLocation] = useState({
+    xcoord: 0,
+    ycoord: 0
+  });
+  
+  
+  const startX = 10, startY = 9; 
+  const endX = 17, endY = 17;
+  
+  const hallBuilding = SGWBuildings.find(b => b.id === 'H');
+  
+  const bounds = hallBuilding ? getFloorPlanBounds(hallBuilding) : null;
+  
+  const walkableGrid = convertGridForPathfinding(floorGrid);
+  walkableGrid.setWalkableAt(
+    floorEndLocation.xcoord, 
+    floorEndLocation.ycoord, 
+    true);
+  
+  const finder = new PF.AStarFinder();
+  const path = finder.findPath( 
+    floorStartLocation.xcoord,
+    floorStartLocation.ycoord,
+    floorEndLocation.xcoord, 
+    floorEndLocation.ycoord, walkableGrid);
+    
+    const buildingPolygon = [
+      { latitude: 45.4977197, longitude: -73.5790184 },
+      { latitude: 45.4971663, longitude: -73.5795456 },
+      { latitude: 45.4968262, longitude: -73.5788258 },
+      { latitude: 45.4973655, longitude: -73.5782906 },
+      { latitude: 45.4977197, longitude: -73.5790184 },
+    ];
+    
+    // ✅ Compute new bounds using the manually drawn GeoJSON polygon
+    const newBounds = getPolygonBounds(buildingPolygon);
+  
+    
+    
+    
+    // gridMapping,
+    // correctedGridMapping,
+    // horizontallyFlippedGrid,
+    // verticallyFlippedGrid,
+    // rotatedGrid,
+  
+  
+  
+     const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
+    // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+    const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
+      floorEndLocation.ycoord,);
 
   // A ref to always hold the latest selected travel mode
   const latestModeRef = useRef(travelMode);
