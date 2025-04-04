@@ -197,5 +197,6 @@ export {
   ccFlippedGrid,
   ccBounds,
   gridCC,
-
+  ccBuilding,
+  
 };

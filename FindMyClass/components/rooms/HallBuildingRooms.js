@@ -951,5 +951,6 @@ export {
   hallBuildingFloors,
   getRoomsByFloorHall,
   getStartLocationHall,
-  getAllRoomsHall
+  getAllRoomsHall,
+  hallBuilding,
 };

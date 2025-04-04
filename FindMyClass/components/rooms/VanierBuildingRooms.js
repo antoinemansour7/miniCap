@@ -402,4 +402,6 @@ export {
   vanierBounds,
   vanierFlippedGrid,
   gridVanier,
+  vanierBuilding,
+  
 };
