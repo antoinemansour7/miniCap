@@ -25,9 +25,16 @@ const FloorSelector = ({
     setFloorNumber,
     floorNumber,
 
+    setRenderTrigger
+
 }) => {
 
-
+    const handleFloorChange = (floor , building) => {
+        setFloorNumber({ ...floorNumber, [building]: floor });
+        setTimeout(() => {
+            setRenderTrigger(prev => !prev);
+        }, 300); // 300ms delay
+    }
     return (
         <> 
               {hallBuildingFocused && (
@@ -40,7 +47,7 @@ const FloorSelector = ({
                         floorNumber['H'] === floor && styles.selectedFloorButton,
                         
                       ]}
-                      onPress={() => setFloorNumber({ ...floorNumber, ['H']: floor })}
+                      onPress={() =>  handleFloorChange(floor, 'H')}
 
                     >
                       <Text 
@@ -65,7 +72,8 @@ const FloorSelector = ({
                               styles.floorButton,
                               floorNumber['MB'] === floor && styles.selectedFloorButton,
                             ]}
-                         onPress={() => setFloorNumber({ ...floorNumber, ['MB']: floor })}
+                            onPress={() =>  handleFloorChange(floor, 'MB')}
+
                           >
                             <Text 
                               style={[
@@ -89,7 +97,8 @@ const FloorSelector = ({
                         styles.floorButton,
                         floorNumber['VL'] === floor && styles.selectedFloorButton,
                       ]}
-                      onPress={() => setFloorNumber({ ...floorNumber, ['VL']: floor })}
+                      onPress={() =>  handleFloorChange(floor, 'VL')}
+
 
                     >
                       <Text 
