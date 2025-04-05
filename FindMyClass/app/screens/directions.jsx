@@ -870,7 +870,7 @@ export default function DirectionsScreen() {
 
                     {/*  Indoor route */}
                         
-                    { room != null &&
+                    { room != null && floorNumber[room.building] === roomFloorStart &&
                           (<Polyline
                             coordinates={indoorPath}
                             strokeWidth={4}
@@ -880,23 +880,46 @@ export default function DirectionsScreen() {
                           />)
                           }
 
-                         { room != null &&
+                         { room != null && floorNumber[room.building] === roomFloorStart &&
                           (<Marker 
                             coordinate={roomCoordinates}
-                            title={room.name}
+                            title={ 
+                              finalIndoorPath ? 
+                              `Go to the ${roomFloorFinal}th floor` :
+                              room.name
+                            }
                             pinColor="#912338"
                             onPress={() => handleMarkerPress(roomCoordinates)}
                             />)
                           }
 
-                          {gridLines.map((line, index) => (
+                        { finalIndoorPath != null && floorNumber[room.building] === roomFloorFinal &&
+                          (<Polyline
+                            coordinates={finalIndoorPath}
+                            strokeWidth={4}
+                            strokeColor="#912338"
+                            //lineDashPattern={[7]}
+                            key={renderTrigger ? 'line3' : 'line4'}
+                          />)
+                          }
+
+                         { finalRoomCoordinates != null && floorNumber[room.building] === roomFloorFinal &&
+                          (<Marker 
+                            coordinate={finalRoomCoordinates}
+                            title={room.name}
+                            pinColor="#912338"
+                            onPress={() => handleMarkerPress(finalRoomCoordinates)}
+                            />)
+                          }
+
+                          {/* {gridLines.map((line, index) => (
                               <Polyline
                                 key={index}
                                 coordinates={line}
                                 strokeWidth={1}
                                 strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
                               />
-                            ))}
+                            ))} */}
 
           </MapView>
           
