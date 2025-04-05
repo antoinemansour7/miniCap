@@ -178,10 +178,10 @@ export default function BuildingMap({
       const building =  buildings.find((b) =>
         b.name?.toLowerCase().includes(searchText.toLowerCase())
       );
-      console.log("Building searched: ",building);
+      // console.log("Building searched: ",building);
       if (building){ 
         if (building.building) {
-          console.log("Room searched: ",building);
+           console.log("Room searched: ",building.building);
           setRoom(building);
           let coordinates;
           if (building.object.id === 'H') {
