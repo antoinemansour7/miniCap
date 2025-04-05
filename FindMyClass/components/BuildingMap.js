@@ -183,6 +183,7 @@ export default function BuildingMap({
         if (building.building) {
            console.log("Room searched: ",building.building);
           setRoom(building);
+          console.log("room name: ", building.name);
           let coordinates;
           if (building.object.id === 'H') {
 
