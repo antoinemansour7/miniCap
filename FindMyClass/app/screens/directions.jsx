@@ -68,6 +68,7 @@ import {
   transformFloorGridsCC } from "../../components/rooms/CCBuildingRooms";
 import FloorPlans from "../../components/FloorPlans";
 import FloorSelector from "../../components/FloorSelector";
+import { use } from "react";
 
        
 
@@ -219,6 +220,8 @@ export default function DirectionsScreen() {
   const [tempindoorPath, setTempIndoorPath] = useState(null);
 
   const [renderTrigger, setRenderTrigger] = useState(false);
+  const [showPoly, setShowPoly] = useState(true);
+
 
   const startLocationGetters = {
     H: getStartLocationHall, 
@@ -234,6 +237,23 @@ export default function DirectionsScreen() {
     }, 100);
     console.log("Render trigger changed:", renderTrigger, "\nIndoorPath After zoom:", indoorPath);
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
+
+  useEffect(() => {
+
+    setShowPoly(false);
+    setTimeout(() => {
+      setShowPoly(true);
+      }, 300);
+
+  }, [renderTrigger]);
+
+  useEffect(() => {
+    console.log("Indoor path useEffect:", indoorPath);
+  },[indoorPath]);
+  useEffect(() => {
+    console.log("showPoly path useEffect:", showPoly);
+  },[showPoly]);
+
 
    const getStartLocation = (startGetter, floor) => {
 
@@ -842,6 +862,7 @@ export default function DirectionsScreen() {
             //   setZoomLevel(newZoomLevel);
             // }}
             onRegionChange={onRegionChange}
+            //onRegionChangeComplete={() => setShowPoly(true)}
             testID="map-view"
           >
             {userLocation && (
@@ -917,13 +938,14 @@ export default function DirectionsScreen() {
 
                     {/*  Indoor route */}
                         
-                    { indoorPath?.length > 0  && floorNumber[room?.building] === roomFloorStart &&
+                    {showPoly &&
+                     Array.isArray(indoorPath) && indoorPath?.length > 0  && floorNumber[room?.building] === roomFloorStart &&
                           (<Polyline
                             coordinates={indoorPath}
                             strokeWidth={4}
                             strokeColor="#912338"
                             //lineDashPattern={[7]}
-                            key={renderTrigger ? 'line1' : 'line2'}
+                            // key={renderTrigger ? 'line1' : 'line2'}
                           />)
                           }
 
@@ -937,13 +959,14 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                        { finalIndoorPath?.length > 0 && floorNumber[room?.building] === roomFloorFinal &&
+                        { showPoly &&
+                        Array.isArray(finalIndoorPath) && finalIndoorPath?.length > 0 && floorNumber[room?.building] === roomFloorFinal &&
                           (<Polyline
                             coordinates={finalIndoorPath}
                             strokeWidth={4}
                             strokeColor="#912338"
                             //lineDashPattern={[7]}
-                            key={renderTrigger ? 'line3' : 'line4'}
+                            // key={renderTrigger ? 'line3' : 'line4'}
                           />)
                           }
 
@@ -957,13 +980,14 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                          { tempindoorPath?.length > 0 && floorNumber[room?.building] === tempRoomFloor &&
+                          { showPoly &&
+                          Array.isArray(tempindoorPath) && tempindoorPath?.length > 0 && floorNumber[room?.building] === tempRoomFloor &&
                           (<Polyline
                             coordinates={tempindoorPath}
                             strokeWidth={4}
                             strokeColor="#912338"
                             //lineDashPattern={[7]}
-                            key={renderTrigger ? 'line5' : 'line6'}
+                            // key={renderTrigger ? 'line5' : 'line6'}
                           />)
                           }
 
