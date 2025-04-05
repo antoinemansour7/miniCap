@@ -42,19 +42,23 @@ import {
   jmsbBuilding,
   jmsbBounds, 
   jmsbFlippedGrid, 
-  getStartLocationJSMB } from "../../components/rooms/JMSBBuildingRooms";
+  floorGridsMB,
+  getStartLocationJSMB,
+  transformFloorGridsMB, } from "../../components/rooms/JMSBBuildingRooms";
 import {
   vanierBuilding, 
   vanierBounds, 
   vanierFlippedGrid, 
-  gridVanier, 
-  getStartLocationVanier } from "../../components/rooms/VanierBuildingRooms";
+  floorGridsVL, 
+  getStartLocationVanier,
+  transformFloorGridsVL, } from "../../components/rooms/VanierBuildingRooms";
 import { 
   ccBuilding, 
   ccBounds, 
   ccFlippedGrid, 
-  gridCC, 
-  getStartLocationCC } from "../../components/rooms/CCBuildingRooms";
+  floorGridsCC,
+  getStartLocationCC,
+  transformFloorGridsCC } from "../../components/rooms/CCBuildingRooms";
 import FloorPlans from "../../components/FloorPlans";
 import FloorSelector from "../../components/FloorSelector";
 
