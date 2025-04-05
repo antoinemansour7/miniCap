@@ -857,12 +857,7 @@ export default function DirectionsScreen() {
               latitudeDelta: 0.05,
               longitudeDelta: 0.05,
             }}
-            // onRegionChangeComplete={(region) => {
-            //   const newZoomLevel = calculateZoomLevel(region);
-            //   setZoomLevel(newZoomLevel);
-            // }}
             onRegionChange={onRegionChange}
-            //onRegionChangeComplete={() => setShowPoly(true)}
             testID="map-view"
           >
             {userLocation && (
