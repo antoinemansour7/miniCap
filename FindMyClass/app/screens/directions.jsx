@@ -69,14 +69,7 @@ import {
 import FloorPlans from "../../components/FloorPlans";
 import FloorSelector from "../../components/FloorSelector";
 
-
-
-const floorPlans = {
-  1: require('../../floorPlans/hall-1-rotated.png'),
-  2: require('../../floorPlans/Hall-2.png'),
-  8: require('../../floorPlans//Hall-8.png'),
-  9: require('../../floorPlans/Hall-9.png')
-};            
+       
 
 const floorGrids = { 
   H: floorGridsHall,
