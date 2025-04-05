@@ -239,7 +239,7 @@ const vanierLibraryFloors = {
       startLocation: {
         id: "VL2-start",
         name: "2nd Floor Entrance",
-        location: { x: 10, y: 14 },
+        location: { x: 6, y: 8 },
         type: "start"
       },
       rooms: [
@@ -425,6 +425,16 @@ const getAllRoomsVanier = () => {
   });
 };
 
+// Helper function to get elevators by floor
+const getElevatorsVL = (floorNumber) => {
+    return vanierLibraryFloors[floorNumber]?.elevators || [];
+};
+
+// Helper function to get stairs by floor
+const getStairsVL = (floorNumber) => {
+    return vanierLibraryFloors[floorNumber]?.stairs || [];
+};
+
 export {
   BUILDING_CONFIG,
   vanierLibraryFloors,
@@ -436,6 +446,8 @@ export {
   gridVanier,
   vanierBuilding,
   floorGridsVL,
-  transformFloorGridsVL
+  transformFloorGridsVL,
+  getElevatorsVL,
+  getStairsVL,
 
 };
