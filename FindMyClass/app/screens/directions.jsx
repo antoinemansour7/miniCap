@@ -232,7 +232,7 @@ export default function DirectionsScreen() {
     setTimeout(() => {
         setRenderTrigger(prev => !prev);
     }, 100);
-    console.log("Render trigger changed:", renderTrigger);
+    console.log("Render trigger changed:", renderTrigger, "\nIndoorPath After zoom:", indoorPath);
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
 
    const getStartLocation = (startGetter, floor) => {
