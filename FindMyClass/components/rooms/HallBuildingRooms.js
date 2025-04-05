@@ -5,11 +5,10 @@ import { precomputeTransformedGrid, flipHorizontally,getPolygonBounds } from "..
 const hallBuilding = SGWBuildings.find(building => building.id === "H");
 
 const hallCorners = [
-    { latitude: 45.4977197, longitude: -73.5790184 },
-    { latitude: 45.4971663, longitude: -73.5795456 },
-    { latitude: 45.4968262, longitude: -73.5788258 },
-    { latitude: 45.4973655, longitude: -73.5782906 },
-    { latitude: 45.4977197, longitude: -73.5790184 },
+    { latitude: 45.4977197, longitude: -73.5790184 }, // North
+    { latitude: 45.4971663, longitude: -73.5795456 }, // West
+    { latitude: 45.4968262, longitude: -73.5788258 }, // South
+    { latitude: 45.4973655, longitude: -73.5782906 }, // East
   ];
 
   const hallBounds = getPolygonBounds(hallCorners);
