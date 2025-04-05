@@ -9,7 +9,30 @@ const BUILDING_CONFIG = {
   object: vanierBuilding,
 };
 
-const floorGrid = [
+
+const floorGridVanier_1= [
+    [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,1,1,4,2,0,0,0,0,0,0,0],
+    [0,2,1,0,0,0,2,2,2,1,1,1,1,2,0,0,0,0,0,0],
+    [0,0,1,0,0,2,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
+    [0,0,1,3,3,3,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,2,0,2,0,0,0,0],
+    [0,0,1,4,4,4,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,0,0,2,1,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,2,1,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,0,0,0,1,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,0,0,2,1,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,1,0,0,0,1,2,2,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,0,0,5,0,0,0,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,4,0],
+]
+const floorGridVanier_2 = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
@@ -32,6 +55,11 @@ const floorGrid = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,0,0,0],
 ]
 
+const floorGridsVL = {
+    1: floorGridVanier_1,
+    2: floorGridVanier_2,
+}
+
 const vanierBuildingCorners = [
     { latitude: 45.45946362707318, longitude: -73.63865674781006 }, // North
     { latitude: 45.45888476384681, longitude:  -73.63913682555628}, // West
@@ -39,7 +67,11 @@ const vanierBuildingCorners = [
     { latitude: 45.45913009995638, longitude: -73.63784061564175 } // East
 ]
 
-const gridMapping = precomputeTransformedGrid(floorGrid, vanierBuildingCorners);
+const transformFloorGridsVL = (floorGrid) => {
+    const transformedGrid = precomputeTransformedGrid(floorGrid, vanierBuildingCorners);
+    return flipHorizontally(transformedGrid);
+}
+const gridMapping = precomputeTransformedGrid(floorGridVanier_1, vanierBuildingCorners);
 const gridVanier = drawDebugGrid(gridMapping);
 const vanierFlippedGrid = flipHorizontally(gridMapping);  
 const vanierBounds = getPolygonBounds(vanierBuildingCorners);
@@ -47,11 +79,11 @@ const vanierBounds = getPolygonBounds(vanierBuildingCorners);
 const vanierLibraryFloors = {
     // VL1 Floor
   
-    VL1: {
+    1: {
       startLocation: {
         id: "VL1-start",
         name: "1st Floor Entrance",
-        location: { x: 10, y: 0 },
+        location: { x: 7, y: 1 },
         type: "start"
       },
       
@@ -403,5 +435,7 @@ export {
   vanierFlippedGrid,
   gridVanier,
   vanierBuilding,
-  
+  floorGridsVL,
+  transformFloorGridsVL
+
 };
