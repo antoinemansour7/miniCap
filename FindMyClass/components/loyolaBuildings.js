@@ -2,8 +2,8 @@ const LoyolaBuildings = [
     {
         "id": "VL",
         "name": "Vanier Library",
-        "latitude": 45.4591277,
-        "longitude": -73.6382146,
+        "latitude": 45.45906430586266,
+        "longitude": -73.63865503834643,
         "boundary": [
             { "latitude": 45.4591503, "longitude": -73.6382312 },
             { "latitude": 45.4591380, "longitude": -73.6382409 },
