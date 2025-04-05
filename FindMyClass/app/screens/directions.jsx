@@ -234,7 +234,6 @@ export default function DirectionsScreen() {
     }, 100);
     console.log("Render trigger changed:", renderTrigger);
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
-  
 
    const getStartLocation = (startGetter, floor) => {
 
@@ -710,7 +709,7 @@ export default function DirectionsScreen() {
       // setFinalIndoorPath(null);
       // setFinalRoomCoordinates(null);
       // setTempRoomCoordinates(null);
-      // setFloorNumber(DEFAULT_FLOOR_NUMBERS);
+      setFloorNumber(DEFAULT_FLOOR_NUMBERS);
       if ( room ) {
         updateIndoorRoute();
       }  
@@ -928,7 +927,7 @@ export default function DirectionsScreen() {
                           />)
                           }
 
-                         { room != null && floorNumber[room?.building] === roomFloorStart &&
+                         { roomCoordinates != null && floorNumber[room?.building] === roomFloorStart &&
                           (<Marker 
                             coordinate={roomCoordinates}
                             title={ handleMarkerTitle()}
@@ -938,7 +937,7 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                        { finalIndoorPath != null && floorNumber[room?.building] === roomFloorFinal &&
+                        { finalIndoorPath?.length > 0 && floorNumber[room?.building] === roomFloorFinal &&
                           (<Polyline
                             coordinates={finalIndoorPath}
                             strokeWidth={4}
@@ -958,7 +957,7 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                          { tempindoorPath != null && floorNumber[room?.building] === tempRoomFloor &&
+                          { tempindoorPath?.length > 0 && floorNumber[room?.building] === tempRoomFloor &&
                           (<Polyline
                             coordinates={tempindoorPath}
                             strokeWidth={4}
