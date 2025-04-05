@@ -1062,6 +1062,16 @@ const getAllRoomsHall = () => {
   });
 };
 
+// Helper function to get elevators by floor
+const getElevatorsHall = (floorNumber) => {
+    return hallBuildingFloors[floorNumber]?.elevators || [];
+};
+
+// Helper function to get stairs by floor
+const getStairsHall = (floorNumber) => {
+    return hallBuildingFloors[floorNumber]?.stairs || [];
+};
+
 export {
   BUILDING_CONFIG,
   hallBuildingFloors,
@@ -1070,4 +1080,8 @@ export {
   getAllRoomsHall,
   hallBuilding,
   hallBounds,
+  getElevatorsHall,
+  getStairsHall,
+  floorGridsHall,
+  transformFloorGridsHall,
 };
