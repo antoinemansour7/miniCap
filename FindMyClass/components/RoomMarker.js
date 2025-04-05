@@ -17,7 +17,7 @@ const CalloutContent = memo(
               params: {
                 destination: JSON.stringify({latitude: room.object.latitude, longitude: room.object.longitude}),
                 buildingName: room.name,
-                room: room, 
+                room: JSON.stringify(room), 
                 roomCoordinates: JSON.stringify(classroomCoordinates),
               },
             });
