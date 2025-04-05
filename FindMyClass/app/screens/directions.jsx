@@ -271,7 +271,7 @@ export default function DirectionsScreen() {
     if (tempRoomCoordinates) {
       return  `Go to the 2nd floor`;
     }
-    if (indoorPath) {
+    if (finalIndoorPath != null) {
       if (room.building === "MB") {
 
         return  `Go to the S${roomFloorFinal} floor`
