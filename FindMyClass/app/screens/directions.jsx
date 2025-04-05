@@ -85,6 +85,20 @@ const transformFloors = {
   CC: transformFloorGridsCC
 }
 
+const stairsGetter = {
+  H: getStairsHall,
+  MB: getStairsMB,
+  VL: getStairsVL,
+  CC: getStairsCC,
+}
+
+const elevatorsGetter = {
+  H: getElevatorsHall,
+  MB: getElevatorsMB,
+  VL: getElevatorsVL,
+  CC: getElevatorsCC,
+}
+
 export default function DirectionsScreen() {
   
 // Retrieve the destination from the params that were passed from the Map page
