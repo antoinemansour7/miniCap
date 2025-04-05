@@ -877,6 +877,7 @@ export default function DirectionsScreen() {
    
         setFloorNumber={setFloorNumber}
         floorNumber={floorNumber}
+        setRenderTrigger={setRenderTrigger}
 
         
       />
