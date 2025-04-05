@@ -7,7 +7,7 @@ import {styles} from './BuildingMarker'
 const CalloutContent = memo(
   ({ room, router, classroomCoordinates, markerRef }) => (
     <View style={styles.calloutContainer}>
-      <Text style={styles.calloutTitle}>{room.name}</Text>
+      <Text style={styles.calloutTitle}>{room?.name}</Text>
       <View style={styles.buttonRow}>
         <CalloutSubview
           onPress={() => {
@@ -32,7 +32,10 @@ const CalloutContent = memo(
       </View>
     </View>
   ),
-  (prevProps, nextProps) => prevProps.room.id === nextProps.room.id
+ (prevProps, nextProps) => {
+    if (!prevProps.room || !nextProps.room) return false;
+    return prevProps.room.id === nextProps.room.id;
+  }
 );
 
 
@@ -51,10 +54,13 @@ const RoomMarker = ({classroomCoordinates, room, router }) => {
     if (!shouldRender) return null;
 
     return (
-        <Marker
+        <>
+        {/* Render the marker only if room and classroomCoordinates are available */}
+        { shouldRender && (
+            <Marker
             ref={markerRef}
             coordinate={classroomCoordinates}
-            title={room.name}
+            title={room?.name}
             pinColor='#912338'
             tracksViewChanges={false}  // Improves performance
         >
@@ -67,6 +73,10 @@ const RoomMarker = ({classroomCoordinates, room, router }) => {
                 />
             </Callout>
         </Marker>
+        )}
+        </>
+        
+        
     );
 }
 
