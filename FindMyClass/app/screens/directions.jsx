@@ -321,6 +321,26 @@ export default function DirectionsScreen() {
         setIndoorPath(screenPath);
         setRoomCoordinates(roomScreenCoords);
 
+        if (floor == 8 || floor == 9) {
+          const tempStairs = stairsGetter[room.building](2)[0];
+          const tempGrid = buildingGrid[2];
+
+          const { locationItem, coords: tempStartCoords } = getStartLocation(
+            startLocationGetters[room.building],
+            2,
+          );
+          console.log("Temp startcoords:", tempStartCoords);
+          const tempEndCoords = getEndLocation(tempStairs);
+          console.log("Temp endcoords:", tempEndCoords);
+          const tempWalkable = prepareWalkableGrid(tempGrid, tempStairs.location, convertGridForPathfinding);
+          const tempPath = findPath(tempStartCoords, tempEndCoords, tempWalkable);
+          const tempFlippedGrid = gridTransformer(tempGrid);
+          const tempScreenPath = convertPathToScreenCoordinates(tempPath, tempFlippedGrid);
+          const tempRoomScreenCoords = getClassCoordinates(tempFlippedGrid, tempStairs.location.x, tempStairs.location.y);
+          setTempIndoorPath(tempScreenPath);
+          setTempRoomCoordinates(tempRoomScreenCoords);
+
+        }
         // destination floor 
         const finalGrid = buildingGrid[floor];
 
