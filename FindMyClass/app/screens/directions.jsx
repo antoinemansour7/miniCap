@@ -35,6 +35,7 @@ import {
   hallBuildingFloors,
   getStartLocationHall,
   getStairsHall,
+  getElevatorsHall,
   floorGridsHall,
   transformFloorGridsHall, } from "../../components/rooms/HallBuildingRooms";
 
@@ -42,6 +43,8 @@ import {
   jmsbBuilding,
   jmsbBounds, 
   jmsbFlippedGrid, 
+  getStairsMB,
+  getElevatorsMB,
   floorGridsMB,
   getStartLocationJSMB,
   transformFloorGridsMB, } from "../../components/rooms/JMSBBuildingRooms";
@@ -49,6 +52,8 @@ import {
   vanierBuilding, 
   vanierBounds, 
   vanierFlippedGrid, 
+  getStairsVL,
+  getElevatorsVL,
   floorGridsVL, 
   getStartLocationVanier,
   transformFloorGridsVL, } from "../../components/rooms/VanierBuildingRooms";
@@ -56,6 +61,8 @@ import {
   ccBuilding, 
   ccBounds, 
   ccFlippedGrid, 
+  getStairsCC,
+  getElevatorsCC,
   floorGridsCC,
   getStartLocationCC,
   transformFloorGridsCC } from "../../components/rooms/CCBuildingRooms";
