@@ -208,16 +208,18 @@ export default function DirectionsScreen() {
   useEffect(() => {
     setRenderTrigger((prev) => !prev);
     console.log("Render trigger changed:", renderTrigger);
-  }, [hallBuildingFocused])
+  }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
   
 
   const updateIndoorRoute = () => {
     if (room) {
-      console.log("Room useEffect:", room);
+      console.log("Room updateIndoorRouter:", room.id);
+      const buildingGrid = floorGrids[room.building];
+      const gridTransformer = transformFloors[room.building];
+
       const floor = parseInt(getFloorNumber(room.id));
       console.log("Floor number:", floor);
-      // setFloorNumber({ ...floorNumber,
-      //    [room.building]: floor });
+  
 
       if (floor === 1 ) {
         const floorStartLocationItem = startLocationGetters[room.building](floor);
@@ -231,7 +233,10 @@ export default function DirectionsScreen() {
           xcoord: room.location.x,
           ycoord: room.location.y
         });
-        const grid = floorGridsHall[floor];
+
+        const grid = buildingGrid[floor];
+
+
         const walkable = convertGridForPathfinding(grid);
         console.log("room xy:", room.location.x, room.location.y);
 
@@ -246,7 +251,9 @@ export default function DirectionsScreen() {
           floorStartLocationItem.location.y,
           room.location.x, 
           room.location.y, walkable);
-          const flippedGrid = transformFloorGridsHall(grid);
+
+          
+          const flippedGrid = gridTransformer(grid);
           setRoomCoordinates(getClassCoordinates(flippedGrid, room.location.x, room.location.y));
           console.log("path: ", path);
           const pathCoordinates = path.map(([x, y]) => flippedGrid[y][x]);
