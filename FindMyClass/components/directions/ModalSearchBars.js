@@ -6,6 +6,9 @@ import GoogleSearchBar from "../GoogleSearchBar";
 import SGWBuildings from '../../components/SGWBuildings';
 import LoyolaBuildings from '../../components/loyolaBuildings';
 import {getAllRoomsHall} from "../rooms/HallBuildingRooms";
+import {getAllRoomsJSMB} from "../rooms/JMSBBuildingRooms";
+import {getAllRoomsVanier} from "../rooms/VanierBuildingRooms";
+import {getAllRoomsCC} from "../rooms/CCBuildingRooms";
 import SearchBar from "../SearchBar";
 
 
@@ -35,7 +38,17 @@ const ModalSearchBars = ({
 }) => {
     const isStartSearch = searchType === 'START'; // The modal will display a specific searh bar based on the searchType
     const hallBuildingRooms = getAllRoomsHall();
-    const allBuildings = [...SGWBuildings, ...LoyolaBuildings,...hallBuildingRooms];
+    const jmsbBuildingRooms = getAllRoomsJSMB();
+    const vanierBuildingRooms = getAllRoomsVanier();
+    const ccBuildingRooms = getAllRoomsCC();
+    const allBuildings = 
+        [...SGWBuildings, 
+        ...LoyolaBuildings,
+        ...hallBuildingRooms,
+        ...jmsbBuildingRooms,
+        ...vanierBuildingRooms,
+        ...ccBuildingRooms];
+    const buildingsOnly = [...SGWBuildings, ...LoyolaBuildings];
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -55,7 +68,7 @@ const ModalSearchBars = ({
     };
     const selectBuilding = (location) => {
         if ( location.building ) {
-            selectBuilding(SGWBuildings.find(b => b.id === location.building ));
+            selectBuilding(buildingsOnly.find(b => b.id === location.building ));
             setRoom(location);
             setCustomDest(location.name);
             setDestinationName(location.name);
