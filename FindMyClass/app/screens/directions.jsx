@@ -193,7 +193,8 @@ export default function DirectionsScreen() {
     console.log("Render trigger changed:", renderTrigger);
   }, [hallBuildingFocused])
   
-  useEffect(() => {
+
+  const updateIndoorRoute = () => {
     if (room) {
       console.log("Room useEffect:", room);
       const floor = parseInt(getFloorNumber(room.id));
@@ -236,7 +237,7 @@ export default function DirectionsScreen() {
 
       } 
     }
-  },[room])
+  }
 
 
 
@@ -563,21 +564,7 @@ export default function DirectionsScreen() {
     const updateRoute = (start, end) => {
 
       if ( room ) {
-        // find the floor number of the room
-        const floor = getFloorNumber(room.id);
-        setFloorNumber({ ...floorNumber,
-          [room.building]: floor });
-
-        const floorStartLocationItem =  getStartLocationHall(floor);
-        setFloorStartLocation({
-          xcoord: floorStartLocationItem.location.x,
-          ycoord: floorStartLocationItem.location.y
-        });
-        setFloorEndLocation({
-          xcoord: room.location.x,
-          ycoord: room.location.y
-        });
-
+        updateIndoorRoute();
       }  
       updateRouteWithMode(start, end, travelMode);
     };
