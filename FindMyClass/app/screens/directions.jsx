@@ -228,7 +228,10 @@ export default function DirectionsScreen() {
   }
   
   useEffect(() => {
-    setRenderTrigger((prev) => !prev);
+
+    setTimeout(() => {
+        setRenderTrigger(prev => !prev);
+    }, 700);
     console.log("Render trigger changed:", renderTrigger);
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
   
@@ -374,6 +377,7 @@ export default function DirectionsScreen() {
         setFinalIndoorPath(finalScreenPath);
         setFinalRoomCoordinates(finalRoomScreenCoords);
         setRoomFloorFinal(floor);
+  
         
       }
     }
@@ -702,7 +706,15 @@ export default function DirectionsScreen() {
   };
 
     const updateRoute = (start, end) => {
+      // setTempIndoorPath(null);
+      // setFinalIndoorPath(null);
+      // setFinalRoomCoordinates(null);
+      // setTempRoomCoordinates(null);
+      setFloorNumber(DEFAULT_FLOOR_NUMBERS);
 
+      setTimeout(() => {
+        setRenderTrigger(prev => !prev);
+    }, 700);
       if ( room ) {
         updateIndoorRoute();
       }  
@@ -926,6 +938,7 @@ export default function DirectionsScreen() {
                             title={ handleMarkerTitle()}
                             pinColor="#912338"
                             onPress={() => handleMarkerPress(roomCoordinates)}
+                            // key={renderTrigger ? 'marker1' : 'marker2'}
                             />)
                           }
 
@@ -945,17 +958,38 @@ export default function DirectionsScreen() {
                             title={room.name}
                             pinColor="#912338"
                             onPress={() => handleMarkerPress(finalRoomCoordinates)}
+                            // key={renderTrigger ? 'marker3' : 'marker4'}
                             />)
                           }
 
-                          {/* {gridLines.map((line, index) => (
+                          { tempindoorPath != null && floorNumber[room.building] === tempRoomFloor &&
+                          (<Polyline
+                            coordinates={tempindoorPath}
+                            strokeWidth={4}
+                            strokeColor="#912338"
+                            //lineDashPattern={[7]}
+                            key={renderTrigger ? 'line5' : 'line6'}
+                          />)
+                          }
+
+                          { tempRoomCoordinates != null && floorNumber[room.building] === tempRoomFloor &&
+                          (<Marker
+                            coordinate={tempRoomCoordinates}
+                            title={`Go to the ${roomFloorFinal}th floor`}
+                            pinColor="#912338"
+                            onPress={() => handleMarkerPress(tempRoomCoordinates)}
+                            // key={renderTrigger ? 'marker5' : 'marker6'}
+                            />)
+                          }
+
+                          {gridLines.map((line, index) => (
                               <Polyline
                                 key={index}
                                 coordinates={line}
                                 strokeWidth={1}
                                 strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
                               />
-                            ))} */}
+                            ))}
 
           </MapView>
           
