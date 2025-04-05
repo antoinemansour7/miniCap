@@ -29,10 +29,6 @@ import {
     getFloorPlanBounds,
     convertGridForPathfinding,
     getPolygonBounds,
-    // startX,
-    // startY,
-    // endX,
-    // endY,
     gridLines,
     horizontallyFlippedGrid,
     verticallyFlippedGrid,
@@ -184,49 +180,89 @@ export default function DirectionsScreen() {
 
   const [indoorPath, setIndoorPath] = useState(null);
   const [renderTrigger, setRenderTrigger] = useState(false);
+
+  const startLocationGetters = {
+    H: getStartLocationHall, 
+    MB: getStartLocationJSMB, 
+    VL: getStartLocationVanier, 
+    CC: getStartLocationCC,
+  }
+  
+  useEffect(() => {
+    setRenderTrigger((prev) => !prev);
+    console.log("Render trigger changed:", renderTrigger);
+  }, [hallBuildingFocused])
+  
   useEffect(() => {
     if (room) {
-      const floor = getFloorNumber(room.id);
-      setFloorNumber({ ...floorNumber,
-         [room.object.id]: floor });
-         
-      const floorStartLocationItem =  getStartLocationHall(floor);
-      setFloorStartLocation({
-        xcoord: floorStartLocationItem.location.x,
-        ycoord: floorStartLocationItem.location.y
-      });
-      setFloorEndLocation({
-        xcoord: room.location.x,
-        ycoord: room.location.y
-      });
+      console.log("Room useEffect:", room);
+      const floor = parseInt(getFloorNumber(room.id));
+      console.log("Floor number:", floor);
+      // setFloorNumber({ ...floorNumber,
+      //    [room.building]: floor });
+
+      if (floor === 1 ) {
+        const floorStartLocationItem = startLocationGetters[room.building](floor);
+        console.log("Floor start location item:", floorStartLocationItem);
+        setBaseFloorStartLocation({
+          xcoord: floorStartLocationItem.location.x,
+          ycoord: floorStartLocationItem.location.y
+        });
+        //const floorEndLocationItem = getStairsHall(floor);
+        setBaseFloorEndLocation({
+          xcoord: room.location.x,
+          ycoord: room.location.y
+        });
+        const grid = floorGridsHall[floor];
+        const walkable = convertGridForPathfinding(grid);
+        console.log("room xy:", room.location.x, room.location.y);
+
+        walkable.setWalkableAt(
+          room.location.x , 
+          room.location.y, 
+          true);
+
+        const finder = new PF.AStarFinder();
+        const path = finder.findPath( 
+          floorStartLocationItem.location.x,
+          floorStartLocationItem.location.y,
+          room.location.x, 
+          room.location.y, walkable);
+          const flippedGrid = transformFloorGridsHall(grid);
+          setRoomCoordinates(getClassCoordinates(flippedGrid, room.location.x, room.location.y));
+          console.log("path: ", path);
+          const pathCoordinates = path.map(([x, y]) => flippedGrid[y][x]);
+          setIndoorPath(pathCoordinates);
+
+      } 
     }
   },[room])
 
-  const walkableGrid = convertGridForPathfinding(floorGrid);
-  walkableGrid.setWalkableAt(
-    floorEndLocation.xcoord, 
-    floorEndLocation.ycoord, 
-    true);
+  // const walkableGrid = convertGridForPathfinding(floorGrid);
+  // walkableGrid.setWalkableAt(
+  //   floorEndLocation.xcoord, 
+  //   floorEndLocation.ycoord, 
+  //   true);
   
-  const finder = new PF.AStarFinder();
-  const path = finder.findPath( 
-    floorStartLocation.xcoord,
-    floorStartLocation.ycoord,
-    floorEndLocation.xcoord, 
-    floorEndLocation.ycoord, walkableGrid);
+  // const finder = new PF.AStarFinder();
+  // const path = finder.findPath( 
+  //   floorStartLocation.xcoord,
+  //   floorStartLocation.ycoord,
+  //   floorEndLocation.xcoord, 
+  //   floorEndLocation.ycoord, walkableGrid);
    
     
     
-    // gridMapping,
-    // correctedGridMapping,
-    // horizontallyFlippedGrid,
-    // verticallyFlippedGrid,
-    // rotatedGrid,
+  //   // gridMapping,
+  //   // correctedGridMapping,
+  //   // horizontallyFlippedGrid,
+  //   // verticallyFlippedGrid,
+  //   // rotatedGrid,
   
-     const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
-    // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-    const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
-      floorEndLocation.ycoord,);
+  //    const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
+  //   // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
+  //   const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
+  //     floorEndLocation.ycoord,);
 
       const onRegionChange = (region) => {
         // Calculate zoom level based on latitudeDelta
@@ -518,7 +554,9 @@ export default function DirectionsScreen() {
       if ( room ) {
         // find the floor number of the room
         const floor = getFloorNumber(room.id);
-        setFloorNumber(floor);
+        setFloorNumber({ ...floorNumber,
+          [room.building]: floor });
+
         const floorStartLocationItem =  getStartLocationHall(floor);
         setFloorStartLocation({
           xcoord: floorStartLocationItem.location.x,
@@ -673,7 +711,7 @@ export default function DirectionsScreen() {
             {startLocation && selectedStart !== "userLocation" && (
               <Marker coordinate={startLocation} title="Start" pinColor="green" />
             )}
-            {destination && <Marker coordinate={destination} title="Destination" />}
+
 
             {/* Render each route segment with its own style */}
             {routeSegments.map((segment) => {
@@ -728,34 +766,38 @@ export default function DirectionsScreen() {
                  <FloorPlans
                     floorNumber={floorNumber}
                  />
-                    {(destination && !room )&& <Marker coordinate={destination} title="Destination" />}
+                 
+                    {destination && room == null && (<Marker coordinate={destination} title="Destination" />)}
+
+
                     {/*  Indoor route */}
                         
                     { room != null &&
                           (<Polyline
-                            coordinates={pathCoordinates}
+                            coordinates={indoorPath}
                             strokeWidth={4}
                             strokeColor="#912338"
                             //lineDashPattern={[7]}
+                            key={renderTrigger ? 'line1' : 'line2'}
                           />)
                           }
 
                          { room != null &&
                           (<Marker 
-                            coordinate={classRoomCoordinates}
+                            coordinate={roomCoordinates}
                             title={room.name}
                             pinColor="#912338"
                             />)
                           }
 
-                          {/* {gridLines.map((line, index) => (
+                          {gridLines.map((line, index) => (
                               <Polyline
                                 key={index}
                                 coordinates={line}
                                 strokeWidth={1}
                                 strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
                               />
-                            ))} */}
+                            ))}
 
           </MapView>
           
