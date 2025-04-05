@@ -154,6 +154,14 @@ export default function DirectionsScreen() {
     VL:1 
   });
 
+  const [baseFloorStartLocation, setBaseFloorStartLocation] = useState({
+    xcoord: 0, 
+    ycoord: 0
+  });
+  const [baseFloorEndLocation, setBaseFloorEndLocation] = useState({
+    xcoord: 0,
+    ycoord: 0
+  });
   const [floorStartLocation, setFloorStartLocation] = useState({
     xcoord: 0, 
     ycoord: 0
@@ -162,15 +170,20 @@ export default function DirectionsScreen() {
     xcoord: 0,
     ycoord: 0
   });
-  const [roomCoordinates, setRoomCoordinates] = useState(roomLocation);
 
+  
+  const [roomCoordinates, setRoomCoordinates] = useState(roomLocation);
+  console.log("roomCoordinates:", roomCoordinates);
+  const [roomFloorDestination,  setRoomFloorDestination] = useState(1)
+  const [roomFloorStart, setRoomFloorStart] = useState(1);
 // are the buildings focused?
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
   const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
   const [vanierBuildingFocused, setVanierBuildingFocused] = useState(false);
   const [ccBuildingFocused, setCCBuildingFocused] = useState(false);
-  
 
+  const [indoorPath, setIndoorPath] = useState(null);
+  const [renderTrigger, setRenderTrigger] = useState(false);
   useEffect(() => {
     if (room) {
       const floor = getFloorNumber(room.id);
