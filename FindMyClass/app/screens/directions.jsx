@@ -327,10 +327,16 @@ export default function DirectionsScreen() {
         const screenPath = convertPathToScreenCoordinates(path, flippedGrid);
         const roomScreenCoords = getClassCoordinates(flippedGrid, room.location.x, room.location.y);
 
-        setBaseFloorStartLocation(startCoords);
-        setBaseFloorEndLocation(endCoords);
+        setTempIndoorPath(null);
+        setTempRoomCoordinates(null);
+
+        setFinalIndoorPath(null);
+        setFinalRoomCoordinates(null);
+
+  
         setIndoorPath(screenPath);
         setRoomCoordinates(roomScreenCoords);
+
       } 
       else {
         const baseStairs = stairsGetter[room.building](1)[0];
@@ -351,8 +357,7 @@ export default function DirectionsScreen() {
         const screenPath = convertPathToScreenCoordinates(path, flippedGrid);
         const roomScreenCoords = getClassCoordinates(flippedGrid, baseStairs.location.x, baseStairs.location.y);
 
-        setBaseFloorStartLocation(startCoords);
-        setBaseFloorEndLocation(endCoords);
+    
         setIndoorPath(screenPath);
         setRoomCoordinates(roomScreenCoords);
 
@@ -393,10 +398,14 @@ export default function DirectionsScreen() {
         const finalScreenPath = convertPathToScreenCoordinates(finalPath, finalFlippedGrid);
         const finalRoomScreenCoords = getClassCoordinates(finalFlippedGrid, room.location.x, room.location.y);
 
+
         setFinalIndoorPath(finalScreenPath);
         setFinalRoomCoordinates(finalRoomScreenCoords);
         setRoomFloorFinal(floor);
-  
+        if ( floor != 8 && floor != 9 ) {
+          setTempIndoorPath(null);
+          setTempRoomCoordinates(null);
+        }
         
       }
     }
