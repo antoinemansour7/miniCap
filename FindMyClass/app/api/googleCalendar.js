@@ -36,10 +36,10 @@ const fetchGoogleCalendarEvents = async () => {
       return [];
     }
 
-    console.log("Google Calendar Events:", data.items);
+    
     return data.items || []; // ✅ Return events list
   } catch (error) {
-    console.error("Error fetching calendar events:", error);
+    
     return [];
   }
 };
