@@ -99,6 +99,12 @@ const elevatorsGetter = {
   CC: getElevatorsCC,
 }
 
+const DEFAULT_FLOOR_NUMBERS = {
+  H: 1,
+  MB: 1,
+  VL: 1,
+}
+
 export default function DirectionsScreen() {
   
 // Retrieve the destination from the params that were passed from the Map page
@@ -175,11 +181,7 @@ export default function DirectionsScreen() {
   // Indoor routing variables
 
   const [room, setRoom] = useState(roomParams);
-  const [floorNumber, setFloorNumber] = useState({
-    H:1, 
-    MB:1, 
-    VL:1 
-  });
+  const [floorNumber, setFloorNumber] = useState(DEFAULT_FLOOR_NUMBERS);
 
   const [baseFloorStartLocation, setBaseFloorStartLocation] = useState({
     xcoord: 0, 
