@@ -626,11 +626,12 @@ export default function BuildingMap({
               pinColor="#912338"
               />)
                 } */}
+                {/* Room Marker */}
+
                 <RoomMarker
                 classroomCoordinates={clasroomCoordinates}
                 room={room}
                 router={router}
-                
                 />
 
              

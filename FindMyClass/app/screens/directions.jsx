@@ -238,6 +238,8 @@ export default function DirectionsScreen() {
     }
   },[room])
 
+
+
   // const walkableGrid = convertGridForPathfinding(floorGrid);
   // walkableGrid.setWalkableAt(
   //   floorEndLocation.xcoord, 
@@ -338,6 +340,15 @@ export default function DirectionsScreen() {
         }
     
       };
+
+      const handleMarkerPress = (coordinate) => {
+        mapRef.current?.animateToRegion({
+          latitude: coordinate.latitude, 
+          longitude: coordinate.longitude,
+          latitudeDelta: 0.0009,
+          longitudeDelta: 0.0009,
+        },500)
+      }
 
       // End of indoor
       // ***************************************************************************************************** //
@@ -787,6 +798,7 @@ export default function DirectionsScreen() {
                             coordinate={roomCoordinates}
                             title={room.name}
                             pinColor="#912338"
+                            onPress={() => handleMarkerPress(roomCoordinates)}
                             />)
                           }
 
