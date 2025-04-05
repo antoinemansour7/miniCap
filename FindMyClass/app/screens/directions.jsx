@@ -71,6 +71,19 @@ const floorPlans = {
   9: require('../../floorPlans/Hall-9.png')
 };            
 
+const floorGrids = { 
+  H: floorGridsHall,
+  MB: floorGridsMB,
+  VL: floorGridsVL,
+  CC: floorGridsCC
+}
+
+const transformFloors = {
+  H: transformFloorGridsHall,
+  MB: transformFloorGridsMB,
+  VL: transformFloorGridsVL,
+  CC: transformFloorGridsCC
+}
 
 export default function DirectionsScreen() {
   
