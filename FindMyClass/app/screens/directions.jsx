@@ -79,6 +79,8 @@ export default function DirectionsScreen() {
 
   let parsedDestination = null;
   let errorMessage = null;
+  let parsedRoom = null;
+  let parsedRoomCoordinates = null;
 
   if (!params || !params.destination) {
     console.error("Missing destination in navigation!");
@@ -92,8 +94,10 @@ export default function DirectionsScreen() {
       errorMessage = "Error: Invalid destination format.";
     }
 
-    if ( params.room) {
-      console.log("Room coord:", params.roomCoordinates);
+    if ( params.room ) {
+      parsedRoom = JSON.parse(params.room);
+      parsedRoomCoordinates = JSON.parse(params.roomCoordinates);
+      //console.log("Room coord:", parsedRoom);
     }
 
     if (
@@ -109,8 +113,9 @@ export default function DirectionsScreen() {
   
 
   const buildingName = params?.buildingName || "No Destination set";
-  const roomParams = params?.room || null ;
-  const roomLocation = params?.roomCoordinates || null;
+  const roomParams = parsedRoom || null ;
+  const roomLocation = parsedRoomCoordinates|| null;
+  
 
 
   // State management
