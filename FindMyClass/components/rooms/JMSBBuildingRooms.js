@@ -167,6 +167,11 @@ const jmsbBuildingFloors = {
         stairs: [
 
             {
+                id: "MB1-stairs-5",
+                name: "MB1-Stairs 5",
+                location: { x: 11, y: 12 },
+            },
+            {
                 id: "MB1-stairs-1",
                 name: "MB1-Stairs 1",
                 location: { x: 4, y: 2 },
@@ -190,11 +195,7 @@ const jmsbBuildingFloors = {
                 location: { x: 9, y: 9 },
             },
 
-            {
-                id: "MB1-stairs-5",
-                name: "MB1-Stairs 5",
-                location: { x: 12, y: 15 },
-            },
+          
             {
                 id: "MB1-stairs-6",
                 name: "MB1-Stairs 6",
@@ -224,7 +225,7 @@ const jmsbBuildingFloors = {
 
     //Floor S2
 
-    s2:{
+    2:{
 
         startLocation: {
             id: "S2-start",
