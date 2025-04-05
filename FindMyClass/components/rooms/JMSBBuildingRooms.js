@@ -444,6 +444,16 @@ const getRoomsByFloorJSMB = (floorNumber) => {
     });
   };
   
+  // Helper function to get elevators by floor
+  const getElevatorsMB = (floorNumber) => {
+      return jmsbBuildingFloors[floorNumber]?.elevators || [];
+  };
+  
+  // Helper function to get stairs by floor
+  const getStairsMB = (floorNumber) => {
+      return jmsbBuildingFloors[floorNumber]?.stairs || [];
+  };
+
   export {
     BUILDING_CONFIG,
     jmsbFlippedGrid,
@@ -455,5 +465,7 @@ const getRoomsByFloorJSMB = (floorNumber) => {
     jmsbBuilding,
     floorGridsMB,
     transformFloorGridsMB,
+    getElevatorsMB,
+    getStairsMB,
   };
     
