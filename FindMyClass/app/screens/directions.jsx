@@ -16,8 +16,12 @@ import {
             } from "../../utils/shuttleUtils";
 import  SGWBuildings  from "../../components/SGWBuildings";
 import {
+  hallBuilding,
   hallBuildingFloors,
-  getStartLocationHall
+  getStartLocationHall,
+  getStairsHall,
+  floorGridsHall,
+  transformFloorGridsHall,
 } from "../../components/rooms/HallBuildingRooms";
 import PF from "pathfinding";
 import {
@@ -34,14 +38,27 @@ import {
     verticallyFlippedGrid,
     rotatedGrid,
     gridMapping,
-    getExactCoordinates,
+    getClassCoordinates,
     getFloorNumber
 } from "../../utils/indoorUtils";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import {jmsbBuilding,jmsbBounds, jmsbFlippedGrid } from "../../components/rooms/JMSBBuildingRooms";
-import {vanierBuilding ,vanierBounds, vanierFlippedGrid, gridVanier } from "../../components/rooms/VanierBuildingRooms";
-import { ccBuilding, ccBounds, ccFlippedGrid, gridCC } from "../../components/rooms/CCBuildingRooms";
-import { hallBuilding } from "../../components/rooms/HallBuildingRooms";
+import {
+  jmsbBuilding,
+  jmsbBounds, 
+  jmsbFlippedGrid, 
+  getStartLocationJSMB } from "../../components/rooms/JMSBBuildingRooms";
+import {
+  vanierBuilding, 
+  vanierBounds, 
+  vanierFlippedGrid, 
+  gridVanier, 
+  getStartLocationVanier } from "../../components/rooms/VanierBuildingRooms";
+import { 
+  ccBuilding, 
+  ccBounds, 
+  ccFlippedGrid, 
+  gridCC, 
+  getStartLocationCC } from "../../components/rooms/CCBuildingRooms";
 import FloorPlans from "../../components/FloorPlans";
 import FloorSelector from "../../components/FloorSelector";
 
