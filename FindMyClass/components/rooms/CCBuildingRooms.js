@@ -197,6 +197,16 @@ const getAllRoomsCC = () => {
   });
 };
 
+// Helper function to get elevators by floor
+const getElevatorsCC = (floorNumber) => {
+  return ccBuildingFloors[floorNumber]?.elevators || [];
+};
+
+// Helper function to get stairs by floor
+const getStairsCC = (floorNumber) => {
+  return ccBuildingFloors[floorNumber]?.stairs || [];
+};
+
 export {
   BUILDING_CONFIG,
   ccBuildingFloors,
@@ -209,4 +219,6 @@ export {
   ccBuilding,
   floorGridsCC,
   transformFloorGridsCC,
+  getElevatorsCC,
+  getStairsCC
 };
