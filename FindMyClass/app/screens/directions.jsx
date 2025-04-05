@@ -203,6 +203,9 @@ export default function DirectionsScreen() {
   
   const [roomCoordinates, setRoomCoordinates] = useState(roomLocation);
   const [finalRoomCoordinates, setFinalRoomCoordinates] = useState(null);
+  const [tempRoomCoordinates, setTempRoomCoordinates] = useState(null);
+
+  const tempRoomFloor = 2;
   const [roomFloorStart, setRoomFloorStart] = useState(1);
   const [roomFloorFinal,  setRoomFloorFinal] = useState(1)
 // are the buildings focused?
@@ -213,6 +216,8 @@ export default function DirectionsScreen() {
 
   const [indoorPath, setIndoorPath] = useState(null);
   const [finalIndoorPath, setFinalIndoorPath] = useState(null);
+  const [tempindoorPath, setTempIndoorPath] = useState(null);
+
   const [renderTrigger, setRenderTrigger] = useState(false);
 
   const startLocationGetters = {
