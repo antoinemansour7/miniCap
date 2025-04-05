@@ -265,6 +265,19 @@ export default function DirectionsScreen() {
   const convertPathToScreenCoordinates = (path, flippedGrid) =>
     path.map(([x, y]) => flippedGrid[y][x]);
   
+  const handleMarkerTitle = () => {
+    if (tempRoomCoordinates) {
+      return  `Go to the 2nd floor`;
+    }
+    if (indoorPath) {
+      if (room.building === "MB") {
+
+        return  `Go to the S${roomFloorFinal} floor`
+      }
+      return  `Go to the ${roomFloorFinal}th floor`
+    }
+    return room.name;
+  }
 
   const updateIndoorRoute = () => {
     if (room) {
@@ -910,11 +923,7 @@ export default function DirectionsScreen() {
                          { room != null && floorNumber[room.building] === roomFloorStart &&
                           (<Marker 
                             coordinate={roomCoordinates}
-                            title={ 
-                              finalIndoorPath ? 
-                              `Go to the ${roomFloorFinal}th floor` :
-                              room.name
-                            }
+                            title={ handleMarkerTitle()}
                             pinColor="#912338"
                             onPress={() => handleMarkerPress(roomCoordinates)}
                             />)
