@@ -225,6 +225,39 @@ export default function DirectionsScreen() {
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
   
 
+   const getStartLocation = (startGetter, floor) => {
+
+    const item = startGetter(floor);
+    console.log("Start location item:", item);
+    return {
+      locationItem: item,
+      coords: {
+        xcoord: item.location.x,
+        ycoord: item.location.y,
+      },
+    };
+  };
+  
+   const getEndLocation = (room) => ({
+    xcoord: room.location.x,
+    ycoord: room.location.y,
+  });
+
+   const prepareWalkableGrid = (grid, roomLocation, convertFn) => {
+    const walkable = convertFn(grid);
+    walkable.setWalkableAt(roomLocation.x, roomLocation.y, true);
+    return walkable;
+  };
+  
+  const findPath = (start, end, walkable) => {
+    const finder = new PF.AStarFinder();
+    return finder.findPath(start.xcoord, start.ycoord, end.xcoord, end.ycoord, walkable);
+  };
+
+  const convertPathToScreenCoordinates = (path, flippedGrid) =>
+    path.map(([x, y]) => flippedGrid[y][x]);
+  
+
   const updateIndoorRoute = () => {
     if (room) {
       console.log("Room updateIndoorRouter:", room.id);
@@ -236,43 +269,25 @@ export default function DirectionsScreen() {
   
 
       if (floor === 1 ) {
-        const floorStartLocationItem = startLocationGetters[room.building](floor);
-        console.log("Floor start location item:", floorStartLocationItem);
-        setBaseFloorStartLocation({
-          xcoord: floorStartLocationItem.location.x,
-          ycoord: floorStartLocationItem.location.y
-        });
-        //const floorEndLocationItem = getStairsHall(floor);
-        setBaseFloorEndLocation({
-          xcoord: room.location.x,
-          ycoord: room.location.y
-        });
-
+        setRoomFloorStart(1);
         const grid = buildingGrid[floor];
 
+        const { locationItem, coords: startCoords } = getStartLocation(
+          startLocationGetters[room.building],
+          floor
+        );
 
-        const walkable = convertGridForPathfinding(grid);
-        console.log("room xy:", room.location.x, room.location.y);
+        const endCoords = getEndLocation(room);
+        const walkable = prepareWalkableGrid(grid, room.location, convertGridForPathfinding);
+        const path = findPath(startCoords, endCoords, walkable);
+        const flippedGrid = gridTransformer(grid);
+        const screenPath = convertPathToScreenCoordinates(path, flippedGrid);
+        const roomScreenCoords = getClassCoordinates(flippedGrid, room.location.x, room.location.y);
 
-        walkable.setWalkableAt(
-          room.location.x , 
-          room.location.y, 
-          true);
-
-        const finder = new PF.AStarFinder();
-        const path = finder.findPath( 
-          floorStartLocationItem.location.x,
-          floorStartLocationItem.location.y,
-          room.location.x, 
-          room.location.y, walkable);
-
-          
-          const flippedGrid = gridTransformer(grid);
-          setRoomCoordinates(getClassCoordinates(flippedGrid, room.location.x, room.location.y));
-          console.log("path: ", path);
-          const pathCoordinates = path.map(([x, y]) => flippedGrid[y][x]);
-          setIndoorPath(pathCoordinates);
-
+        setBaseFloorStartLocation(startCoords);
+        setBaseFloorEndLocation(endCoords);
+        setIndoorPath(screenPath);
+        setRoomCoordinates(roomScreenCoords);
       } 
     }
   }
