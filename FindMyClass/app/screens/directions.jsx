@@ -15,29 +15,29 @@ import {
     SGW_COORDS,
             } from "../../utils/shuttleUtils";
 import  SGWBuildings  from "../../components/SGWBuildings";
+import PF from "pathfinding";
+import {
+  floorGrid,
+  getFloorPlanBounds,
+  convertGridForPathfinding,
+  getPolygonBounds,
+  gridLines,
+  horizontallyFlippedGrid,
+  verticallyFlippedGrid,
+  rotatedGrid,
+  gridMapping,
+  getClassCoordinates,
+  getFloorNumber
+} from "../../utils/indoorUtils";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import {
   hallBuilding,
   hallBuildingFloors,
   getStartLocationHall,
   getStairsHall,
   floorGridsHall,
-  transformFloorGridsHall,
-} from "../../components/rooms/HallBuildingRooms";
-import PF from "pathfinding";
-import {
-    floorGrid,
-    getFloorPlanBounds,
-    convertGridForPathfinding,
-    getPolygonBounds,
-    gridLines,
-    horizontallyFlippedGrid,
-    verticallyFlippedGrid,
-    rotatedGrid,
-    gridMapping,
-    getClassCoordinates,
-    getFloorNumber
-} from "../../utils/indoorUtils";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+  transformFloorGridsHall, } from "../../components/rooms/HallBuildingRooms";
+
 import {
   jmsbBuilding,
   jmsbBounds, 
