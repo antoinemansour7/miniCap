@@ -124,6 +124,201 @@ const BUILDING_CONFIG = {
 };
 
 const hallBuildingFloors = {
+
+   // 1st floor
+   1: {
+    startLocation: {
+      id: "H1-start",
+      name: "1st Floor Entrance",
+      location: { x: 7, y: 18 },
+      type: "start"
+    },
+    rooms: [
+        {
+            id: "H-1.0023",
+            name: "H-0023",
+            location: { x: 6, y: 2 },
+        },
+        {
+            id: "H-131",
+            name: "H-131",
+            location: { x: 11, y: 2 },
+        },
+        {
+            id: "H-133",
+            name: "H-133",
+            location: { x: 13, y: 2 },
+        },
+        {
+            id: "H-135",
+            name: "H-135",
+            location: { x: 14, y: 2 },
+        },
+        {
+            id: "H-135.1",
+            name: "H-135.1",
+            location: { x: 15, y: 2 },
+        },
+        {
+            id: "H-137",
+            name: "H-137",
+            location: { x: 16, y: 2 },
+        },
+        {
+            id: "H-139",
+            name: "H-139",
+            location: { x: 17, y: 2 },
+        },
+        {
+            id: "H-141",
+            name: "H-141",
+            location: { x: 18, y: 2 },
+        },
+        {
+            id: "H1-030-1",
+            name: "H-030-1",
+            location: { x: 6, y: 4 },
+        },
+        {
+            id: "H-120",
+            name: "H-120",
+            location: { x: 10, y: 8 },
+        },
+        {
+            id: "H-125",
+            name: "H-125",
+            location: { x: 0, y: 8 },
+        },
+        {
+            id: "H-109",
+            name: "H-109",
+            location: { x: 1, y: 10 },
+        },
+        {
+            id: "H-115",
+            name: "H-115",
+            location: { x: 11, y: 10 },
+        },
+        {
+            id: "H-118",
+            name: "H-118",
+            location: { x: 16, y: 13 },
+        },
+        {
+            id: "H-110",
+            name: "H-110",
+            location: { x: 5, y: 14 },
+        },
+
+    ],
+    bathrooms: [
+        {
+            id: "H-112",
+            name: "bathroom-male",
+            location: { x: 9, y: 12 },
+        },
+        {
+            id: "H-114",
+            name: "bathroom-female",
+            location: { x: 9, y: 10 },
+        }, 
+    ],
+    stairs: [
+        {
+            id: "H-1-stairs-1",
+            name: "Stairs 1",
+            location: { x: 12, y: 15 },
+        },
+    ],
+    elevators: [
+        {
+            id: "H-1-elevator-1",
+            name: "Elevator 1",
+            location: { x: 15, y: 15 },
+        },
+    ],
+    exits: [
+        { 
+        id: "H1-exit",
+        name: "1st Floor Exit",
+        location: { x: 17, y: 4 },
+        type: "exit" 
+        },
+    ]
+
+  },
+  
+   // 2nd floor
+   2: {
+    startLocation: {
+      id: "H2-start",
+      name: "2nd Floor Entrance",
+      location: { x: 15, y: 13 },
+      type: "start"
+    },
+    rooms: [
+        {
+            id: "H-231",
+            name: "Reggie's",
+            location: { x: 5, y: 5 },
+        }, 
+        {
+            id: "H-239",
+            name: "Hive Café",
+            location: { x: 10, y: 5 },
+        },
+    ],
+    bathrooms: [
+        // add bathrooms here
+    ],
+    stairs: [
+        {
+            id: "H-2-stairs-1",
+            name: "Stairs 1",
+            location: { x: 10, y: 8 },
+        },
+        {
+            id: "H-2-stairs-2",
+            name: "Stairs 2",
+            location: { x: 4, y: 5 },
+        },
+        {
+            id: "H-2-stairs-3",
+            name: "Stairs 3",
+            location: { x: 4, y: 8 },
+        },
+        {
+            id: "H-2-stairs-4",
+            name: "Stairs 4",
+            location: { x: 18, y: 11 },
+        },
+        {
+            id: "H-2-stairs-5",
+            name: "Stairs 5",
+            location: { x: 19, y: 5 },
+        },
+    ],
+    elevators: [
+        {
+            id: "H-2-elevator-1",
+            name: "Elevator 1",
+            location: { x: 14, y: 14 },
+        }, 
+    ],
+    exits: [
+        {
+            id: "H-2-stairs-to-H1-1",
+            name: "Stairs to H1 1",
+            location: { x: 11, y: 14 },
+        },
+        {
+            id: "H-2-stairs-to-H1-2",
+            name: "Stairs to H1 2",
+            location: { x: 16, y: 14 },
+        },
+    ]
+
+  },
   // 8th floor
   8: {
     startLocation: {
@@ -840,201 +1035,7 @@ const hallBuildingFloors = {
     ]
 
   },
-
-  // 1st floor
-  1: {
-    startLocation: {
-      id: "H1-start",
-      name: "1st Floor Entrance",
-      location: { x: 7, y: 17 },
-      type: "start"
-    },
-    rooms: [
-        {
-            id: "H-1.0023",
-            name: "H-0023",
-            location: { x: 6, y: 2 },
-        },
-        {
-            id: "H-131",
-            name: "H-131",
-            location: { x: 11, y: 2 },
-        },
-        {
-            id: "H-133",
-            name: "H-133",
-            location: { x: 13, y: 2 },
-        },
-        {
-            id: "H-135",
-            name: "H-135",
-            location: { x: 14, y: 2 },
-        },
-        {
-            id: "H-135.1",
-            name: "H-135.1",
-            location: { x: 15, y: 2 },
-        },
-        {
-            id: "H-137",
-            name: "H-137",
-            location: { x: 16, y: 2 },
-        },
-        {
-            id: "H-139",
-            name: "H-139",
-            location: { x: 17, y: 2 },
-        },
-        {
-            id: "H-141",
-            name: "H-141",
-            location: { x: 18, y: 2 },
-        },
-        {
-            id: "H1-030-1",
-            name: "H-030-1",
-            location: { x: 6, y: 4 },
-        },
-        {
-            id: "H-120",
-            name: "H-120",
-            location: { x: 10, y: 8 },
-        },
-        {
-            id: "H-125",
-            name: "H-125",
-            location: { x: 0, y: 8 },
-        },
-        {
-            id: "H-109",
-            name: "H-109",
-            location: { x: 1, y: 10 },
-        },
-        {
-            id: "H-115",
-            name: "H-115",
-            location: { x: 11, y: 10 },
-        },
-        {
-            id: "H-118",
-            name: "H-118",
-            location: { x: 17, y: 12 },
-        },
-        {
-            id: "H-110",
-            name: "H-110",
-            location: { x: 5, y: 13 },
-        },
-
-    ],
-    bathrooms: [
-        {
-            id: "H-112",
-            name: "bathroom-male",
-            location: { x: 9, y: 12 },
-        },
-        {
-            id: "H-114",
-            name: "bathroom-female",
-            location: { x: 9, y: 10 },
-        }, 
-    ],
-    stairs: [
-        {
-            id: "H-1-stairs-1",
-            name: "Stairs 1",
-            location: { x: 12, y: 15 },
-        },
-    ],
-    elevators: [
-        {
-            id: "H-1-elevator-1",
-            name: "Elevator 1",
-            location: { x: 15, y: 15 },
-        },
-    ],
-    exits: [
-        { 
-        id: "H1-exit",
-        name: "1st Floor Exit",
-        location: { x: 17, y: 4 },
-        type: "exit" 
-        },
-    ]
-
-  },
-
-  // 2nd floor
-  2: {
-    startLocation: {
-      id: "H2-start",
-      name: "2nd Floor Entrance",
-      location: { x: 15, y: 13 },
-      type: "start"
-    },
-    rooms: [
-        {
-            id: "H-231",
-            name: "Reggie's",
-            location: { x: 5, y: 5 },
-        }, 
-        {
-            id: "H-239",
-            name: "Hive Café",
-            location: { x: 10, y: 5 },
-        },
-    ],
-    bathrooms: [
-        // add bathrooms here
-    ],
-    stairs: [
-        {
-            id: "H-2-stairs-1",
-            name: "Stairs 1",
-            location: { x: 10, y: 8 },
-        },
-        {
-            id: "H-2-stairs-2",
-            name: "Stairs 2",
-            location: { x: 4, y: 5 },
-        },
-        {
-            id: "H-2-stairs-3",
-            name: "Stairs 3",
-            location: { x: 4, y: 8 },
-        },
-        {
-            id: "H-2-stairs-4",
-            name: "Stairs 4",
-            location: { x: 18, y: 11 },
-        },
-        {
-            id: "H-2-stairs-5",
-            name: "Stairs 5",
-            location: { x: 19, y: 5 },
-        },
-    ],
-    elevators: [
-        {
-            id: "H-2-elevator-1",
-            name: "Elevator 1",
-            location: { x: 14, y: 14 },
-        }, 
-    ],
-    exits: [
-        {
-            id: "H-2-stairs-to-H1-1",
-            name: "Stairs to H1 1",
-            location: { x: 11, y: 14 },
-        },
-        {
-            id: "H-2-stairs-to-H1-2",
-            name: "Stairs to H1 2",
-            location: { x: 16, y: 14 },
-        },
-    ]
-
-  }
+ 
 };
 
 // Helper function to get rooms by floor
