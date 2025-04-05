@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useCallback, useRef, useEffect, useState } from 'react';
 import { Marker, Callout, CalloutSubview, Polygon } from 'react-native-maps';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import {styles} from './BuildingMarker'
@@ -37,19 +37,27 @@ const CalloutContent = memo(
 
 
 const RoomMarker = ({classroomCoordinates, room, router }) => {
+    const markerRef = useRef(null);
+    const [shouldRender, setShouldRender] = useState(false);
 
-      const markerRef = useRef(null);
-    
+    useEffect(() => {
+        if (room && classroomCoordinates) {
+            setShouldRender(true);
+        } else {
+            setShouldRender(false);
+        }
+    }, [room, classroomCoordinates]);
+
+    if (!shouldRender) return null;
 
     return (
-        <>
-        {room != null && (
-             <Marker
-                ref={markerRef}
-                coordinate={classroomCoordinates}
-                title={room.name}
-                pinColor='#912338'
-                >
+        <Marker
+            ref={markerRef}
+            coordinate={classroomCoordinates}
+            title={room.name}
+            pinColor='#912338'
+            tracksViewChanges={false}  // Improves performance
+        >
             <Callout>
                 <CalloutContent
                     room={room}
@@ -59,9 +67,7 @@ const RoomMarker = ({classroomCoordinates, room, router }) => {
                 />
             </Callout>
         </Marker>
-    )}
-        </>
     );
 }
 
-export default RoomMarker;
+export default memo(RoomMarker); // Memoize the component to prevent unnecessary re-renders
