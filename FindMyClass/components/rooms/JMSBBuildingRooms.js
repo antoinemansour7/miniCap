@@ -2,7 +2,29 @@ import  SGWBuildings  from "../SGWBuildings";
 import { precomputeTransformedGrid, flipHorizontally,getPolygonBounds } from "../../utils/indoorUtils";
 
  
-const floorGrid_2 = [
+const floorGridMB_1 = [
+    [0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,2,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,2,0,4,2,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,2,3,0,0,2,2,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,2,1,1,4,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,2,0,2,1,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,4,1,5,0,1,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,1,1,1,1,4,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,2,2,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,2,1,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,0,1,1,1,1,1,1,4,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,2,0,4,0,1,1,1,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,2,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+]
+const floorGridMB_2 = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0],
@@ -25,6 +47,11 @@ const floorGrid_2 = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ] 
 
+const floorGridsMB = {
+    1: floorGridMB_1,
+    2: floorGridMB_2,
+}
+
 const jmsbBuildingCorners = [
     { latitude: 45.495807318051305, longitude: -73.57892282292742 }, // North
     { latitude: 45.49527378467022, longitude:  -73.57956335068152}, // West
@@ -32,10 +59,15 @@ const jmsbBuildingCorners = [
     { latitude: 45.495373239317985, longitude: -73.57816656746238 } // East
   ];
 
-const gridMapping = precomputeTransformedGrid(floorGrid_2, jmsbBuildingCorners);
+const gridMapping = precomputeTransformedGrid(floorGridMB_2, jmsbBuildingCorners);
 
 const jmsbFlippedGrid = flipHorizontally(gridMapping);  
 const jmsbBounds = getPolygonBounds(jmsbBuildingCorners);
+
+const transformFloorGridsMB = (floorGrid) => {
+    const transformedGrid = precomputeTransformedGrid(floorGrid, jmsbBuildingCorners);
+    return flipHorizontally(transformedGrid);
+}
 
 const jmsbBuilding = SGWBuildings.find(building => building.id === "MB");
 // Building configuration
@@ -420,5 +452,7 @@ const getRoomsByFloorJSMB = (floorNumber) => {
     jmsbBuildingCorners,
     jmsbBounds,
     jmsbBuilding,
+    floorGridsMB,
+    transformFloorGridsMB,
   };
     
