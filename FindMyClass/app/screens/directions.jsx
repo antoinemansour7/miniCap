@@ -231,7 +231,7 @@ export default function DirectionsScreen() {
 
     setTimeout(() => {
         setRenderTrigger(prev => !prev);
-    }, 700);
+    }, 100);
     console.log("Render trigger changed:", renderTrigger);
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
   
@@ -710,7 +710,7 @@ export default function DirectionsScreen() {
       // setFinalIndoorPath(null);
       // setFinalRoomCoordinates(null);
       // setTempRoomCoordinates(null);
-      setFloorNumber(DEFAULT_FLOOR_NUMBERS);
+      // setFloorNumber(DEFAULT_FLOOR_NUMBERS);
       if ( room ) {
         updateIndoorRoute();
       }  
@@ -918,7 +918,7 @@ export default function DirectionsScreen() {
 
                     {/*  Indoor route */}
                         
-                    { room != null && floorNumber[room.building] === roomFloorStart &&
+                    { indoorPath?.length > 0  && floorNumber[room?.building] === roomFloorStart &&
                           (<Polyline
                             coordinates={indoorPath}
                             strokeWidth={4}
@@ -928,7 +928,7 @@ export default function DirectionsScreen() {
                           />)
                           }
 
-                         { room != null && floorNumber[room.building] === roomFloorStart &&
+                         { room != null && floorNumber[room?.building] === roomFloorStart &&
                           (<Marker 
                             coordinate={roomCoordinates}
                             title={ handleMarkerTitle()}
@@ -938,7 +938,7 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                        { finalIndoorPath != null && floorNumber[room.building] === roomFloorFinal &&
+                        { finalIndoorPath != null && floorNumber[room?.building] === roomFloorFinal &&
                           (<Polyline
                             coordinates={finalIndoorPath}
                             strokeWidth={4}
@@ -948,7 +948,7 @@ export default function DirectionsScreen() {
                           />)
                           }
 
-                         { finalRoomCoordinates != null && floorNumber[room.building] === roomFloorFinal &&
+                         { finalRoomCoordinates != null && floorNumber[room?.building] === roomFloorFinal &&
                           (<Marker 
                             coordinate={finalRoomCoordinates}
                             title={room.name}
@@ -958,7 +958,7 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                          { tempindoorPath != null && floorNumber[room.building] === tempRoomFloor &&
+                          { tempindoorPath != null && floorNumber[room?.building] === tempRoomFloor &&
                           (<Polyline
                             coordinates={tempindoorPath}
                             strokeWidth={4}
@@ -968,7 +968,7 @@ export default function DirectionsScreen() {
                           />)
                           }
 
-                          { tempRoomCoordinates != null && floorNumber[room.building] === tempRoomFloor &&
+                          { tempRoomCoordinates != null && floorNumber[room?.building] === tempRoomFloor &&
                           (<Marker
                             coordinate={tempRoomCoordinates}
                             title={`Go to the ${roomFloorFinal}th floor`}
@@ -978,14 +978,14 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                          {gridLines.map((line, index) => (
+                          {/* {gridLines.map((line, index) => (
                               <Polyline
                                 key={index}
                                 coordinates={line}
                                 strokeWidth={1}
                                 strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
                               />
-                            ))}
+                            ))} */}
 
           </MapView>
           
