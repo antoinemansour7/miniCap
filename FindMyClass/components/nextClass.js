@@ -59,7 +59,7 @@ export const getNextClassEvent = async () => {
 export const navigateToNextClass = async () => {
   const nextEvent = await getNextClassEvent();
   if (!nextEvent || !nextEvent.destinationCoordinates) {
-    alert("Directions unavailable – no valid coordinates found for the next class.");
+    alert("Login required – Please login with Google to access this feature.");
     return;
   }
   router.push({
