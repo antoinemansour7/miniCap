@@ -711,10 +711,6 @@ export default function DirectionsScreen() {
       // setFinalRoomCoordinates(null);
       // setTempRoomCoordinates(null);
       setFloorNumber(DEFAULT_FLOOR_NUMBERS);
-
-      setTimeout(() => {
-        setRenderTrigger(prev => !prev);
-    }, 700);
       if ( room ) {
         updateIndoorRoute();
       }  
