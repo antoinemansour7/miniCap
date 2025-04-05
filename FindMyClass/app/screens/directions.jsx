@@ -200,9 +200,9 @@ export default function DirectionsScreen() {
 
   
   const [roomCoordinates, setRoomCoordinates] = useState(roomLocation);
-  console.log("roomCoordinates:", roomCoordinates);
-  const [roomFloorDestination,  setRoomFloorDestination] = useState(1)
+  const [finalRoomCoordinates, setFinalRoomCoordinates] = useState(null);
   const [roomFloorStart, setRoomFloorStart] = useState(1);
+  const [roomFloorFinal,  setRoomFloorFinal] = useState(1)
 // are the buildings focused?
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
   const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
@@ -210,6 +210,7 @@ export default function DirectionsScreen() {
   const [ccBuildingFocused, setCCBuildingFocused] = useState(false);
 
   const [indoorPath, setIndoorPath] = useState(null);
+  const [finalIndoorPath, setFinalIndoorPath] = useState(null);
   const [renderTrigger, setRenderTrigger] = useState(false);
 
   const startLocationGetters = {
@@ -289,6 +290,52 @@ export default function DirectionsScreen() {
         setIndoorPath(screenPath);
         setRoomCoordinates(roomScreenCoords);
       } 
+      else {
+        const baseStairs = stairsGetter[room.building](1)[0];
+        console.log("Base stairs:", baseStairs);
+        const grid = buildingGrid[1];
+
+        const { locationItem, coords: startCoords } = getStartLocation(
+          startLocationGetters[room.building],
+          1
+        );
+
+        console.log("startcoords:", startCoords);
+        const endCoords = getEndLocation(baseStairs);
+        console.log("endcoords:", endCoords);
+        const walkable = prepareWalkableGrid(grid, baseStairs.location, convertGridForPathfinding);
+        const path = findPath(startCoords, endCoords, walkable);
+        const flippedGrid = gridTransformer(grid);
+        const screenPath = convertPathToScreenCoordinates(path, flippedGrid);
+        const roomScreenCoords = getClassCoordinates(flippedGrid, baseStairs.location.x, baseStairs.location.y);
+
+        setBaseFloorStartLocation(startCoords);
+        setBaseFloorEndLocation(endCoords);
+        setIndoorPath(screenPath);
+        setRoomCoordinates(roomScreenCoords);
+
+        // destination floor 
+        const finalGrid = buildingGrid[floor];
+
+        const { finalLocationItem, coords: finalStartCoords } = getStartLocation(
+          startLocationGetters[room.building],
+          floor
+        );
+        console.log("Final startcoords:", finalStartCoords);
+        const finalEndCoords = getEndLocation(room);
+        console.log("Final endcoords:", finalEndCoords);
+        const finalWalkable = prepareWalkableGrid(finalGrid, room.location, convertGridForPathfinding);
+        const finalPath = findPath(finalStartCoords, finalEndCoords, finalWalkable);
+        console.log("Final path:", finalPath);
+        const finalFlippedGrid = gridTransformer(finalGrid);
+        const finalScreenPath = convertPathToScreenCoordinates(finalPath, finalFlippedGrid);
+        const finalRoomScreenCoords = getClassCoordinates(finalFlippedGrid, room.location.x, room.location.y);
+
+        setFinalIndoorPath(finalScreenPath);
+        setFinalRoomCoordinates(finalRoomScreenCoords);
+        setRoomFloorFinal(floor);
+        
+      }
     }
   }
 
