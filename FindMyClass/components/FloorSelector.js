@@ -27,7 +27,7 @@ const FloorSelector = ({
 
 }) => {
 
-    
+
     return (
         <> 
               {hallBuildingFocused && (
@@ -38,6 +38,7 @@ const FloorSelector = ({
                       style={[
                         styles.floorButton,
                         floorNumber['H'] === floor && styles.selectedFloorButton,
+                        
                       ]}
                       onPress={() => setFloorNumber({ ...floorNumber, ['H']: floor })}
 
