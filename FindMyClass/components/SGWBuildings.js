@@ -222,6 +222,136 @@ const SGWBuildings = [
         contact: 'Phone: +1 514-848-2424 ext. 3000',
         description: 'The EV Complex at Concordia University brings together the faculties of engineering, computer science, and visual arts under one roof. It provides cutting-edge labs and classrooms for students and faculty, fostering collaboration across disciplines. The building also includes exhibition spaces and student-focused areas like lounges and a cafeteria.',
     },
+    {
+        id: 'HIVE',
+        name: 'Hive Cafe',
+        type: 'Cafe',
+        latitude: 45.497506936158494,
+        longitude: -73.57909837493858,
+        address: '1455 De Maisonneuve Blvd W',
+        cuisineType: ['Coffee', 'Snacks', 'Vegetarian Options'],
+        description: 'Popular student-run cafe known for its community atmosphere and ethical food choices.'
+    },
+    {
+        id: 'TIMH',
+        name: 'Tim Hortons',
+        type: 'Cafe',
+        latitude: 45.49623753185584,
+        longitude: -73.57956738280205,
+        address: '1400 De Maisonneuve Blvd W',
+        cuisineType: ['Coffee', 'Donuts', 'Fast Food'],
+        description: 'Classic Canadian coffee and donut chain, popular among students.'
+    },
+    {
+        id: 'SCUP',
+        name: 'Second Cup',
+        type: 'Cafe',
+        latitude: 45.4993776969996,
+        longitude: -73.57351501169371,
+        address: '1450 Guy St',
+        cuisineType: ['Coffee', 'Pastries', 'Light Snacks'],
+        description: 'Canadian coffee shop with a variety of coffee drinks and baked goods.'
+    },
+    {
+        id: 'SBUX',
+        name: 'Starbucks',
+        type: 'Cafe',
+        latitude: 45.49745318702331,
+        longitude: -73.57906671534296,
+        address: '1400 Maisonneuve Blvd W',
+        cuisineType: ['Coffee', 'Pastries', 'Light Meals'],
+        description: 'Popular international coffee chain with a wide range of beverages and snacks.'
+    },
+    {
+        id: 'ALLONS',
+        name: 'Allons Burger',
+        type: 'Restaurant',
+        latitude: 45.49661963829143,
+        longitude: -73.57861064610246,
+        address: '1502 Rue Saint-Catherine O',
+        cuisineType: ['Burgers', 'Fast Food'],
+        description: 'Local burger joint popular among students for quick and tasty meals.'
+    },
+    {
+        id: 'BOUSTAN',
+        name: 'Restaurant Boustan',
+        type: 'Restaurant',
+        latitude: 45.498243095966316,
+        longitude: -73.5776589000696,
+        address: '2055 Rue Mackay',
+        cuisineType: ['Middle Eastern', 'Shawarma', 'Vegetarian Options'],
+        description: 'Famous for its delicious shawarma and vegetarian options.'
+    },
+    {
+        id: 'AW',
+        name: 'A&W',
+        type: 'Restaurant',
+        latitude: 45.496102182913646,
+        longitude: -73.57886017679101,
+        address: '1500 Rue Saint-Catherine O',
+        cuisineType: ['Burgers', 'Fast Food'],
+        description: 'Fast food restaurant known for its root beer and burgers.'
+    },
+    {
+        id: 'BK',
+        name: 'Burger King',
+        type: 'Restaurant',
+        latitude: 45.49501353904256,
+        longitude: -73.5783603902829,
+        address: '1415 Rue Saint-Catherine O',
+        cuisineType: ['Burgers', 'Fast Food'],
+        description: 'Popular fast food chain offering burgers and other quick meals.'
+    },
+    {
+        id: 'POULET',
+        name: 'Poulet Rouge',
+        type: 'Restaurant',
+        latitude: 45.494967948617806,
+        longitude: -73.57846923446323,
+        address: '2075 Rue Mackay',
+        cuisineType: ['Chicken', 'Fast Food'],
+        description: 'Specializing in chicken dishes and quick meals.'
+    },
+    {
+        id: 'OSMOS',
+        name: 'Osmos',
+        type: 'Cafe',
+        latitude: 45.49598098920746,
+        longitude: -73.57862973067826,
+        address: '1245 Guy St',
+        cuisineType: ['Coffee', 'Light Meals', 'Healthy Options'],
+        description: 'Modern resturant shawarma'
+    },
+    {
+        id: 'VANHOUTE',
+        name: 'Cafe Van Houte',
+        type: 'Cafe',
+        latitude: 45.495540943667315,
+        longitude: -73.57802819028284,
+        address: '451 Rue de la Montagne',
+        cuisineType: ['Coffee', 'Pastries'],
+        description: 'Local coffee shop known for its high-quality coffee and cozy atmosphere.'
+    },
+    {
+        id: 'PHARMAPRIX',
+        name: 'Pharmaprix',
+        type: 'Pharmacy',
+        latitude: 45.495231431722914,
+        longitude: -73.57738468598382,
+        address: '1400 De Maisonneuve Blvd W',
+        cuisineType: ['Snacks', 'Beverages', 'Convenience Items'],
+        description: 'Pharmacy and convenience store with a wide range of snacks and essentials.'
+    },
+    {
+        id: 'DOLLARAMA',
+        name: 'Dollarama',
+        type: 'Snacks',
+        latitude: 45.49455833001194,
+        longitude: -73.5783721344633,
+        address: '1500 De Maisonneuve Blvd W',
+        cuisineType: ['Snacks', 'Convenience Items'],
+        description: 'Discount store with a variety of snacks, drinks, and convenience items.'
+    }
 ];
 
 export default SGWBuildings;
