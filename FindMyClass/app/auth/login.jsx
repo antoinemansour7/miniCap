@@ -7,7 +7,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { firebaseConfig} from '../secrets';
+import { firebaseConfig, googleAuthConfig } from '../secrets';
 import CustomModal from '../../components/CustomModal';
 
 export default function Login() {
@@ -35,7 +35,7 @@ export default function Login() {
   };
 
   // Setup Google auth request
-  const [response, promptAsync] = Google.useAuthRequest({
+  const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: '625867070738-vdkl0rjh31rgdjbcrkdk1f7t26rvgule.apps.googleusercontent.com', // Replace with your iOS client ID
     webClientId: 'YOUR_WEB_CLIENT_ID', // Replace with your web client ID
     scopes: [

@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+import FloatingChatButton from '../../components/FloatingChatButton';
 
 export default function Profile() {
   const { user } = useAuth();
