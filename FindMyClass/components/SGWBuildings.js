@@ -336,8 +336,8 @@ const SGWBuildings = [
         id: 'PHARMAPRIX',
         name: 'Pharmaprix',
         type: 'Pharmacy',
-        latitude: 45.4953132179434,
-        longitude: -73.57730690192227,
+        latitude: 45.495231431722914,
+        longitude: -73.57738468598382,
         address: '1400 De Maisonneuve Blvd W',
         cuisineType: ['Snacks', 'Beverages', 'Convenience Items'],
         description: 'Pharmacy and convenience store with a wide range of snacks and essentials.'
