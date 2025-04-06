@@ -7,7 +7,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { firebaseConfig, googleAuthConfig } from '../secrets';
+import { firebaseConfig} from '../secrets';
 import CustomModal from '../../components/CustomModal';
 
 export default function Login() {
