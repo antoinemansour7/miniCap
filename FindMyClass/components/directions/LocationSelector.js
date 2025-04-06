@@ -30,6 +30,10 @@ const LocationSelector = ({
     updateRoute,
     style, 
     setRoom,
+    resetRoom,
+    resetStartRoom,
+    customStartRoomName
+
 }) => {
 
     const router = useRouter();
@@ -37,6 +41,7 @@ const LocationSelector = ({
         { label: 'My Location', value: 'userLocation' },
         { label: 'SGW Campus', value: 'SGWCampus' },
         { label: 'Loyola Campus', value: 'LoyolaCampus' },
+        { label: customStartRoomName == '' ? 'Classroom' :  customStartRoomName, value: 'classroom'},
         { label: customStartName == '' ? 'Custom Location' : customStartName, value: 'custom' },
     ];
 
@@ -60,8 +65,14 @@ const LocationSelector = ({
             if (item.value === 'custom') {  
                 setSearchType("START");
                 showModal();
-            } else {
+            } else if (item.value === 'classroom') {
+                setSearchType("ROOM");
+                showModal();
+            }
+            
+            else {
                 let newStartLocation;
+                resetStartRoom();
                 switch(item.value) {
                     case 'userLocation':
                         if (userLocation) {
@@ -107,7 +118,7 @@ const LocationSelector = ({
                     showModal();
                 } else {
                     if (item.value !== 'custom') {
-                        setRoom(null);
+                        resetRoom();
                         let newDestination;
                         let newDestinationName;
                         switch(item.value) {
