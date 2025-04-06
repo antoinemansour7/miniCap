@@ -3,18 +3,38 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const Card = ({ iconName, title, onPress }) => {
+const Card = ({ iconName, title, onPress, darkMode }) => {
+  // Dynamic styles based on theme
+  const dynamicStyles = {
+    card: {
+      backgroundColor: darkMode ? '#2D2D2D' : '#F5F5F5',
+    },
+    title: {
+      color: darkMode ? '#FFFFFF' : '#333333',
+    },
+    icon: {
+      color: '#9B1B30', // Keeping the brand color consistent across themes
+    }
+  };
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Icon name={iconName} size={40} color="#9B1B30" style={styles.icon} />
-      <Text style={styles.title}>{title}</Text> 
+    <TouchableOpacity 
+      style={[styles.card, dynamicStyles.card]} 
+      onPress={onPress}
+    >
+      <Icon 
+        name={iconName} 
+        size={40} 
+        color={dynamicStyles.icon.color} 
+        style={styles.icon} 
+      />
+      <Text style={[styles.title, dynamicStyles.title]}>{title}</Text> 
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#F5F5F5', // Grayscale background for the cards
     width: 150,
     height: 150,
     margin: 10,
@@ -33,7 +53,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
   },
 });
 

@@ -4,53 +4,80 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
 import { navigateToNextClass } from '../../components/nextClass';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext'; // 🌍
 
 export default function Index() {
   // Initialize the navigation object
   const navigation = useNavigation();
+  
+  // Use the language context
+  const { t } = useLanguage();
+  
+  // Use the theme context
+  const { darkMode } = useTheme();
+  
+  // Dynamic styles based on theme
+  const dynamicStyles = {
+    container: {
+      backgroundColor: darkMode ? '#121212' : '#FFFFFF',
+    },
+    title: {
+      color: darkMode ? '#FFFFFF' : '#333333',
+    },
+    icon: {
+      color: '#9B1B30', // This could also be themed if needed
+    }
+  };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, dynamicStyles.container]}>
       <View style={styles.titleContainer}>
-        <Ionicons name="location" size={30} color="#9B1B30" style={styles.icon} />
-        <Text style={styles.title}>Campus Map</Text>
+        <Ionicons name="location" size={30} style={[styles.icon, { color: dynamicStyles.icon.color }]} />
+        <Text style={[styles.title, dynamicStyles.title]}>{t.map}</Text>
       </View>
 
       <View style={styles.row}>
         <Card 
           iconName="map" 
-          title="SGW Map" 
+          title={t.sgwMap} 
           onPress={() => navigation.navigate('index', { campus: 'SGW' })}
+          darkMode={darkMode}
         />
         <Card 
           iconName="map" 
-          title="LOY Map" 
+          title={t.loyMap} 
           onPress={() => navigation.navigate('index', { campus: 'Loyola' })}
+          darkMode={darkMode}
         />
       </View>
       
       <View style={styles.row}>
         <Card 
           iconName="person" 
-          title="Profile" 
+          title={t.profile} 
           onPress={() => navigation.navigate('screens/profile')}
+          darkMode={darkMode}
         />
         <Card 
           iconName="settings" 
-          title="Settings" 
+          title={t.settings}
+          darkMode={darkMode}
         />
       </View>
 
       <View style={styles.row}>
         <Card 
           iconName="calendar" 
-          title="My Schedule" 
+          title={t.mySchedule} 
           onPress={() => navigation.navigate('screens/schedule')}
+          darkMode={darkMode}
         />
         <Card 
           iconName="navigate" 
-          title="Next Class" 
+          title="Next Class" // Add this translation key to your language files
           onPress={navigateToNextClass}
+          darkMode={darkMode}
         />
       </View>
     </View>
@@ -75,7 +102,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#333',
   },
   row: {
     flexDirection: 'row',
