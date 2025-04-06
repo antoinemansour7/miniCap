@@ -27,3 +27,6 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 - tapOn: "Continue"
 
 - waitForAnimationToEnd
+
+- tapOn:
+    id: "menu-button"
