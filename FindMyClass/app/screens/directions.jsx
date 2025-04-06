@@ -181,44 +181,47 @@ export default function DirectionsScreen() {
   // ***************************************************************************************************** //
   // Indoor routing variables
 
+  // Classroom as detsination
   const [room, setRoom] = useState(roomParams);
-  const [ startRoom, setStartRoom] = useState(null);
+  const [startRoom, setStartRoom] = useState(null);
   const [floorNumber, setFloorNumber] = useState(DEFAULT_FLOOR_NUMBERS);
-
-  const [baseFloorStartLocation, setBaseFloorStartLocation] = useState({
-    xcoord: 0, 
-    ycoord: 0
-  });
-  const [baseFloorEndLocation, setBaseFloorEndLocation] = useState({
-    xcoord: 0,
-    ycoord: 0
-  });
-  const [floorStartLocation, setFloorStartLocation] = useState({
-    xcoord: 0, 
-    ycoord: 0
-  });
-  const [floorEndLocation, setFloorEndLocation] = useState({
-    xcoord: 0,
-    ycoord: 0
-  });
 
   
   const [roomCoordinates, setRoomCoordinates] = useState(roomLocation);
   const [finalRoomCoordinates, setFinalRoomCoordinates] = useState(null);
   const [tempRoomCoordinates, setTempRoomCoordinates] = useState(null);
 
+  const [indoorPath, setIndoorPath] = useState(null);
+  const [finalIndoorPath, setFinalIndoorPath] = useState(null);
+  const [tempindoorPath, setTempIndoorPath] = useState(null);
+
   const tempRoomFloor = 2;
   const [roomFloorStart, setRoomFloorStart] = useState(1);
   const [roomFloorFinal,  setRoomFloorFinal] = useState(1)
+  
+  // Classroom as starting point
+  const [startRoomCoordinates, setStartRoomCoordinates] = useState(null);
+  const [startFinalRoomCoordinates, setStartFinalRoomCoordinates] = useState(null);
+  const [startTempRoomCoordinates, setStartTempRoomCoordinates] = useState(null);
+
+  const [startIndoorPath, setStartIndoorPath] = useState(null);
+  const [startFinalIndoorPath, setStartFinalIndoorPath] = useState(null);
+  const [startTempIndoorPath, setStartTempIndoorPath] = useState(null);
+
+  const [startRoomFloor, setStartRoomFloor] = useState(2);
+  const startRoomFloorFinal = 1;
+
+
+
+
 // are the buildings focused?
   const [hallBuildingFocused, setHallBuildingFocused] = useState(false);
   const [jmsbBuildingFocused, setJMSBBuildingFocused] = useState(false);
   const [vanierBuildingFocused, setVanierBuildingFocused] = useState(false);
   const [ccBuildingFocused, setCCBuildingFocused] = useState(false);
 
-  const [indoorPath, setIndoorPath] = useState(null);
-  const [finalIndoorPath, setFinalIndoorPath] = useState(null);
-  const [tempindoorPath, setTempIndoorPath] = useState(null);
+
+
 
   const [renderTrigger, setRenderTrigger] = useState(false);
   const [showPoly, setShowPoly] = useState(true);
@@ -236,7 +239,7 @@ export default function DirectionsScreen() {
     setTimeout(() => {
         setRenderTrigger(prev => !prev);
     }, 100);
-    console.log("Render trigger changed:", renderTrigger, "\nIndoorPath After zoom:", indoorPath);
+    console.log("Render trigger changed:", renderTrigger);
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
 
   useEffect(() => {
@@ -249,8 +252,9 @@ export default function DirectionsScreen() {
   }, [renderTrigger]);
 
   useEffect(() => {
-    console.log("Indoor path useEffect:", indoorPath);
-  },[indoorPath]);
+    console.log("startIndoorPath path useEffect:", startIndoorPath);
+    updateIndoorRoute();
+  },[startRoom]);
   useEffect(() => {
     console.log("showPoly path useEffect:", showPoly);
   },[showPoly]);
@@ -303,7 +307,33 @@ export default function DirectionsScreen() {
   }
 
   const updateIndoorRoute = () => {
-    if (room) {
+    if (startRoom !== null) {
+        const buildingGrid = floorGrids[startRoom.building];
+        const gridTransformer = transformFloors[startRoom.building];
+        const floor = parseInt(getFloorNumber(startRoom.id));
+        console.log("StartFloor number:", floor);
+
+        if (floor === 1 ) {
+          setStartRoomFloor(1);
+          const grid = buildingGrid[floor];
+          const { locationItem, coords: endCoords } = getStartLocation(
+            startLocationGetters[startRoom.building],
+            floor
+          );
+          const startCoords = getEndLocation(startRoom);
+          const walkable = prepareWalkableGrid(grid, startRoom.location, convertGridForPathfinding);
+          const path = findPath(startCoords, endCoords, walkable);
+          const flippedGrid = gridTransformer(grid);
+          const screenPath = convertPathToScreenCoordinates(path, flippedGrid);
+          const roomScreenCoords = getClassCoordinates(flippedGrid, startRoom.location.x, startRoom.location.y);
+
+          setStartIndoorPath(screenPath);
+          setStartRoomCoordinates(roomScreenCoords);
+          // setFloorNumber[startRoom.building](floor);
+
+        }
+    }
+    if (room !== null) {
       console.log("Room updateIndoorRouter:", room.id);
       const buildingGrid = floorGrids[room.building];
       const gridTransformer = transformFloors[room.building];
@@ -312,6 +342,7 @@ export default function DirectionsScreen() {
       console.log("Floor number:", floor);
   
 
+    
       if (floor === 1 ) {
         setRoomFloorStart(1);
         const grid = buildingGrid[floor];
@@ -413,32 +444,6 @@ export default function DirectionsScreen() {
   }
 
 
-
-  // const walkableGrid = convertGridForPathfinding(floorGrid);
-  // walkableGrid.setWalkableAt(
-  //   floorEndLocation.xcoord, 
-  //   floorEndLocation.ycoord, 
-  //   true);
-  
-  // const finder = new PF.AStarFinder();
-  // const path = finder.findPath( 
-  //   floorStartLocation.xcoord,
-  //   floorStartLocation.ycoord,
-  //   floorEndLocation.xcoord, 
-  //   floorEndLocation.ycoord, walkableGrid);
-   
-    
-    
-  //   // gridMapping,
-  //   // correctedGridMapping,
-  //   // horizontallyFlippedGrid,
-  //   // verticallyFlippedGrid,
-  //   // rotatedGrid,
-  
-  //    const pathCoordinates = path.map(([x, y]) => horizontallyFlippedGrid[y][x]);
-  //   // const routeCoordinates = path.map(([x, y]) => gridToLatLong(x, y));
-  //   const classRoomCoordinates = getExactCoordinates( floorEndLocation.xcoord, 
-  //     floorEndLocation.ycoord,);
 
       const onRegionChange = (region) => {
         // Calculate zoom level based on latitudeDelta
@@ -712,7 +717,7 @@ export default function DirectionsScreen() {
       });
       setTimeout(() => {
         mapRef.current.fitToCoordinates(allCoords, {
-          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          edgePadding: { top: 250, right: 50, bottom: 200, left: 50 },
           animated: true,
         });
       }, 100);
@@ -737,9 +742,9 @@ export default function DirectionsScreen() {
     const updateRoute = (start, end) => {
       console.log("Update route:", start, end);
       setFloorNumber(DEFAULT_FLOOR_NUMBERS);
-      if ( room ) {
-        updateIndoorRoute();
-      }  
+      console.log("StartRoom", startRoom);
+      updateIndoorRoute();
+      
       updateRouteWithMode(start, end, travelMode);
     };
 
@@ -848,7 +853,6 @@ export default function DirectionsScreen() {
           updateRouteWithMode={updateRouteWithMode}
           updateRoute={updateRoute}
           setRoom={setRoom}
-          setStartRoom={setStartRoom}
         />
 
       </View>
@@ -878,7 +882,12 @@ export default function DirectionsScreen() {
               />
             )}
             {startLocation && selectedStart !== "userLocation" && (
-              <Marker coordinate={startLocation} title="Start" pinColor="green" />
+              <Marker 
+              coordinate={ startRoomCoordinates ? startRoomCoordinates : startLocation} 
+              title="Start" pinColor="green" 
+              onPress={() => handleMarkerPress(startRoomCoordinates ? startRoomCoordinates : startLocation)}
+              
+              />
             )}
 
 
@@ -936,7 +945,13 @@ export default function DirectionsScreen() {
                     floorNumber={floorNumber}
                  />
                  
-                    {destination && room == null && (<Marker coordinate={destination} title="Destination" />)}
+                    {destination && room == null && (
+                      <Marker 
+                      coordinate={destination} 
+                      title="Destination" 
+                      onPress={() => handleMarkerPress(destination)}
+                      pinColor="#912338"
+                      />)}
 
 
                     {/*  Indoor route */}
@@ -1004,6 +1019,19 @@ export default function DirectionsScreen() {
                             />)
                           }
 
+
+                          {/* Classroom as starting point */}
+                          {showPoly &&
+                          Array.isArray(startIndoorPath) && startIndoorPath?.length > 0  && floorNumber[startRoom?.building] === startRoomFloor &&
+                          (<Polyline
+                            coordinates={startIndoorPath}
+                            strokeWidth={4}
+                            strokeColor="#912338"
+                            //lineDashPattern={[7]}
+                            // key={renderTrigger ? 'line1' : 'line2'}
+                          />)
+                          }
+
                           {/* {showPoly &&
                          ( gridLines.map((line, index) => (
                               <Polyline
@@ -1054,8 +1082,9 @@ export default function DirectionsScreen() {
         customDest={customDest}
         setCustomDest={setCustomDest}
         setDestinationName={setDestinationName}
+        setRoom={setRoom}
+        setStartRoom={setStartRoom}
 
-            setRoom={setRoom}
 
       />
       {routeInfo && directions.length > 0 && (
