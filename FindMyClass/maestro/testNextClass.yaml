@@ -1,0 +1,29 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+# Tap the menu button to open navigation
+- tapOn:
+    id: "profile-button"
+- waitForAnimationToEnd  # Ensure menu is open
+
+- tapOn: "Login"
+- waitForAnimationToEnd  # Ensure login screen is loaded
+
+- tapOn: "Sign in with Google"
+
+- tapOn: "Continue"
+
+- tapOn: "MiniCap minicapsoen390@gmail.com"
+
+- waitForAnimationToEnd
+
+- scroll
+
+- tapOn: "Continue"
+
+- waitForAnimationToEnd
