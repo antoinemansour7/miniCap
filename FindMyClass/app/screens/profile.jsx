@@ -428,7 +428,7 @@ export default function Profile() {
           <Text style={styles.scheduleButtonText}>Course Schedule</Text>
         </TouchableOpacity>
       </View>
-      {/* <FloatingChatButton /> */}
+      { <FloatingChatButton />}
     </View>
   );
 }

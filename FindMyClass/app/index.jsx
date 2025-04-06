@@ -15,7 +15,7 @@ export default function MapScreen() {  // Renamed to avoid conflict
   return (
     <View style={styles.container} testID="map-container">
       <ToggleCampusMap searchText={searchText} testID="toggle-campus-map" />
-      {/* <FloatingChatButton testID="floating-chat-button" /> */}
+      { <FloatingChatButton testID="floating-chat-button" /> }
     </View>
   );
 }
