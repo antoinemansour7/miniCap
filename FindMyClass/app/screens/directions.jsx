@@ -1261,18 +1261,6 @@ export default function DirectionsScreen() {
                           }
                       
 
-
-
-                          {/* {showPoly &&
-                         ( gridLines.map((line, index) => (
-                              <Polyline
-                                key={index}
-                                coordinates={line}
-                                strokeWidth={1}
-                                strokeColor="rgba(0, 0, 255, 0.5)" // ✅ Light blue for debug
-                              />
-                            )))} */}
-
           </MapView>
           
         </View>
