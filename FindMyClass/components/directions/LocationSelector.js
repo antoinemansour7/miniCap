@@ -37,6 +37,7 @@ const LocationSelector = ({
         { label: 'My Location', value: 'userLocation' },
         { label: 'SGW Campus', value: 'SGWCampus' },
         { label: 'Loyola Campus', value: 'LoyolaCampus' },
+        {label: 'Classroom', value: 'classroom'},
         { label: customStartName == '' ? 'Custom Location' : customStartName, value: 'custom' },
     ];
 
@@ -60,7 +61,12 @@ const LocationSelector = ({
             if (item.value === 'custom') {  
                 setSearchType("START");
                 showModal();
-            } else {
+            } else if (item.value === 'classroom') {
+                setSearchType("ROOM");
+                showModal();
+            }
+            
+            else {
                 let newStartLocation;
                 switch(item.value) {
                     case 'userLocation':

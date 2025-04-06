@@ -33,6 +33,7 @@ const ModalSearchBars = ({
     setDestinationName, 
 
     setRoom,
+    setStartRoom
     
 
 }) => {
@@ -49,6 +50,7 @@ const ModalSearchBars = ({
         ...vanierBuildingRooms,
         ...ccBuildingRooms];
     const buildingsOnly = [...SGWBuildings, ...LoyolaBuildings];
+    const roomsOnly = [...hallBuildingRooms, ...jmsbBuildingRooms, ...vanierBuildingRooms, ...ccBuildingRooms];
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -66,6 +68,7 @@ const ModalSearchBars = ({
             setIsSearching(false);
         }
     };
+
     const selectBuilding = (location) => {
         if ( location.building ) {
             selectBuilding(buildingsOnly.find(b => b.id === location.building ));
@@ -90,6 +93,32 @@ const ModalSearchBars = ({
 
         }
     };
+    const searchRooms = (searchText) => {
+        setCustomDest(searchText);
+        if (searchText.trim().length > 0) {
+            const filtered = roomsOnly.filter(room => 
+                room.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                room.id.toLowerCase().includes(searchText.toLowerCase())
+            );
+            setSearchResults(filtered);
+            setIsSearching(true);
+        } else {
+            setSearchResults([]);
+            setIsSearching(false);
+        }
+    }
+    const selectRoom = (room) => {
+        setStartRoom(room);
+        setCustomStartName(room.name);
+        setCustomStartName(room.name);
+        if (room.object.location !== destination) {
+            updateRoute(room.object.location, destination);
+        }
+        setSearchResults([]);
+        setIsSearching(false);
+    }
+
+ 
 
     const parseStreetName = (description) => {
         // Matches everything before first comma or before Montreal/QC/postal code
@@ -143,7 +172,9 @@ const ModalSearchBars = ({
                     </TouchableOpacity>
                     
                     <Text style={styles.modalTitle}>
-                        {isStartSearch ? 'Search Start Location' : 'Search Destination'}
+                        {isStartSearch ? 'Search Start Location' 
+                        : searchType === 'DESTINATION' ? 'Search Destination'
+                          : 'Search Classroom'}
                     </Text>
 
                     <View style={styles.searchContainer}>
@@ -153,7 +184,9 @@ const ModalSearchBars = ({
                                 initialValue={customLocationDetails.name || customSearchText}
                                 key={`search-${customLocationDetails.name || customSearchText}`}
                             />
-                        ) : ( // custom search bar for the destination
+                        ) : searchType === 'DESTINATION' ? 
+                        
+                        ( // custom search bar for the destination
                             <View> 
                                 <SearchBar
                                     value={customDest}
@@ -163,7 +196,19 @@ const ModalSearchBars = ({
                                     onSelectItem={selectBuilding}
                                  />
                             </View>
-                        )}
+                        )  : (
+                            <View>
+                                <SearchBar
+                                    value={customDest}
+                                    onChangeText={searchRooms}
+                                    data={roomsOnly}
+                                    placeholder="Search for a classroom..."
+                                    onSelectItem={selectRoom}
+                                 />
+                            </View>
+                        )
+                    
+                    }
                     </View>
                 </View>
             </View>

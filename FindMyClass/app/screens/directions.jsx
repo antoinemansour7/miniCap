@@ -182,6 +182,7 @@ export default function DirectionsScreen() {
   // Indoor routing variables
 
   const [room, setRoom] = useState(roomParams);
+  const [ startRoom, setStartRoom] = useState(null);
   const [floorNumber, setFloorNumber] = useState(DEFAULT_FLOOR_NUMBERS);
 
   const [baseFloorStartLocation, setBaseFloorStartLocation] = useState({
@@ -333,7 +334,6 @@ export default function DirectionsScreen() {
         setFinalIndoorPath(null);
         setFinalRoomCoordinates(null);
 
-  
         setIndoorPath(screenPath);
         setRoomCoordinates(roomScreenCoords);
 
@@ -402,6 +402,7 @@ export default function DirectionsScreen() {
         setFinalIndoorPath(finalScreenPath);
         setFinalRoomCoordinates(finalRoomScreenCoords);
         setRoomFloorFinal(floor);
+
         if ( floor != 8 && floor != 9 ) {
           setTempIndoorPath(null);
           setTempRoomCoordinates(null);
@@ -734,10 +735,7 @@ export default function DirectionsScreen() {
   };
 
     const updateRoute = (start, end) => {
-      // setTempIndoorPath(null);
-      // setFinalIndoorPath(null);
-      // setFinalRoomCoordinates(null);
-      // setTempRoomCoordinates(null);
+      console.log("Update route:", start, end);
       setFloorNumber(DEFAULT_FLOOR_NUMBERS);
       if ( room ) {
         updateIndoorRoute();
@@ -850,6 +848,7 @@ export default function DirectionsScreen() {
           updateRouteWithMode={updateRouteWithMode}
           updateRoute={updateRoute}
           setRoom={setRoom}
+          setStartRoom={setStartRoom}
         />
 
       </View>
