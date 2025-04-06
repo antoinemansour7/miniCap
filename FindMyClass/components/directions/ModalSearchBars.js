@@ -34,6 +34,8 @@ const ModalSearchBars = ({
 
     setRoom,
     setStartRoom
+
+    
     
 
 }) => {
@@ -107,15 +109,25 @@ const ModalSearchBars = ({
             setIsSearching(false);
         }
     }
+    
     const selectRoom = (room) => {
+
+        console.log('selected start room:', room);
+        const newStartLocation = {
+            latitude: room.object.latitude,
+            longitude: room.object.longitude
+        }
+        console.log('new start location:', newStartLocation);
         setStartRoom(room);
         setCustomStartName(room.name);
-        setCustomStartName(room.name);
-        if (room.object.location !== destination) {
-            updateRoute(room.object.location, destination);
-        }
+        setCustomSearchText(room.name);
+        setStartLocation(newStartLocation);
+
+        updateRoute(newStartLocation, destination);
+
         setSearchResults([]);
         setIsSearching(false);
+        handleCloseModal();
     }
 
  
