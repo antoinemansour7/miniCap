@@ -122,7 +122,7 @@ export default function DirectionsScreen() {
   } else {
     try {
       parsedDestination = JSON.parse(params.destination);
-      //console.log("Params :", params);
+
     } catch (error) {
       console.error("Error parsing destination:", error);
       errorMessage = "Error: Invalid destination format.";
@@ -131,7 +131,7 @@ export default function DirectionsScreen() {
     if ( params.room ) {
       parsedRoom = JSON.parse(params.room);
       parsedRoomCoordinates = JSON.parse(params.roomCoordinates);
-      //console.log("Room coord:", parsedRoom);
+
     }
 
     if (
@@ -221,10 +221,10 @@ export default function DirectionsScreen() {
   const [startTempIndoorPath, setStartTempIndoorPath] = useState(null);
 
   const [startRoomFloor, setStartRoomFloor] = useState(2);
-  const [startRoomFloorFinal, setStartRoomFloorFinal] = useState(1);
-  const [sameBuilding, setSameBuilding] = useState(false);
+
+
   const [customStartRoomName, setCustomStartRoomName] = useState("");
-  const [customStartRoom, setCustomStartRoom] = useState("");
+
 
 
   const resetRoom = () => {
@@ -267,7 +267,7 @@ export default function DirectionsScreen() {
     setTimeout(() => {
         setRenderTrigger(prev => !prev);
     }, 100);
-    console.log("Render trigger changed:", renderTrigger);
+
   }, [hallBuildingFocused, jmsbBuildingFocused, vanierBuildingFocused, ccBuildingFocused]);
 
   useEffect(() => {
@@ -280,12 +280,10 @@ export default function DirectionsScreen() {
   }, [renderTrigger]);
 
   useEffect(() => {
-    console.log("startIndoorPath path useEffect:", startIndoorPath);
+
     updateIndoorRoute();
   },[startRoom,room]);
-  useEffect(() => {
-    console.log("showPoly path useEffect:", showPoly);
-  },[showPoly]);
+
 
 
    const getStartLocation = (startGetter, floor) => {
@@ -458,7 +456,7 @@ export default function DirectionsScreen() {
             ...prev,
             [startRoom.building]: floor
           }));
-          // setFloorNumber[startRoom.building](floor);
+
         setStartTempRoomCoordinates(null);
         setStartFinalIndoorPath(null);
         setStartFinalRoomCoordinates(null);
@@ -468,7 +466,7 @@ export default function DirectionsScreen() {
           setStartRoomFloor(floor);
           setRoomFloorFinal(1);
           const baseStairs = stairsGetter[startRoom.building](floor)[0];
-          // console.log("Base stairs:", baseStairs);
+
           const grid = buildingGrid[floor];
           const { locationItem, coords: endCoords } = getStartLocation(
             startLocationGetters[startRoom.building],
