@@ -33,7 +33,10 @@ const ModalSearchBars = ({
     setDestinationName, 
 
     setRoom,
-    setStartRoom
+    setStartRoom,
+    
+    setCustomStartRoomName,
+    customStartRoomName
 
     
     
@@ -96,7 +99,7 @@ const ModalSearchBars = ({
         }
     };
     const searchRooms = (searchText) => {
-        setCustomDest(searchText);
+        setCustomStartRoomName(searchText);
         if (searchText.trim().length > 0) {
             const filtered = roomsOnly.filter(room => 
                 room.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -119,7 +122,7 @@ const ModalSearchBars = ({
         }
         console.log('new start location:', newStartLocation);
         setStartRoom(room);
-        setCustomStartName(room.name);
+        setCustomStartRoomName(room.name);
         setCustomSearchText(room.name);
         setStartLocation(newStartLocation);
 
@@ -211,7 +214,7 @@ const ModalSearchBars = ({
                         )  : (
                             <View>
                                 <SearchBar
-                                    value={customDest}
+                                    value={customStartRoomName}
                                     onChangeText={searchRooms}
                                     data={roomsOnly}
                                     placeholder="Search for a classroom..."
