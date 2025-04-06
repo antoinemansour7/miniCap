@@ -52,7 +52,7 @@ const FloorPlans = ({
         <>
              {hallBuilding && hallBounds && hallFloorPlans[floorNumber['H']] &&   (
                       <View 
-                        //style={{opacity: zoomLevel <= 18 ? 0.5 : 1 }}
+
                       >
             
                         <Overlay 
@@ -67,7 +67,7 @@ const FloorPlans = ({
             
                       {jmsbBuilding && jmsbBounds && jmsbFloorPlans[floorNumber['MB']] &&  (
                       <View 
-                        //style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+
                       >
             
                         <Overlay 
@@ -82,7 +82,7 @@ const FloorPlans = ({
             
                       {vanierBuilding &&  vanierBounds && vanierFloorPlans[floorNumber['VL']] &&  (
                         <View
-                         // style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+
                         >
             
                           <Overlay
@@ -98,7 +98,7 @@ const FloorPlans = ({
             
                       {ccBuilding && ccBounds && ccFloorPlan &&  (
                         <View
-                          //style={{opacity: zoomLevel <= 17.3 ? 0.5 : 1 }}
+
                             >
                           <Overlay
                             bounds={[
