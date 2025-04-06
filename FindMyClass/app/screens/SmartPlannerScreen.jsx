@@ -38,9 +38,8 @@ const SmartPlannerScreen = ({ navigation }) => {
   const mapRef = useRef(null);
   
   // State management
-  const [tasks, setTasks] = useState([
-    { id: '1', description: '', completed: false }
-  ]);
+  const [tasks, setTasks] = useState([]);
+
   const [currentTask, setCurrentTask] = useState('');
   const [loading, setLoading] = useState(false);
   const [campus, setCampus] = useState('SGW'); // Default to SGW campus
@@ -337,7 +336,7 @@ useEffect(() => {
         placeholder="Enter task (e.g., borrow book from library)"
         placeholderTextColor="#999"
       />
-      <TouchableOpacity onPress={() => removeTask(item.id)} style={styles.removeButton}>
+      <TouchableOpacity onPress={() => removeTask(item.id)} style={styles.removeButton} testID={`remove-task-${item.id}`}>
         <Ionicons name="trash-outline" size={22} color="#FF6B6B" />
       </TouchableOpacity>
     </Animated.View>
@@ -541,6 +540,7 @@ useEffect(() => {
               {/* Segment indicator */}
               <TouchableOpacity
                 onPress={() => selectSegment(index)}
+                testID={`segment-button-${index}`}
                 style={[
                   styles.segmentIndicator,
                   activeSegment === index && styles.activeSegmentIndicator
@@ -768,7 +768,7 @@ useEffect(() => {
                   placeholder="Add a new task..."
                   placeholderTextColor="#999"
                 />
-                <TouchableOpacity onPress={addTask} style={styles.addButton}>
+                <TouchableOpacity onPress={addTask} style={styles.addButton} testID="add-task-button">
                   <LinearGradient
                     colors={['#912338', '#7a1e30']}
                     style={styles.addButtonGradient}
