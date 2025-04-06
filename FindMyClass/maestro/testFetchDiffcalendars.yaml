@@ -1,4 +1,6 @@
-appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+# Maestro YAML File for FindMyClass
+# Ensure that the appId below matches your bundle ID in app.json
+appId: com.findmyclass.app
 
 ---
 - launchApp:
@@ -27,3 +29,33 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 - tapOn: "Continue"
 
 - waitForAnimationToEnd
+
+- tapOn: "Course Schedule"
+
+- tapOn: "Sync Calendar"
+
+- tapOn:
+    point: "50%,50%"
+
+- tapOn:
+    point: "50%,56%"
+
+- tapOn:
+    point: "53%,53%"
+
+- assertVisible:
+    id: "card:com.findmyclass.app:sceneID:com.findmyclass.app-default"
+
+- tapOn:
+    point: "50%,56%"
+
+- tapOn: "Sync Calendar"
+
+- tapOn:
+    point: "48%,56%"
+
+- tapOn:
+    point: "54%,33%"
+
+- assertVisible:
+    id: "card:com.findmyclass.app:sceneID:com.findmyclass.app-default"
