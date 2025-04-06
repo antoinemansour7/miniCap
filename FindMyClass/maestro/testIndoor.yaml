@@ -20,6 +20,11 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 
 - tapOn: "H-030-1"
 
+
+- tapOn:
+    id: "balloon_shadow"
+    index: 0
+
 - tapOn: "Directions"
 
 - tapOn:
@@ -28,7 +33,12 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 - tapOn:
    point: 37%,36%
 
+- tapOn:
+    id: "search-input"
+
 - inputText: "H-131"
+
+- tapOn: "H-131 (H-131)"
 
 - assertVisible:
     id: "balloon_shadow"
