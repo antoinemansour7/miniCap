@@ -30,6 +30,7 @@ const LocationSelector = ({
     updateRoute,
     style, 
     setRoom,
+    
 }) => {
 
     const router = useRouter();
