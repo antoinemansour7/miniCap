@@ -27,7 +27,7 @@ const fetchGoogleCalendars = async () => {
       return [];
     }
 
-    console.log("Retrieved Calendars:", data.items);
+    
     return data.items || [];
   } catch (error) {
     console.error("Error fetching Google Calendars:", error);
