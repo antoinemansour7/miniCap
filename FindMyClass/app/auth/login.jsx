@@ -35,7 +35,7 @@ export default function Login() {
   };
 
   // Setup Google auth request
-  const [request, response, promptAsync] = Google.useAuthRequest({
+  const [response, promptAsync] = Google.useAuthRequest({
     iosClientId: '625867070738-vdkl0rjh31rgdjbcrkdk1f7t26rvgule.apps.googleusercontent.com', // Replace with your iOS client ID
     webClientId: 'YOUR_WEB_CLIENT_ID', // Replace with your web client ID
     scopes: [
