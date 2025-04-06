@@ -208,6 +208,7 @@ export default function DirectionsScreen() {
   const tempRoomFloor = 2;
   const [roomFloorStart, setRoomFloorStart] = useState(1);
   const [roomFloorFinal,  setRoomFloorFinal] = useState(1)
+  const [roomFloorFinal2,  setRoomFloorFinal2] = useState(1)
   
   // Classroom as starting point
   const [startRoom, setStartRoom] = useState(null);
@@ -220,7 +221,7 @@ export default function DirectionsScreen() {
   const [startTempIndoorPath, setStartTempIndoorPath] = useState(null);
 
   const [startRoomFloor, setStartRoomFloor] = useState(2);
-  const startRoomFloorFinal = 1;
+  const [startRoomFloorFinal, setStartRoomFloorFinal] = useState(1);
   const [sameBuilding, setSameBuilding] = useState(false);
   const [customStartRoomName, setCustomStartRoomName] = useState("");
   const [customStartRoom, setCustomStartRoom] = useState("");
@@ -332,7 +333,7 @@ export default function DirectionsScreen() {
     if (finalIndoorPath != null) {
       if (room.building === "MB") {
 
-        return  `Go to the S${roomFloorFinal} floor`
+        return  `Go to the S${roomFloorFinal2} floor`
       }
       return  `Go to the ${roomFloorFinal}th floor`
     }
@@ -375,6 +376,8 @@ export default function DirectionsScreen() {
         setFinalIndoorPath(null);
         setFinalRoomCoordinates(null);
         setTempIndoorPath(null);
+        setStartFinalIndoorPath(null);
+        setStartFinalRoomCoordinates(null);
 
       }
       else {
@@ -425,7 +428,7 @@ export default function DirectionsScreen() {
           setTempIndoorPath(null);
           setTempRoomCoordinates(null);
           
-  
+   
       }
   }
     else if (startRoom !== null) {
@@ -436,6 +439,7 @@ export default function DirectionsScreen() {
 
         if (floor === 1 ) {
           setStartRoomFloor(1);
+          
           const grid = buildingGrid[floor];
           const { locationItem, coords: endCoords } = getStartLocation(
             startLocationGetters[startRoom.building],
@@ -450,6 +454,10 @@ export default function DirectionsScreen() {
 
           setStartIndoorPath(screenPath);
           setStartRoomCoordinates(roomScreenCoords);
+          setFloorNumber(prev => ({
+            ...prev,
+            [startRoom.building]: floor
+          }));
           // setFloorNumber[startRoom.building](floor);
         setStartTempRoomCoordinates(null);
         setStartFinalIndoorPath(null);
@@ -458,6 +466,7 @@ export default function DirectionsScreen() {
         }
         else {
           setStartRoomFloor(floor);
+          setRoomFloorFinal(1);
           const baseStairs = stairsGetter[startRoom.building](floor)[0];
           // console.log("Base stairs:", baseStairs);
           const grid = buildingGrid[floor];
@@ -500,7 +509,7 @@ export default function DirectionsScreen() {
         const finalPath = findPath(finalStartCoords, finalEndCoords, finalWalkable);
         const finalFlippedGrid = gridTransformer(finalGrid);
         const finalScreenPath = convertPathToScreenCoordinates(finalPath, finalFlippedGrid);
-        const finalRoomScreenCoords = getClassCoordinates(finalFlippedGrid, stairs.location.x, stairs.location.y);
+        const finalRoomScreenCoords = getClassCoordinates(finalFlippedGrid, finalEndCoords.xcoord, finalEndCoords.ycoord);
 
 
         setStartFinalIndoorPath(finalScreenPath);
@@ -608,7 +617,7 @@ export default function DirectionsScreen() {
 
         setFinalIndoorPath(finalScreenPath);
         setFinalRoomCoordinates(finalRoomScreenCoords);
-        setRoomFloorFinal(floor);
+        setRoomFloorFinal2(floor);
 
         if ( floor != 8 && floor != 9 ) {
           setTempIndoorPath(null);
@@ -1159,7 +1168,7 @@ export default function DirectionsScreen() {
                           }
 
                         { showPoly &&
-                        Array.isArray(finalIndoorPath) && finalIndoorPath?.length > 0 && floorNumber[room?.building] === roomFloorFinal &&
+                        Array.isArray(finalIndoorPath) && finalIndoorPath?.length > 0 && floorNumber[room?.building] === roomFloorFinal2 &&
                           (<Polyline
                             coordinates={finalIndoorPath}
                             strokeWidth={4}
@@ -1169,7 +1178,7 @@ export default function DirectionsScreen() {
                           />)
                           }
 
-                         { finalRoomCoordinates != null && floorNumber[room?.building] === roomFloorFinal &&
+                         { finalRoomCoordinates != null && floorNumber[room?.building] === roomFloorFinal2 &&
                           (<Marker 
                             coordinate={finalRoomCoordinates}
                             title={room.name}
@@ -1211,7 +1220,7 @@ export default function DirectionsScreen() {
                           />)
                           }
                           {showPoly &&
-                          Array.isArray(startFinalIndoorPath) && startFinalIndoorPath?.length > 0  && floorNumber[startRoom?.building] === startRoomFloorFinal &&
+                          Array.isArray(startFinalIndoorPath) && startFinalIndoorPath?.length > 0  && floorNumber[startRoom?.building] === roomFloorFinal &&
                           (<Polyline
                             coordinates={startFinalIndoorPath}
                             strokeWidth={4}
@@ -1228,11 +1237,11 @@ export default function DirectionsScreen() {
                             />)
                           }
 
-                        { startFinalRoomCoordinates != null && floorNumber[startRoom?.building] === startRoomFloorFinal &&
+                        { startFinalRoomCoordinates != null && floorNumber[startRoom?.building] === roomFloorFinal &&
                           (<Marker
                             coordinate={startFinalRoomCoordinates}
-                            title={"Start"}
-                            pinColor="green"
+                            title={"Destination"}
+                            pinColor="purple"
                             onPress={() => handleMarkerPress(startFinalRoomCoordinates)}
                             />)
                           }
