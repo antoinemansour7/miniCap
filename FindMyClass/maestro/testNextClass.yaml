@@ -30,3 +30,5 @@ appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
 
 - tapOn:
     id: "menu-button"
+
+- tapOn: "Home"
