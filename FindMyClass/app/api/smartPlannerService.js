@@ -1,5 +1,6 @@
 // api/smartPlannerService.js
 import axios from 'axios';
+import {} from '../../app/secrets';
 
 // Gemini API key
 const GEMINI_API_KEY = 'AIzaSyANmR7UVeXscWsvnIWmEG7MxnUVeiOnLGw';
