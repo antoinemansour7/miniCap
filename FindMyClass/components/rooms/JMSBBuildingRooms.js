@@ -2,28 +2,55 @@ import  SGWBuildings  from "../SGWBuildings";
 import { precomputeTransformedGrid, flipHorizontally,getPolygonBounds } from "../../utils/indoorUtils";
 
  
-const floorGrid_2 = [
+const floorGridMB_1 = [
+    [0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,2,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,2,0,4,2,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,2,3,0,0,2,2,1,1,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,2,1,1,4,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,2,0,2,1,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,4,1,5,0,1,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,1,1,1,1,4,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,2,2,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,2,1,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,0,1,1,1,1,1,1,4,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,2,0,4,0,1,1,1,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,2,1,1,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,2,0,0,4,1,1,1,2,0,0,0,0],
-    [0,0,0,0,0,0,0,1,1,1,1,1,1,2,2,0,0,0,0,0],
-    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,4,1,1,1,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0],
-    [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
-    [1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,2,0,0,0],
-    [0,0,0,0,0,0,0,0,1,1,1,1,5,5,5,2,0,1,0,0],
-    [0,0,0,0,0,0,0,0,4,4,1,1,1,1,1,1,1,1,0,0],
-    [0,0,0,0,0,0,0,0,0,2,2,1,5,5,5,2,4,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,2,2,2,1,3,0,3,2,2,1,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,0],
-    [0,0,0,0,0,0,0,0,0,0,2,1,0,2,0,2,4,1,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,2,0],
-    [0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0,0],
+]
+const floorGridMB_2 = [
+    [0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,2,1,4,2,0,2,0,2,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0],
+    [0,0,1,2,0,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,2,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,0,0,2,1,2,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,4,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,0,5,0,1,1,0,4,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,1,4,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,2,2,0,0,1,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
+    [0,0,0,0,0,2,2,2,4,2,0,2,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], 
 ] 
+
+const floorGridsMB = {
+    1: floorGridMB_1,
+    2: floorGridMB_2,
+}
 
 const jmsbBuildingCorners = [
     { latitude: 45.495807318051305, longitude: -73.57892282292742 }, // North
@@ -32,10 +59,15 @@ const jmsbBuildingCorners = [
     { latitude: 45.495373239317985, longitude: -73.57816656746238 } // East
   ];
 
-const gridMapping = precomputeTransformedGrid(floorGrid_2, jmsbBuildingCorners);
+const gridMapping = precomputeTransformedGrid(floorGridMB_2, jmsbBuildingCorners);
 
 const jmsbFlippedGrid = flipHorizontally(gridMapping);  
 const jmsbBounds = getPolygonBounds(jmsbBuildingCorners);
+
+const transformFloorGridsMB = (floorGrid) => {
+    const transformedGrid = precomputeTransformedGrid(floorGrid, jmsbBuildingCorners);
+    return flipHorizontally(transformedGrid);
+}
 
 const jmsbBuilding = SGWBuildings.find(building => building.id === "MB");
 // Building configuration
@@ -135,6 +167,11 @@ const jmsbBuildingFloors = {
         stairs: [
 
             {
+                id: "MB1-stairs-5",
+                name: "MB1-Stairs 5",
+                location: { x: 11, y: 12 },
+            },
+            {
                 id: "MB1-stairs-1",
                 name: "MB1-Stairs 1",
                 location: { x: 4, y: 2 },
@@ -158,11 +195,7 @@ const jmsbBuildingFloors = {
                 location: { x: 9, y: 9 },
             },
 
-            {
-                id: "MB1-stairs-5",
-                name: "MB1-Stairs 5",
-                location: { x: 12, y: 15 },
-            },
+          
             {
                 id: "MB1-stairs-6",
                 name: "MB1-Stairs 6",
@@ -192,7 +225,7 @@ const jmsbBuildingFloors = {
 
     //Floor S2
 
-    s2:{
+    2:{
 
         startLocation: {
             id: "S2-start",
@@ -411,6 +444,16 @@ const getRoomsByFloorJSMB = (floorNumber) => {
     });
   };
   
+  // Helper function to get elevators by floor
+  const getElevatorsMB = (floorNumber) => {
+      return jmsbBuildingFloors[floorNumber]?.elevators || [];
+  };
+  
+  // Helper function to get stairs by floor
+  const getStairsMB = (floorNumber) => {
+      return jmsbBuildingFloors[floorNumber]?.stairs || [];
+  };
+
   export {
     BUILDING_CONFIG,
     jmsbFlippedGrid,
@@ -419,5 +462,10 @@ const getRoomsByFloorJSMB = (floorNumber) => {
     getAllRoomsJSMB,
     jmsbBuildingCorners,
     jmsbBounds,
+    jmsbBuilding,
+    floorGridsMB,
+    transformFloorGridsMB,
+    getElevatorsMB,
+    getStairsMB,
   };
     

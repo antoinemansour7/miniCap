@@ -11,10 +11,10 @@ const ccBuildingCorners = [
   { latitude: 45.45813615699811, longitude: -73.63971922216355 } // East
 ];
 
-const floorGrid = [
+const floorGridCC = [
   [0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,4,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,1,1,3,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,1,1,2,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,2,1,1,2,0,0,0,0,0,0,0,0],
@@ -34,10 +34,19 @@ const floorGrid = [
   [0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
 ]
 
-const gridMapping = precomputeTransformedGrid(floorGrid, ccBuildingCorners);
+const floorGridsCC = {
+  1: floorGridCC,
+}
+
+const gridMapping = precomputeTransformedGrid(floorGridCC, ccBuildingCorners);
 const gridCC = drawDebugGrid(gridMapping);
 const ccFlippedGrid = flipHorizontally(gridMapping);  
 const ccBounds = getPolygonBounds(ccBuildingCorners);
+
+const transformFloorGridsCC = (floorGrid) => {
+  const transformedGrid = precomputeTransformedGrid(floorGrid, ccBuildingCorners);
+  return flipHorizontally(transformedGrid);
+}
 
 // Building configuration
 const BUILDING_CONFIG = {
@@ -52,7 +61,7 @@ const ccBuildingFloors = {
     startLocation: {
       id: "CC-start",
       name: "1st Floor Entrance",
-      location: { x: 9, y: 18 },
+      location: { x: 6, y: 2 },
       type: "start"
     },
     rooms: [
@@ -166,12 +175,12 @@ const ccBuildingFloors = {
 
 // Helper function to get rooms by floor
 const getRoomsByFloorCC = (floorNumber) => {
-  return hallBuildingFloors[floorNumber]?.rooms || [];
+  return ccBuildingFloors[floorNumber]?.rooms || [];
 };
 
 // Helper function to get start location for a floor
 const getStartLocationCC = (floorNumber) => {
-  return hallBuildingFloors[floorNumber]?.startLocation || null;
+  return ccBuildingFloors[floorNumber]?.startLocation || null;
 };
 
 // Modified getAllRooms function to automatically add building info
@@ -188,6 +197,16 @@ const getAllRoomsCC = () => {
   });
 };
 
+// Helper function to get elevators by floor
+const getElevatorsCC = (floorNumber) => {
+  return ccBuildingFloors[floorNumber]?.elevators || [];
+};
+
+// Helper function to get stairs by floor
+const getStairsCC = (floorNumber) => {
+  return ccBuildingFloors[floorNumber]?.stairs || [];
+};
+
 export {
   BUILDING_CONFIG,
   ccBuildingFloors,
@@ -197,5 +216,9 @@ export {
   ccFlippedGrid,
   ccBounds,
   gridCC,
-
+  ccBuilding,
+  floorGridsCC,
+  transformFloorGridsCC,
+  getElevatorsCC,
+  getStairsCC
 };
