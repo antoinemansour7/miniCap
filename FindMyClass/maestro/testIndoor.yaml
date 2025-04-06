@@ -1,0 +1,35 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+- tapOn:
+    id: "menu-button"
+
+- tapOn: "Map"
+
+- tapOn:
+    id: "search-input"
+
+- inputText: "H-030-1"
+
+- waitForAnimationToEnd
+
+- tapOn: "H-030-1"
+
+- tapOn: "Directions"
+
+- tapOn:
+    point: "92%,12%"
+
+- tapOn:
+   point: 37%,36%
+
+- inputText: "H-131"
+
+- assertVisible:
+    id: "balloon_shadow"
+    index: 0
