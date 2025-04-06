@@ -62,24 +62,25 @@ const floorGridHall_2 = [
 const floorGridHall_8 = [
     [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
-    [0,0,2,2,0,2,0,2,0,1,2,0,2,0,2,0,2,1,2,0],
-    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0],
-    [0,0,2,1,4,2,2,0,2,1,2,0,1,2,4,0,1,2,2,0],
-    [0,0,0,1,0,0,0,0,2,1,0,0,1,2,0,0,1,0,0,0],
-    [0,0,2,1,0,0,0,0,2,1,1,0,2,0,0,2,1,2,0,0],
-    [0,0,0,1,2,0,0,0,0,1,1,4,0,0,0,0,1,0,0,0],
-    [0,0,2,1,0,0,0,0,0,1,1,4,0,0,0,2,1,2,0,0],
-    [0,0,0,1,0,0,0,0,0,1,1,4,0,0,0,0,1,0,0,0],
-    [0,0,2,1,0,0,0,0,0,1,1,4,0,0,0,0,1,2,0,0],
-    [0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0],
-    [0,0,2,1,0,0,0,0,0,1,1,1,1,1,1,1,1,2,0,0],
-    [0,0,0,1,0,0,0,0,0,1,0,0,0,5,4,3,1,0,0,0],
-    [0,0,2,1,0,0,0,0,0,1,0,0,0,0,0,3,1,2,0,0],
-    [0,0,0,1,0,0,4,3,0,1,0,0,3,0,0,3,1,2,0,0],
-    [0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
-    [0,0,2,1,2,2,0,2,0,1,2,0,2,0,2,0,2,1,2,0],
-    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,0],
+    [0,2,1,2,0,2,0,2,0,1,2,0,2,0,2,0,2,1,2,0],
+    [0,0,1,2,0,2,0,2,0,1,2,0,2,0,2,0,2,1,2,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2],
+    [0,2,1,1,4,2,2,2,1,1,2,0,1,2,4,0,1,2,2,0],
+    [0,2,1,1,0,0,0,2,1,1,0,0,1,0,0,2,1,2,0,0],
+    [0,0,1,1,2,0,0,2,1,1,0,4,2,0,0,0,1,0,0,0],
+    [0,2,1,1,0,0,0,0,0,1,1,4,0,0,0,2,1,2,0,0],
+    [0,0,1,1,0,0,0,0,0,1,1,4,0,0,0,0,1,0,0,0],
+    [0,2,1,1,0,0,0,0,0,1,1,4,0,0,0,0,1,2,0,0],
+    [0,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0],
+    [0,2,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,2,0,0],
+    [0,2,1,1,0,0,0,0,0,1,0,0,0,5,4,3,1,2,0,0],
+    [0,0,2,1,0,0,4,3,0,1,0,0,3,0,0,3,1,2,0,0],
+    [0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0],
+    [0,2,1,1,2,2,0,2,0,1,2,0,2,0,2,0,2,1,2,0],
+    [0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,2,0],
     [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+
 ]
 
 const floorGridHall_9 = [
@@ -324,7 +325,7 @@ const hallBuildingFloors = {
         startLocation: {
           id: "H8-start",
           name: "8th Floor Entrance",
-          location: { x: 9, y: 10 },
+          location: { x: 10, y: 10 },
           type: "start"
         },
         rooms: [
@@ -332,52 +333,52 @@ const hallBuildingFloors = {
             {
                 id: "H-801",
                 name: "H-801",
-                location: { x: 16, y: 17 },
+                location: { x: 16, y: 16 },
             },
             {
                 id: "H-803",
                 name: "H-803",
-                location: { x: 14, y: 17 },
+                location: { x: 14, y: 16 },
             },
             {
                 id: "H-805",
                 name: "H-805",
-                location: { x: 12, y: 17 },
+                location: { x: 12, y: 16},
             },
             {
                 id: "H-807",
                 name: "H-807",
-                location: { x: 10, y: 17 },
+                location: { x: 10, y: 16 },
             },
             {
                 id: "H-811",
                 name: "H-811",
-                location: { x: 7, y: 17 },
+                location: { x: 7, y: 16 },
             },
             {
                 id: "H-813",
                 name: "H-813",
-                location: { x: 5, y: 17 },
+                location: { x: 5, y: 16 },
             },
             {
                 id: "H-815",
                 name: "H-815",
-                location: { x: 4, y: 17 },
+                location: { x: 4, y: 16 },
             },
             {
                 id: "H-817",
                 name: "H-817", 
-                location: { x: 2, y: 17 },
+                location: { x: 1, y: 17 },
             },
             {
                 id: "H-819",
                 name: "H-819",  
-                location: { x: 2, y: 16 },
+                location: { x: 1, y: 15 },
             },
             {
                 id: "H-821",
                 name: "H-821",
-                location: { x: 2, y: 14 },
+                location: { x: 1, y: 13 },
             },
             {
                 id: "H-822",
@@ -388,72 +389,72 @@ const hallBuildingFloors = {
             {
                 id: "H-823",
                 name: "H-823",
-                location: { x: 2, y: 12 },
+                location: { x: 1, y: 12 },
             },
             {
                 id: "H-825",
                 name: "H-825",
-                location: { x: 2, y: 10 },  
+                location: { x: 1, y: 10 },  
             },
             {
                 id: "H-827",
                 name: "H-827",
-                location: { x: 2, y: 8 },  
+                location: { x: 1, y: 8 },  
             },
             {
                 id: "H-829",
                 name: "H-829",
-                location: { x: 2, y: 6 },  
+                location: { x: 1, y: 6 },  
             },
             {
                 id: "H-829.01",
                 name: "H-829.01",
-                location: { x: 2, y: 4 },  
+                location: { x: 1, y: 4 },  
             },
             {
                 id: "H-831",
                 name: "H-831",
-                location: { x: 2, y: 2 },
+                location: { x: 1, y: 3 },
             },
             {
                 id: "H-832.01",
                 name: "H-832.01",
-                location: { x: 5, y: 4 },
+                location: { x: 5, y: 5 },
             },
             {
                 id: "H-832.02",
                 name: "H-832.02",
-                location: { x: 6, y: 4 },
+                location: { x: 6, y: 5 },
             },
             {
                 id: "H-832.03",
                 name: "H-832.03",
-                location: { x: 8, y: 4 },
+                location: { x: 7, y: 5 },
             },
             {
                 id: "H-832.04",
                 name: "H-832.04",
-                location: { x: 8, y: 5 },
+                location: { x: 7, y: 6 },
             },
             {
                 id: "H-832.05",
                 name: "H-832.05",
-                location: { x: 8, y: 6 },
+                location: { x: 7, y: 7 },
             },
             {
                 id: "H-833",
                 name: "H-833",
-                location: { x: 3, y: 2 }, 
+                location: { x: 3, y: 3 }, 
             },
             {
                 id: "H-835",
                 name: "H-835",
-                location: { x: 5, y: 2 },
+                location: { x: 5, y: 3 },
             },
             {
                 id: "H-837",
                 name: "H-837",
-                location: { x: 7, y: 2 },
+                location: { x: 7, y: 3 },
             },
             {
                 id: "H-838",
@@ -464,53 +465,53 @@ const hallBuildingFloors = {
             {
                 id: "H-841",
                 name: "H-841",
-                location: { x: 10, y: 2 },
+                location: { x: 10, y: 3 },
             },
             {
                 id: "H-842",
                 name: "H-842",
-                location: { x: 12, y: 6 },
+                location: { x: 12, y: 7 },
             },
             {
                 id: "H-843",
                 name: "H-843",
-                location: { x: 12, y: 2 },
+                location: { x: 12, y: 3 },
             },
             {
                 id: "H-845",
                 name: "H-845",
-                location: { x: 14, y: 2 },
+                location: { x: 14, y: 3 },
             },
             {
                 id: "H-847",
                 name: "H-847",
-                location: { x: 16, y: 2 },
+                location: { x: 16, y: 3 },
             },
             {
                 id: "H-849",
                 name: "H-849",
-                location: { x: 18, y: 2 },
+                location: { x: 18, y: 3 },
     
             },
             {
                 id: "H-851.01",
                 name: "H-851.01",
-                location: { x: 17, y: 4 },
+                location: { x: 17, y: 5 },
             },
             {
                 id: "H-851.02",
                 name: "H-851.02",
-                location: { x: 18, y: 4 },
+                location: { x: 18, y: 5 },
             },
             {
                 id: "H-851.03",
                 name: "H-851.03",
-                location: { x: 18, y: 3 },
+                location: { x: 19, y: 4 },
             },
             {
                 id: "H-852",
                 name: "H-852",
-                location: { x: 15, y: 6 },
+                location: { x: 15, y: 7 },
             },
             {
                 id: "H-853",
@@ -540,27 +541,27 @@ const hallBuildingFloors = {
             {
                 id: "H-861",
                 name: "H-861",
-                location: { x: 17, y: 14 },
+                location: { x: 17, y: 13 },
             },
             {
                 id: "H-863",
                 name: "H-863",
-                location: { x: 17, y: 15 },
+                location: { x: 18, y: 15 },
             },
             {
                 id: "H-863.01",
                 name: "H-863.01",
-                location: { x: 18, y: 17 },
+                location: { x: 18, y: 16 },
             },
             {
                 id: "H-867",
                 name: "H-867",
-                location: { x: 17, y: 18 },
+                location: { x: 18, y: 17 },
             },
             {
                 id: "H-881", 
                 name: "H-881",
-                location: { x: 13, y: 4 },
+                location: { x: 13, y: 5 },
             },
            
           
@@ -569,17 +570,17 @@ const hallBuildingFloors = {
             {
                 id: "H-812",
                 name: "bathroom-male",
-                location: { x: 7, y: 15 },
+                location: { x: 7, y: 14 },
             },
             {
                 id: "H-802",
                 name: "bathroom-female",
-                location: { x: 15, y: 15 },
+                location: { x: 15, y: 14 },
             },
             {
                 id: "H-804",
                 name: "bathroom-neutral",
-                location: { x: 12, y: 15 },
+                location: { x: 12, y: 14 },
             }
     
         ],
@@ -592,7 +593,7 @@ const hallBuildingFloors = {
             {
                 id: "H-8-stairs-2",
                 name: "Stairs 2",
-                location: { x: 14, y: 4 },
+                location: { x: 14, y: 5 },
             },
             {
                 id: "H-8-stairs-3",
@@ -602,12 +603,12 @@ const hallBuildingFloors = {
             {
                 id: "H-8-stairs-4",
                 name: "Stairs 4",
-                location: { x: 6, y: 15 },
+                location: { x: 6, y: 14 },
             },
             {
                 id: "H-8-stairs-5",
                 name: "Stairs 5",
-                location: { x: 4, y: 4 },
+                location: { x: 4, y: 5 },
             },
         ],
         elevators: [
@@ -621,7 +622,7 @@ const hallBuildingFloors = {
             {
                 id: "H8-exit",
                 name: "H8 Exit",
-                location: { x: 12, y: 8 },
+                location: { x: 11, y: 8 },
             },
         ]
     
