@@ -333,7 +333,7 @@ export default function DirectionsScreen() {
 
         return  `Go to the S${roomFloorFinal2} floor`
       }
-      return  `Go to the ${roomFloorFinal}th floor`
+      return  `Go to the ${roomFloorFinal2}th floor`
     }
     return room.name;
   }
@@ -1200,7 +1200,7 @@ export default function DirectionsScreen() {
                           { tempRoomCoordinates != null && floorNumber[room?.building] === tempRoomFloor &&
                           (<Marker
                             coordinate={tempRoomCoordinates}
-                            title={`Go to the ${roomFloorFinal}th floor`}
+                            title={`Go to the ${roomFloorFinal2}th floor`}
                             pinColor="#912338"
                             onPress={() => handleMarkerPress(tempRoomCoordinates)}
                             // key={renderTrigger ? 'marker5' : 'marker6'}

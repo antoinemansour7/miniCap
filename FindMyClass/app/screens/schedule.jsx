@@ -17,6 +17,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAuth } from 'firebase/auth';
 import { googleCalendarConfig } from '../secrets';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import CustomModal from '../../components/CustomModal';
 
 const { width } = Dimensions.get('window');
@@ -100,6 +102,9 @@ const fetchEventsForCalendar = async (calendarId) => {
 
 export default function Schedule() {
   const { user } = useAuth();
+  const { darkMode } = useTheme();
+  const { t } = useLanguage();
+  
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -133,6 +138,68 @@ export default function Schedule() {
 
   // Monday–Friday labels
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+  // Theme-specific dynamic styles
+  const dynamicStyles = {
+    container: {
+      backgroundColor: darkMode ? '#121212' : '#fff',
+    },
+    headerRow: {
+      backgroundColor: darkMode ? '#333' : '#f2f2f2',
+      borderColor: darkMode ? '#444' : '#ccc',
+    },
+    headerText: {
+      color: darkMode ? '#fff' : '#333',
+    },
+    timeText: {
+      color: darkMode ? '#ccc' : '#666',
+    },
+    row: {
+      borderColor: darkMode ? '#333' : '#eee',
+    },
+    cell: {
+      borderColor: darkMode ? '#333' : '#eee',
+    },
+    timeColumn: {
+      borderColor: darkMode ? '#444' : '#ccc',
+    },
+    dayColumn: {
+      borderColor: darkMode ? '#444' : '#ccc',
+    },
+    lastSyncedText: {
+      color: darkMode ? '#bbb' : '#666',
+    },
+    modalContainer: {
+      backgroundColor: darkMode ? '#222' : '#fff',
+    },
+    modalTitle: {
+      color: darkMode ? '#fff' : '#000',
+    },
+    modalMessage: {
+      color: darkMode ? '#ddd' : '#333',
+    },
+    searchContainer: {
+      backgroundColor: darkMode ? '#222' : '#fff',
+    },
+    searchTitle: {
+      color: darkMode ? '#fff' : '#000',
+    },
+    searchInputContainer: {
+      backgroundColor: darkMode ? '#333' : '#f2f2f2',
+    },
+    searchIcon: {
+      color: darkMode ? '#bbb' : '#666',
+    },
+    searchInput: {
+      color: darkMode ? '#fff' : '#000',
+    },
+    calendarItem: {
+      borderColor: darkMode ? '#444' : '#eee',
+    },
+    calendarItemText: {
+      color: darkMode ? '#fff' : '#333',
+    },
+  };
 
   // Close search modal
   const closeSearch = () => {
@@ -182,7 +249,7 @@ export default function Schedule() {
       setModalConfig({
         visible: true,
         type: 'success',
-        title: 'Sync Complete',
+        title: t.syncComplete,
         message: 'Your calendar has been successfully synchronized.',
       });
     } catch (error) {
@@ -190,7 +257,7 @@ export default function Schedule() {
       setModalConfig({
         visible: true,
         type: 'error',
-        title: 'Sync Failed',
+        title: t.syncFailed,
         message: error.message || 'Failed to sync calendar. Please try again.',
       });
     } finally {
@@ -235,8 +302,8 @@ export default function Schedule() {
       <TouchableWithoutFeedback onPress={() => setCalendarModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback>
-            <View style={[styles.modalContainer, { maxHeight: '80%' }]}>
-              <Text style={styles.modalTitle}>Select a Calendar</Text>
+            <View style={[styles.modalContainer, dynamicStyles.modalContainer, { maxHeight: '80%' }]}>
+              <Text style={[styles.modalTitle, dynamicStyles.modalTitle]}>Select a Calendar</Text>
               <FlatList
                 data={calendars}
                 keyExtractor={(item) => item.id}
@@ -247,9 +314,9 @@ export default function Schedule() {
                       setSelectedCalendar(item);
                       setCalendarModalVisible(false);
                     }}
-                    style={styles.calendarItem}
+                    style={[styles.calendarItem, dynamicStyles.calendarItem]}
                   >
-                    <Text style={styles.calendarItemText}>{item.summary}</Text>
+                    <Text style={[styles.calendarItemText, dynamicStyles.calendarItemText]}>{item.summary}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -268,13 +335,13 @@ export default function Schedule() {
 
   // Render header for the schedule grid (Time and Days)
   const renderHeader = () => (
-    <View style={styles.headerRow}>
-      <View style={[styles.timeColumn, styles.headerCell]}>
-        <Text style={styles.headerText}>Time</Text>
+    <View style={[styles.headerRow, dynamicStyles.headerRow]}>
+      <View style={[styles.timeColumn, styles.headerCell, dynamicStyles.timeColumn]}>
+        <Text style={[styles.headerText, dynamicStyles.headerText]}>Time</Text>
       </View>
       {days.map((day) => (
-        <View key={day} style={[styles.dayColumn, styles.headerCell]}>
-          <Text style={styles.headerText}>{day}</Text>
+        <View key={day} style={[styles.dayColumn, styles.headerCell, dynamicStyles.dayColumn]}>
+          <Text style={[styles.headerText, dynamicStyles.headerText]}>{day}</Text>
         </View>
       ))}
     </View>
@@ -282,12 +349,12 @@ export default function Schedule() {
 
   // Render each time row for the grid
   const renderRow = ({ item: time }) => (
-    <View style={styles.row}>
-      <View style={styles.timeColumn}>
-        <Text style={styles.timeText}>{time}</Text>
+    <View style={[styles.row, dynamicStyles.row]}>
+      <View style={[styles.timeColumn, dynamicStyles.timeColumn]}>
+        <Text style={[styles.timeText, dynamicStyles.timeText]}>{time}</Text>
       </View>
       {days.map((day) => (
-        <View key={`${day}-${time}`} style={styles.cell} />
+        <View key={`${day}-${time}`} style={[styles.cell, dynamicStyles.cell]} />
       ))}
     </View>
   );
@@ -358,13 +425,14 @@ export default function Schedule() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, dynamicStyles.container]}>
       <CustomModal
         visible={modalConfig.visible}
         onClose={() => setModalConfig((prev) => ({ ...prev, visible: false }))}
         type={modalConfig.type}
         title={modalConfig.title}
         message={modalConfig.message}
+        darkMode={darkMode}
       />
 
       {renderCalendarModal()}
@@ -374,12 +442,12 @@ export default function Schedule() {
           {isSyncing ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text style={styles.syncButtonText}>Sync Calendar</Text>
+            <Text style={styles.syncButtonText}>{t.syncCalendar}</Text>
           )}
         </TouchableOpacity>
         {lastSynced && (
-          <Text style={styles.lastSyncedText}>
-            Last synced: {lastSynced.toLocaleTimeString()}
+          <Text style={[styles.lastSyncedText, dynamicStyles.lastSyncedText]}>
+            {t.lastSynced} {lastSynced.toLocaleTimeString()}
           </Text>
         )}
       </View>
@@ -417,19 +485,20 @@ export default function Schedule() {
         <TouchableWithoutFeedback onPress={closeSearch}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
-              <View style={styles.searchContainer}>
+              <View style={[styles.searchContainer, dynamicStyles.searchContainer]}>
                 <View style={styles.searchHeader}>
-                  <Text style={styles.searchTitle}>Add Class</Text>
+                  <Text style={[styles.searchTitle, dynamicStyles.searchTitle]}>Add Class</Text>
                   <TouchableOpacity testID="close-search-modal" onPress={closeSearch}>
-                    <MaterialIcons name="close" size={24} color="#666" />
+                    <MaterialIcons name="close" size={24} color={darkMode ? "#bbb" : "#666"} />
                   </TouchableOpacity>
                 </View>
-                <View style={styles.searchInputContainer}>
-                  <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
+                <View style={[styles.searchInputContainer, dynamicStyles.searchInputContainer]}>
+                  <MaterialIcons name="search" size={20} color={darkMode ? "#bbb" : "#666"} style={styles.searchIcon} />
                   <TextInput
                     testID="search-input"
-                    style={styles.searchInput}
+                    style={[styles.searchInput, dynamicStyles.searchInput]}
                     placeholder="Search for a class..."
+                    placeholderTextColor={darkMode ? "#777" : "#999"}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     autoFocus
@@ -453,18 +522,18 @@ export default function Schedule() {
         <TouchableWithoutFeedback onPress={() => setEventModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
-              <View style={styles.modalContainer}>
+              <View style={[styles.modalContainer, dynamicStyles.modalContainer]}>
                 {selectedEvent && (
                   <>
-                    <Text style={styles.modalTitle}>{selectedEvent.summary}</Text>
-                    <Text style={styles.modalMessage}>
+                    <Text style={[styles.modalTitle, dynamicStyles.modalTitle]}>{selectedEvent.summary}</Text>
+                    <Text style={[styles.modalMessage, dynamicStyles.modalMessage]}>
                       Start: {new Date(selectedEvent.start.dateTime || selectedEvent.start.date).toLocaleString()}
                     </Text>
-                    <Text style={styles.modalMessage}>
+                    <Text style={[styles.modalMessage, dynamicStyles.modalMessage]}>
                       End: {new Date(selectedEvent.end.dateTime || selectedEvent.end.date).toLocaleString()}
                     </Text>
                     {selectedEvent.location && (
-                      <Text style={styles.modalMessage}>
+                      <Text style={[styles.modalMessage, dynamicStyles.modalMessage]}>
                         Location: {selectedEvent.location}
                       </Text>
                     )}

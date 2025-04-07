@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'reac
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth.js';
 import { useAuth } from '../../contexts/AuthContext.js';
+import { useTheme } from '../../contexts/ThemeContext.js';
+import { useLanguage } from '../../contexts/LanguageContext.js';
 import * as Google from 'expo-auth-session/providers/google';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
@@ -16,6 +18,28 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
+  const { darkMode } = useTheme();
+  const { t, language } = useLanguage();
+
+  // Custom translations specifically for login screen
+  const loginPageText = {
+    English: {
+      title: "Login",
+      buttonText: "Login",
+      loadingText: "Logging in...",
+      googleButtonText: "Sign in with Google",
+      registerText: "Not a User? Register Now!"
+    },
+    French: {
+      title: "Connexion",
+      buttonText: "Connexion",
+      loadingText: "Connexion en cours...",
+      googleButtonText: "Se connecter avec Google",
+      registerText: "Pas encore inscrit? Créer un compte!"
+    }
+  };
+
+  const loginText = loginPageText[language];
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -36,8 +60,8 @@ export default function Login() {
 
   // Setup Google auth request
   const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: '625867070738-vdkl0rjh31rgdjbcrkdk1f7t26rvgule.apps.googleusercontent.com', // Replace with your iOS client ID
-    webClientId: 'YOUR_WEB_CLIENT_ID', // Replace with your web client ID
+    iosClientId: '625867070738-vdkl0rjh31rgdjbcrkdk1f7t26rvgule.apps.googleusercontent.com',
+    webClientId: 'YOUR_WEB_CLIENT_ID',
     scopes: [
       'openid',
       'email',
@@ -48,7 +72,6 @@ export default function Login() {
 
   // Handle Google response
   useEffect(() => {
-
     if (response?.type !== 'success') return;
 
     const { id_token, access_token } = response.params;
@@ -57,7 +80,7 @@ export default function Login() {
     const handleUserSignIn = async (userCredential) => {
       await login(userCredential.user);
       await AsyncStorage.setItem("googleAccessToken", access_token);
-      showAlert('success', `Welcome ${userCredential.user.displayName || userCredential.user.email}`);
+      showAlert('success', `${t.welcome} ${userCredential.user.displayName || userCredential.user.email}`);
       closeModalAndNavigate();
     };
 
@@ -75,7 +98,7 @@ export default function Login() {
         showAlert('error', 'Failed to sign in with Google');
       });
     
-  }, [response]);
+  }, [response, t]);
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -83,7 +106,7 @@ export default function Login() {
       const user = await loginUser(email, password);
       setIsLoading(false);
       login(user);
-      showAlert('success', `Welcome ${user.email}`);
+      showAlert('success', `${t.welcome} ${user.email}`);
       setTimeout(() => {
         setModalConfig(prev => ({ ...prev, visible: false }));
         router.push('/screens/profile');
@@ -98,45 +121,75 @@ export default function Login() {
     router.push('/auth/register');
   };
 
-  // Change this handler to start the Google sign-in flow
   const handleGoogleLogin = () => {
     promptAsync();
   };
 
+  // Define theme-dependent styles
+  const themeStyles = {
+    wrapper: {
+      backgroundColor: darkMode ? '#121212' : '#fff',
+    },
+    container: {
+      backgroundColor: darkMode ? '#1e1e1e' : '#f7f7f7',
+    },
+    title: {
+      color: darkMode ? '#f0f0f0' : '#333',
+    },
+    input: {
+      borderColor: darkMode ? '#444' : '#ccc',
+      backgroundColor: darkMode ? '#2c2c2c' : '#fff',
+      color: darkMode ? '#f0f0f0' : '#333',
+    },
+    button: {
+      backgroundColor: '#800000', // Keep primary action color consistent
+    },
+    googleButton: {
+      backgroundColor: darkMode ? '#2c2c2c' : '#fff',
+      borderColor: darkMode ? '#444' : '#dcdcdc',
+    },
+    googleButtonText: {
+      color: darkMode ? '#f0f0f0' : '#555',
+    },
+    registerLink: {
+      color: darkMode ? '#ff9999' : '#800000',
+    }
+  };
+
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
+    <View style={[styles.wrapper, themeStyles.wrapper]}>
+      <View style={[styles.container, themeStyles.container]}>
+        <Text style={[styles.title, themeStyles.title]}>{loginText.title}</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, themeStyles.input]}
           placeholder="Email"
-          placeholderTextColor="#888"
+          placeholderTextColor={darkMode ? '#888' : '#888'}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, themeStyles.input]}
           placeholder="Password"
-          placeholderTextColor="#888"
+          placeholderTextColor={darkMode ? '#888' : '#888'}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
         {/* Standard login button */}
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
+        <TouchableOpacity style={[styles.button, themeStyles.button]} onPress={handleLogin} disabled={isLoading}>
           <Text style={styles.buttonText}>
-            {isLoading ? "Logging in..." : "Log In"}
+            {isLoading ? loginText.loadingText : loginText.buttonText}
           </Text>
         </TouchableOpacity>
         {/* Google Sign-In Button */}
-        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+        <TouchableOpacity style={[styles.googleButton, themeStyles.googleButton]} onPress={handleGoogleLogin}>
           <Image source={require('../../assets/googleLogo.png')} style={styles.googleLogo} />
-          <Text style={styles.googleButtonText}>Sign in with Google</Text>
+          <Text style={[styles.googleButtonText, themeStyles.googleButtonText]}>{loginText.googleButtonText}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRegisterNavigation}>
-          <Text style={styles.registerLink}>Not a User? Register Now!</Text>
+          <Text style={[styles.registerLink, themeStyles.registerLink]}>{loginText.registerText}</Text>
         </TouchableOpacity>
       </View>
 
@@ -153,7 +206,6 @@ export default function Login() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -161,7 +213,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     maxWidth: 350,
-    backgroundColor: '#f7f7f7',
     borderRadius: 8,
     padding: 20,
     elevation: 3,
@@ -174,21 +225,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#333',
   },
   input: {
     height: 50,
-    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 4,
     paddingHorizontal: 10,
     marginBottom: 15,
     fontSize: 16,
-    color: '#333',
-    backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: '#800000',
     paddingVertical: 12,
     borderRadius: 4,
     alignItems: 'center',
@@ -202,8 +248,6 @@ const styles = StyleSheet.create({
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderColor: '#dcdcdc',
     borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -218,11 +262,9 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     fontSize: 16,
-    color: '#555',
     fontWeight: '500',
   },
   registerLink: {
-    color: '#800000',
     textAlign: 'center',
     fontSize: 16,
     marginTop: 10,
