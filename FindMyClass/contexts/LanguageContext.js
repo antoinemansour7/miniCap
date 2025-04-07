@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Base Translations for common keys (English)
 const baseTranslations = {
@@ -134,20 +135,64 @@ const translations = {
   },
 };
 
+// Storage key for language preference
+const LANGUAGE_STORAGE_KEY = '@app_language_preference';
+
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState('English');  // Default to English
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load saved language preference on initial mount
+  useEffect(() => {
+    const loadLanguagePreference = async () => {
+      try {
+        const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+        if (savedLanguage !== null) {
+          setLanguage(savedLanguage);
+        }
+      } catch (error) {
+        console.error('Failed to load language preference:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLanguagePreference();
+  }, []);
+
+  // Save language preference when it changes
+  useEffect(() => {
+    const saveLanguagePreference = async () => {
+      try {
+        await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+      } catch (error) {
+        console.error('Failed to save language preference:', error);
+      }
+    };
+
+    if (!isLoading) {
+      saveLanguagePreference();
+    }
+  }, [language, isLoading]);
 
   // Toggle between English and French
   const toggleLanguage = () => {
     setLanguage((prev) => (prev === 'English' ? 'French' : 'English'));
   };
 
+  // Set specific language
+  const setAppLanguage = (lang) => {
+    if (translations[lang]) {
+      setLanguage(lang);
+    }
+  };
+
   const t = translations[language];  // Get the current translations based on selected language
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, toggleLanguage, setAppLanguage, t, isLoading }}>
       {children}
     </LanguageContext.Provider>
   );
