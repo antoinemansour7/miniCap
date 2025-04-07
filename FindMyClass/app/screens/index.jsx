@@ -62,6 +62,7 @@ export default function Index() {
         <Card 
           iconName="settings" 
           title={t.settings}
+          onPress={() => navigation.navigate('screens/settings')}
           darkMode={darkMode}
         />
       </View>

@@ -60,6 +60,33 @@ function ThemedLayout() {
     return null;
   }
 
+  // Helper function to get screen title
+  const getScreenTitle = (routeName) => {
+    // Define screen titles for special cases
+    const screenTitles = {
+      'index': t.map,
+      'screens/index': t.home,
+      'screens/schedule': t.schedule,
+      'screens/profile': t.profile,
+      'screens/settings': t.settings,
+      'screens/SmartPlannerScreen': 'Smart Planner'
+    };
+
+    // Return title from our mapping if it exists
+    if (screenTitles[routeName]) {
+      return screenTitles[routeName];
+    }
+
+    // Try to get from translation
+    const baseName = routeName.replace('screens/', '');
+    if (t[baseName]) {
+      return t[baseName];
+    }
+
+    // Fallback - format the route name nicely
+    return baseName.charAt(0).toUpperCase() + baseName.slice(1);
+  };
+
   // Dynamic styles based on theme
   const dynamicStyles = {
     headerTitle: {
@@ -94,16 +121,11 @@ function ThemedLayout() {
               <MaterialIcons name="menu" size={30} color="#912338" />
             </TouchableOpacity>
           ),
-          headerTitle: () =>
-            route.name === 'index' ? (
-              <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>{t.map}</Text>
-            ) : route.name === 'screens/index' ? (
-              <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>{t.home}</Text>
-            ) : (
-              <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>
-                {t[route.name.replace('screens/', '')] || route.name.replace('screens/', '')}
-              </Text>
-            ),
+          headerTitle: () => (
+            <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>
+              {getScreenTitle(route.name)}
+            </Text>
+          ),
           drawerActiveBackgroundColor: '#800000',
           drawerActiveTintColor: '#fff',
           drawerInactiveTintColor: darkMode ? '#FFFFFF' : '#333333',
@@ -128,6 +150,15 @@ function ThemedLayout() {
         <Drawer.Screen
           name="screens/settings"
           options={{ drawerLabel: t.settings, title: t.settings }}
+        />
+        
+        <Drawer.Screen
+          name="screens/SmartPlannerScreen"
+          options={{ 
+            drawerLabel: "Smart Planner", 
+            title: "Smart Planner",
+            headerTitle: "Smart Planner"
+          }}
         />
 
         {/* Hidden routes below - keeping these the same */}

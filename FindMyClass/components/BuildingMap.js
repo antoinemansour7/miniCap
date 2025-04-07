@@ -886,16 +886,19 @@ export default function BuildingMap({
         </View>
       )}
       
-      {/* Recenter Button */}
-      {showRecenterButton && (
-        <TouchableOpacity 
-          style={[mapStyles.recenterButton, dynamicStyles.recenterButton]} 
-          onPress={recenterMap}
-        >
-          <Text style={mapStyles.recenterText}>📍</Text>
-        </TouchableOpacity>
-      )}
-
+     
+{/* Recenter Button */}
+{showRecenterButton && (
+  <TouchableOpacity 
+    style={[
+      mapStyles.recenterButton, 
+      { backgroundColor: "#912338" }
+    ]} 
+    onPress={recenterMap}
+  >
+    <Text style={[mapStyles.recenterText, { color: "#FFFFFF" }]}>📍</Text>
+  </TouchableOpacity>
+)}
       {/* Bottom Sheet */}
       <BottomSheet
         ref={bottomSheetRef}
