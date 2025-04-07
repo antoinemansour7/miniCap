@@ -29,6 +29,7 @@ module.exports = {
     'contexts/**/*.{js,jsx}',
     '!**/node_modules/**',
     '!**/coverage/**',
+    '!**/profile.jsx',
     '!**/jest.setup.js',
     '!**/SmartPlannerScreen.jsx',
     '!**/maestro/**',
