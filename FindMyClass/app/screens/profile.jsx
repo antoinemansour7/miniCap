@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useRouter } from 'expo-router';
+import FloatingChatButton from '../../components/FloatingChatButton';
 
 export default function Profile() {
   const { user } = useAuth();
@@ -503,7 +504,7 @@ export default function Profile() {
           <Text style={styles.scheduleButtonText}>{t.viewSchedule}</Text>
         </TouchableOpacity>
       </View>
-      {/* <FloatingChatButton /> */}
+      { <FloatingChatButton />}
     </View>
   );
 }

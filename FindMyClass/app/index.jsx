@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native'; 
 import ToggleCampusMap from '../components/ToggleCampusMap';
 import 'react-native-get-random-values'
+import FloatingChatButton from '../components/FloatingChatButton'; // Ensure this path is correct
 
 
 export default function MapScreen() {  // Renamed to avoid conflict
@@ -15,7 +16,7 @@ export default function MapScreen() {  // Renamed to avoid conflict
   return (
     <View style={styles.container} testID="map-container">
       <ToggleCampusMap searchText={searchText} testID="toggle-campus-map" />
-      {/* <FloatingChatButton testID="floating-chat-button" /> */}
+      { <FloatingChatButton testID="floating-chat-button" /> }
     </View>
   );
 }
