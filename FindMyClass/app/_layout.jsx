@@ -11,6 +11,8 @@ import { LanguageProvider, useLanguage } from '../contexts/LanguageContext';
 import ProfileButton from '../components/ProfileButton';
 import { usePathname } from 'expo-router';
 import Constants from 'expo-constants';
+import RNUxcam from 'react-native-ux-cam';
+import { uxCamKey } from './secrets';
 
 // Function component that consumes the context
 function ThemedLayout() {
@@ -23,10 +25,21 @@ function ThemedLayout() {
       console.warn('Skipping UXCam, Running in Expo Go');
       return;
     }
+
+    // Initialize UXCam only once when the app starts
+    const configuration = {
+      userAppKey: uxCamKey,
+      enableAutomaticScreenNameTagging: false,
+      enableAdvancedGestureRecognition: true,
+      enableImprovedScreenCapture: true,
+    };
+
+    RNUxcam.startWithConfiguration(configuration);
   }, []);
 
   useEffect(() => {
-    // UXCam screen tagging removed
+    // Tag the current screen name whenever route changes
+    RNUxcam.tagScreenName(pathname);
   }, [pathname]);
 
   // Detect UI Freeze
@@ -38,6 +51,11 @@ function ThemedLayout() {
       const timeSinceLastFrame = now - lastFrameTime;
 
       if (timeSinceLastFrame > 3000) {
+        RNUxcam.logEvent('AppFreezeDetected', {
+          screen: pathname,
+          freezeDuration: timeSinceLastFrame + 'ms',
+          timestamp: new Date().toISOString(),
+        });
         console.warn(' App freeze detected:', timeSinceLastFrame, 'ms');
       }
 
@@ -60,34 +78,28 @@ function ThemedLayout() {
     return null;
   }
 
-  // Helper function to get screen title
   const getScreenTitle = (routeName) => {
-    // Define screen titles for special cases
     const screenTitles = {
       'index': t.map,
       'screens/index': t.home,
       'screens/schedule': t.schedule,
       'screens/profile': t.profile,
       'screens/settings': t.settings,
-      'screens/SmartPlannerScreen': 'Smart Planner'
+      'screens/SmartPlannerScreen': 'Smart Planner',
     };
 
-    // Return title from our mapping if it exists
     if (screenTitles[routeName]) {
       return screenTitles[routeName];
     }
 
-    // Try to get from translation
     const baseName = routeName.replace('screens/', '');
     if (t[baseName]) {
       return t[baseName];
     }
 
-    // Fallback - format the route name nicely
     return baseName.charAt(0).toUpperCase() + baseName.slice(1);
   };
 
-  // Dynamic styles based on theme
   const dynamicStyles = {
     headerTitle: {
       color: darkMode ? '#FFFFFF' : '#333',
@@ -151,7 +163,6 @@ function ThemedLayout() {
           name="screens/settings"
           options={{ drawerLabel: t.settings, title: t.settings }}
         />
-        
         <Drawer.Screen
           name="screens/SmartPlannerScreen"
           options={{ 
@@ -161,7 +172,7 @@ function ThemedLayout() {
           }}
         />
 
-        {/* Hidden routes below - keeping these the same */}
+        {/* Hidden routes below */}
         <Drawer.Screen
           name="screens/directions"
           options={{
