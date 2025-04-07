@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, act, waitFor } from '@testing-library/react-native';
+import { render, act, waitFor, fireEvent } from '@testing-library/react-native';
 import DirectionsScreen from '../screens/directions';
+import { Alert } from 'react-native';
 import * as Location from 'expo-location';
 
 // Mock dependencies
@@ -14,7 +15,7 @@ jest.mock('expo-router', () => ({
 
 jest.mock('react-native-maps', () => {
   const { View } = require('react-native');
-  const MockMapView = (props) => <View testID="mapview" {...props}>{props.children}</View>;
+  const MockMapView = (props) => <View testID="map-view" {...props}>{props.children}</View>;
   MockMapView.fitToCoordinates = jest.fn();
   MockMapView.animateToRegion = jest.fn();
   MockMapView.Marker = (props) => <View testID="marker" {...props}>{props.children}</View>;
@@ -62,7 +63,6 @@ jest.mock('../../components/directions/SwipeUpModal', () => () => null);
 jest.mock('../../components/FloorPlans', () => () => null);
 jest.mock('../../components/FloorSelector', () => () => null);
 
-// Mock building data with proper grid structure
 const mockGrid = [[{ latitude: 45.497, longitude: -73.579 }], [{ latitude: 45.498, longitude: -73.580 }]];
 jest.mock('../../components/rooms/HallBuildingRooms', () => ({
   hallBuilding: { latitude: 45.497092, longitude: -73.579037 },
@@ -155,6 +155,11 @@ describe('DirectionsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
+    jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    require('expo-router').useLocalSearchParams.mockReturnValue({
+      destination: JSON.stringify({ latitude: 45.497092, longitude: -73.579037 }),
+      buildingName: 'Hall Building',
+    });
   });
 
   afterEach(() => {
@@ -162,19 +167,32 @@ describe('DirectionsScreen', () => {
     jest.useRealTimers();
   });
 
-  test('renders without crashing', () => {
+  test('renders without crashing', async () => {
     const { getByTestId } = render(<DirectionsScreen />);
-    expect(getByTestId('map-view')).toBeTruthy();
-  });
-
-  test('handles different destination parameters', async () => {
-    const { getByText, getByTestId, rerender } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
     expect(getByTestId('map-view')).toBeTruthy();
+  });
 
-    // Valid destination with room
+  test('handles missing destination', async () => {
+    require('expo-router').useLocalSearchParams.mockReturnValue({
+      buildingName: 'Hall Building',
+    });
+    const { getByText } = render(<DirectionsScreen />);
+    expect(getByText('Error: No destination provided.')).toBeTruthy();
+  });
+
+  test('handles invalid destination JSON', async () => {
+    require('expo-router').useLocalSearchParams.mockReturnValue({
+      destination: 'invalid-json',
+      buildingName: 'Hall Building',
+    });
+    const { getByText } = render(<DirectionsScreen />);
+    expect(getByText('Error: Invalid destination format.')).toBeTruthy();
+  });
+
+  test('handles destination with room', async () => {
     require('expo-router').useLocalSearchParams.mockReturnValue({
       destination: JSON.stringify({ latitude: 45.497092, longitude: -73.579037 }),
       buildingName: 'Hall Building',
@@ -182,82 +200,45 @@ describe('DirectionsScreen', () => {
       roomCoordinates: JSON.stringify({ x: 1, y: 1 }),
     });
     require('../../utils/indoorUtils').getFloorNumber.mockReturnValue('8');
-    rerender(<DirectionsScreen />);
+    const { getByTestId } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
     expect(getByTestId('map-view')).toBeTruthy();
-
-    // Missing destination
-    require('expo-router').useLocalSearchParams.mockReturnValue({
-      buildingName: 'Hall Building',
-    });
-    rerender(<DirectionsScreen />);
-    expect(getByText('Error: No destination provided.')).toBeTruthy();
-
-    // Invalid destination JSON
-    require('expo-router').useLocalSearchParams.mockReturnValue({
-      destination: 'invalid-json',
-      buildingName: 'Hall Building',
-    });
-    rerender(<DirectionsScreen />);
-    expect(getByText('Error: Invalid destination format.')).toBeTruthy();
   });
 
-  test('handles different location permissions', async () => {
-    const { getByTestId, getByText } = render(<DirectionsScreen />);
-    await act(async () => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(getByTestId('map-view')).toBeTruthy();
-
-    // Denied permission
+  test('handles location permission denied', async () => {
     Location.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'denied' });
-    const { rerender: rerenderDenied } = render(<DirectionsScreen />);
+    const { getByText } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
-    rerenderDenied(<DirectionsScreen />);
     await waitFor(() => {
       expect(getByText('Location permission denied')).toBeTruthy();
     });
+  });
 
-    // Location error
+  test('handles location error', async () => {
     Location.requestForegroundPermissionsAsync.mockRejectedValue(new Error('Location error'));
-    const { rerender: rerenderError } = render(<DirectionsScreen />);
+    const { getByText } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
-    rerenderError(<DirectionsScreen />);
     await waitFor(() => {
       expect(getByText('Location error')).toBeTruthy();
     });
   });
 
-  test('handles different fetch responses', async () => {
-    const { getByTestId, getByText, rerender } = render(<DirectionsScreen />);
-    await act(async () => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(getByTestId('map-view')).toBeTruthy();
-
-    // Fetch error
+  test('handles fetch error', async () => {
     global.fetch.mockRejectedValue(new Error('Network error'));
-    rerender(<DirectionsScreen />);
+    const { getByText } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
     expect(getByText('Network error')).toBeTruthy();
   });
 
-  test('handles different room scenarios', async () => {
-    const { getByTestId, rerender } = render(<DirectionsScreen />);
-    await act(async () => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(getByTestId('map-view')).toBeTruthy();
-
-    // First floor room
+  test('handles first floor room', async () => {
     require('expo-router').useLocalSearchParams.mockReturnValue({
       destination: JSON.stringify({ latitude: 45.497092, longitude: -73.579037 }),
       buildingName: 'Hall Building',
@@ -265,13 +246,14 @@ describe('DirectionsScreen', () => {
       roomCoordinates: JSON.stringify({ x: 1, y: 1 }),
     });
     require('../../utils/indoorUtils').getFloorNumber.mockReturnValue('1');
-    rerender(<DirectionsScreen />);
+    const { getByTestId } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
     expect(getByTestId('map-view')).toBeTruthy();
+  });
 
-    // 8th floor room
+  test('handles eighth floor room', async () => {
     require('expo-router').useLocalSearchParams.mockReturnValue({
       destination: JSON.stringify({ latitude: 45.497092, longitude: -73.579037 }),
       buildingName: 'Hall Building',
@@ -279,40 +261,33 @@ describe('DirectionsScreen', () => {
       roomCoordinates: JSON.stringify({ x: 1, y: 1 }),
     });
     require('../../utils/indoorUtils').getFloorNumber.mockReturnValue('8');
-    rerender(<DirectionsScreen />);
+    const { getByTestId } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
     expect(getByTestId('map-view')).toBeTruthy();
   });
 
-  // New tests for increased coverage
   test('handles shuttle mode between campuses', async () => {
-    const { getByText } = render(<DirectionsScreen />);
-    await act(async () => {
-      jest.advanceTimersByTime(1000);
-    });
     require('../../utils/shuttleUtils').isNearCampus
       .mockReturnValueOnce(true) // Start at Loyola
       .mockReturnValueOnce(false) // Not SGW
       .mockReturnValueOnce(false) // Not Loyola
       .mockReturnValueOnce(true); // End at SGW
-    const instance = render(<DirectionsScreen />);
+    const { getByText } = render(<DirectionsScreen />);
     await act(async () => {
-      instance.rerender(<DirectionsScreen />);
       jest.advanceTimersByTime(1000);
     });
     expect(getByText('Shuttle departing at:')).toBeTruthy();
   });
 
   test('handles shuttle mode invalid route', async () => {
-    jest.spyOn(global.Alert, 'alert').mockImplementation(() => {});
     require('../../utils/shuttleUtils').isNearCampus.mockReturnValue(false); // Neither campus
     const { getByTestId } = render(<DirectionsScreen />);
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
-    expect(global.Alert.alert).toHaveBeenCalledWith(
+    expect(Alert.alert).toHaveBeenCalledWith(
       'Shuttle Service',
       'Shuttle service is only available between Loyola and SGW campuses.',
       expect.any(Array)
@@ -365,6 +340,63 @@ describe('DirectionsScreen', () => {
               transit_details: {
                 line: { vehicle: { type: 'BUS' }, short_name: '165' },
               },
+              polyline: { points: 'abc' },
+            }],
+          }],
+        }],
+      }),
+    });
+    const { getByTestId } = render(<DirectionsScreen />);
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(getByTestId('polyline')).toBeTruthy();
+  });
+
+  test('handles marker press', async () => {
+    const { getByTestId } = render(<DirectionsScreen />);
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+    const marker = getByTestId('marker');
+    fireEvent.press(marker);
+    expect(getByTestId('map-view').props.children[0].type.fitToCoordinates).toBeDefined();
+  });
+
+  test('resets room state', async () => {
+    require('expo-router').useLocalSearchParams.mockReturnValue({
+      destination: JSON.stringify({ latitude: 45.497092, longitude: -73.579037 }),
+      buildingName: 'Hall Building',
+      room: JSON.stringify({ building: 'H', id: 'H-801', name: 'H-801', location: { x: 1, y: 1 } }),
+      roomCoordinates: JSON.stringify({ x: 1, y: 1 }),
+    });
+    const { getByTestId, rerender } = render(<DirectionsScreen />);
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+    require('expo-router').useLocalSearchParams.mockReturnValue({
+      destination: JSON.stringify({ latitude: 45.497092, longitude: -73.579037 }),
+      buildingName: 'Hall Building',
+    });
+    rerender(<DirectionsScreen />);
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(getByTestId('map-view')).toBeTruthy();
+  });
+
+  test('handles driving mode', async () => {
+    global.fetch.mockResolvedValueOnce({
+      json: () => Promise.resolve({
+        routes: [{
+          legs: [{
+            distance: { text: '2 km' },
+            duration: { text: '10 mins' },
+            steps: [{
+              html_instructions: 'Drive north',
+              distance: { text: '2 km' },
+              duration: { text: '10 mins' },
+              travel_mode: 'DRIVING',
               polyline: { points: 'abc' },
             }],
           }],
