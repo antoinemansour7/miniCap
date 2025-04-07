@@ -14,6 +14,7 @@ import {vanierBounds, vanierFlippedGrid, gridVanier } from "./rooms/VanierBuildi
 import {ccBounds, ccFlippedGrid, gridCC } from "./rooms/CCBuildingRooms";
 import { googleAPIKey } from '../app/secrets';
 import RoomMarker from './RoomMarker';
+import { isBuildingFocused } from "./locationUtils";
 
 
 
@@ -101,74 +102,11 @@ export default function BuildingMap({
     const calculatedZoom = Math.log2(360 / region.latitudeDelta);
     setZoomLevel(calculatedZoom);
     
-    // Check if we're zoomed in on the Hall Building
-    if (hallBuilding ) {
-      const hallLatLng = {
-        latitude: hallBuilding.latitude,
-        longitude: hallBuilding.longitude,
-      };
-      
-      // Calculate distance between map center and Hall Building
-      const distance = Math.sqrt(
-        Math.pow(region.latitude - hallLatLng.latitude, 2) +
-        Math.pow(region.longitude - hallLatLng.longitude, 2)
-      );
-      
-      // Determine if we're focused on Hall Building (centered and zoomed in)
-      const isHallFocused = distance < 0.0005 && calculatedZoom > 18;
-      setHallBuildingFocused(isHallFocused);
-    }
-    if (jmsbBuilding) {
-      const jmsbLatLng = {
-        latitude: jmsbBuilding.latitude,
-        longitude: jmsbBuilding.longitude,
-      };
-      
-      // Calculate distance between map center and Hall Building
-      const distance = Math.sqrt(
-        Math.pow(region.latitude - jmsbLatLng.latitude, 2) +
-        Math.pow(region.longitude - jmsbLatLng.longitude, 2)
-      );
-      
-      // Determine if we're focused on Hall Building (centered and zoomed in)
-      const isJMSBFocused = distance < 0.0006 && calculatedZoom > 18;
-      setJMSBBuildingFocused(isJMSBFocused);
-    }
-
-    if (vanierBuilding) {
-      const vanierLatLng = {
-        latitude: vanierBuilding.latitude,
-        longitude: vanierBuilding.longitude,
-      };
-      
-      // Calculate distance between map center and Hall Building
-      const distance = Math.sqrt(
-        Math.pow(region.latitude - vanierLatLng.latitude, 2) +
-        Math.pow(region.longitude - vanierLatLng.longitude, 2)
-      );
-      
-      // Determine if we're focused on Hall Building (centered and zoomed in)
-      const isVanierFocused = distance < 0.001 && calculatedZoom > 18;
-      setVanierBuildingFocused(isVanierFocused);
-    }
-
-    if (ccBuilding) {
-      const ccLatLng = {
-        latitude: ccBuilding.latitude,
-        longitude: ccBuilding.longitude,
-      };
-      
-      // Calculate distance between map center and Hall Building
-      const distance = Math.sqrt(
-        Math.pow(region.latitude - ccLatLng.latitude, 2) +
-        Math.pow(region.longitude - ccLatLng.longitude, 2)
-      );
-      
-      // Determine if we're focused on Hall Building (centered and zoomed in)
-      const isCCFocused = distance < 0.0005 && calculatedZoom > 18;
-      setCCBuildingFocused(isCCFocused);
-    }
-
+    // Use the helper to determine if each building is focused.
+    setHallBuildingFocused(isBuildingFocused(region, hallBuilding, calculatedZoom, 0.0005, 18));
+    setJMSBBuildingFocused(isBuildingFocused(region, jmsbBuilding, calculatedZoom, 0.0006, 18));
+    setVanierBuildingFocused(isBuildingFocused(region, vanierBuilding, calculatedZoom, 0.001, 18));
+    setCCBuildingFocused(isBuildingFocused(region, ccBuilding, calculatedZoom, 0.0005, 18));
   };
 
   // Search for a building and move the map to it
