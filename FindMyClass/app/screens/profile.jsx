@@ -3,10 +3,14 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Switch, Ale
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { useRouter } from 'expo-router';
 
 export default function Profile() {
   const { user } = useAuth();
+  const { darkMode } = useTheme();
+  const { t } = useLanguage();
   const router = useRouter();
   const [profilePicture, setProfilePicture] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -23,58 +27,120 @@ export default function Profile() {
     accessibilityStatus: "" // Status for accessibility needs (e.g., "visual", "mobility", "hearing")
   });
 
+  // Dynamic styles based on theme
+  const dynamicStyles = {
+    container: {
+      backgroundColor: darkMode ? '#121212' : '#e9edf0',
+    },
+    profileCard: {
+      backgroundColor: darkMode ? '#1E1E1E' : '#fff',
+    },
+    userText: {
+      color: darkMode ? '#fff' : '#333',
+    },
+    emailText: {
+      color: darkMode ? '#bbb' : '#666',
+    },
+    phoneText: {
+      color: darkMode ? '#bbb' : '#666',
+    },
+    accessibilityIndicator: {
+      backgroundColor: darkMode ? '#332222' : '#f0e6e6',
+    },
+    accessibilityOptionsLabel: {
+      color: darkMode ? '#bbb' : '#666',
+    },
+    input: {
+      backgroundColor: darkMode ? '#333' : '#f9f9f9',
+      borderColor: darkMode ? '#444' : '#ddd',
+      color: darkMode ? '#fff' : '#000',
+    },
+    switchLabel: {
+      color: darkMode ? '#fff' : '#333',
+    },
+    accessibilityTypeButton: {
+      backgroundColor: darkMode ? '#333' : '#f0f0f0',
+      borderColor: darkMode ? '#444' : '#ddd',
+    },
+    accessibilityTypeSelected: {
+      backgroundColor: darkMode ? '#331a1a' : '#f0e6e6',
+      borderColor: '#800000',
+    },
+    accessibilityTypeText: {
+      color: darkMode ? '#ddd' : '#333',
+    },
+    warning: {
+      color: darkMode ? '#ff6666' : '#a00',
+    },
+    errorBanner: {
+      backgroundColor: darkMode ? '#3a2222' : '#ffdddd',
+      borderColor: darkMode ? '#ff5c5c' : '#ff5c5c',
+    },
+    errorText: {
+      color: darkMode ? '#ff6666' : '#ff0000',
+    },
+    cancelButtonText: {
+      color: darkMode ? '#ff6666' : '#800000',
+    },
+    changeText: {
+      color: darkMode ? '#ff6666' : '#800000',
+    },
+    placeholderText: {
+      color: darkMode ? '#ff6666' : '#800000',
+    },
+  };
+
   // Check camera roll permissions early on mount.
   useEffect(() => {
     (async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMessage('Camera roll permission is required for profile picture!');
+        setErrorMessage(t.permissionError);
       }
     })();
-  }, []);
+  }, [t]);
 
+  const loadProfileData = async () => {
+    try {
+      // Load profile picture
+      const savedUri = await AsyncStorage.getItem('profile_picture');
+      if (savedUri) setProfilePicture(savedUri);
+      
+      // Load user profile data
+      const userData = await AsyncStorage.getItem('user_profile');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        setUserProfile(parsedData);
+      } else {
+        // Initialize with user data if available
+        setUserProfile({
+          fullName: user?.displayName || "",
+          email: user?.email || "",
+          phone: "",
+          password: "",
+          accessibilityEnabled: false,
+          accessibilityStatus: ""
+        });
+        
+        // Save initial profile data
+        if (user) {
+          await AsyncStorage.setItem('user_profile', JSON.stringify({
+            fullName: user.displayName || "",
+            email: user.email || "",
+            phone: "",
+            accessibilityEnabled: false,
+            accessibilityStatus: "",
+            createdAt: new Date().toISOString()
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile data:", error);
+      setErrorMessage("Failed to load profile data");
+    }
+  };
   
   useEffect(() => {
-    async function loadProfileData() {
-      try {
-        // Load profile picture
-        const savedUri = await AsyncStorage.getItem('profile_picture');
-        if (savedUri) setProfilePicture(savedUri);
-        
-        // Load user profile data
-        const userData = await AsyncStorage.getItem('user_profile');
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          setUserProfile(parsedData);
-        } else {
-          // Initialize with user data if available
-          setUserProfile({
-            fullName: user?.displayName || "",
-            email: user?.email || "",
-            phone: "",
-            password: "",
-            accessibilityEnabled: false,
-            accessibilityStatus: ""
-          });
-          
-          // Save initial profile data
-          if (user) {
-            await AsyncStorage.setItem('user_profile', JSON.stringify({
-              fullName: user.displayName || "",
-              email: user.email || "",
-              phone: "",
-              accessibilityEnabled: false,
-              accessibilityStatus: "",
-              createdAt: new Date().toISOString()
-            }));
-          }
-        }
-      } catch (error) {
-        console.error("Error loading profile data:", error);
-        setErrorMessage("Failed to load profile data");
-      }
-    }
-    
     if (user) {
       loadProfileData();
     }
@@ -83,7 +149,7 @@ export default function Profile() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      setErrorMessage('Please allow access to your photos.');
+      setErrorMessage(t.photoAccessError);
       return;
     }
     try {
@@ -104,7 +170,7 @@ export default function Profile() {
       setErrorMessage(""); // Clear any previous error after success
     } catch (error) {
       console.error("Error picking image:", error);
-      setErrorMessage("An error occurred while picking the image.");
+      setErrorMessage(t.imageError);
     }
   };
 
@@ -237,29 +303,29 @@ export default function Profile() {
 
   if (!user) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.warning}>Please log in to access your profile.</Text>
+      <View style={[styles.container, dynamicStyles.container]}>
+        <Text style={[styles.warning, dynamicStyles.warning]}>{t.pleaseLogin}</Text>
         <TouchableOpacity style={styles.button} onPress={() => router.push('/auth/login')}>
-          <Text style={styles.buttonText}>Go to Login</Text>
+          <Text style={styles.buttonText}>{t.login}</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, dynamicStyles.container]}>
       {errorMessage !== "" && (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>{errorMessage}</Text>
+        <View style={[styles.errorBanner, dynamicStyles.errorBanner]}>
+          <Text style={[styles.errorText, dynamicStyles.errorText]}>{errorMessage}</Text>
         </View>
       )}
-      <View style={styles.profileCard}>
+      <View style={[styles.profileCard, dynamicStyles.profileCard]}>
         {/* Profile Image Section */}
         <View style={styles.imageSection}>
           {user.photoURL ? (
             <>
               <Image source={{ uri: user.photoURL }} style={styles.profileImage} />
-              <Text style={styles.changeText}>Google Account Photo</Text>
+              <Text style={[styles.changeText, dynamicStyles.changeText]}>Google Account Photo</Text>
             </>
           ) : (
             <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
@@ -274,11 +340,11 @@ export default function Profile() {
                 </View>
               ) : (
                 <View style={styles.placeholder}>
-                  <Text style={styles.placeholderText}>Add Photo</Text>
+                  <Text style={[styles.placeholderText, dynamicStyles.placeholderText]}>{t.addPhoto}</Text>
                 </View>
               )}
-              <Text style={styles.changeText}>
-                {isEditing ? "Change Photo" : "Profile Photo"}
+              <Text style={[styles.changeText, dynamicStyles.changeText]}>
+                {isEditing ? t.changePhoto : "Profile Photo"}
               </Text>
             </TouchableOpacity>
           )}
@@ -287,14 +353,14 @@ export default function Profile() {
         {!isEditing ? (
           // Display mode
           <>
-            <Text style={styles.userText}>
+            <Text style={[styles.userText, dynamicStyles.userText]}>
               {userProfile.fullName || (user.displayName ? user.displayName : user.email)}
             </Text>
-            <Text style={styles.emailText}>{userProfile.email || user.email}</Text>
-            {userProfile.phone && <Text style={styles.phoneText}>{userProfile.phone}</Text>}
+            <Text style={[styles.emailText, dynamicStyles.emailText]}>{userProfile.email || user.email}</Text>
+            {userProfile.phone && <Text style={[styles.phoneText, dynamicStyles.phoneText]}>{userProfile.phone}</Text>}
             
             {userProfile.accessibilityEnabled && (
-              <View style={styles.accessibilityIndicator}>
+              <View style={[styles.accessibilityIndicator, dynamicStyles.accessibilityIndicator]}>
                 <Text style={styles.accessibilityText}>
                   <Text style={styles.wheelchairIcon}>♿</Text> Accessibility Enabled
                   {userProfile.accessibilityStatus ? ` (${userProfile.accessibilityStatus})` : ''}
@@ -311,8 +377,9 @@ export default function Profile() {
           <View style={styles.editForm}>
             <View style={styles.inputContainer}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, dynamicStyles.input]}
                 placeholder="Full Name"
+                placeholderTextColor={darkMode ? "#999" : "#aaa"}
                 value={userProfile.fullName}
                 onChangeText={(value) => handleInputChange('fullName', value)}
               />
@@ -320,8 +387,9 @@ export default function Profile() {
             
             <View style={styles.inputContainer}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, dynamicStyles.input]}
                 placeholder="E-Mail"
+                placeholderTextColor={darkMode ? "#999" : "#aaa"}
                 value={userProfile.email}
                 onChangeText={(value) => handleInputChange('email', value)}
                 keyboardType="email-address"
@@ -331,8 +399,9 @@ export default function Profile() {
             
             <View style={styles.inputContainer}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, dynamicStyles.input]}
                 placeholder="Phone No."
+                placeholderTextColor={darkMode ? "#999" : "#aaa"}
                 value={userProfile.phone}
                 onChangeText={(value) => handleInputChange('phone', value)}
                 keyboardType="phone-pad"
@@ -341,8 +410,9 @@ export default function Profile() {
             
             <View style={styles.inputContainer}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, dynamicStyles.input]}
                 placeholder="Password"
+                placeholderTextColor={darkMode ? "#999" : "#aaa"}
                 value={userProfile.password}
                 onChangeText={(value) => handleInputChange('password', value)}
                 secureTextEntry
@@ -353,7 +423,7 @@ export default function Profile() {
               <View style={styles.switchContainer}>
                 <View style={styles.accessibilityLabelContainer}>
                   <Text style={styles.wheelchairIcon}>♿</Text>
-                  <Text style={styles.switchLabel}>Accessibility</Text>
+                  <Text style={[styles.switchLabel, dynamicStyles.switchLabel]}>Accessibility</Text>
                 </View>
                 <Switch
                   value={userProfile.accessibilityEnabled}
@@ -365,36 +435,41 @@ export default function Profile() {
               
               {userProfile.accessibilityEnabled && (
                 <View style={styles.accessibilityOptions}>
-                  <Text style={styles.accessibilityOptionsLabel}>Select your accessibility needs:</Text>
+                  <Text style={[styles.accessibilityOptionsLabel, dynamicStyles.accessibilityOptionsLabel]}>
+                    Select your accessibility needs:
+                  </Text>
                   <View style={styles.accessibilityTypeContainer}>
                     <TouchableOpacity
                       style={[
                         styles.accessibilityTypeButton,
-                        userProfile.accessibilityStatus === 'mobility' && styles.accessibilityTypeSelected
+                        dynamicStyles.accessibilityTypeButton,
+                        userProfile.accessibilityStatus === 'mobility' && dynamicStyles.accessibilityTypeSelected
                       ]}
                       onPress={() => handleInputChange('accessibilityStatus', 'mobility')}
                     >
-                      <Text style={styles.accessibilityTypeText}>Mobility</Text>
+                      <Text style={[styles.accessibilityTypeText, dynamicStyles.accessibilityTypeText]}>Mobility</Text>
                     </TouchableOpacity>
                     
                     <TouchableOpacity
                       style={[
                         styles.accessibilityTypeButton,
-                        userProfile.accessibilityStatus === 'visual' && styles.accessibilityTypeSelected
+                        dynamicStyles.accessibilityTypeButton,
+                        userProfile.accessibilityStatus === 'visual' && dynamicStyles.accessibilityTypeSelected
                       ]}
                       onPress={() => handleInputChange('accessibilityStatus', 'visual')}
                     >
-                      <Text style={styles.accessibilityTypeText}>Visual</Text>
+                      <Text style={[styles.accessibilityTypeText, dynamicStyles.accessibilityTypeText]}>Visual</Text>
                     </TouchableOpacity>
                     
                     <TouchableOpacity
                       style={[
                         styles.accessibilityTypeButton,
-                        userProfile.accessibilityStatus === 'hearing' && styles.accessibilityTypeSelected
+                        dynamicStyles.accessibilityTypeButton,
+                        userProfile.accessibilityStatus === 'hearing' && dynamicStyles.accessibilityTypeSelected
                       ]}
                       onPress={() => handleInputChange('accessibilityStatus', 'hearing')}
                     >
-                      <Text style={styles.accessibilityTypeText}>Hearing</Text>
+                      <Text style={[styles.accessibilityTypeText, dynamicStyles.accessibilityTypeText]}>Hearing</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -414,7 +489,7 @@ export default function Profile() {
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.cancelButton} onPress={toggleEditMode} disabled={isSaving}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={[styles.cancelButtonText, dynamicStyles.cancelButtonText]}>Cancel</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -425,7 +500,7 @@ export default function Profile() {
           onPress={() => router.push('/screens/schedule')}
           disabled={isEditing}
         >
-          <Text style={styles.scheduleButtonText}>Course Schedule</Text>
+          <Text style={styles.scheduleButtonText}>{t.viewSchedule}</Text>
         </TouchableOpacity>
       </View>
       {/* <FloatingChatButton /> */}
