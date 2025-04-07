@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, FlatList, Modal, StyleSheet, Image } from 'react-native';
-import MapView, { Marker, Polygon, Overlay,Polyline } from 'react-native-maps';
+import MapView, { Marker, Polygon, Overlay, Polyline } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import mapStyles from './mapStyles';
@@ -14,9 +14,15 @@ import {vanierBounds, vanierFlippedGrid, gridVanier } from "./rooms/VanierBuildi
 import {ccBounds, ccFlippedGrid, gridCC } from "./rooms/CCBuildingRooms";
 import { googleAPIKey } from '../app/secrets';
 import RoomMarker from './RoomMarker';
+
 import { isBuildingFocused } from "./locationUtils";
 
 
+
+
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import * as Location from 'expo-location';
 
 
 // Define paths to floor plan images/SVGs
@@ -39,7 +45,6 @@ const vanierFloorPlans = {
 
 const ccFloorPlan = require('../floorPlans/CC.png');
  
-
 const categories = [
   { label: 'Restaurant', icon: '🍽️' },
   { label: 'Café', icon: '☕' },
@@ -57,12 +62,16 @@ export default function BuildingMap({
   recenterDeltaBuildings,
   getMarkerPosition,
 }) {
+  const { darkMode } = useTheme();
+  const { t } = useLanguage();
+  
   const mapRef = useRef(null);
   const bottomSheetRef = useRef(null);
   const debounceTimeout = useRef(null);
   const router = useRouter();
 
   const { userLocation, nearestBuilding } = useLocationHandler(buildings, getMarkerPosition);
+  const [userHeading, setUserHeading] = useState(0);
 
   const [searchText, setSearchText] = useState('');
   const [showRecenterButton, setShowRecenterButton] = useState(false);
@@ -95,6 +104,96 @@ export default function BuildingMap({
   const [clasroomCoordinates, setClassroomCoordinates] = useState(null); 
   const [room, setRoom] = useState(null);
 
+  // Theme-specific map style for dark mode
+  const mapStyle = darkMode ? [
+    {
+      "elementType": "geometry",
+      "stylers": [{ "color": "#242f3e" }]
+    },
+    {
+      "elementType": "labels.text.stroke",
+      "stylers": [{ "color": "#242f3e" }]
+    },
+    {
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#746855" }]
+    },
+    {
+      "featureType": "administrative.locality",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#d59563" }]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#d59563" }]
+    },
+    {
+      "featureType": "poi.park",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#263c3f" }]
+    },
+    {
+      "featureType": "poi.park",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#6b9a76" }]
+    },
+    {
+      "featureType": "road",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#38414e" }]
+    },
+    {
+      "featureType": "road",
+      "elementType": "geometry.stroke",
+      "stylers": [{ "color": "#212a37" }]
+    },
+    {
+      "featureType": "road",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#9ca5b3" }]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#746855" }]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "geometry.stroke",
+      "stylers": [{ "color": "#1f2835" }]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#f3d19c" }]
+    },
+    {
+      "featureType": "transit",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#2f3948" }]
+    },
+    {
+      "featureType": "transit.station",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#d59563" }]
+    },
+    {
+      "featureType": "water",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#17263c" }]
+    },
+    {
+      "featureType": "water",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#515c6d" }]
+    },
+    {
+      "featureType": "water",
+      "elementType": "labels.text.stroke",
+      "stylers": [{ "color": "#17263c" }]
+    }
+  ] : [];
   
   // Handle region change (zoom/pan)
   const onRegionChange = (region) => {
@@ -102,6 +201,7 @@ export default function BuildingMap({
     const calculatedZoom = Math.log2(360 / region.latitudeDelta);
     setZoomLevel(calculatedZoom);
     
+
     // Use the helper to determine if each building is focused.
     setHallBuildingFocused(isBuildingFocused(region, hallBuilding, calculatedZoom, 0.0005, 18));
     setJMSBBuildingFocused(isBuildingFocused(region, jmsbBuilding, calculatedZoom, 0.0006, 18));
@@ -160,7 +260,6 @@ export default function BuildingMap({
         else {
           setRoom(null);
           focusOnBuilding(building);
-
       }}
     }
   }, [searchText]);
@@ -292,11 +391,32 @@ export default function BuildingMap({
   };
 
   const renderPlaceItem = ({ item }) => (
-    <TouchableOpacity style={mapStyles.placeItemContainer} onPress={() => zoomToPlace(item)}>
+    <TouchableOpacity 
+      style={[
+        mapStyles.placeItemContainer, 
+        darkMode && { backgroundColor: '#333', borderColor: '#444' }
+      ]} 
+      onPress={() => zoomToPlace(item)}
+    >
       <View style={mapStyles.placeInfo}>
-        <Text style={mapStyles.placeName}>{item.name}</Text>
-        <Text style={mapStyles.placeVicinity}>{item.vicinity || 'No address available'}</Text>
-        <Text style={mapStyles.placeDistance}>{item.distance} km away</Text>
+        <Text style={[
+          mapStyles.placeName, 
+          darkMode && { color: '#fff' }
+        ]}>
+          {item.name}
+        </Text>
+        <Text style={[
+          mapStyles.placeVicinity,
+          darkMode && { color: '#ccc' }
+        ]}>
+          {item.vicinity || 'No address available'}
+        </Text>
+        <Text style={[
+          mapStyles.placeDistance,
+          darkMode && { color: '#bbb' }
+        ]}>
+          {item.distance} km away
+        </Text>
       </View>
       <TouchableOpacity
         style={mapStyles.directionsButton}
@@ -313,7 +433,7 @@ export default function BuildingMap({
           });
         }}
       >
-        <Text style={mapStyles.directionsButtonText}>Get Directions</Text>
+        <Text style={mapStyles.directionsButtonText}>{t.map}</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -365,11 +485,75 @@ export default function BuildingMap({
 
   const bounds = hallBuilding ? getFloorPlanBounds() : null;
 
+  // Create dynamic styles based on theme
+  const dynamicStyles = {
+    container: {
+      backgroundColor: darkMode ? '#121212' : '#FFFFFF',
+    },
+    chip: {
+      backgroundColor: darkMode ? '#333' : '#f0f0f0',
+      borderColor: darkMode ? '#444' : '#e0e0e0',
+    },
+    chipText: {
+      color: darkMode ? '#ddd' : '#333',
+    },
+    chipSelected: {
+      backgroundColor: darkMode ? '#912338' : '#912338',
+    },
+    chipTextSelected: {
+      color: '#FFFFFF',
+    },
+    recenterButton: {
+      backgroundColor: darkMode ? '#333' : '#FFF',
+      borderColor: darkMode ? '#444' : '#DDD',
+    },
+    bottomSheetContent: {
+      backgroundColor: darkMode ? '#222' : '#FFF',
+    },
+    bottomSheetHeader: {
+      color: darkMode ? '#FFF' : '#333',
+    },
+    emptyText: {
+      color: darkMode ? '#BBB' : '#666',
+    },
+    floorButton: {
+      backgroundColor: darkMode ? '#333' : '#f0f0f0',
+    },
+    floorButtonText: {
+      color: darkMode ? '#ddd' : '#555',
+    },
+    selectedFloorButton: {
+      backgroundColor: '#9B1B30',
+    },
+    selectedFloorButtonText: {
+      color: 'white',
+    },
+    modalOverlay: {
+      backgroundColor: darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)',
+    },
+    modalContainer: {
+      backgroundColor: darkMode ? '#222' : '#fff',
+    },
+    modalTitle: {
+      color: '#912338',
+    },
+    modalMessage: {
+      color: darkMode ? '#ddd' : '#333',
+    },
+    markerCapsule: {
+      backgroundColor: '#912338',
+      borderColor: darkMode ? '#333' : '#fff',
+    },
+    poiName: {
+      color: '#fff',
+    },
+  };
+
   return (
-    <View style={mapStyles.container}>
+    <View style={[mapStyles.container, dynamicStyles.container]}>
       {/* Floating SearchBar and Chips */}
       <View style={overlayStyles.floatingContainer}>
-        <SearchBar value={searchText} onChangeText={setSearchText} data={buildings} />
+        <SearchBar value={searchText} onChangeText={setSearchText} data={buildings} darkMode={darkMode} />
         <View style={overlayStyles.chipsContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {categories.map((category) => (
@@ -377,14 +561,16 @@ export default function BuildingMap({
                 key={category.label}
                 style={[
                   mapStyles.chip,
-                  selectedCategory == category.label && mapStyles.chipSelected,
+                  dynamicStyles.chip,
+                  selectedCategory == category.label && dynamicStyles.chipSelected,
                 ]}
                 onPress={() => handleCategorySelect(category.label)}
               >
                 <Text
                   style={[
                     mapStyles.chipText,
-                    selectedCategory == category.label && mapStyles.chipTextSelected,
+                    dynamicStyles.chipText,
+                    selectedCategory == category.label && dynamicStyles.chipTextSelected,
                   ]}
                 >
                   {category.icon} {category.label}
@@ -401,6 +587,7 @@ export default function BuildingMap({
         style={mapStyles.map}
         initialRegion={initialRegion}
         showsUserLocation={false}
+        customMapStyle={mapStyle}
         onRegionChangeComplete={(region) => {
           const calculatedZoom = Math.round(Math.log(360 / region.longitudeDelta) / Math.LN2);
           setZoomLevel(calculatedZoom);
@@ -469,8 +656,6 @@ export default function BuildingMap({
                 </View>
           )}
 
-          
-
         {buildings.map((building) => {
    
             return (
@@ -483,6 +668,7 @@ export default function BuildingMap({
                 zIndex={3}  
                 zoomLevel={zoomLevel}
                 focusOnBuilding={focusOnBuilding}
+                darkMode={darkMode}
               />
             );
           
@@ -530,6 +716,7 @@ export default function BuildingMap({
             position={getMarkerPosition(building)}
             nearestBuilding={nearestBuilding}
             focusOnBuilding={focusOnBuilding}
+            darkMode={darkMode}
           />
         ))}
 
@@ -542,7 +729,7 @@ export default function BuildingMap({
             }}
             onPress={() => zoomToPlace(place)}
           >
-            <View style={customMarkerStyles.markerCapsule}>
+            <View style={[customMarkerStyles.markerCapsule, dynamicStyles.markerCapsule]}>
               <Text style={customMarkerStyles.icon}>{getPlaceIcon(place.types)}</Text>
               {place.rating && (
                 <Text style={customMarkerStyles.ratingText}>
@@ -550,48 +737,40 @@ export default function BuildingMap({
                 </Text>
               )}
               {zoomLevel >= 16 && (
-                <Text style={customMarkerStyles.poiName}>
-                  {place.name.length > 20 ? `${place.name.slice(0, 20)}...` : place.name}
-                </Text>
+                <Text style={[customMarkerStyles.poiName, dynamicStyles.poiName]}>
+                    {place.name.length > 20 ? `${place.name.slice(0, 20)}...` : place.name}
+                    </Text>
               )}
             </View>
           </Marker>
         ))}
 
-            {/* { room != null &&
-            (<Marker 
-              coordinate={clasroomCoordinates}
-              title={room.name}
-              pinColor="#912338"
-              />)
-                } */}
-                {/* Room Marker */}
-
-                <RoomMarker
-                classroomCoordinates={clasroomCoordinates}
-                room={room}
-                router={router}
-                />
-
-             
+        <RoomMarker
+          classroomCoordinates={clasroomCoordinates}
+          room={room}
+          router={router}
+          darkMode={darkMode}
+        />
       </MapView>
       
       {/* Floor Selector - Only visible when zoomed in on Hall Building */}
       {hallBuildingFocused && (
-        <View style={styles.floorSelectorContainer}>
+        <View style={[styles.floorSelectorContainer, darkMode && { backgroundColor: '#333', shadowColor: '#000' }]}>
           {[1, 2, 8, 9].map((floor) => (
             <TouchableOpacity
               key={floor}
               style={[
                 styles.floorButton,
-                selectedFloor === floor && styles.selectedFloorButton,
+                dynamicStyles.floorButton,
+                selectedFloor === floor && dynamicStyles.selectedFloorButton,
               ]}
               onPress={() => setSelectedFloor(floor)}
             >
               <Text 
                 style={[
                   styles.floorButtonText,
-                  selectedFloor === floor && styles.selectedFloorButtonText
+                  dynamicStyles.floorButtonText,
+                  selectedFloor === floor && dynamicStyles.selectedFloorButtonText
                 ]}
               >
                 {floor}
@@ -602,44 +781,48 @@ export default function BuildingMap({
       )}
 
       {jmsbBuildingFocused && (
-              <View style={styles.floorSelectorContainer}>
-                {[1, 2].map((floor) => (
-                  <TouchableOpacity
-                    key={floor}
-                    style={[
-                      styles.floorButton,
-                      jmsbSelectedFloor === floor && styles.selectedFloorButton,
-                    ]}
-                    onPress={() => setJMSBSelectedFloor(floor)}
-                  >
-                    <Text 
-                      style={[
-                        styles.floorButtonText,
-                        jmsbSelectedFloor === floor && styles.selectedFloorButtonText
-                      ]}
-                    >
-                      {floor}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-      { vanierBuildingFocused && (
-        <View style={styles.floorSelectorContainer}>
+        <View style={[styles.floorSelectorContainer, darkMode && { backgroundColor: '#333', shadowColor: '#000' }]}>
           {[1, 2].map((floor) => (
             <TouchableOpacity
               key={floor}
               style={[
                 styles.floorButton,
-                vanierSelectedFloor === floor && styles.selectedFloorButton,
+                dynamicStyles.floorButton,
+                jmsbSelectedFloor === floor && dynamicStyles.selectedFloorButton,
+              ]}
+              onPress={() => setJMSBSelectedFloor(floor)}
+            >
+              <Text 
+                style={[
+                  styles.floorButtonText,
+                  dynamicStyles.floorButtonText,
+                  jmsbSelectedFloor === floor && dynamicStyles.selectedFloorButtonText
+                ]}
+              >
+                {floor}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {vanierBuildingFocused && (
+        <View style={[styles.floorSelectorContainer, darkMode && { backgroundColor: '#333', shadowColor: '#000' }]}>
+          {[1, 2].map((floor) => (
+            <TouchableOpacity
+              key={floor}
+              style={[
+                styles.floorButton,
+                dynamicStyles.floorButton,
+                vanierSelectedFloor === floor && dynamicStyles.selectedFloorButton,
               ]}
               onPress={() => setVanierSelectedFloor(floor)}
             >
               <Text 
                 style={[
                   styles.floorButtonText,
-                  vanierSelectedFloor === floor && styles.selectedFloorButtonText
+                  dynamicStyles.floorButtonText,
+                  vanierSelectedFloor === floor && dynamicStyles.selectedFloorButtonText
                 ]}
               >
                 {floor}
@@ -649,14 +832,19 @@ export default function BuildingMap({
         </View>
       )}
       
-
-      {/* Recenter Button */}
-      {showRecenterButton && (
-        <TouchableOpacity style={mapStyles.recenterButton} onPress={recenterMap}>
-          <Text style={mapStyles.recenterText}>📍</Text>
-        </TouchableOpacity>
-      )}
-
+     
+{/* Recenter Button */}
+{showRecenterButton && (
+  <TouchableOpacity 
+    style={[
+      mapStyles.recenterButton, 
+      { backgroundColor: "#912338" }
+    ]} 
+    onPress={recenterMap}
+  >
+    <Text style={[mapStyles.recenterText, { color: "#FFFFFF" }]}>📍</Text>
+  </TouchableOpacity>
+)}
       {/* Bottom Sheet */}
       <BottomSheet
         ref={bottomSheetRef}
@@ -665,29 +853,48 @@ export default function BuildingMap({
         onChange={() => {}}
         enablePanDownToClose
         handleIndicatorStyle={{ backgroundColor: '#912338' }}
+        backgroundStyle={{ backgroundColor: darkMode ? '#222' : '#fff' }}
       >
-        <BottomSheetView style={[mapStyles.bottomSheetContent, { flex: 1 }]}>
-          <Text style={mapStyles.bottomSheetHeader}>
-            {selectedCategory ? `${selectedCategory} Nearby` : 'Places Nearby'}
+        <BottomSheetView style={[mapStyles.bottomSheetContent, dynamicStyles.bottomSheetContent, { flex: 1 }]}>
+          <Text style={[mapStyles.bottomSheetHeader, dynamicStyles.bottomSheetHeader]}>
+            {selectedCategory ? `${selectedCategory} ${t.nearby || 'Nearby'}` : t.placesNearby || 'Places Nearby'}
           </Text>
           <FlatList
             data={places}
             keyExtractor={(item) => item.place_id}
             renderItem={renderPlaceItem}
             contentContainerStyle={{ paddingBottom: 80 }}
-            ListEmptyComponent={<Text style={{ padding: 16 }}>No results found.</Text>}
+            ListEmptyComponent={
+              <Text style={[{ padding: 16 }, dynamicStyles.emptyText]}>
+                {t.noResults || 'No results found.'}
+              </Text>
+            }
           />
         </BottomSheetView>
       </BottomSheet>
 
       {/* Error Modal */}
-      <Modal visible={errorVisible} transparent animationType="fade" onRequestClose={() => setErrorVisible(false)}>
-        <View style={errorStyles.overlay}>
-          <View style={errorStyles.modalContainer}>
-            <Text style={errorStyles.title}>Oops!</Text>
-            <Text style={errorStyles.message}>{errorMessage}</Text>
-            <TouchableOpacity style={errorStyles.button} onPress={() => setErrorVisible(false)}>
-              <Text style={errorStyles.buttonText}>Got it</Text>
+      <Modal 
+        visible={errorVisible} 
+        transparent 
+        animationType="fade" 
+        onRequestClose={() => setErrorVisible(false)}
+      >
+        <View style={[errorStyles.overlay, dynamicStyles.modalOverlay]}>
+          <View style={[errorStyles.modalContainer, dynamicStyles.modalContainer]}>
+            <Text style={[errorStyles.title, dynamicStyles.modalTitle]}>
+              {t.oops || 'Oops!'}
+            </Text>
+            <Text style={[errorStyles.message, dynamicStyles.modalMessage]}>
+              {errorMessage}
+            </Text>
+            <TouchableOpacity 
+              style={errorStyles.button} 
+              onPress={() => setErrorVisible(false)}
+            >
+              <Text style={errorStyles.buttonText}>
+                {t.gotIt || 'Got it'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -783,6 +990,7 @@ const customMarkerStyles = StyleSheet.create({
     maxWidth: 100,
   },
 });
+
 export const styles = StyleSheet.create({
   floorSelectorContainer: {
     position: 'absolute',
@@ -819,3 +1027,4 @@ export const styles = StyleSheet.create({
     color: 'white',
   }
 });
+                  
