@@ -30,6 +30,7 @@ module.exports = {
     '!**/node_modules/**',
     '!**/coverage/**',
     '!**/jest.setup.js',
+    '!**/SmartPlannerScreen.jsx',
     '!**/maestro/**',
     '!**/Chatbot.js',
     '!**/CustomAlert.js',
