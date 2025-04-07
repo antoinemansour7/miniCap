@@ -7,6 +7,7 @@ import polyline from "@mapbox/polyline";
 import { googleAPIKey } from "../../app/secrets";
 import LocationSelector from "../../components/directions/LocationSelector";
 import ModalSearchBars from "../../components/directions/ModalSearchBars";
+import { isBuildingFocused } from "../../components/locationUtils";
 import SwipeUpModal from "../../components/directions/SwipeUpModal";
 import { 
     isNearCampus, 
@@ -630,80 +631,34 @@ export default function DirectionsScreen() {
 
 
 
-      const onRegionChange = (region) => {
-        // Calculate zoom level based on latitudeDelta
-        const calculatedZoom = calculateZoomLevel(region);
-        setZoomLevel( calculatedZoom );
-        const minimumZoom = 17;
-        // Check if we're zoomed in on the Hall Building
-        if (hallBuilding ) {
-          const hallLatLng = {
-            latitude: hallBuilding.latitude,
-            longitude: hallBuilding.longitude,
-          };
-          
-          // Calculate distance between map center and Hall Building
-          const distance = Math.sqrt(
-            Math.pow(region.latitude - hallLatLng.latitude, 2) +
-            Math.pow(region.longitude - hallLatLng.longitude, 2)
-          );
-          
-          // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isHallFocused = distance < 0.0005 && calculatedZoom > minimumZoom;
-          setHallBuildingFocused(isHallFocused);
-        }
-        if (jmsbBuilding) {
-          const jmsbLatLng = {
-            latitude: jmsbBuilding.latitude,
-            longitude: jmsbBuilding.longitude,
-          };
-          
-          // Calculate distance between map center and Hall Building
-          const distance = Math.sqrt(
-            Math.pow(region.latitude - jmsbLatLng.latitude, 2) +
-            Math.pow(region.longitude - jmsbLatLng.longitude, 2)
-          );
-          
-          // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isJMSBFocused = distance < 0.0006 && calculatedZoom > minimumZoom;
-          setJMSBBuildingFocused(isJMSBFocused);
-        }
-    
-        if (vanierBuilding) {
-          const vanierLatLng = {
-            latitude: vanierBuilding.latitude,
-            longitude: vanierBuilding.longitude,
-          };
-          
-          // Calculate distance between map center and Hall Building
-          const distance = Math.sqrt(
-            Math.pow(region.latitude - vanierLatLng.latitude, 2) +
-            Math.pow(region.longitude - vanierLatLng.longitude, 2)
-          );
-          
-          // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isVanierFocused = distance < 0.001 && calculatedZoom > minimumZoom;
-          setVanierBuildingFocused(isVanierFocused);
-        }
-    
-        if (ccBuilding) {
-          const ccLatLng = {
-            latitude: ccBuilding.latitude,
-            longitude: ccBuilding.longitude,
-          };
-          
-          // Calculate distance between map center and Hall Building
-          const distance = Math.sqrt(
-            Math.pow(region.latitude - ccLatLng.latitude, 2) +
-            Math.pow(region.longitude - ccLatLng.longitude, 2)
-          );
-          
-          // Determine if we're focused on Hall Building (centered and zoomed in)
-          const isCCFocused = distance < 0.0005 && calculatedZoom > minimumZoom;
-          setCCBuildingFocused(isCCFocused);
-        }
-    
-      };
+    const onRegionChange = (region) => {
+    // Calculate zoom level based on latitudeDelta
+    const calculatedZoom = calculateZoomLevel(region);
+    setZoomLevel(calculatedZoom);
+    const minimumZoom = 17;
+  
+    // Set focus for each building using the helper
+    if (hallBuilding) {
+      setHallBuildingFocused(
+        isBuildingFocused(region, hallBuilding, calculatedZoom, 0.0005, minimumZoom)
+      );
+    }
+    if (jmsbBuilding) {
+      setJMSBBuildingFocused(
+        isBuildingFocused(region, jmsbBuilding, calculatedZoom, 0.0006, minimumZoom)
+      );
+    }
+    if (vanierBuilding) {
+      setVanierBuildingFocused(
+        isBuildingFocused(region, vanierBuilding, calculatedZoom, 0.001, minimumZoom)
+      );
+    }
+      if (ccBuilding) {
+      setCCBuildingFocused(
+        isBuildingFocused(region, ccBuilding, calculatedZoom, 0.0005, minimumZoom)
+        );
+      }
+    };
 
       const handleMarkerPress = (coordinate) => {
         mapRef.current?.animateToRegion({

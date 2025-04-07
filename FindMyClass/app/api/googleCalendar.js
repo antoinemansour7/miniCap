@@ -2,7 +2,8 @@ import { getAuth } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { googleCalendarConfig } from '../secrets';
 
-//This file is only called from Chatbot, since the schedule is using a refined version, this is hardcoded into schedule.js
+// This file is only called from Chatbot, since the schedule is using a refined version,
+// this is hardcoded into schedule.js
 
 const fetchGoogleCalendarEvents = async () => {
   try {
@@ -35,12 +36,11 @@ const fetchGoogleCalendarEvents = async () => {
       console.error("Google API Error:", data.error);
       return [];
     }
-
     
-    return data.items || []; // ✅ Return events list
+    return data.items || []; // Return events list
   } catch (error) {
-    
-    return [];
+    console.error("Error fetching Google Calendar events:", error);
+    throw error; // Rethrow the error after logging it
   }
 };
 
