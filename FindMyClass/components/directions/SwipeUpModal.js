@@ -16,7 +16,7 @@ const getDirectionIcon = (instruction) => {
 
 const SwipeUpModal = ({ distance, duration, directions }) => {
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ['4%' ,'15%', '50%', '74%'], []);
+  const snapPoints = useMemo(() => ['8%' ,'15%', '50%', '74%'], []);
 
   const handleSheetChanges = useCallback((index) => {
     console.log('handleSheetChanges', index);

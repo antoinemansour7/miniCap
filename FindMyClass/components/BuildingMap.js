@@ -13,6 +13,7 @@ import {jmsbBounds, jmsbFlippedGrid } from "./rooms/JMSBBuildingRooms";
 import {vanierBounds, vanierFlippedGrid, gridVanier } from "./rooms/VanierBuildingRooms";
 import {ccBounds, ccFlippedGrid, gridCC } from "./rooms/CCBuildingRooms";
 import { googleAPIKey } from '../app/secrets';
+import RoomMarker from './RoomMarker';
 
 
 
@@ -177,11 +178,12 @@ export default function BuildingMap({
       const building =  buildings.find((b) =>
         b.name?.toLowerCase().includes(searchText.toLowerCase())
       );
-      console.log("Building searched: ",building);
+      // console.log("Building searched: ",building);
       if (building){ 
         if (building.building) {
-          console.log("Room searched: ",building);
+           console.log("Room searched: ",building.building);
           setRoom(building);
+          console.log("room name: ", building.name);
           let coordinates;
           if (building.object.id === 'H') {
 
@@ -618,13 +620,20 @@ export default function BuildingMap({
           </Marker>
         ))}
 
-            { room != null &&
+            {/* { room != null &&
             (<Marker 
               coordinate={clasroomCoordinates}
               title={room.name}
               pinColor="#912338"
               />)
-                }
+                } */}
+                {/* Room Marker */}
+
+                <RoomMarker
+                classroomCoordinates={clasroomCoordinates}
+                room={room}
+                router={router}
+                />
 
              
       </MapView>
@@ -654,29 +663,29 @@ export default function BuildingMap({
         </View>
       )}
 
-{jmsbBuildingFocused && (
-        <View style={styles.floorSelectorContainer}>
-          {[1, 2].map((floor) => (
-            <TouchableOpacity
-              key={floor}
-              style={[
-                styles.floorButton,
-                jmsbSelectedFloor === floor && styles.selectedFloorButton,
-              ]}
-              onPress={() => setJMSBSelectedFloor(floor)}
-            >
-              <Text 
-                style={[
-                  styles.floorButtonText,
-                  jmsbSelectedFloor === floor && styles.selectedFloorButtonText
-                ]}
-              >
-                {floor}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+      {jmsbBuildingFocused && (
+              <View style={styles.floorSelectorContainer}>
+                {[1, 2].map((floor) => (
+                  <TouchableOpacity
+                    key={floor}
+                    style={[
+                      styles.floorButton,
+                      jmsbSelectedFloor === floor && styles.selectedFloorButton,
+                    ]}
+                    onPress={() => setJMSBSelectedFloor(floor)}
+                  >
+                    <Text 
+                      style={[
+                        styles.floorButtonText,
+                        jmsbSelectedFloor === floor && styles.selectedFloorButtonText
+                      ]}
+                    >
+                      {floor}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
       { vanierBuildingFocused && (
         <View style={styles.floorSelectorContainer}>
@@ -836,7 +845,7 @@ const customMarkerStyles = StyleSheet.create({
     maxWidth: 100,
   },
 });
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   floorSelectorContainer: {
     position: 'absolute',
     right: 20,

@@ -1,0 +1,39 @@
+appId: com.findmyclass.app  # Ensure this matches your bundle ID in app.json
+
+---
+- launchApp:
+    clearState: true   # Clears previous app state before launching
+
+- waitForAnimationToEnd  # Ensures the app is fully loaded
+
+# Tap the menu button to open navigation
+- tapOn:
+    id: "menu-button"
+- waitForAnimationToEnd  # Ensure menu is open
+
+- tapOn:
+    point: "57%,36%"
+
+
+
+- tapOn: "Add a new task..."
+
+- inputText: "Borrow a book"
+
+- tapOn:
+    id: "add-task-button"
+
+- tapOn:
+    id: "add-task-button"
+
+- tapOn: "Add a new task..."
+
+- inputText: "Buy medicine"
+
+- tapOn:
+    id: "add-task-button"
+
+- tapOn:
+    id: "add-task-button"
+
+- tapOn: " Generate Optimized Plan"

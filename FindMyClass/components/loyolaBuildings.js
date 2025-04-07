@@ -2,8 +2,8 @@ const LoyolaBuildings = [
     {
         "id": "VL",
         "name": "Vanier Library",
-        "latitude": 45.4591277,
-        "longitude": -73.6382146,
+        "latitude": 45.45906430586266,
+        "longitude": -73.63865503834643,
         "boundary": [
             { "latitude": 45.4591503, "longitude": -73.6382312 },
             { "latitude": 45.4591380, "longitude": -73.6382409 },
@@ -404,6 +404,130 @@ const LoyolaBuildings = [
     "contact": "Phone: +1 514-848-2424 ext. 3200",
     "description": "The F.C. Smith Building at Loyola Campus is home to engineering and applied sciences programs, featuring state-of-the-art laboratories and classrooms."
     },
+
+    {
+        id: 'PIZZAHUT',
+        name: 'Pizza Hut',
+        type: 'Restaurant',
+        latitude: 45.4597230,
+        longitude: -73.6401357,
+        address: '6555 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Pizza', 'Italian', 'Fast Food'],
+        description: 'Popular pizza chain offering a variety of pizzas, pasta, and wings.'
+    },
+    {
+        id: 'BANGKOK',
+        name: 'Bangkok Express',
+        type: 'Restaurant',
+        latitude: 45.4594653,
+        longitude: -73.6415876,
+        address: '7010 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Thai', 'Asian', 'Vegetarian Options'],
+        description: 'Thai restaurant offering authentic curries, noodle dishes, and traditional Thai favorites.'
+    },
+    {
+        id: 'DAGWOODS',
+        name: 'Dagwoods',
+        type: 'Restaurant',
+        latitude: 45.4585210,
+        longitude: -73.6370591,
+        address: '6910 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Sandwiches', 'Salads', 'Wraps'],
+        description: 'Montreal sandwich shop known for its made-to-order sandwiches and subs.'
+    },
+    {
+        id: 'BASHA',
+        name: 'Basha',
+        type: 'Restaurant',
+        latitude: 45.4590325,
+        longitude: -73.6379854,
+        address: '6950 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Middle Eastern', 'Mediterranean', 'Shawarma'],
+        description: 'Middle Eastern restaurant specializing in shawarma, falafel, and other Mediterranean dishes.'
+    },
+    {
+        id: 'SUBWAY',
+        name: 'Subway',
+        type: 'Restaurant',
+        latitude: 45.4599483,
+        longitude: -73.6391625,
+        address: '6485 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Sandwiches', 'Salads', 'Fast Food'],
+        description: 'Global sandwich chain offering made-to-order sandwiches, wraps, and salads.'
+    },
+
+    {
+        id: 'TIMHLOY',
+        name: 'Tim Hortons',
+        type: 'Cafe',
+        latitude: 45.4593762,
+        longitude: -73.6378421,
+        address: '6695 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Coffee', 'Donuts', 'Breakfast'],
+        description: 'Canadian coffee shop offering coffee, donuts, and quick breakfast options.'
+    },
+    {
+        id: 'STARBUCKSLOY',
+        name: 'Starbucks',
+        type: 'Cafe',
+        latitude: 45.4587523,
+        longitude: -73.6402789,
+        address: '7141 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Coffee', 'Pastries', 'Light Meals'],
+        description: 'Campus location of the popular coffee chain, offering a variety of coffee drinks and snacks.'
+    },
+    {
+        id: 'SECONDCUPLOY',
+        name: 'Second Cup',
+        type: 'Cafe',
+        latitude: 45.4596374,
+        longitude: -73.6393425,
+        address: '6275 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Coffee', 'Pastries', 'Sandwiches'],
+        description: 'Canadian coffee shop with premium coffee, teas, and light food options.'
+    },
+    {
+        id: 'THEHIVE',
+        name: 'The Hive Cafe Solidarity Cooperative',
+        type: 'Cafe',
+        latitude: 45.4584357,
+        longitude: -73.6408762,
+        address: '7141 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Coffee', 'Vegetarian', 'Organic'],
+        description: 'Student-run cafe on campus offering sustainable, vegetarian, and vegan options.'
+    },
+    {
+        id: 'CAFE540',
+        name: 'Café 540',
+        type: 'Cafe',
+        latitude: 45.4591425,
+        longitude: -73.6385647,
+        address: '7141 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Coffee', 'Snacks', 'Breakfast'],
+        description: 'Campus cafe located in the Vanier Library, offering coffee, snacks, and light meals.'
+    },
+
+
+    {
+        id: 'JEANC',
+        name: 'Jean Coutu Pharmacy',
+        type: 'Pharmacy',
+        latitude: 45.4592651,
+        longitude: -73.6368954,
+        address: '6681 Sherbrooke St W, Montreal, QC',
+        description: 'Pharmacy chain offering prescription services, health products, and a variety of convenience items.'
+    },
+
+    {
+        id: 'DEPANNEUR',
+        name: 'Dépanneur Sherbrooke',
+        type: 'Convenience Store',
+        latitude: 45.4596842,
+        longitude: -73.6383765,
+        address: '6507 Sherbrooke St W, Montreal, QC',
+        cuisineType: ['Snacks', 'Beverages', 'Convenience Items'],
+        description: 'Local corner store offering snacks, drinks, and everyday essentials near campus.'
+    }
 ];
 
 export default LoyolaBuildings;
